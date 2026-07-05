@@ -1,0 +1,17 @@
+{
+  "name": "semillas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "bun run scripts/dev.ts",
+    "dev:frontend": "bun run --cwd frontend dev",
+    "dev:backend": "PORT=8787 bun run --cwd backend start",
+    "build": "bun run --cwd frontend build && bun run --cwd backend build",
+    "check": "bun run --cwd backend lint && bun run --cwd backend test && bun run --cwd backend test:e2e && bun run build"
+  }
+}

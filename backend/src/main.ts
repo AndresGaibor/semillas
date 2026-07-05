@@ -1,8 +1,10 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import app from './index';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
-}
-bootstrap();
+const port = Number(Bun.env.PORT ?? 8787);
+
+Bun.serve({
+  fetch: app.fetch,
+  port,
+});
+
+console.log(`Semillas API escuchando en http://localhost:${port}`);

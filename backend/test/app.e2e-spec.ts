@@ -1,29 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import app from '../src/index';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe('Semillas API (e2e)', () => {
+  it('/health (GET)', async () => {
+    const respuesta = await app.request('/health');
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-
-  afterEach(async () => {
-    await app.close();
+    expect(respuesta.status).toBe(200);
+    await expect(respuesta.json()).resolves.toEqual({
+      success: true,
+      data: {
+        service: 'semillas-api',
+        status: 'ok',
+      },
+    });
   });
 });
