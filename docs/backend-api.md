@@ -67,9 +67,10 @@ GET  /health               → { ok, status, env }
 ### Catálogo
 
 ```
-GET  /catalog/age-groups    → Franjas: Semillas (5-8), Exploradores (9-12), Embajadores (13-17)
+GET  /catalog/age-groups     → Franjas: Semillas (5-8), Exploradores (9-12), Embajadores (13-17)
 GET  /catalog/activity-types → Tipos: quiz, flashcards, completar, etc.
-GET  /catalog/crecer-steps  → Pasos CRECER: Conectar, Relatar, Enseñar, Comprobar, Experimentar, Recompensar
+GET  /catalog/crecer-steps   → Pasos CRECER con colores
+GET  /catalog/bible-versions → Versiones bíblicas (TLA, RVR, NVI)
 ```
 
 ### Auth
@@ -123,6 +124,16 @@ GET  /progress/me            → Progreso del usuario (temas + actividades)
 POST /progress/events        → Enviar evento de progreso
   Body: { clientEventId, eventType, themeId?, stepId?, activityId?, ... }
   - Idempotente: si clientEventId ya existe, devuelve { duplicated: true }
+```
+
+### Admin / CMS (requiere rol admin)
+
+```
+GET  /admin/dashboard                  → Estadísticas: temas, usuarios, actividades
+POST /admin/themes                     → Crear tema en borrador
+POST /admin/themes/:id/steps           → Agregar paso CRECER con contenido por franja
+POST /admin/activities                 → Crear actividad con opciones (quiz)
+POST /admin/themes/:id/publish         → Publicar tema (borrador → publicado)
 ```
 
 ### Gamificación
