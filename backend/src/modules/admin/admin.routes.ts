@@ -7,6 +7,7 @@ import { zValidator } from "../../shared/middleware/validate.middleware";
 import {
   createActivitySchema,
   createThemeSchema,
+  updateActivitySchema,
   updateThemeSchema,
   upsertStepContentSchema
 } from "./admin.schemas";
@@ -214,6 +215,25 @@ adminRoutes.post(
   }
 );
 
+adminRoutes.get("/themes/:themeId/steps", async (c) => {
+  const db = c.get("db");
+  const themeId = c.req.param("themeId");
+
+  const { data: steps, error } = await db
+    .from("theme_step")
+    .select(`
+      *,
+      step_type:step_type_id(*),
+      contents:theme_step_content(*)
+    `)
+    .eq("theme_id", themeId)
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+
+  return c.json({ ok: true, data: steps ?? [] });
+});
+
 adminRoutes.delete("/themes/:themeId/steps/:stepTypeId", async (c) => {
   const db = c.get("db");
   const { themeId, stepTypeId } = c.req.param();
@@ -278,6 +298,56 @@ adminRoutes.post(
     }
 
     return c.json({ ok: true, data: activity }, 201);
+  }
+);
+
+adminRoutes.patch(
+  "/activities/:activityId",
+  zValidator("json", updateActivitySchema),
+  async (c) => {
+    const db = c.get("db");
+    const activityId = c.req.param("activityId");
+    const body = c.req.valid("json");
+
+    const { data: activity, error } = await db
+      .from("activity")
+      .update({
+        ...(body.title && { title: body.title }),
+        ...(body.prompt && { prompt: body.prompt }),
+        ...(body.feedback !== undefined && { feedback: body.feedback }),
+        ...(body.sortOrder && { sort_order: body.sortOrder }),
+        ...(body.xpReward && { xp_reward: body.xpReward }),
+        ...(body.difficulty && { difficulty: body.difficulty }),
+        ...(body.config && { config: body.config as Json }),
+        updated_at: new Date().toISOString()
+      } as Database["public"]["Tables"]["activity"]["Update"])
+      .eq("id", activityId)
+      .select("*")
+      .single();
+
+    if (error || !activity) throw new NotFoundError("Actividad no encontrada");
+
+    if (body.options) {
+      const { error: delError } = await db
+        .from("activity_option")
+        .delete()
+        .eq("activity_id", activityId);
+      if (delError) throw delError;
+
+      const rows = body.options.map((option) => ({
+        activity_id: activityId,
+        label: option.label,
+        text: option.text,
+        is_correct: option.isCorrect,
+        sort_order: option.sortOrder,
+        feedback: option.feedback ?? null
+      }));
+
+      const { error: insError } = await db.from("activity_option").insert(rows);
+      if (insError) throw insError;
+    }
+
+    return c.json({ ok: true, data: activity });
   }
 );
 

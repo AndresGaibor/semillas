@@ -1,0 +1,36 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer base {
+  :root {
+    --background: #f7f4ec;
+    --foreground: #123b2c;
+    --card: oklch(1 0 0);
+    --card-foreground: #123b2c;
+    --primary: #2e9e5b;
+    --primary-foreground: oklch(1 0 0);
+    --secondary: #f4b740;
+    --secondary-foreground: #123b2c;
+    --muted: oklch(0.96 0 0);
+    --muted-foreground: oklch(0.55 0 0);
+    --accent: #ee6c4d;
+    --accent-foreground: oklch(1 0 0);
+    --destructive: oklch(0.6 0.2 25);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.9 0 0);
+    --input: oklch(0.9 0 0);
+    --ring: #2e9e5b;
+    --radius: 0.75rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Nunito, Inter, system-ui, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+  }
+}

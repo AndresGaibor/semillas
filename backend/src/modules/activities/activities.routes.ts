@@ -119,9 +119,42 @@ activitiesRoutes.post(
         user_id: user.id,
         theme_id: activity.theme_id,
         status: "in_progress",
+        started_at: new Date().toISOString(),
         percent: 0,
         updated_at: new Date().toISOString()
       });
+    }
+
+    if (activity.theme_id && isCorrect) {
+      const { data: themeActivities, error: listError } = await db
+        .from("activity")
+        .select("id")
+        .eq("theme_id", activity.theme_id);
+
+      if (!listError && themeActivities && themeActivities.length > 0) {
+        const activityIds = themeActivities.map((a: { id: string }) => a.id);
+
+        const { count: completedCount } = await db
+          .from("user_activity_progress")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .in("activity_id", activityIds)
+          .eq("is_completed", true);
+
+        const total = themeActivities.length;
+        const completed = completedCount ?? 0;
+        const percent = Math.round((completed / total) * 100);
+        const status = completed >= total ? "completed" : "in_progress";
+
+        await db.from("user_theme_progress").upsert({
+          user_id: user.id,
+          theme_id: activity.theme_id,
+          status,
+          percent,
+          completed_at: status === "completed" ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString()
+        });
+      }
     }
 
     return c.json({

@@ -30,6 +30,27 @@ export const upsertStepContentSchema = z.object({
   shortInstruction: z.string().optional()
 });
 
+export const updateActivitySchema = z.object({
+  title: z.string().min(3).optional(),
+  prompt: z.string().min(3).optional(),
+  feedback: z.string().optional(),
+  sortOrder: z.number().int().min(1).optional(),
+  xpReward: z.number().int().min(0).optional(),
+  difficulty: z.enum(["easy", "normal", "hard"]).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
+  options: z
+    .array(
+      z.object({
+        label: z.string().max(5),
+        text: z.string().min(1),
+        isCorrect: z.boolean().default(false),
+        sortOrder: z.number().int().min(1),
+        feedback: z.string().optional()
+      })
+    )
+    .optional()
+});
+
 export const createActivitySchema = z.object({
   themeId: z.string().uuid(),
   stepId: z.string().uuid(),
