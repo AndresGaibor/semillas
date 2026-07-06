@@ -1,0 +1,31 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "../db/database.types";
+
+export type UserRole = "admin" | "user" | "guest" | "parent";
+
+export type AuthUser = {
+  id: string;
+  role: UserRole;
+  displayName: string;
+  email: string | null;
+};
+
+export type Env = {
+  APP_ENV: string;
+  CORS_ORIGIN: string;
+
+  SUPABASE_URL: string;
+  SUPABASE_PUBLISHABLE_KEY: string;
+  SUPABASE_SERVER_KEY: string;
+  SUPABASE_PROJECT_REF: string;
+};
+
+export type Variables = {
+  db: SupabaseClient<Database>;
+  user: AuthUser;
+};
+
+export type AppBindings = {
+  Bindings: Env;
+  Variables: Variables;
+};
