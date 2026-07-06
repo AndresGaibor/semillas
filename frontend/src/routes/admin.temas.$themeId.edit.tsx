@@ -57,41 +57,43 @@ function EditThemePage() {
         </div>
       )}
 
-      {theme && (
-        <div className="grid gap-4 max-w-2xl">
-          <div>
-            <label className="text-sm font-medium text-[#123b2c] mb-1 block">Título</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-[#123b2c] mb-1 block">Objetivo</label>
-            <textarea value={objective} onChange={(e) => setObjective(e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-[#123b2c] mb-1 block">Resumen</label>
-            <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-[#123b2c] mb-1 block">XP</label>
-            <input type="number" value={xpReward} onChange={(e) => setXpReward(Number(e.target.value))} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
-          </div>
-
-          <button
-            onClick={() => updateMutation.mutate()}
-            disabled={updateMutation.isPending}
-            className="flex items-center justify-center gap-2 bg-[#2e9e5b] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors disabled:opacity-50"
-          >
-            {updateMutation.isPending ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
-            {updateMutation.isPending ? "Guardando..." : "Guardar cambios"}
-          </button>
-
-          {updateMutation.isSuccess && <p className="text-[#2e9e5b] text-sm">¡Guardado!</p>}
-          {updateMutation.isError && <p className="text-[#ee6c4d] text-sm">Error al guardar.</p>}
+      <div className="grid gap-4 max-w-2xl">
+        <div className="text-xs text-[#123b2c]/40">
+          {theme ? `Tema cargado: ${theme.id}` : `Tema ID: ${themeId}`}
         </div>
-      )}
+
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Título</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" placeholder="Título del tema" />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Objetivo</label>
+          <textarea value={objective} onChange={(e) => setObjective(e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" placeholder="Objetivo del tema" />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Resumen</label>
+          <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" placeholder="Resumen del tema" />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">XP</label>
+          <input type="number" value={xpReward} onChange={(e) => setXpReward(Number(e.target.value))} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
+        </div>
+
+        <button
+          onClick={() => updateMutation.mutate()}
+          disabled={updateMutation.isPending}
+          className="flex items-center justify-center gap-2 bg-[#2e9e5b] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors disabled:opacity-50"
+        >
+          {updateMutation.isPending ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
+          {updateMutation.isPending ? "Guardando..." : "Guardar cambios"}
+        </button>
+
+        {updateMutation.isSuccess && <p className="text-[#2e9e5b] text-sm">¡Guardado!</p>}
+        {updateMutation.isError && <p className="text-[#ee6c4d] text-sm">Error al guardar. ¿Usaste el botón de admin de prueba?</p>}
+      </div>
     </div>
   );
 }
