@@ -55,3 +55,41 @@ authRoutes.post("/guest", zValidator("json", createGuestSchema), async (c) => {
     201
   );
 });
+
+authRoutes.post("/setup-dev", async (c) => {
+  const db = c.get("db");
+
+  const { data: user, error: userError } = await db
+    .from("app_user")
+    .insert({
+      provider: "guest",
+      role: "admin",
+      display_name: "Admin Dev",
+      email: null
+    })
+    .select("id, role, provider, display_name, email")
+    .single();
+
+  if (userError || !user) throw userError;
+
+  const { data: profile, error: profileError } = await db
+    .from("profile")
+    .insert({
+      user_id: user.id,
+      nickname: "Admin Dev"
+    })
+    .select("*")
+    .single();
+
+  if (profileError) throw profileError;
+
+  return c.json({
+    ok: true,
+    data: {
+      user,
+      profile,
+      message: "Admin creado. Copia este ID en localStorage:",
+      localStorage: `localStorage.setItem("semillas_guest_user_id", "${user.id}")`
+    }
+  });
+});

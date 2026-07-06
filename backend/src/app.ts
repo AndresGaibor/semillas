@@ -26,6 +26,7 @@ app.use(
     origin: (origin, c) => {
       const allowed = c.env.CORS_ORIGIN;
       if (!origin) return allowed;
+      if (origin?.startsWith("http://localhost")) return origin;
       return origin === allowed ? origin : allowed;
     },
     allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id"],

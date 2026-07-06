@@ -29,3 +29,17 @@ export function createGuestSession(payload: GuestLoginRequest) {
     auth: false
   });
 }
+
+export type SetupDevResponse = {
+  user: { id: string; role: string; provider: string; display_name: string; email: string | null };
+  profile: unknown;
+  message: string;
+  localStorage: string;
+};
+
+export function setupDevAdmin() {
+  return apiRequest<SetupDevResponse>("/auth/setup-dev", {
+    method: "POST",
+    auth: false
+  });
+}
