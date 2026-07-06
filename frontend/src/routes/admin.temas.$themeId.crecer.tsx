@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getAdminThemeSteps, upsertThemeStep } from "../features/admin/admin.api";
 import { getAgeGroups, getCrecerSteps } from "../features/catalog/catalog.api";
+import { ArrowLeft, Loader, Save, Check } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/crecer")({
   component: AdminThemeCrecerPage
@@ -10,51 +11,26 @@ export const Route = createFileRoute("/admin/temas/$themeId/crecer")({
 
 function AdminThemeCrecerPage() {
   const { themeId } = Route.useParams();
-  const [selectedAgeGroupId, setSelectedAgeGroupId] = useState<string>("");
-  const [activeStepCode, setActiveStepCode] = useState<string>("conectar");
+  const navigate = useNavigate();
+  const [selectedAgeGroupId, setSelectedAgeGroupId] = useState("");
+  const [activeStepCode, setActiveStepCode] = useState("conectar");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [shortInstruction, setShortInstruction] = useState("");
 
   const stepsQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "steps"],
     queryFn: () => getAdminThemeSteps(themeId)
   });
 
-  const ageGroupsQuery = useQuery({
-    queryKey: ["catalog", "age-groups"],
-    queryFn: getAgeGroups
-  });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: getAgeGroups });
+  const crecerStepsQuery = useQuery({ queryKey: ["catalog", "crecer-steps"], queryFn: getCrecerSteps });
 
-  const crecerStepsQuery = useQuery({
-    queryKey: ["catalog", "crecer-steps"],
-    queryFn: getCrecerSteps
-  });
-
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [shortInstruction, setShortInstruction] = useState("");
-
-  const saveMutation = useMutation({
-    mutationFn: () => {
-      const stepType = crecerStepsQuery.data?.find((s) => s.code === activeStepCode);
-      if (!stepType || !selectedAgeGroupId) throw new Error("Faltan datos");
-      return upsertThemeStep(themeId, {
-        stepTypeId: stepType.id,
-        ageGroupId: selectedAgeGroupId,
-        title,
-        body,
-        shortInstruction
-      });
-    },
-    onSuccess: () => {
-      stepsQuery.refetch();
-    }
-  });
-
-  const activeStep = crecerStepsQuery.data?.find((s) => s.code === activeStepCode);
   const existingContent = stepsQuery.data
     ?.find((s) => s.step_type.code === activeStepCode)
     ?.contents?.find((c) => c.age_group_id === selectedAgeGroupId);
 
-  function loadContent() {
+  useEffect(() => {
     if (existingContent) {
       setTitle(existingContent.title ?? "");
       setBody(existingContent.body);
@@ -64,98 +40,96 @@ function AdminThemeCrecerPage() {
       setBody("");
       setShortInstruction("");
     }
-  }
+  }, [existingContent, activeStepCode, selectedAgeGroupId]);
+
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      const stepType = crecerStepsQuery.data?.find((s) => s.code === activeStepCode);
+      if (!stepType || !selectedAgeGroupId) throw new Error("Faltan datos");
+      return upsertThemeStep(themeId, {
+        stepTypeId: stepType.id,
+        ageGroupId: selectedAgeGroupId,
+        title: title || stepType.name,
+        body: body || "Contenido pendiente...",
+        shortInstruction: shortInstruction || undefined
+      });
+    },
+    onSuccess: () => stepsQuery.refetch()
+  });
+
+  const activeStep = crecerStepsQuery.data?.find((s) => s.code === activeStepCode);
+  const hasContent = stepsQuery.data?.some((s) => s.step_type.code === activeStepCode);
 
   return (
-    <main>
-      <h1>Editor CRECER</h1>
+    <div>
+      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+        <ArrowLeft size={16} /> Volver
+      </button>
 
-      <div style={{ marginBottom: 16 }}>
+      <h1 className="text-2xl font-bold text-[#123b2c] mb-4">Editor CRECER</h1>
+
+      <div className="mb-4">
+        <label className="text-sm font-medium text-[#123b2c] mb-1 block">Franja de edad</label>
         <select
           value={selectedAgeGroupId}
-          onChange={(e) => {
-            setSelectedAgeGroupId(e.target.value);
-            setTimeout(loadContent, 0);
-          }}
-          style={{ padding: 8, borderRadius: 8 }}
+          onChange={(e) => setSelectedAgeGroupId(e.target.value)}
+          className="w-full max-w-xs px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm"
         >
-          <option value="">Selecciona franja</option>
+          <option value="">Seleccionar franja</option>
           {ageGroupsQuery.data?.map((ag) => (
             <option key={ag.id} value={ag.id}>{ag.name}</option>
           ))}
         </select>
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        {crecerStepsQuery.data?.map((step) => (
-          <button
-            key={step.code}
-            onClick={() => {
-              setActiveStepCode(step.code);
-              setTimeout(loadContent, 0);
-            }}
-            style={{
-              padding: "8px 16px",
-              borderRadius: 8,
-              border: activeStepCode === step.code ? `2px solid ${step.color_hex ?? "#666"}` : "1px solid #ccc",
-              background: activeStepCode === step.code ? (step.color_hex ?? "#eee") : "white",
-              color: activeStepCode === step.code ? "white" : "#333",
-              cursor: "pointer",
-              fontWeight: activeStepCode === step.code ? "bold" : "normal"
-            }}
-          >
-            {step.name}
-          </button>
-        ))}
-      </div>
+      {selectedAgeGroupId && (
+        <>
+          <div className="flex gap-1.5 mb-5 flex-wrap">
+            {crecerStepsQuery.data?.map((step) => (
+              <button
+                key={step.code}
+                onClick={() => setActiveStepCode(step.code)}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={{
+                  background: activeStepCode === step.code ? (step.color_hex ?? "#2e9e5b") : "#e5e7eb",
+                  color: activeStepCode === step.code ? "white" : "#666"
+                }}
+              >
+                {step.name}
+              </button>
+            ))}
+          </div>
 
-      <div style={{ display: "grid", gap: 12, maxWidth: 720 }}>
-        <label>
-          <strong>Título</strong>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #ccc" }}
-          />
-        </label>
+          <div className="bg-white rounded-2xl p-5 shadow-sm grid gap-4 max-w-2xl">
+            <div>
+              <label className="text-sm font-medium text-[#123b2c] mb-1 block">Título</label>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm" placeholder={activeStep?.name ?? ""} />
+            </div>
 
-        <label>
-          <strong>Cuerpo (Markdown)</strong>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={8}
-            style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #ccc", fontFamily: "monospace" }}
-          />
-        </label>
+            <div>
+              <label className="text-sm font-medium text-[#123b2c] mb-1 block">Contenido (Markdown)</label>
+              <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm font-mono" placeholder="Escribe el contenido aquí..." />
+            </div>
 
-        <label>
-          <strong>Instrucción corta</strong>
-          <input
-            value={shortInstruction}
-            onChange={(e) => setShortInstruction(e.target.value)}
-            style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #ccc" }}
-          />
-        </label>
+            <div>
+              <label className="text-sm font-medium text-[#123b2c] mb-1 block">Instrucción corta</label>
+              <input value={shortInstruction} onChange={(e) => setShortInstruction(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm" placeholder="Breve instrucción para el niño" />
+            </div>
 
-        <button
-          onClick={() => saveMutation.mutate()}
-          disabled={!selectedAgeGroupId || !activeStep}
-          style={{
-            padding: "10px 20px",
-            background: selectedAgeGroupId && activeStep ? "#2E9E5B" : "#ccc",
-            color: "white",
-            border: "none",
-            borderRadius: 8,
-            cursor: selectedAgeGroupId && activeStep ? "pointer" : "not-allowed"
-          }}
-        >
-          {saveMutation.isPending ? "Guardando..." : `Guardar ${activeStep?.name ?? ""}`}
-        </button>
+            <button
+              onClick={() => saveMutation.mutate()}
+              className="bg-[#2e9e5b] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {saveMutation.isPending ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
+              {saveMutation.isPending ? "Guardando..." : `Guardar ${activeStep?.name ?? ""}`}
+            </button>
 
-        {saveMutation.isSuccess && <p style={{ color: "#2E9E5B" }}>¡Guardado!</p>}
-        {saveMutation.isError && <p style={{ color: "#EE6C4D" }}>Error al guardar.</p>}
-      </div>
-    </main>
+            {saveMutation.isSuccess && (
+              <p className="text-[#2e9e5b] text-sm flex items-center gap-1"><Check size={16} /> Guardado</p>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

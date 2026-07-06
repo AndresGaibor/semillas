@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminTheme, getAdminThemeSteps } from "../features/admin/admin.api";
 import { getThemeActivities } from "../features/themes/themes.api";
 import { getMe } from "../features/profile/profile.api";
+import { ArrowLeft, Loader, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/preview")({
   component: AdminThemePreviewPage
@@ -10,76 +11,81 @@ export const Route = createFileRoute("/admin/temas/$themeId/preview")({
 
 function AdminThemePreviewPage() {
   const { themeId } = Route.useParams();
+  const navigate = useNavigate();
 
   const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
-
-  const themeQuery = useQuery({
-    queryKey: ["admin", "theme", themeId],
-    queryFn: () => getAdminTheme(themeId)
-  });
-
-  const stepsQuery = useQuery({
-    queryKey: ["admin", "theme", themeId, "steps"],
-    queryFn: () => getAdminThemeSteps(themeId)
-  });
-
+  const themeQuery = useQuery({ queryKey: ["admin", "theme", themeId], queryFn: () => getAdminTheme(themeId) });
+  const stepsQuery = useQuery({ queryKey: ["admin", "theme", themeId, "steps"], queryFn: () => getAdminThemeSteps(themeId) });
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () =>
-      getThemeActivities(themeId, meQuery.data?.profile?.age_group_id ?? undefined),
+    queryFn: () => getThemeActivities(themeId, meQuery.data?.profile?.age_group_id ?? undefined),
     enabled: !!meQuery.data
   });
 
   const theme = themeQuery.data;
 
   return (
-    <main style={{ maxWidth: 720 }}>
-      <h1>Vista previa: {theme?.title ?? "Cargando..."}</h1>
-      <p style={{ color: "#666" }}>{theme?.summary}</p>
-      <p><strong>Objetivo:</strong> {theme?.objective}</p>
+    <div>
+      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+        <ArrowLeft size={16} /> Volver
+      </button>
 
-      <h2>Recorrido CRECER</h2>
-      {stepsQuery.data?.length === 0 && <p style={{ color: "#999" }}>Sin pasos CRECER aún.</p>}
+      <div className="flex items-center gap-2 mb-6">
+        <Eye className="text-[#3d8bd4]" size={22} />
+        <h1 className="text-2xl font-bold text-[#123b2c]">Vista previa</h1>
+      </div>
 
-      <section style={{ display: "grid", gap: 12 }}>
+      {themeQuery.isLoading && (
+        <div className="flex justify-center py-12"><Loader className="animate-spin text-[#2e9e5b]" size={24} /></div>
+      )}
+
+      <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+        <h2 className="text-xl font-bold text-[#123b2c]">{theme?.title ?? "Sin título"}</h2>
+        <p className="text-[#123b2c]/60 mt-2">{theme?.summary}</p>
+        <p className="text-sm text-[#123b2c]/40 mt-3"><strong>Objetivo:</strong> {theme?.objective}</p>
+        <div className="flex items-center gap-3 mt-3">
+          <span className="text-xs px-2 py-1 bg-[#2e9e5b]/10 text-[#2e9e5b] rounded-md">{theme?.status}</span>
+          <span className="text-xs text-[#f4b740]">{theme?.xp_reward} XP</span>
+        </div>
+      </div>
+
+      <h3 className="font-bold text-[#123b2c] mb-3">Recorrido CRECER</h3>
+      {stepsQuery.data?.length === 0 && <p className="text-sm text-[#123b2c]/40 mb-4">Sin pasos CRECER aún.</p>}
+      <div className="grid gap-3 mb-6">
         {stepsQuery.data?.map((step) => (
-          <article key={step.id} style={{ padding: 16, background: "white", borderRadius: 12, border: "1px solid #e5e7eb" }}>
-            <h3 style={{ margin: 0, color: step.step_type.color_hex ?? "#333" }}>
-              {step.step_type.name}
-            </h3>
+          <div key={step.id} className="bg-white rounded-xl p-4 shadow-sm border-l-4" style={{ borderLeftColor: step.step_type.color_hex ?? "#ccc" }}>
+            <h4 className="font-semibold text-[#123b2c]" style={{ color: step.step_type.color_hex ?? "#333" }}>{step.step_type.name}</h4>
             {step.contents?.map((content) => (
-              <div key={content.id} style={{ marginTop: 8 }}>
-                <p><strong>{content.title}</strong></p>
-                <p style={{ color: "#555", whiteSpace: "pre-wrap" }}>{content.body}</p>
-                {content.short_instruction && (
-                  <p style={{ fontStyle: "italic", color: "#888" }}>{content.short_instruction}</p>
-                )}
+              <div key={content.id} className="mt-2 text-sm text-[#123b2c]/70">
+                <p className="font-medium">{content.title}</p>
+                <p className="mt-1 whitespace-pre-wrap">{content.body}</p>
+                {content.short_instruction && <p className="text-xs italic text-[#123b2c]/40 mt-1">{content.short_instruction}</p>}
               </div>
             ))}
-          </article>
+          </div>
         ))}
-      </section>
+      </div>
 
-      <h2 style={{ marginTop: 24 }}>Actividades</h2>
-      {activitiesQuery.data?.length === 0 && <p style={{ color: "#999" }}>Sin actividades aún.</p>}
-
-      <section style={{ display: "grid", gap: 12 }}>
+      <h3 className="font-bold text-[#123b2c] mb-3">Actividades</h3>
+      {activitiesQuery.data?.length === 0 && <p className="text-sm text-[#123b2c]/40">Sin actividades aún.</p>}
+      <div className="grid gap-3">
         {activitiesQuery.data?.map((activity) => (
-          <article key={activity.id} style={{ padding: 16, background: "white", borderRadius: 12, border: "1px solid #e5e7eb" }}>
-            <h3 style={{ margin: 0 }}>{activity.title}</h3>
-            <p>{activity.prompt}</p>
-            <p style={{ fontSize: 13, color: "#999" }}>{activity.xp_reward} XP</p>
-
-            <div style={{ display: "grid", gap: 4, marginTop: 8 }}>
+          <div key={activity.id} className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold text-[#123b2c]">{activity.title}</h4>
+              <span className="text-xs text-[#f4b740]">{activity.xp_reward} XP</span>
+            </div>
+            <p className="text-sm text-[#123b2c]/60 mb-3">{activity.prompt}</p>
+            <div className="grid gap-1.5">
               {activity.options?.map((opt) => (
-                <div key={opt.id} style={{ fontSize: 14, padding: "4px 8px", background: opt.is_correct ? "#e6f7ed" : "#f5f5f5", borderRadius: 6 }}>
+                <div key={opt.id} className={`text-sm px-3 py-2 rounded-lg ${opt.is_correct ? "bg-[#2e9e5b]/10 text-[#2e9e5b]" : "bg-[#f7f4ec] text-[#123b2c]/60"}`}>
                   {opt.label}. {opt.text} {opt.is_correct && "✓"}
                 </div>
               ))}
             </div>
-          </article>
+          </div>
         ))}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

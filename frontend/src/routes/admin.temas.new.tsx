@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { createTheme, type CreateThemeRequest } from "../features/admin/admin.api";
 import { getAgeGroups, getBibleVersions } from "../features/catalog/catalog.api";
 import { getSendas } from "../features/sendas/sendas.api";
+import { ArrowLeft, Loader } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/new")({
   component: NewThemePage
@@ -13,38 +14,25 @@ function NewThemePage() {
   const navigate = useNavigate();
 
   const { register, handleSubmit } = useForm<CreateThemeRequest>({
-    defaultValues: {
-      estimatedMinutes: 10,
-      xpReward: 50,
-      ageGroupIds: []
-    }
+    defaultValues: { estimatedMinutes: 15, xpReward: 50, ageGroupIds: [] }
   });
 
-  const sendasQuery = useQuery({
-    queryKey: ["sendas"],
-    queryFn: getSendas
-  });
-
-  const ageGroupsQuery = useQuery({
-    queryKey: ["catalog", "age-groups"],
-    queryFn: getAgeGroups
-  });
-
-  const bibleVersionsQuery = useQuery({
-    queryKey: ["catalog", "bible-versions"],
-    queryFn: getBibleVersions
-  });
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: getSendas });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: getAgeGroups });
+  const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: getBibleVersions });
 
   const createMutation = useMutation({
     mutationFn: createTheme,
-    onSuccess() {
-      navigate({ to: "/admin/temas" });
-    }
+    onSuccess: () => navigate({ to: "/admin/temas" })
   });
 
   return (
-    <main>
-      <h1>Crear tema</h1>
+    <div>
+      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+        <ArrowLeft size={16} /> Volver a temas
+      </button>
+
+      <h1 className="text-2xl font-bold text-[#123b2c] mb-6">Nuevo tema</h1>
 
       <form
         onSubmit={handleSubmit((values) =>
@@ -54,57 +42,77 @@ function NewThemePage() {
             xpReward: Number(values.xpReward)
           })
         )}
-        style={{ display: "grid", gap: 16, maxWidth: 720 }}
+        className="grid gap-4 max-w-2xl"
       >
-        <input placeholder="Título" {...register("title")} required />
-        <input placeholder="Slug (ej: el-amor-de-dios)" {...register("slug")} required />
-        <textarea placeholder="Objetivo" {...register("objective")} required />
-        <textarea placeholder="Resumen" {...register("summary")} required />
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Título</label>
+          <input {...register("title", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" placeholder="El amor de Dios" />
+        </div>
 
-        <select {...register("pathId")} required>
-          <option value="">Selecciona una senda</option>
-          {sendasQuery.data?.map((senda) => (
-            <option key={senda.id} value={senda.id}>
-              {senda.name}
-            </option>
-          ))}
-        </select>
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Slug</label>
+          <input {...register("slug", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" placeholder="el-amor-de-dios" />
+        </div>
 
-        <select {...register("bibleVersionId")} required>
-          <option value="">Versión bíblica</option>
-          {bibleVersionsQuery.data?.map((version) => (
-            <option key={version.id} value={version.id}>
-              {version.code}
-            </option>
-          ))}
-        </select>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-[#123b2c] mb-1 block">Senda</label>
+            <select {...register("pathId", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm">
+              <option value="">Seleccionar</option>
+              {sendasQuery.data?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-[#123b2c] mb-1 block">Versión bíblica</label>
+            <select {...register("bibleVersionId", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm">
+              <option value="">Seleccionar</option>
+              {bibleVersionsQuery.data?.map((v) => <option key={v.id} value={v.id}>{v.code}</option>)}
+            </select>
+          </div>
+        </div>
 
-        <input
-          type="number"
-          placeholder="Duración (minutos)"
-          {...register("estimatedMinutes")}
-        />
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Objetivo</label>
+          <textarea {...register("objective", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" rows={3} placeholder="Que el niño comprenda..." />
+        </div>
 
-        <input type="number" placeholder="XP" {...register("xpReward")} />
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-1 block">Resumen</label>
+          <textarea {...register("summary", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" rows={2} placeholder="Breve descripción del tema..." />
+        </div>
 
-        <fieldset>
-          <legend>Franjas de edad</legend>
-          {ageGroupsQuery.data?.map((ageGroup) => (
-            <label key={ageGroup.id} style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                value={ageGroup.id}
-                {...register("ageGroupIds")}
-              />
-              {ageGroup.name}
-            </label>
-          ))}
-        </fieldset>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-[#123b2c] mb-1 block">Duración (min)</label>
+            <input type="number" {...register("estimatedMinutes")} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-[#123b2c] mb-1 block">XP</label>
+            <input type="number" {...register("xpReward")} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
+          </div>
+        </div>
 
-        <button type="submit">
-          {createMutation.isPending ? "Guardando..." : "Crear tema"}
+        <div>
+          <label className="text-sm font-medium text-[#123b2c] mb-2 block">Franjas de edad</label>
+          <div className="grid gap-2">
+            {ageGroupsQuery.data?.map((ag) => (
+              <label key={ag.id} className="flex items-center gap-2 text-sm text-[#123b2c]">
+                <input type="checkbox" value={ag.id} {...register("ageGroupIds")} className="rounded border-[#e5e7eb] text-[#2e9e5b] focus:ring-[#2e9e5b]" />
+                {ag.name} ({ag.min_age}-{ag.max_age} años)
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={createMutation.isPending}
+          className="w-full bg-[#2e9e5b] text-white py-3 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {createMutation.isPending ? <Loader className="animate-spin" size={18} /> : null}
+          {createMutation.isPending ? "Creando..." : "Crear tema"}
         </button>
       </form>
-    </main>
+    </div>
   );
 }

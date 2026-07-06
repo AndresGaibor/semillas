@@ -2,18 +2,23 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { publishTheme, unpublishTheme } from "../features/admin/admin.api";
 import { getThemes } from "../features/themes/themes.api";
+import { BookOpen, Loader, Plus, CheckCircle, RotateCcw, Edit3, Layout, Gamepad2, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas")({
   component: AdminThemesPage
 });
 
+const statusColors: Record<string, string> = {
+  draft: "#e5e7eb",
+  published: "#2e9e5b",
+  review: "#f4b740",
+  archived: "#999"
+};
+
 function AdminThemesPage() {
   const queryClient = useQueryClient();
 
-  const query = useQuery({
-    queryKey: ["admin", "themes"],
-    queryFn: () => getThemes()
-  });
+  const query = useQuery({ queryKey: ["admin", "themes"], queryFn: () => getThemes() });
 
   const publishMutation = useMutation({
     mutationFn: publishTheme,
@@ -31,79 +36,100 @@ function AdminThemesPage() {
   });
 
   return (
-    <main>
-      <h1>Gestión de temas</h1>
-      <Link to="/admin/temas/new">+ Crear tema</Link>
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-[#123b2c]">Temas</h1>
+        <Link
+          to="/admin/temas/new"
+          className="flex items-center gap-1.5 bg-[#2e9e5b] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#267d4c] transition-colors"
+        >
+          <Plus size={16} /> Nuevo
+        </Link>
+      </div>
 
-      <section style={{ display: "grid", gap: 16, marginTop: 24 }}>
+      {query.isLoading && (
+        <div className="flex justify-center py-12">
+          <Loader className="animate-spin text-[#2e9e5b]" size={24} />
+        </div>
+      )}
+
+      <div className="grid gap-3">
+        {query.data?.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-2xl">
+            <BookOpen className="mx-auto text-[#123b2c]/20 mb-3" size={48} />
+            <p className="text-[#123b2c]/40">No hay temas aún</p>
+            <Link to="/admin/temas/new" className="text-[#2e9e5b] text-sm font-medium mt-2 inline-block">
+              Crear el primero
+            </Link>
+          </div>
+        )}
+
         {query.data?.map((theme) => (
-          <article
-            key={theme.id}
-            style={{
-              background: "white",
-              padding: 16,
-              borderRadius: 12,
-              border: "1px solid #e5e7eb"
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-              <div>
-                <h2 style={{ margin: 0 }}>{theme.title}</h2>
-                <p style={{ margin: "4px 0", color: "#666" }}>
-                  Estado: <strong>{theme.status}</strong> &middot; {theme.xp_reward} XP
-                </p>
+          <div key={theme.id} className="bg-white rounded-xl p-4 shadow-sm border border-[#e5e7eb]">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="font-bold text-[#123b2c] truncate">{theme.title}</h2>
+                <div className="flex items-center gap-3 mt-1">
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                    style={{ background: `${statusColors[theme.status] ?? "#eee"}20`, color: statusColors[theme.status] ?? "#666" }}
+                  >
+                    {theme.status}
+                  </span>
+                  <span className="text-xs text-[#123b2c]/40">{theme.xp_reward} XP</span>
+                </div>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <div className="flex flex-wrap gap-1.5 mt-3">
               <Link
                 to="/admin/temas/$themeId/edit"
                 params={{ themeId: theme.id }}
-                style={{ padding: "6px 12px", background: "#e5e7eb", borderRadius: 8, fontSize: 14 }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-[#f7f4ec] rounded-lg text-xs font-medium text-[#123b2c]/70 hover:bg-[#e8e5dd] transition-colors"
               >
-                Editar
+                <Edit3 size={13} /> Editar
               </Link>
               <Link
                 to="/admin/temas/$themeId/crecer"
                 params={{ themeId: theme.id }}
-                style={{ padding: "6px 12px", background: "#e5e7eb", borderRadius: 8, fontSize: 14 }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-[#f7f4ec] rounded-lg text-xs font-medium text-[#123b2c]/70 hover:bg-[#e8e5dd] transition-colors"
               >
-                CRECER
+                <Layout size={13} /> CRECER
               </Link>
               <Link
                 to="/admin/temas/$themeId/activities"
                 params={{ themeId: theme.id }}
-                style={{ padding: "6px 12px", background: "#e5e7eb", borderRadius: 8, fontSize: 14 }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-[#f7f4ec] rounded-lg text-xs font-medium text-[#123b2c]/70 hover:bg-[#e8e5dd] transition-colors"
               >
-                Actividades
+                <Gamepad2 size={13} /> Actividades
               </Link>
               <Link
                 to="/admin/temas/$themeId/preview"
                 params={{ themeId: theme.id }}
-                style={{ padding: "6px 12px", background: "#e5e7eb", borderRadius: 8, fontSize: 14 }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-[#f7f4ec] rounded-lg text-xs font-medium text-[#123b2c]/70 hover:bg-[#e8e5dd] transition-colors"
               >
-                Vista previa
+                <Eye size={13} /> Vista
               </Link>
 
               {theme.status !== "published" ? (
                 <button
                   onClick={() => publishMutation.mutate(theme.id)}
-                  style={{ padding: "6px 12px", background: "#2E9E5B", color: "white", border: "none", borderRadius: 8, fontSize: 14, cursor: "pointer" }}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-[#2e9e5b] text-white rounded-lg text-xs font-medium hover:bg-[#267d4c] transition-colors"
                 >
-                  Publicar
+                  <CheckCircle size={13} /> Publicar
                 </button>
               ) : (
                 <button
                   onClick={() => unpublishMutation.mutate(theme.id)}
-                  style={{ padding: "6px 12px", background: "#EE6C4D", color: "white", border: "none", borderRadius: 8, fontSize: 14, cursor: "pointer" }}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-[#ee6c4d] text-white rounded-lg text-xs font-medium hover:bg-[#d55a3d] transition-colors"
                 >
-                  Despublicar
+                  <RotateCcw size={13} /> Despublicar
                 </button>
               )}
             </div>
-          </article>
+          </div>
         ))}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }
