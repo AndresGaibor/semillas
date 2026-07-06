@@ -36,6 +36,19 @@ catalogRoutes.get("/activity-types", async (c) => {
   });
 });
 
+catalogRoutes.get("/bible-books", async (c) => {
+  const db = c.get("db");
+
+  const { data, error } = await db
+    .from("bible_book")
+    .select("id, name, sort_order, testament_id")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+
+  return c.json({ ok: true, data });
+});
+
 catalogRoutes.get("/bible-versions", async (c) => {
   const db = c.get("db");
 
