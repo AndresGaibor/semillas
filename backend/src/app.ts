@@ -13,6 +13,7 @@ import { usersRoutes } from "./modules/users/users.routes";
 import { progressRoutes } from "./modules/progress/progress.routes";
 import { activitiesRoutes } from "./modules/activities/activities.routes";
 import { adminRoutes } from "./modules/admin/admin.routes";
+import { clubsRoutes } from "./modules/clubs/clubs.routes";
 import { gamificationRoutes } from "./modules/gamification/gamification.routes";
 
 const app = new Hono<AppBindings>();
@@ -62,6 +63,7 @@ app.route("/me", usersRoutes);
 app.route("/progress", progressRoutes);
 app.route("/activities", activitiesRoutes);
 app.route("/admin", adminRoutes);
+app.route("/clubs", clubsRoutes);
 app.route("/gamification", gamificationRoutes);
 
 app.onError(errorHandler);
