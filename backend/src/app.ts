@@ -6,9 +6,12 @@ import { errorHandler } from "./shared/middleware/error-handler";
 import { createSupabaseAdmin } from "./db/client";
 
 import { authRoutes } from "./modules/auth/auth.routes";
+import { catalogRoutes } from "./modules/catalog/catalog.routes";
 import { sendasRoutes } from "./modules/sendas/sendas.routes";
 import { themesRoutes } from "./modules/themes/themes.routes";
+import { usersRoutes } from "./modules/users/users.routes";
 import { progressRoutes } from "./modules/progress/progress.routes";
+import { activitiesRoutes } from "./modules/activities/activities.routes";
 import { gamificationRoutes } from "./modules/gamification/gamification.routes";
 
 const app = new Hono<AppBindings>();
@@ -51,9 +54,12 @@ app.get("/health", (c) => {
 });
 
 app.route("/auth", authRoutes);
+app.route("/catalog", catalogRoutes);
 app.route("/sendas", sendasRoutes);
 app.route("/themes", themesRoutes);
+app.route("/me", usersRoutes);
 app.route("/progress", progressRoutes);
+app.route("/activities", activitiesRoutes);
 app.route("/gamification", gamificationRoutes);
 
 app.onError(errorHandler);
