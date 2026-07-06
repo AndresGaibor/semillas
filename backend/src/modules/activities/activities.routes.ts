@@ -114,6 +114,16 @@ activitiesRoutes.post(
       updated_at: new Date().toISOString()
     });
 
+    if (activity.theme_id && isCorrect) {
+      await db.from("user_theme_progress").upsert({
+        user_id: user.id,
+        theme_id: activity.theme_id,
+        status: "in_progress",
+        percent: 0,
+        updated_at: new Date().toISOString()
+      });
+    }
+
     return c.json({
       ok: true,
       duplicated: false,
