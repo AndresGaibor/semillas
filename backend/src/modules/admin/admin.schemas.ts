@@ -12,6 +12,16 @@ export const createThemeSchema = z.object({
   ageGroupIds: z.array(z.string().uuid()).min(1)
 });
 
+export const updateThemeSchema = z.object({
+  title: z.string().min(3).max(120).optional(),
+  objective: z.string().min(10).optional(),
+  summary: z.string().min(10).optional(),
+  estimatedMinutes: z.number().int().min(1).max(120).optional(),
+  xpReward: z.number().int().min(0).max(500).optional(),
+  bibleVersionId: z.string().uuid().optional(),
+  ageGroupIds: z.array(z.string().uuid()).min(1).optional()
+});
+
 export const upsertStepContentSchema = z.object({
   stepTypeId: z.string().uuid(),
   ageGroupId: z.string().uuid(),
