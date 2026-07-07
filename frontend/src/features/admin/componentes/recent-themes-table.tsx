@@ -35,6 +35,7 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
           <p className="text-xs text-neutro mt-0.5">Últimos temas modificados o creados.</p>
         </div>
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={onVerTodos}
@@ -54,7 +55,7 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
         {temas.map((tema) => (
           <FilaTabla
             key={tema.id}
-            onClick={() => onEditarTema?.(tema.id)}
+            onClick={onEditarTema ? () => onEditarTema(tema.id) : undefined}
             className="group border-b border-slate-50 text-sm text-neutro-oscuro-max hover:bg-slate-50/50"
           >
             <td className="py-3.5 pl-2 font-bold max-w-[240px] truncate">

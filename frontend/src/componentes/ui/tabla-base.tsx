@@ -83,7 +83,7 @@ export function FilaTabla({ className, onClick, onKeyDown, tabIndex, ...props }:
   const manejarKeyDown: React.KeyboardEventHandler<HTMLTableRowElement> = (evento) => {
     if (evento.key === "Enter" || evento.key === " ") {
       evento.preventDefault();
-      onClick?.(evento as unknown as React.MouseEvent<HTMLTableRowElement>);
+      (evento.currentTarget as HTMLTableRowElement).click();
     }
 
     onKeyDown?.(evento);
@@ -95,6 +95,8 @@ export function FilaTabla({ className, onClick, onKeyDown, tabIndex, ...props }:
       onClick={onClick}
       onKeyDown={esInteractiva ? manejarKeyDown : onKeyDown}
       tabIndex={esInteractiva ? (tabIndex ?? 0) : tabIndex}
+      role={esInteractiva ? "button" : props.role}
+      aria-label={esInteractiva ? (props["aria-label"] ?? "Fila interactiva") : props["aria-label"]}
       className={unirClases("transition-colors", esInteractiva && "cursor-pointer hover:bg-slate-50/50", className)}
     />
   );

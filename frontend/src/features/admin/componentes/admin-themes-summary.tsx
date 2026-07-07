@@ -89,6 +89,7 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
 
       {/* Button link */}
       <button
+        type="button"
         onClick={onVerReportes}
         className="mt-6 flex items-center justify-between w-full rounded-2xl bg-[#eefcf4] hover:bg-[#e1f9ea] text-[#2E9E5B] py-3 px-4 text-xs font-bold transition-all border border-transparent shadow-xs cursor-pointer"
       >

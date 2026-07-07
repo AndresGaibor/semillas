@@ -75,6 +75,7 @@ export function RecentActivitySidebar({
       </div>
 
       <button
+        type="button"
         onClick={onVerTodaLaActividad}
         className="mt-5 text-center text-xs font-extrabold text-primario hover:text-primario-oscuro transition-colors py-1 inline-block select-none"
       >

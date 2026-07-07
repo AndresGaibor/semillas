@@ -73,6 +73,7 @@ export function QuickActionsGrid({
         {actions.map((act) => (
           <button
             key={act.title}
+            type="button"
             onClick={act.onClick}
             className={`rounded-2xl border border-slate-100 bg-white p-4 transition-all duration-200 text-left outline-none ${act.cardBg}`}
           >
