@@ -946,6 +946,8 @@ export type Database = {
       }
       recurso_multimedia: {
         Row: {
+          activo: boolean
+          actualizado_en: string
           alto_px: number | null
           ancho_px: number | null
           bucket_almacenamiento: string | null
@@ -962,6 +964,8 @@ export type Database = {
           url_publica: string
         }
         Insert: {
+          activo?: boolean
+          actualizado_en?: string
           alto_px?: number | null
           ancho_px?: number | null
           bucket_almacenamiento?: string | null
@@ -978,6 +982,8 @@ export type Database = {
           url_publica: string
         }
         Update: {
+          activo?: boolean
+          actualizado_en?: string
           alto_px?: number | null
           ancho_px?: number | null
           bucket_almacenamiento?: string | null

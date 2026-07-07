@@ -73,12 +73,14 @@ describe("serializadores", () => {
       objetivo: "Entender que Dios creó todo",
       resumen: "Resumen",
       portada_recurso_id: "recurso-1",
+      portada_recurso: null,
       estado: "publicado",
       version_biblica_id: "biblia-1",
       xp_recompensa: 50,
       minutos_estimados: 15,
       version_contenido: 2,
-      publicado_en: "2026-01-01T00:00:00.000Z"
+      publicado_en: "2026-01-01T00:00:00.000Z",
+      senda: null
     });
   });
 

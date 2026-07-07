@@ -6,6 +6,15 @@ const spec = openApiSpec as unknown as {
   components: { schemas: Record<string, any> };
 };
 
+function resolverSchema(schema: any) {
+  if (schema?.$ref) {
+    const nombre = schema.$ref.replace("#/components/schemas/", "");
+    return spec.components.schemas[nombre];
+  }
+
+  return schema;
+}
+
 describe("openapi spec", () => {
   it("expone parámetros canónicos en español para temas y actividades", () => {
     expect(spec.paths["/temas/{tema_id}"]).toBeDefined();
@@ -111,7 +120,10 @@ describe("openapi spec", () => {
     const grupos = spec.paths["/catalogo/grupos-etarios"].get.responses[200].content["application/json"].schema;
     const versiones = spec.paths["/catalogo/versiones-biblicas"].get.responses[200].content["application/json"].schema;
 
-    expect(Object.keys(grupos.properties.datos.items.properties)).toEqual([
+    const grupoItem = resolverSchema(grupos.properties.datos.items);
+    const versionItem = resolverSchema(versiones.properties.datos.items);
+
+    expect(Object.keys(grupoItem.properties)).toEqual([
       "codigo",
       "nombre",
       "edad_minima",
@@ -119,16 +131,16 @@ describe("openapi spec", () => {
       "descripcion",
       "orden"
     ]);
-    expect(grupos.properties.datos.items.properties).not.toHaveProperty("id");
-    expect(grupos.properties.datos.items.properties).not.toHaveProperty("dominio_publico");
-    expect(grupos.properties.datos.items.properties).not.toHaveProperty("es_juego");
+    expect(grupoItem.properties).not.toHaveProperty("id");
+    expect(grupoItem.properties).not.toHaveProperty("dominio_publico");
+    expect(grupoItem.properties).not.toHaveProperty("es_juego");
 
-    expect(Object.keys(versiones.properties.datos.items.properties)).toEqual([
+    expect(Object.keys(versionItem.properties)).toEqual([
       "codigo",
       "nombre",
       "dominio_publico"
     ]);
-    expect(versiones.properties.datos.items.properties).not.toHaveProperty("id");
+    expect(versionItem.properties).not.toHaveProperty("id");
   });
 
   it("documenta /progreso/eventos con el envelope canónico exito + datos", () => {

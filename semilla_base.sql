@@ -59,13 +59,14 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE IF NOT EXISTS grupo_edad (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  codigo          text NOT NULL UNIQUE,
-  nombre          text NOT NULL,
-  edad_minima       int NOT NULL,
-  edad_maxima       int NOT NULL,
+  codigo        text NOT NULL UNIQUE,
+  nombre        text NOT NULL,
+  edad_minima   int NOT NULL,
+  edad_maxima   int NOT NULL,
   descripcion   text,
-  orden    int NOT NULL UNIQUE,
-  creado_en    timestamptz NOT NULL DEFAULT now(),
+  imagen_url    text,
+  orden         int NOT NULL UNIQUE,
+  creado_en     timestamptz NOT NULL DEFAULT now(),
   CHECK (edad_minima >= 0),
   CHECK (edad_maxima >= edad_minima)
 );
@@ -607,10 +608,10 @@ WHERE t.estado = 'publicado';
 -- 10. DATOS INICIALES DE SEMILLAS
 -- ============================================================
 
-INSERT INTO grupo_edad (codigo, nombre, edad_minima, edad_maxima, descripcion, orden) VALUES
-  ('semillas', 'Semillas', 5, 8, 'Descubre a Dios con historias y actividades sencillas.', 1),
-  ('exploradores', 'Exploradores', 9, 12, 'Aprende más de Dios y entiende su Palabra.', 2),
-  ('embajadores', 'Embajadores', 13, 17, 'Profundiza tu fe y vive con propósito.', 3)
+INSERT INTO grupo_edad (codigo, nombre, edad_minima, edad_maxima, descripcion, imagen_url, orden) VALUES
+  ('semillas', 'Semillas', 5, 8, 'Descubre a Dios con historias y actividades sencillas.', 'https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/semillas.png', 1),
+  ('exploradores', 'Exploradores', 9, 12, 'Aprende más de Dios y entiende su Palabra.', 'https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/exploradores.png', 2),
+  ('embajadores', 'Embajadores', 13, 17, 'Profundiza tu fe y vive con propósito.', 'https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/embajadores.png', 3)
 ON CONFLICT (codigo) DO NOTHING;
 
 INSERT INTO senda (codigo, nombre, descripcion, color_hex, nombre_icono, orden) VALUES
