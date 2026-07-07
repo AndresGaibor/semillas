@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
+import { responderError, responderExito } from "../../shared/http/respuesta";
 import { NotFoundError, ForbiddenError } from "../../shared/errors/http-error";
 import {
   createChallengeSchema,
@@ -33,10 +34,7 @@ clubsRoutes.get("/mios", async (c) => {
 
   if (error) throw error;
 
-  return c.json({
-    ok: true,
-    data: memberships.map((m) => m.club)
-  });
+  return responderExito(memberships.map((m) => m.club));
 });
 
 clubsRoutes.get("/", async (c) => {
@@ -57,7 +55,7 @@ clubsRoutes.get("/", async (c) => {
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+  return responderExito(data);
 });
 
 clubsRoutes.get("/:clubId", async (c) => {
@@ -72,7 +70,7 @@ clubsRoutes.get("/:clubId", async (c) => {
 
   if (error || !club) throw new NotFoundError("Club no encontrado");
 
-  return c.json({ ok: true, data: club });
+  return responderExito(club);
 });
 
 clubsRoutes.post("/", zValidator("json", createClubSchema), async (c) => {
@@ -112,7 +110,7 @@ clubsRoutes.post("/", zValidator("json", createClubSchema), async (c) => {
     rol_miembro: "lider"
   });
 
-  return c.json({ ok: true, data: club }, 201);
+  return responderExito(club, 201);
 });
 
 clubsRoutes.post("/:clubId/unirse", zValidator("json", joinClubSchema), async (c) => {
@@ -130,7 +128,7 @@ clubsRoutes.post("/:clubId/unirse", zValidator("json", joinClubSchema), async (c
   if (clubError || !club) throw new NotFoundError("Club no encontrado");
   if (!club.activo) throw new ForbiddenError("Club inactivo");
   if (club.codigo_invitacion !== body.inviteCode) {
-    return c.json({ ok: false, error: { message: "Código de invitación incorrecto" } }, 403);
+    return responderError("Código de invitación incorrecto", "CODIGO_INCORRECTO", 403);
   }
 
   const { data: existing } = await db
@@ -141,7 +139,7 @@ clubsRoutes.post("/:clubId/unirse", zValidator("json", joinClubSchema), async (c
     .maybeSingle();
 
   if (existing) {
-    return c.json({ ok: true, message: "Ya eres miembro de este club" });
+    return responderExito({ mensaje: "Ya eres miembro de este club" });
   }
 
   const { error: joinError } = await db.from("miembro_club").insert({
@@ -152,7 +150,7 @@ clubsRoutes.post("/:clubId/unirse", zValidator("json", joinClubSchema), async (c
 
   if (joinError) throw joinError;
 
-  return c.json({ ok: true, data: { joined: true } });
+  return responderExito({ joined: true });
 });
 
 clubsRoutes.post("/:clubId/salir", async (c) => {
@@ -176,10 +174,7 @@ clubsRoutes.post("/:clubId/salir", async (c) => {
       .eq("club_id", clubId);
 
     if (count && count > 1) {
-      return c.json({
-        ok: false,
-        error: { message: "Transfiere el liderazgo antes de salir" }
-      }, 400);
+      return responderError("Transfiere el liderazgo antes de salir", "TRANSFERIR_LIDERAZGO", 400);
     }
   }
 
@@ -196,7 +191,7 @@ clubsRoutes.post("/:clubId/salir", async (c) => {
     await db.from("club").update({ activo: false }).eq("id", clubId);
   }
 
-  return c.json({ ok: true, data: { left: true } });
+  return responderExito({ left: true });
 });
 
 clubsRoutes.get("/:clubId/ranking", async (c) => {
@@ -211,7 +206,7 @@ clubsRoutes.get("/:clubId/ranking", async (c) => {
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+  return responderExito(data);
 });
 
 clubsRoutes.get("/:clubId/retos", async (c) => {
@@ -226,7 +221,7 @@ clubsRoutes.get("/:clubId/retos", async (c) => {
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+  return responderExito(data);
 });
 
 clubsRoutes.post(
@@ -267,6 +262,6 @@ clubsRoutes.post(
 
     if (error || !data) throw error;
 
-    return c.json({ ok: true, data }, 201);
+    return responderExito(data, 201);
   }
 );

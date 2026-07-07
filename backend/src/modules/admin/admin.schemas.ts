@@ -59,6 +59,11 @@ export const updateActivitySchema = z.object({
     .optional()
 });
 
+export const updateUserSchema = z.object({
+  rol: z.enum(["administrador", "usuario", "invitado", "padre"]).optional(),
+  nombre_visible: z.string().min(2).max(60).optional()
+});
+
 export const createActivitySchema = z.object({
   tema_id: z.string().uuid(),
   paso_id: z.string().uuid().nullable().optional(),

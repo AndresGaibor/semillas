@@ -4,12 +4,13 @@ import type { Database, Json } from "../../db/database.types";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { requireRole } from "../../shared/middleware/role.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
-import { responderExito } from "../../shared/http/respuesta";
+import { responderError, responderExito } from "../../shared/http/respuesta";
 import {
   createActivitySchema,
   createThemeSchema,
   updateActivitySchema,
   updateThemeSchema,
+  updateUserSchema,
   upsertStepContentSchema
 } from "./admin.schemas";
 import { NotFoundError } from "../../shared/errors/http-error";
@@ -479,4 +480,121 @@ adminRoutes.post("/temas/:tema_id/borrador", async (c) => {
   if (error) throw error;
 
     return responderExito(mapTheme(data as Record<string, unknown>));
+});
+
+adminRoutes.get("/usuarios", async (c) => {
+  const db = c.get("db");
+  const q = c.req.query("q");
+  const rol = c.req.query("rol");
+  const limit = Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100);
+  const offset = Math.max(Number(c.req.query("offset") ?? "0"), 0);
+
+  let query = db
+    .from("usuario_app")
+    .select("*, perfil:perfil(*)", { count: "exact" })
+    .order("creado_en", { ascending: false });
+
+  if (q) {
+    query = query.or(`nombre_visible.ilike.%${q}%,correo.ilike.%${q}%`);
+  }
+
+  if (rol) {
+    query = query.eq("rol", rol as Database["public"]["Enums"]["rol_usuario"]);
+  }
+
+  const { data: usuarios, error, count } = await query.range(offset, offset + limit - 1);
+
+  if (error) throw error;
+
+  return responderExito({
+    usuarios: (usuarios ?? []).map((u) => ({
+      id: u.id,
+      rol: u.rol,
+      proveedor: u.proveedor,
+      nombre_visible: u.nombre_visible,
+      correo: u.correo,
+      activo: u.activo,
+      creado_en: u.creado_en,
+      actualizado_en: u.actualizado_en,
+      ultimo_login_en: u.ultimo_login_en,
+      perfil: u.perfil
+    })),
+    total: count ?? 0
+  });
+});
+
+adminRoutes.get("/usuarios/:usuario_id", async (c) => {
+  const db = c.get("db");
+  const usuarioId = c.req.param("usuario_id");
+
+  const { data: usuario, error } = await db
+    .from("usuario_app")
+    .select("*, perfil:perfil(*)")
+    .eq("id", usuarioId)
+    .single();
+
+  if (error || !usuario) throw new NotFoundError("Usuario no encontrado");
+
+  return responderExito(usuario);
+});
+
+adminRoutes.patch(
+  "/usuarios/:usuario_id",
+  zValidator("json", updateUserSchema),
+  async (c) => {
+    const db = c.get("db");
+    const usuarioId = c.req.param("usuario_id");
+    const body = c.req.valid("json");
+
+    const { data: existing } = await db
+      .from("usuario_app")
+      .select("id")
+      .eq("id", usuarioId)
+      .single();
+
+    if (!existing) throw new NotFoundError("Usuario no encontrado");
+
+    const updates: Database["public"]["Tables"]["usuario_app"]["Update"] = {
+      actualizado_en: new Date().toISOString()
+    };
+
+    if (body.rol !== undefined) updates.rol = body.rol;
+    if (body.nombre_visible !== undefined) updates.nombre_visible = body.nombre_visible;
+
+    const { data: usuario, error } = await db
+      .from("usuario_app")
+      .update(updates)
+      .eq("id", usuarioId)
+      .select("*, perfil:perfil(*)")
+      .single();
+
+    if (error || !usuario) throw error;
+
+    return responderExito(usuario);
+  }
+);
+
+adminRoutes.delete("/usuarios/:usuario_id", async (c) => {
+  const db = c.get("db");
+  const usuarioId = c.req.param("usuario_id");
+
+  const { data: existing } = await db
+    .from("usuario_app")
+    .select("id")
+    .eq("id", usuarioId)
+    .single();
+
+  if (!existing) throw new NotFoundError("Usuario no encontrado");
+
+  const { error } = await db
+    .from("usuario_app")
+    .update({
+      activo: false,
+      actualizado_en: new Date().toISOString()
+    })
+    .eq("id", usuarioId);
+
+  if (error) throw error;
+
+  return responderExito({ eliminado: true });
 });
