@@ -62,10 +62,10 @@ function AppHomePage() {
             <i className="fa-solid fa-book-bible" style={{ color: 'var(--color-secundario)' }}></i> Versículo del día
           </h2>
           <p id="verse-text" style={{ fontSize: '1.15rem', fontStyle: 'italic', lineHeight: 1.5, color: 'var(--color-neutro-oscuro-max)', marginBottom: '8px' }}>
-            "{verseOfTheDay.text}"
+            "{verseOfTheDay?.text}"
           </p>
           <p id="verse-ref" style={{ textAlign: 'right', fontSize: '0.95rem', fontWeight: 500, color: 'var(--color-secundario-oscuro)' }}>
-            - {verseOfTheDay.ref}
+            - {verseOfTheDay?.ref}
           </p>
         </div>
         <div style={{ flex: '0 0 140px', zIndex: 1 }}>
@@ -86,7 +86,7 @@ function AppHomePage() {
               <span className="path-card__label">Senda del</span>
               <h3 className="path-card__title">Padre</h3>
               <p className="path-card__desc">Dios es nuestro Padre amoroso.</p>
-              <Link to="/app/sendas#padre" className="path-card__btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+              <Link to="/app/sendas" hash="padre" className="path-card__btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
@@ -99,7 +99,7 @@ function AppHomePage() {
               <span className="path-card__label">Senda del</span>
               <h3 className="path-card__title">Hijo</h3>
               <p className="path-card__desc">Jesús es nuestro Salvador y amigo.</p>
-              <Link to="/app/sendas#hijo" className="path-card__btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+              <Link to="/app/sendas" hash="hijo" className="path-card__btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
@@ -112,7 +112,7 @@ function AppHomePage() {
               <span className="path-card__label">Senda del</span>
               <h3 className="path-card__title">Espíritu Santo</h3>
               <p className="path-card__desc">El Espíritu Santo nos guía y fortalece.</p>
-              <Link to="/app/sendas#espiritu" className="path-card__btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+              <Link to="/app/sendas" hash="espiritu" className="path-card__btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>

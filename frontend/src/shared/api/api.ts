@@ -187,6 +187,29 @@ export interface Actividad {
   }>;
 }
 
+export const RUTAS_API = {
+  CLUBES: {
+    CREAR: "/clubes",
+    UNIRSE: "/clubes/unirse",
+    CLASIFICACION: (id: string) => `/clubes/${id}/clasificacion`,
+    RETOS: (id: string) => `/clubes/${id}/retos`,
+  },
+  SYNC: {
+    PUSH: "/sync/push",
+    PULL: "/sync/pull",
+  },
+  PROGRESO: {
+    REGISTRAR: "/progreso/eventos",
+    MI: "/progreso/mi",
+  },
+  MEDIA: {
+    SUBIR: "/media/subir",
+    VER: (id: string) => `/media/${id}`,
+    URL_FIRMADA: (id: string) => `/media/${id}/url-firmada`,
+    ELIMINAR: (id: string) => `/media/${id}`,
+  },
+} as const;
+
 export interface EventoProgreso {
   evento_id_cliente: string;
   tipo_evento:
