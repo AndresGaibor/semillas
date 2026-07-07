@@ -144,10 +144,12 @@
 /* ── Reset y base ────────────────────────────────────────────
    Elimina estilos por defecto del navegador.
    ─────────────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin    : 0;
-  padding   : 0;
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin    : 0;
+    padding   : 0;
+  }
 }
 
 html {

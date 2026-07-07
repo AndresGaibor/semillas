@@ -18,7 +18,7 @@ const fallbacksGrupoEdad: GrupoEdad[] = [
     nombre: "Semillas",
     edad_minima: 5,
     edad_maxima: 8,
-    descripcion: "Descubre a Dios con historias y actividades sencillas.",
+    descripcion: "Descubre a Dios a través de historias y actividades sencillas.",
     imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/semillas.png",
     orden: 1,
   },
@@ -38,11 +38,56 @@ const fallbacksGrupoEdad: GrupoEdad[] = [
     nombre: "Embajadores",
     edad_minima: 13,
     edad_maxima: 17,
-    descripcion: "Profundiza tu fe y vive con propósito.",
+    descripcion: "Profundiza en tu fe y vive con más propósito.",
     imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/embajadores.png",
     orden: 3,
   },
 ];
+
+const topbarStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "16px 24px",
+  background: "#ffffff",
+  borderBottom: "1px solid #e5e7eb",
+  position: "sticky",
+  top: 0,
+  zIndex: 50,
+};
+
+const brandStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  textDecoration: "none",
+};
+
+const helpBtnStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  background: "transparent",
+  border: "1.5px solid #e5e7eb",
+  borderRadius: "20px",
+  padding: "8px 16px",
+  fontFamily: "inherit",
+  fontSize: "14px",
+  fontWeight: 700,
+  color: "#1A1A1A",
+  cursor: "pointer",
+};
+
+const mainStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "24px 20px",
+  maxWidth: "1200px",
+  margin: "0 auto",
+  width: "100%",
+};
 
 function OnboardingPage() {
   const navigate = useNavigate();
@@ -61,13 +106,10 @@ function OnboardingPage() {
     return fallbacksGrupoEdad;
   }, [ageGroupsQuery.data]);
 
-  // Pre-seleccionar la franja de "Semillas" por defecto una vez cargados los datos
   useEffect(() => {
     if (data && data.length > 0) {
-      const semillas = data.find(
-        (g) => g.codigo.toLowerCase() === "semillas"
-      );
-      setSelectedGroupId(semillas ? semillas.id : (data[0]?.id || ""));
+      const semillas = data.find((g) => g.codigo.toLowerCase() === "semillas");
+      setSelectedGroupId(semillas ? semillas.id : (data[0]?.id ?? ""));
     }
   }, [data]);
 
@@ -79,20 +121,45 @@ function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EC] flex flex-col font-sans text-[#123B2C]">
-      {/* Topbar */}
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 sticky top-0 z-50 w-full">
-        <Link to="/" className="flex items-center gap-3 no-underline">
+    <div
+      style={{
+        fontFamily: "'Nunito', sans-serif",
+        background: "#ffffff",
+        color: "#15124b",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        margin: 0,
+        padding: 0,
+        boxSizing: "border-box",
+      }}
+    >
+      {/* ── Topbar ── */}
+      <header style={topbarStyle}>
+        <Link to="/" style={brandStyle}>
           <img
             src={logoImg}
             alt="Logo de Semilla"
-            className="w-14 h-14 object-contain"
+            style={{ width: "56px", height: "56px", objectFit: "contain" }}
           />
-          <div className="flex flex-col text-left">
-            <span className="text-[1.95rem] font-extrabold text-[#512DA8] leading-none">
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span
+              style={{
+                fontSize: "1.95rem",
+                fontWeight: 800,
+                color: "#512DA8",
+                lineHeight: 1.1,
+              }}
+            >
               Semillas
             </span>
-            <span className="text-[0.64rem] text-[#43A047] font-semibold hidden xs:block">
+            <span
+              style={{
+                fontSize: "0.64rem",
+                color: "#43A047",
+                fontWeight: 600,
+              }}
+            >
               Crecer en la Palabra, vivir Su verdad
             </span>
           </div>
@@ -100,40 +167,137 @@ function OnboardingPage() {
 
         <button
           onClick={() => setIsHelpOpen(true)}
-          className="flex items-center gap-2 bg-transparent border-2 border-slate-200 rounded-full px-4 py-2 font-bold text-sm text-[#1A1A1A] cursor-pointer hover:border-[#B39DDB] hover:bg-[#EDE7F6] transition-all"
+          style={helpBtnStyle}
         >
           <HelpCircle size={16} />
           Ayuda
         </button>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-start py-8 px-4 md:py-12 md:px-6 max-w-[1200px] w-full mx-auto">
-        <div className="text-center mb-8 max-w-lg">
-          <div className="text-3xl md:text-4xl font-extrabold text-[#311B92] mb-3 leading-tight font-sans">
+      {/* ── Main Content ── */}
+      <main style={mainStyle}>
+
+        {/* Header text */}
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+          <h1
+            style={{
+              fontSize: "32px",
+              fontWeight: 800,
+              color: "#311B92",
+              lineHeight: 1.2,
+              margin: "0 0 12px 0",
+            }}
+          >
             Elige tu franja de edad
-          </div>
-          <p className="text-base text-[#5C5C5C]">
+          </h1>
+          <p style={{ fontSize: "16px", color: "#5C5C5C", margin: 0 }}>
             Selecciona la opción que mejor te representa. Podrás cambiarla después.
           </p>
         </div>
 
-        {/* Indicador de Pasos (Tabs) */}
-        <div className="flex bg-[#F4F5F7] rounded-xl p-1 mb-10 w-full max-w-[600px] mx-auto border border-slate-100">
-          <div className="flex-1 text-center py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 bg-white text-[#7E57C2] shadow-sm">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs text-white bg-[#7E57C2] font-bold">1</span>
+        {/* Step indicator */}
+        <div
+          style={{
+            display: "flex",
+            background: "#F4F5F7",
+            borderRadius: "12px",
+            padding: "4px",
+            marginBottom: "32px",
+            width: "100%",
+            maxWidth: "600px",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "12px",
+              borderRadius: "8px",
+              fontWeight: 700,
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              background: "#ffffff",
+              color: "#7E57C2",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                fontSize: "12px",
+                color: "#fff",
+                background: "#7E57C2",
+                fontWeight: 700,
+              }}
+            >
+              1
+            </span>
             Tu edad
           </div>
-          <div className="flex-1 text-center py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 text-slate-400 bg-transparent">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs text-white bg-slate-300 font-bold">2</span>
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "12px",
+              borderRadius: "8px",
+              fontWeight: 700,
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              color: "#9E9E9E",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                fontSize: "12px",
+                color: "#fff",
+                background: "#BDBDBD",
+                fontWeight: 700,
+              }}
+            >
+              2
+            </span>
             Tu información
           </div>
         </div>
 
-        {/* Cards Grid */}
-        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-6 mb-8 w-full justify-center flex-wrap">
+        {/* Cards */}
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            justifyContent: "center",
+            marginBottom: "32px",
+            width: "100%",
+            flexWrap: "wrap",
+          }}
+        >
           {ageGroupsQuery.isLoading && (
-            <p className="text-center text-[#123b2c]/40 font-semibold py-12 w-full">
+            <p
+              style={{
+                textAlign: "center",
+                color: "rgba(18,59,44,0.4)",
+                fontWeight: 600,
+                padding: "48px 0",
+                width: "100%",
+              }}
+            >
               Cargando franjas...
             </p>
           )}
@@ -143,9 +307,19 @@ function OnboardingPage() {
             return (
               <label
                 key={ageGroup.id}
-                className={`flex flex-col rounded-2xl border-2 cursor-pointer transition-all duration-200 shadow-sm overflow-hidden relative hover:-translate-y-1 hover:shadow-md w-full max-w-[400px] md:w-[280px] ${
-                  isSelected ? "border-[#7E57C2] bg-[#EDE7F6]" : "border-slate-200 bg-white hover:border-[#7E57C2]/30"
-                }`}
+                style={{
+                  background: isSelected ? "#EDE7F6" : "#ffffff",
+                  border: `2px solid ${isSelected ? "#7E57C2" : "#e5e7eb"}`,
+                  borderRadius: "16px",
+                  width: "280px",
+                  cursor: "pointer",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
+                  overflow: "hidden",
+                  transition: "all 0.2s ease",
+                }}
               >
                 <input
                   type="radio"
@@ -153,32 +327,97 @@ function OnboardingPage() {
                   value={ageGroup.id}
                   checked={isSelected}
                   onChange={() => setSelectedGroupId(ageGroup.id)}
-                  className="absolute opacity-0 w-0 h-0"
+                  style={{
+                    position: "absolute",
+                    opacity: 0,
+                    width: 0,
+                    height: 0,
+                  }}
                 />
-                
-                <div className="w-full h-[160px] relative bg-[#e5f0f9] overflow-hidden shrink-0">
+
+                {/* Card image */}
+                <div
+                  style={{
+                    width: "100%",
+                    height: "160px",
+                    position: "relative",
+                    background: "#e5f0f9",
+                    flexShrink: 0,
+                  }}
+                >
                   <img
                     src={ageGroup.imagen_url ?? undefined}
                     alt={ageGroup.nombre}
-                    className="w-full h-full object-cover"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
                   />
+                  {/* Checkmark */}
                   <div
-                    className={`absolute flex items-center justify-center font-bold text-white bg-[#7E57C2] rounded-full shadow transition-all duration-200 top-4 right-4 w-8 h-8 text-lg ${
-                      isSelected ? "opacity-100 scale-100" : "opacity-0 scale-75"
-                    }`}
+                    style={{
+                      position: "absolute",
+                      top: "16px",
+                      right: "16px",
+                      width: "32px",
+                      height: "32px",
+                      background: "#7E57C2",
+                      color: "white",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                      fontSize: "18px",
+                      opacity: isSelected ? 1 : 0,
+                      transform: isSelected ? "scale(1)" : "scale(0.8)",
+                      transition: "all 0.2s ease",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                    }}
                   >
                     ✓
                   </div>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-start text-left">
-                  <div className="text-xl font-bold text-[#1A1A1A] mb-1">
+                {/* Card content */}
+                <div
+                  style={{
+                    padding: "16px",
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <h2
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: "#1A1A1A",
+                      margin: "0 0 4px 0",
+                    }}
+                  >
                     {ageGroup.nombre}
-                  </div>
-                  <div className="text-sm font-semibold text-[#7E57C2] mb-3">
+                  </h2>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      color: "#7E57C2",
+                      marginBottom: "12px",
+                    }}
+                  >
                     {ageGroup.edad_minima} - {ageGroup.edad_maxima} años
                   </div>
-                  <p className="text-sm text-[#5C5C5C] leading-relaxed">
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "#5C5C5C",
+                      lineHeight: 1.5,
+                      margin: 0,
+                    }}
+                  >
                     {ageGroup.descripcion}
                   </p>
                 </div>
@@ -187,16 +426,30 @@ function OnboardingPage() {
           })}
         </div>
 
-        {/* Continue Button */}
-        <div className="w-full max-w-[400px] flex justify-center mt-4">
+        {/* Continue button */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "400px",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <button
             onClick={handleContinue}
             disabled={!selectedGroupId}
-            className="w-full border-none rounded-lg py-4 text-base font-bold transition-colors duration-200 shadow-sm flex items-center justify-center gap-2"
             style={{
-              background: selectedGroupId ? '#7E57C2' : '#E0E0E0',
-              color: selectedGroupId ? '#FFFFFF' : '#9E9E9E',
-              cursor: selectedGroupId ? 'pointer' : 'not-allowed'
+              width: "100%",
+              backgroundColor: selectedGroupId ? "#7E57C2" : "#E0E0E0",
+              color: selectedGroupId ? "#ffffff" : "#9E9E9E",
+              border: "none",
+              borderRadius: "8px",
+              padding: "16px 24px",
+              fontSize: "16px",
+              fontWeight: 600,
+              cursor: selectedGroupId ? "pointer" : "not-allowed",
+              fontFamily: "inherit",
+              transition: "background-color 0.2s ease",
             }}
           >
             Continuar
@@ -204,42 +457,107 @@ function OnboardingPage() {
         </div>
       </main>
 
-      {/* Modal de Ayuda */}
-      <div
-        onClick={() => setIsHelpOpen(false)}
-        className={`fixed inset-0 bg-black/60 z-[1000] flex justify-center items-center backdrop-blur-[2px] transition-all duration-300 ${
-          isHelpOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-      >
+      {/* ── Help Modal ── */}
+      {isHelpOpen && (
         <div
-          onClick={(e) => e.stopPropagation()}
-          className={`bg-white rounded-2xl w-[90%] max-w-[450px] p-8 shadow-2xl transition-all duration-300 text-left ${
-            isHelpOpen ? "translate-y-0 scale-100" : "translate-y-5 scale-95"
-          }`}
+          onClick={() => setIsHelpOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+            backdropFilter: "blur(2px)",
+          }}
         >
-          <div className="flex justify-between items-start mb-5">
-            <div className="text-xl font-extrabold text-[#512DA8] leading-tight m-0">
-              ¿Por qué elegir tu edad?
-            </div>
-            <button
-              onClick={() => setIsHelpOpen(false)}
-              className="border-none text-2xl w-8 h-8 rounded-full flex justify-center items-center text-[#5C5C5C] hover:text-[#4527A0] transition-all duration-200"
-              style={{ background: '#F5F5F5', cursor: 'pointer' }}
-              aria-label="Cerrar modal"
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#ffffff",
+              borderRadius: "16px",
+              width: "90%",
+              maxWidth: "450px",
+              padding: "32px",
+              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "20px",
+              }}
             >
-              &times;
-            </button>
-          </div>
-          <div className="text-left">
-            <p className="text-[15px] text-[#2E2E2E] leading-relaxed mb-4">
-              Queremos que tu experiencia en <strong className="font-bold text-[#512DA8]">Semillas</strong> sea la mejor posible. Al elegir tu franja de edad, adaptaremos el contenido, las historias y las actividades para que sean más afines a tus intereses y nivel de comprensión.
-            </p>
-            <p className="text-[15px] text-[#2E2E2E] leading-relaxed">
-              ¡No te preocupes! Siempre podrás cambiar esta configuración más adelante desde tu perfil.
-            </p>
+              <h3
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 800,
+                  color: "#512DA8",
+                  margin: 0,
+                  lineHeight: 1.3,
+                }}
+              >
+                ¿Por qué elegir tu edad?
+              </h3>
+              <button
+                onClick={() => setIsHelpOpen(false)}
+                style={{
+                  background: "#F5F5F5",
+                  border: "none",
+                  fontSize: "24px",
+                  lineHeight: 1,
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: "#5C5C5C",
+                  cursor: "pointer",
+                }}
+                aria-label="Cerrar modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div>
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "#2E2E2E",
+                  lineHeight: 1.65,
+                  marginBottom: "16px",
+                }}
+              >
+                Queremos que tu experiencia en{" "}
+                <strong style={{ fontWeight: 700, color: "#512DA8" }}>
+                  Semillas
+                </strong>{" "}
+                sea la mejor posible. Al elegir tu franja de edad, adaptaremos
+                el contenido, las historias y las actividades para que sean más
+                afines a tus intereses y nivel de comprensión.
+              </p>
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "#2E2E2E",
+                  lineHeight: 1.65,
+                  margin: 0,
+                }}
+              >
+                ¡No te preocupes! Siempre podrás cambiar esta configuración más
+                adelante desde tu perfil.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
