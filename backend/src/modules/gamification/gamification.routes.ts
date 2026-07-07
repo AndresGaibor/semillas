@@ -20,7 +20,7 @@ function serializarLogro(logro: Record<string, unknown>) {
 }
 
 function serializarLogroUsuario(fila: Record<string, unknown>) {
-  const logro = (fila.logro ?? fila.achievement ?? null) as Record<string, unknown> | null;
+  const logro = (fila.logro ?? null) as Record<string, unknown> | null;
 
   return {
     usuario_id: String(fila.usuario_id ?? ""),

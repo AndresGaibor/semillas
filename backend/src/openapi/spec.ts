@@ -107,14 +107,43 @@ const TemaResumido = z.object({
   publicado_en: z.string().datetime().nullable().openapi({ description: "Fecha de publicacion", example: null })
 }).openapi("TemaResumido");
 
+const RecursoMultimediaSchema = z.object({
+  id: z.string().uuid().openapi({ description: "ID del recurso multimedia", example: uuidExample }),
+  tipo: z.string().openapi({ description: "Tipo del recurso", example: "imagen" }),
+  url_publica: z.string().url().openapi({ description: "URL publica", example: "https://cdn.ejemplo.com/portada.png" }),
+  texto_alternativo: z.string().nullable().openapi({ description: "Texto alternativo", example: "Portada del tema" }),
+  titulo: z.string().nullable().openapi({ description: "Titulo del recurso", example: "Portada" }),
+  tipo_mime: z.string().nullable().openapi({ description: "Tipo MIME", example: "image/png" }),
+  tamano_bytes: z.number().nullable().openapi({ description: "Tamano en bytes", example: 102400 }),
+  duracion_seg: z.number().nullable().openapi({ description: "Duracion en segundos", example: null }),
+  ancho_px: z.number().nullable().openapi({ description: "Ancho en pixeles", example: 1280 }),
+  alto_px: z.number().nullable().openapi({ description: "Alto en pixeles", example: 720 })
+}).openapi("RecursoMultimedia");
+
+const VersiculoClaveSchema = z.object({
+  id: z.string().uuid().openapi({ description: "ID del versiculo clave", example: uuidExample }),
+  tema_id: z.string().uuid().openapi({ description: "ID del tema", example: uuidExample }),
+  texto: z.string().openapi({ description: "Texto del versiculo", example: "En el principio creo Dios los cielos y la tierra." }),
+  libro_id: z.number().openapi({ description: "ID del libro biblico", example: 1 }),
+  capitulo: z.number().openapi({ description: "Numero de capitulo", example: 1 }),
+  versiculo: z.number().openapi({ description: "Numero de versiculo", example: 1 })
+}).openapi("VersiculoClave");
+
+const ReferenciaBiblicaSchema = z.object({
+  id: z.string().uuid().openapi({ description: "ID de la referencia biblica", example: uuidExample }),
+  tema_id: z.string().uuid().openapi({ description: "ID del tema", example: uuidExample }),
+  libro_id: z.number().openapi({ description: "ID del libro biblico", example: 1 }),
+  capitulo: z.number().openapi({ description: "Numero de capitulo", example: 1 }),
+  versiculo_inicio: z.number().openapi({ description: "Versiculo inicial", example: 1 }),
+  versiculo_fin: z.number().openapi({ description: "Versiculo final", example: 3 }),
+  principal: z.boolean().openapi({ description: "Indica si es la referencia principal", example: true })
+}).openapi("ReferenciaBiblica");
+
 const TemaDetallado = TemaResumido.extend({
-  version_biblica_id: z.string().uuid().nullable(),
-  creado_por: z.string().uuid().nullable(),
-  publicado_por: z.string().uuid().nullable(),
-  revisado_por: z.string().uuid().nullable(),
-  revisado_en: z.string().datetime().nullable(),
-  creado_en: z.string().datetime().openapi({ description: "Fecha de creacion", example: "2026-01-01T00:00:00.000Z" }),
-  actualizado_en: z.string().datetime().openapi({ description: "Fecha de ultima actualizacion", example: "2026-01-01T00:00:00.000Z" })
+  senda: SendaSchema.nullable(),
+  portada_recurso: RecursoMultimediaSchema.nullable(),
+  versiculo_clave: VersiculoClaveSchema.nullable(),
+  referencia_biblica: ReferenciaBiblicaSchema.nullable()
 }).openapi("TemaDetallado");
 
 const ProgresoTema = z.object({
@@ -193,8 +222,8 @@ const ActividadSchema = z.object({
   obligatorio: z.boolean(), retroalimentacion: z.string().nullable(),
   configuracion: z.object({}).passthrough(),
   creado_en: z.string().datetime(), actualizado_en: z.string().datetime(),
-  activity_type: TipoActividadSchema.optional(),
-  options: z.array(OpcionActividadSchema).optional()
+  tipo_actividad: TipoActividadSchema.nullable(),
+  opciones: z.array(OpcionActividadSchema)
 }).openapi("Actividad");
 
 const ClubSchema = z.object({
@@ -266,6 +295,9 @@ registry.register("Senda", SendaSchema);
 registry.register("GrupoEdad", GrupoEdadSchema);
 registry.register("TemaResumido", TemaResumido);
 registry.register("TemaDetallado", TemaDetallado);
+registry.register("RecursoMultimedia", RecursoMultimediaSchema);
+registry.register("VersiculoClave", VersiculoClaveSchema);
+registry.register("ReferenciaBiblica", ReferenciaBiblicaSchema);
 registry.register("PasoCRECER", PasoCRECER);
 registry.register("Actividad", ActividadSchema);
 registry.register("ProgresoTema", ProgresoTema);

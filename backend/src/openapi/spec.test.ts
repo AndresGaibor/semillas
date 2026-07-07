@@ -15,6 +15,12 @@ describe("openapi spec", () => {
     expect(spec.paths["/actividades/{actividad_id}"].get.parameters[0].name).toBe("actividad_id");
   });
 
+  it("documenta el tema detallado con senda, portada, versiculo y referencia biblica", () => {
+    const detalle = spec.components.schemas.TemaDetallado.allOf[1].properties;
+
+    expect(Object.keys(detalle)).toEqual(["senda", "portada_recurso", "versiculo_clave", "referencia_biblica"]);
+  });
+
   it("documenta sendas con claves canónicas en español", () => {
     expect(Object.keys(spec.components.schemas.Senda.properties)).toEqual([
       "id",
@@ -45,6 +51,31 @@ describe("openapi spec", () => {
       "ganado_en",
       "logro"
     ]);
+  });
+
+  it("documenta actividad con tipo_actividad y opciones", () => {
+    expect(Object.keys(spec.components.schemas.Actividad.properties)).toEqual([
+      "id",
+      "tema_id",
+      "paso_id",
+      "tipo_actividad_id",
+      "grupo_edad_id",
+      "titulo",
+      "consigna",
+      "orden",
+      "xp_recompensa",
+      "dificultad",
+      "limite_tiempo_seg",
+      "obligatorio",
+      "retroalimentacion",
+      "configuracion",
+      "creado_en",
+      "actualizado_en",
+      "tipo_actividad",
+      "opciones"
+    ]);
+    expect(spec.components.schemas.Actividad.properties).not.toHaveProperty("activity_type");
+    expect(spec.components.schemas.Actividad.properties).not.toHaveProperty("options");
   });
 
   it("documenta /progreso/eventos con el envelope canónico exito + datos", () => {

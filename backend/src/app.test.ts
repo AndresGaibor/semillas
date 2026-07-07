@@ -188,6 +188,70 @@ function instalarMockSupabase() {
       );
     }
 
+    if (metodo === "GET" && ruta.includes("/rest/v1/tema") && !prefer.includes("head=true")) {
+      return new Response(
+        JSON.stringify({
+          id: "tema-1",
+          senda_id: "senda-1",
+          titulo: "La creación",
+          slug: "la-creacion",
+          objetivo: "Entender que Dios creó todo",
+          resumen: "Resumen",
+          portada_recurso_id: "recurso-1",
+          estado: "publicado",
+          version_biblica_id: "biblia-1",
+          xp_recompensa: 50,
+          minutos_estimados: 15,
+          version_contenido: 2,
+          publicado_en: "2026-01-01T00:00:00.000Z",
+          senda: {
+            id: "senda-1",
+            codigo: "PADRE",
+            nombre: "Senda del Padre",
+            descripcion: "Dios es nuestro Padre amoroso.",
+            color_hex: "#3D8BD4",
+            nombre_icono: "crown",
+            orden: 1
+          },
+          portada_recurso: {
+            id: "recurso-1",
+            tipo: "imagen",
+            url_publica: "https://cdn.ejemplo.com/portada.png",
+            texto_alternativo: "Portada del tema",
+            titulo: "Portada",
+            tipo_mime: "image/png",
+            tamano_bytes: 102400,
+            duracion_seg: null,
+            ancho_px: 1280,
+            alto_px: 720
+          },
+          versiculo_clave: {
+            id: "versiculo-1",
+            tema_id: "tema-1",
+            texto: "En el principio creo Dios los cielos y la tierra.",
+            libro_id: 1,
+            capitulo: 1,
+            versiculo: 1
+          },
+          referencias_biblicas: [
+            {
+              id: "ref-1",
+              tema_id: "tema-1",
+              libro_id: 1,
+              capitulo: 1,
+              versiculo_inicio: 1,
+              versiculo_fin: 3,
+              principal: true
+            }
+          ]
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        }
+      );
+    }
+
     if (ruta.includes("/rest/v1/actividad")) {
       return new Response(
         JSON.stringify([
@@ -207,7 +271,36 @@ function instalarMockSupabase() {
             retroalimentacion: "Bien",
             configuracion: { intentos: 3 },
             creado_en: "2026-01-01T00:00:00.000Z",
-            actualizado_en: "2026-01-02T00:00:00.000Z"
+            actualizado_en: "2026-01-02T00:00:00.000Z",
+            tipo_actividad: {
+              id: "tipo-1",
+              codigo: "QUIZ",
+              nombre: "Quiz",
+              descripcion: "Pregunta de selección múltiple",
+              es_juego: true,
+              activo: true,
+              creado_en: "2026-01-01T00:00:00.000Z"
+            },
+            opciones: [
+              {
+                id: "opcion-2",
+                actividad_id: "actividad-1",
+                etiqueta: "B",
+                texto: "Jesús",
+                correcta: false,
+                orden: 2,
+                retroalimentacion: null
+              },
+              {
+                id: "opcion-1",
+                actividad_id: "actividad-1",
+                etiqueta: "A",
+                texto: "Dios",
+                correcta: true,
+                orden: 1,
+                retroalimentacion: "Correcto"
+              }
+            ]
           }
         ]),
         {
@@ -434,7 +527,36 @@ describe("app routes", () => {
           retroalimentacion: "Bien",
           configuracion: { intentos: 3 },
           creado_en: "2026-01-01T00:00:00.000Z",
-          actualizado_en: "2026-01-02T00:00:00.000Z"
+          actualizado_en: "2026-01-02T00:00:00.000Z",
+          tipo_actividad: {
+            id: "tipo-1",
+            codigo: "QUIZ",
+            nombre: "Quiz",
+            descripcion: "Pregunta de selección múltiple",
+            es_juego: true,
+            activo: true,
+            creado_en: "2026-01-01T00:00:00.000Z"
+          },
+          opciones: [
+            {
+              id: "opcion-1",
+              actividad_id: "actividad-1",
+              etiqueta: "A",
+              texto: "Dios",
+              correcta: true,
+              orden: 1,
+              retroalimentacion: "Correcto"
+            },
+            {
+              id: "opcion-2",
+              actividad_id: "actividad-1",
+              etiqueta: "B",
+              texto: "Jesús",
+              correcta: false,
+              orden: 2,
+              retroalimentacion: null
+            }
+          ]
         }
       ]
     });
@@ -553,7 +675,169 @@ describe("app routes", () => {
     });
   });
 
+  it("responde configuracion-dev sin localStorage ni key legacy en desarrollo", async () => {
+    instalarMockSupabase();
+
+    const response = await app.fetch(
+      new Request("http://localhost/autenticacion/configuracion-dev", {
+        method: "POST"
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+
+    const body = await jsonResponse(response);
+    expect(body).toHaveProperty("exito", true);
+    expect((body as { datos: Record<string, unknown> }).datos).toHaveProperty("mensaje");
+    expect((body as { datos: Record<string, unknown> }).datos).not.toHaveProperty("localStorage");
+    expect(JSON.stringify(body)).not.toContain("semillas_guest_user_id");
+  });
+
+  it("expone el tema completo con senda, portada, versiculo y referencia biblica", async () => {
+    instalarMockSupabase();
+
+    const response = await app.fetch(new Request("http://localhost/temas/tema-1"), env);
+
+    expect(response.status).toBe(200);
+    expect(await jsonResponse(response)).toEqual({
+      exito: true,
+      datos: {
+        id: "tema-1",
+        senda_id: "senda-1",
+        titulo: "La creación",
+        slug: "la-creacion",
+        objetivo: "Entender que Dios creó todo",
+        resumen: "Resumen",
+        portada_recurso_id: "recurso-1",
+        estado: "publicado",
+        version_biblica_id: "biblia-1",
+        xp_recompensa: 50,
+        minutos_estimados: 15,
+        version_contenido: 2,
+        publicado_en: "2026-01-01T00:00:00.000Z",
+        senda: {
+          id: "senda-1",
+          codigo: "PADRE",
+          nombre: "Senda del Padre",
+          descripcion: "Dios es nuestro Padre amoroso.",
+          color_hex: "#3D8BD4",
+          nombre_icono: "crown",
+          orden: 1
+        },
+        portada_recurso: {
+          id: "recurso-1",
+          tipo: "imagen",
+          url_publica: "https://cdn.ejemplo.com/portada.png",
+          texto_alternativo: "Portada del tema",
+          titulo: "Portada",
+          tipo_mime: "image/png",
+          tamano_bytes: 102400,
+          duracion_seg: null,
+          ancho_px: 1280,
+          alto_px: 720
+        },
+        versiculo_clave: {
+          id: "versiculo-1",
+          tema_id: "tema-1",
+          texto: "En el principio creo Dios los cielos y la tierra.",
+          libro_id: 1,
+          capitulo: 1,
+          versiculo: 1
+        },
+        referencia_biblica: {
+          id: "ref-1",
+          tema_id: "tema-1",
+          libro_id: 1,
+          capitulo: 1,
+          versiculo_inicio: 1,
+          versiculo_fin: 3,
+          principal: true
+        }
+      }
+    });
+  });
+
   it("expone gamificación con la clave logro y sin achievement", async () => {
+    instalarMockSupabase();
+
+    const baseFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/logro_usuario")) {
+        return new Response(
+          JSON.stringify([
+            {
+              usuario_id: usuarioInvitado.id,
+              logro_id: "logro-1",
+              ganado_en: "2026-01-02T00:00:00.000Z",
+              logro: {
+                id: "logro-1",
+                codigo: "PRIMER_TEMA",
+                nombre: "Primer paso",
+                descripcion: "Completaste tu primera lección.",
+                codigo_criterio: "temas_completados",
+                valor_criterio: 1,
+                bono_xp: 20,
+                url_icono: null,
+                activo: true,
+                creado_en: "2026-01-01T00:00:00.000Z"
+              }
+            }
+          ]),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          }
+        );
+      }
+
+      return baseFetch(input, init);
+    }) as typeof fetch;
+
+    const response = await app.fetch(
+      new Request("http://localhost/gamificacion/mi", {
+        headers: { "x-guest-user-id": usuarioInvitado.id }
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+    expect(await jsonResponse(response)).toEqual({
+      exito: true,
+      datos: {
+        nivel: {
+          usuario_id: usuarioInvitado.id,
+          xp_total: 150,
+          numero_nivel: 3,
+          nombre_nivel: "Explorador"
+        },
+        logros: [
+          {
+            usuario_id: usuarioInvitado.id,
+            logro_id: "logro-1",
+            ganado_en: "2026-01-02T00:00:00.000Z",
+            logro: {
+              id: "logro-1",
+              codigo: "PRIMER_TEMA",
+              nombre: "Primer paso",
+              descripcion: "Completaste tu primera lección.",
+              codigo_criterio: "temas_completados",
+              valor_criterio: 1,
+              bono_xp: 20,
+              url_icono: null,
+              activo: true,
+              creado_en: "2026-01-01T00:00:00.000Z"
+            }
+          }
+        ]
+      }
+    });
+  });
+
+  it("ignora achievement legado en gamificación", async () => {
     instalarMockSupabase();
 
     const baseFetch = globalThis.fetch;
@@ -613,19 +897,7 @@ describe("app routes", () => {
           {
             usuario_id: usuarioInvitado.id,
             logro_id: "logro-1",
-            ganado_en: "2026-01-02T00:00:00.000Z",
-            logro: {
-              id: "logro-1",
-              codigo: "PRIMER_TEMA",
-              nombre: "Primer paso",
-              descripcion: "Completaste tu primera lección.",
-              codigo_criterio: "temas_completados",
-              valor_criterio: 1,
-              bono_xp: 20,
-              url_icono: null,
-              activo: true,
-              creado_en: "2026-01-01T00:00:00.000Z"
-            }
+            ganado_en: "2026-01-02T00:00:00.000Z"
           }
         ]
       }
