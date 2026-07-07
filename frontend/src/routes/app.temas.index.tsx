@@ -34,8 +34,12 @@ function usePortadasFirmadas(temas: Tema[]) {
       queryKey: ["tema-portada", t.id],
       queryFn: () => obtenerUrlPortadaTema(t.id),
       enabled: Boolean(t.portada_recurso?.id),
-      retry: false,
-      staleTime: 240_000
+      // Las URLs firmadas expiran en 300s (5 min).
+      // staleTime < 300s para refrescar antes de que venzan.
+      staleTime: 3 * 60 * 1000,        // 3 min → considera stale antes del vencimiento
+      gcTime: 4 * 60 * 1000,           // 4 min → saca URLs vencidas del caché
+      retry: 1,                         // 1 reintento si el endpoint falla
+      refetchOnWindowFocus: true,       // refresca al volver a la pestaña
     })),
     combine: (results) => {
       const mapa = new Map<string, string | null>();
@@ -47,6 +51,7 @@ function usePortadasFirmadas(temas: Tema[]) {
     }
   });
 }
+
 
 const PROGRESO_POR_TEMA: Record<string, number> = {
   "la-creacion-del-mundo": 100,
