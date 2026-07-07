@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Search } from "lucide-react";
 import { unirClases } from "@/lib/utilidades";
 
 // ── 01. Tabs con Línea ───────────────────────────────────────────────────────
@@ -33,6 +34,78 @@ export const TabsLinea: React.FC<PropiedadesTabsLinea> = ({
             )}
           >
             {tab}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+export interface OpcionTab {
+  id: string;
+  label: string;
+  count?: number;
+  badgeClassName?: string;
+}
+
+export interface PropiedadesTabsOpciones {
+  opciones: OpcionTab[];
+  activo: string;
+  onCambiar: (id: string) => void;
+  clase?: string;
+  variante?: "linea" | "pildora";
+}
+
+export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
+  opciones,
+  activo,
+  onCambiar,
+  clase,
+  variante = "linea",
+}) => {
+  const esVariantePildora = variante === "pildora";
+
+  return (
+    <div
+      className={unirClases(
+        esVariantePildora
+          ? "flex flex-wrap gap-2"
+          : "flex gap-6 border-b border-slate-100 pb-px mb-6 text-left select-none overflow-x-auto whitespace-nowrap",
+        clase,
+      )}
+    >
+      {opciones.map((opcion) => {
+        const esActivo = opcion.id === activo;
+
+        return (
+          <button
+            key={opcion.id}
+            type="button"
+            onClick={() => onCambiar(opcion.id)}
+            className={unirClases(
+              esVariantePildora
+                ? "px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer transition-all"
+                : "flex items-center gap-2 pb-3 font-bold text-[13px] transition-all border-b-2 outline-none cursor-pointer",
+              esActivo
+                ? esVariantePildora
+                  ? "bg-[#7E57C2] text-white shadow-sm"
+                  : "border-[#2e9e5b] text-[#2e9e5b]"
+                : esVariantePildora
+                  ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  : "border-transparent text-slate-500 hover:text-slate-700",
+            )}
+          >
+            <span>{opcion.label}</span>
+            {opcion.count !== undefined && opcion.count > 0 && opcion.id !== "todos" && (
+              <span
+                className={unirClases(
+                  "inline-flex px-2 py-0.5 rounded-full text-[10px]",
+                  opcion.badgeClassName,
+                )}
+              >
+                {opcion.count}
+              </span>
+            )}
           </button>
         );
       })}
@@ -182,3 +255,46 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
     </div>
   );
 };
+
+export interface PropiedadesCampoBusqueda
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> {
+  valor: string;
+  onChange: (valor: string) => void;
+  contenedorClassName?: string;
+  inputClassName?: string;
+  icono?: React.ReactNode;
+}
+
+export const CampoBusqueda = React.forwardRef<HTMLInputElement, PropiedadesCampoBusqueda>(
+  (
+    {
+      valor,
+      onChange,
+      contenedorClassName,
+      inputClassName,
+      icono = <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutro size-4" />,
+      className,
+      ...props
+    },
+    referencia,
+  ) => {
+    return (
+      <div className={unirClases("relative flex items-center", contenedorClassName)}>
+        {icono}
+        <input
+          ref={referencia}
+          value={valor}
+          onChange={(event) => onChange(event.target.value)}
+          className={unirClases(
+            "w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-neutro-oscuro-max outline-none transition-colors focus:border-primario focus:ring-1 focus:ring-primario",
+            inputClassName,
+            className,
+          )}
+          {...props}
+        />
+      </div>
+    );
+  },
+);
+
+CampoBusqueda.displayName = "CampoBusqueda";

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Search } from "lucide-react";
+import { TabsOpciones, CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
 
 export interface DescargasTabsFilterProps {
   activeTab: string;
@@ -22,29 +22,20 @@ export const DescargasTabsFilter: React.FC<DescargasTabsFilterProps> = ({
   searchQuery,
   onSearchChange,
 }) => {
-  const tabs = ["Todos", "Historias", "Actividades", "Imprimibles", "Canciones"];
-
   return (
     <div>
-      {/* Tabs */}
-      <div className="flex border-b border-slate-200 mb-6 gap-6 max-sm:gap-4 overflow-x-auto">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => onTabChange(tab)}
-              className={`py-3 px-1 border-0 border-b-2 font-extrabold text-sm cursor-pointer transition-all bg-transparent ${
-                isActive
-                  ? "border-[#7E57C2] text-[#7E57C2]"
-                  : "border-transparent text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
-      </div>
+      <TabsOpciones
+        activo={activeTab}
+        onCambiar={onTabChange}
+        opciones={[
+          { id: "Todos", label: "Todos" },
+          { id: "Historias", label: "Historias" },
+          { id: "Actividades", label: "Actividades" },
+          { id: "Imprimibles", label: "Imprimibles" },
+          { id: "Canciones", label: "Canciones" },
+        ]}
+        clase="mb-6"
+      />
 
       {/* Filtros y Búsqueda */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6 w-full">
@@ -75,16 +66,13 @@ export const DescargasTabsFilter: React.FC<DescargasTabsFilterProps> = ({
         </div>
 
         {/* Buscador */}
-        <div className="relative w-full md:w-80 flex items-center">
-          <Search className="absolute left-4 text-slate-400" size={18} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar descargas..."
-            className="w-full pl-11 pr-4 py-3 bg-white border border-[#e5e7eb] rounded-xl text-sm font-sans outline-none focus:border-[#7E57C2] transition-colors"
-          />
-        </div>
+        <CampoBusqueda
+          valor={searchQuery}
+          onChange={onSearchChange}
+          placeholder="Buscar descargas..."
+          contenedorClassName="w-full md:w-80"
+          inputClassName="font-sans focus:border-[#7E57C2] focus:ring-[#7E57C2]/20"
+        />
       </div>
     </div>
   );
