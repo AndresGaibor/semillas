@@ -80,15 +80,12 @@ const SendaSchema = z.object({
 }).openapi("Senda");
 
 const GrupoEdadSchema = z.object({
-  id: z.string().uuid().openapi({ description: "ID del grupo etario", example: uuidExample }),
   codigo: z.string().openapi({ description: "Codigo del grupo", example: "SEMILLAS" }),
   nombre: z.string().openapi({ description: "Nombre del grupo", example: "Semillas 5-8" }),
   edad_minima: z.number().openapi({ description: "Edad minima", example: 5 }),
   edad_maxima: z.number().openapi({ description: "Edad maxima", example: 8 }),
   descripcion: z.string().nullable().openapi({ description: "Descripcion del grupo", example: "Ninos de 5 a 8 anos" }),
-  orden: z.number().openapi({ description: "Orden de visualizacion", example: 1 }),
-  dominio_publico: z.boolean().openapi({ description: "Disponible al publico", example: true }),
-  es_juego: z.boolean().openapi({ description: "Es modo juego", example: false })
+  orden: z.number().openapi({ description: "Orden de visualizacion", example: 1 })
 }).openapi("GrupoEdad");
 
 const TemaResumido = z.object({
@@ -197,11 +194,36 @@ const ProgressEventDuplicateResponse = z.object({
   })
 });
 
-const TipoActividadSchema = z.object({
-  id: z.string().uuid(), codigo: z.string(), nombre: z.string(),
-  descripcion: z.string().nullable(), es_juego: z.boolean(), activo: z.boolean(),
-  creado_en: z.string().datetime()
-}).openapi("TipoActividad");
+const TipoActividadSchema = z
+  .object({
+    id: z.string().uuid().openapi({ description: "ID del tipo de actividad", example: uuidExample }),
+    codigo: z.string().openapi({ description: "Codigo del tipo de actividad", example: "QUIZ" }),
+    nombre: z.string().openapi({ description: "Nombre del tipo de actividad", example: "Quiz" }),
+    descripcion: z.string().nullable().openapi({ description: "Descripcion del tipo de actividad", example: "Pregunta de seleccion multiple" }),
+    es_juego: z.boolean().openapi({ description: "Indica si es un juego", example: true }),
+    activo: z.boolean().openapi({ description: "Indica si esta activo", example: true }),
+    creado_en: z.string().datetime().openapi({ description: "Fecha de creacion", example: "2026-01-01T00:00:00.000Z" })
+  })
+  .openapi("TipoActividad");
+
+const TipoActividadCatalogoSchema = z
+  .object({
+    codigo: z.string().openapi({ description: "Codigo del tipo de actividad", example: "QUIZ" }),
+    nombre: z.string().openapi({ description: "Nombre del tipo de actividad", example: "Quiz" }),
+    descripcion: z.string().nullable().openapi({ description: "Descripcion del tipo de actividad", example: "Pregunta de seleccion multiple" }),
+    es_juego: z.boolean().openapi({ description: "Indica si es un juego", example: true })
+  })
+  .openapi("TipoActividadCatalogo");
+
+const ContenidoPasoCrecerSchema = z
+  .object({
+    id: z.string().uuid().openapi({ description: "ID del contenido CRECER", example: uuidExample }),
+    grupo_edad_id: z.string().uuid().openapi({ description: "ID del grupo etario", example: uuidExample }),
+    titulo: z.string().openapi({ description: "Titulo del contenido", example: "Conectar" }),
+    cuerpo: z.string().openapi({ description: "Cuerpo del contenido", example: "Conecta con la historia biblica" }),
+    instruccion_corta: z.string().nullable().openapi({ description: "Instruccion corta", example: "Mira y escucha" })
+  })
+  .openapi("ContenidoPasoCrecer");
 
 const OpcionActividadSchema = z.object({
   id: z.string().uuid(), actividad_id: z.string().uuid(),
@@ -225,6 +247,34 @@ const ActividadSchema = z.object({
   tipo_actividad: TipoActividadSchema.nullable(),
   opciones: z.array(OpcionActividadSchema)
 }).openapi("Actividad");
+
+const PasoCrecerCatalogoSchema = z
+  .object({
+    codigo: z.string().openapi({ description: "Codigo del paso CRECER", example: "CONECTAR" }),
+    nombre: z.string().openapi({ description: "Nombre del paso CRECER", example: "Conectar" }),
+    descripcion: z.string().nullable().openapi({ description: "Descripcion del paso CRECER", example: "Conecta con la historia biblica" }),
+    orden: z.number().openapi({ description: "Orden de visualizacion", example: 1 }),
+    color_hex: z.string().nullable().openapi({ description: "Color representativo", example: "#3D8BD4" })
+  })
+  .openapi("PasoCrecerCatalogo");
+
+const PasoTemaCrecerSchema = z
+  .object({
+    id: z.string().uuid().openapi({ description: "ID del paso del tema", example: uuidExample }),
+    tema_id: z.string().uuid().openapi({ description: "ID del tema", example: uuidExample }),
+    orden: z.number().openapi({ description: "Orden del paso", example: 1 }),
+    tipo_paso: z
+      .object({
+        id: z.string().uuid().openapi({ description: "ID del tipo de paso", example: uuidExample }),
+        codigo: z.string().openapi({ description: "Codigo del tipo de paso", example: "CONECTAR" }),
+        nombre: z.string().openapi({ description: "Nombre del tipo de paso", example: "Conectar" }),
+        orden: z.number().openapi({ description: "Orden del tipo de paso", example: 1 }),
+        color_hex: z.string().nullable().openapi({ description: "Color del tipo de paso", example: "#3D8BD4" })
+      })
+      .nullable(),
+    contenidos: z.array(ContenidoPasoCrecerSchema)
+  })
+  .openapi("PasoTemaCrecer");
 
 const ClubSchema = z.object({
   id: z.string().uuid(), nombre: z.string().openapi({ example: "Exploradores de la Fe" }),
@@ -260,18 +310,6 @@ const UpdateProfileBody = z.object({
   tamano_texto_preferido: z.enum(["small","medium","large"]).optional().openapi({ example: "medium" })
 }).openapi("UpdateProfileBody");
 
-const CrecerStepType = z.object({
-  id: z.string().uuid(), codigo: z.string().openapi({ example: "CONECTAR" }),
-  nombre: z.string().openapi({ example: "Conectar" }),
-  descripcion: z.string().nullable(), orden: z.number(),
-  color_hex: z.string().nullable().openapi({ example: "#3D8BD4" })
-}).openapi("CrecerStepType");
-
-const PasoCRECER = z.object({
-  id: z.string().uuid(), tema_id: z.string().uuid(), tipo_paso_id: z.string().uuid(),
-  orden: z.number(), obligatorio: z.boolean(), creado_en: z.string().datetime()
-}).openapi("PasoCRECER");
-
 const ProfileResponse = z.object({
   id: z.string().uuid(),
   usuario_id: z.string().uuid(),
@@ -298,7 +336,11 @@ registry.register("TemaDetallado", TemaDetallado);
 registry.register("RecursoMultimedia", RecursoMultimediaSchema);
 registry.register("VersiculoClave", VersiculoClaveSchema);
 registry.register("ReferenciaBiblica", ReferenciaBiblicaSchema);
-registry.register("PasoCRECER", PasoCRECER);
+registry.register("TipoActividad", TipoActividadSchema);
+registry.register("TipoActividadCatalogo", TipoActividadCatalogoSchema);
+registry.register("ContenidoPasoCrecer", ContenidoPasoCrecerSchema);
+registry.register("PasoCrecerCatalogo", PasoCrecerCatalogoSchema);
+registry.register("PasoTemaCrecer", PasoTemaCrecerSchema);
 registry.register("Actividad", ActividadSchema);
 registry.register("ProgresoTema", ProgresoTema);
 registry.register("ProgresoActividad", ProgresoActividad);
@@ -327,7 +369,7 @@ registry.registerPath({ method: "get", path: "/catalogo/grupos-etarios", operati
 
 registry.registerPath({ method: "get", path: "/catalogo/tipos-actividad", operationId: "listActivityTypes", tags: ["catalogo"],
   summary: "Tipos de actividad", description: "Quiz, flashcards, completar versiculo, etc.",
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(TipoActividadSchema) }) } }, description: "Lista de tipos" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(TipoActividadCatalogoSchema) }) } }, description: "Lista de tipos" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/libros-biblicos", operationId: "listBibleBooks", tags: ["catalogo"],
   summary: "Libros biblicos", description: "Listado completo de libros de la Biblia",
@@ -335,11 +377,11 @@ registry.registerPath({ method: "get", path: "/catalogo/libros-biblicos", operat
 
 registry.registerPath({ method: "get", path: "/catalogo/pasos-crecer", operationId: "listCrecerSteps", tags: ["catalogo"],
   summary: "Pasos CRECER", description: "Conectar, Relatar, Ensenar, Comprobar, Experimentar, Recompensar",
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(CrecerStepType) }) } }, description: "Lista de pasos CRECER" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(PasoCrecerCatalogoSchema) }) } }, description: "Lista de pasos CRECER" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/versiones-biblicas", operationId: "listBibleVersions", tags: ["catalogo"],
   summary: "Versiones biblicas", description: "NVI, RVR60, PDT, etc.",
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ id: z.string().uuid(), codigo: z.string(), nombre: z.string(), dominio_publico: z.boolean() })) }) } }, description: "Lista de versiones" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ codigo: z.string(), nombre: z.string(), dominio_publico: z.boolean() })) }) } }, description: "Lista de versiones" } } });
 
 registry.registerPath({ method: "get", path: "/sendas", operationId: "listSendas", tags: ["sendas"],
   summary: "Listar sendas", description: "Padre (azul), Hijo (ambar) y Espiritu Santo (verde)",
@@ -358,7 +400,7 @@ registry.registerPath({ method: "get", path: "/temas/{tema_id}", operationId: "g
 registry.registerPath({ method: "get", path: "/temas/{tema_id}/pasos", operationId: "getThemeSteps", tags: ["temas"],
   summary: "Pasos CRECER de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",
   request: { params: z.object({ tema_id: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(PasoCRECER) }) } }, description: "Pasos CRECER" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(PasoTemaCrecerSchema) }) } }, description: "Pasos CRECER" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
 registry.registerPath({ method: "get", path: "/temas/{tema_id}/actividades", operationId: "getThemeActivities", tags: ["temas"],
   summary: "Actividades de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",

@@ -78,6 +78,59 @@ describe("openapi spec", () => {
     expect(spec.components.schemas.Actividad.properties).not.toHaveProperty("options");
   });
 
+  it("documenta catalogos exactos sin columnas extra", () => {
+    const tiposActividad = spec.components.schemas.TipoActividadCatalogo;
+    const pasosCrecer = spec.components.schemas.PasoCrecerCatalogo;
+
+    expect(Object.keys(tiposActividad.properties)).toEqual(["codigo", "nombre", "descripcion", "es_juego"]);
+    expect(tiposActividad.properties).not.toHaveProperty("id");
+    expect(tiposActividad.properties).not.toHaveProperty("activo");
+    expect(tiposActividad.properties).not.toHaveProperty("creado_en");
+
+    expect(Object.keys(pasosCrecer.properties)).toEqual(["codigo", "nombre", "descripcion", "orden", "color_hex"]);
+    expect(pasosCrecer.properties).not.toHaveProperty("id");
+  });
+
+  it("documenta los pasos CRECER de un tema con tipo_paso y contenidos", () => {
+    const pasosTema = spec.components.schemas.PasoTemaCrecer;
+    const contenidoPasoCrecer = spec.components.schemas.ContenidoPasoCrecer;
+
+    expect(Object.keys(pasosTema.properties)).toEqual(["id", "tema_id", "orden", "tipo_paso", "contenidos"]);
+    expect(Object.keys(pasosTema.properties.tipo_paso.properties)).toEqual(["id", "codigo", "nombre", "orden", "color_hex"]);
+    expect(pasosTema.properties.contenidos.items.$ref).toBe("#/components/schemas/ContenidoPasoCrecer");
+    expect(Object.keys(contenidoPasoCrecer.properties)).toEqual([
+      "id",
+      "grupo_edad_id",
+      "titulo",
+      "cuerpo",
+      "instruccion_corta"
+    ]);
+  });
+
+  it("documenta los grupos etarios y versiones biblicas con el shape publico exacto", () => {
+    const grupos = spec.paths["/catalogo/grupos-etarios"].get.responses[200].content["application/json"].schema;
+    const versiones = spec.paths["/catalogo/versiones-biblicas"].get.responses[200].content["application/json"].schema;
+
+    expect(Object.keys(grupos.properties.datos.items.properties)).toEqual([
+      "codigo",
+      "nombre",
+      "edad_minima",
+      "edad_maxima",
+      "descripcion",
+      "orden"
+    ]);
+    expect(grupos.properties.datos.items.properties).not.toHaveProperty("id");
+    expect(grupos.properties.datos.items.properties).not.toHaveProperty("dominio_publico");
+    expect(grupos.properties.datos.items.properties).not.toHaveProperty("es_juego");
+
+    expect(Object.keys(versiones.properties.datos.items.properties)).toEqual([
+      "codigo",
+      "nombre",
+      "dominio_publico"
+    ]);
+    expect(versiones.properties.datos.items.properties).not.toHaveProperty("id");
+  });
+
   it("documenta /progreso/eventos con el envelope canónico exito + datos", () => {
     const responseCreado = spec.paths["/progreso/eventos"].post.responses[201].content["application/json"].schema;
     const responseDuplicado = spec.paths["/progreso/eventos"].post.responses[200].content["application/json"].schema;

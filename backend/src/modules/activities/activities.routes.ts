@@ -26,14 +26,29 @@ function mapearActividad(actividad: Record<string, unknown>) {
     retroalimentacion: (actividad.retroalimentacion ?? null) as string | null,
     configuracion: (actividad.configuracion ?? {}) as Record<string, unknown>,
     creado_en: String(actividad.creado_en ?? ""),
-    actualizado_en: String(actividad.actualizado_en ?? "")
+    actualizado_en: String(actividad.actualizado_en ?? ""),
+    tipo_actividad: (actividad.tipo_actividad ?? null) as Parameters<typeof serializarActividad>[0]["tipo_actividad"],
+    opciones: Array.isArray(actividad.opciones)
+      ? (actividad.opciones as Array<Record<string, unknown>>).map((opcion) => ({
+          id: String(opcion.id ?? ""),
+          actividad_id: String(opcion.actividad_id ?? ""),
+          etiqueta: (opcion.etiqueta ?? null) as string | null,
+          texto: String(opcion.texto ?? ""),
+          correcta: Boolean(opcion.correcta ?? false),
+          orden: Number(opcion.orden ?? 0),
+          retroalimentacion: (opcion.retroalimentacion ?? null) as string | null
+        }))
+      : []
   });
 }
 
 activitiesRoutes.get("/", async (c) => {
   const db = c.get("db");
 
-  const { data, error } = await db.from("actividad").select("*").order("orden", { ascending: true });
+  const { data, error } = await db
+    .from("actividad")
+    .select("*, tipo_actividad:tipo_actividad_id(*), opciones:opcion_actividad(*)")
+    .order("orden", { ascending: true });
 
   if (error) {
     throw error;
@@ -46,7 +61,11 @@ activitiesRoutes.get("/:actividad_id", async (c) => {
   const db = c.get("db");
   const actividadId = c.req.param("actividad_id");
 
-  const { data, error } = await db.from("actividad").select("*").eq("id", actividadId).single();
+  const { data, error } = await db
+    .from("actividad")
+    .select("*, tipo_actividad:tipo_actividad_id(*), opciones:opcion_actividad(*)")
+    .eq("id", actividadId)
+    .single();
 
   if (error || !data) {
     throw new NotFoundError("Actividad no encontrada");
@@ -139,6 +158,16 @@ activitiesRoutes.post(
       completado_en: correcta ? new Date().toISOString() : null,
       actualizado_en: new Date().toISOString()
     });
+
+    if (correcta) {
+      await db.from("progreso_tema_usuario").upsert({
+        usuario_id: user.id,
+        tema_id: String(actividad.tema_id ?? ""),
+        estado: "en_progreso",
+        porcentaje: 0,
+        actualizado_en: new Date().toISOString()
+      });
+    }
 
     return responderExito(
       {
