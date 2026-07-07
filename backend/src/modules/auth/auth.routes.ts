@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { createGuestSchema } from "./auth.schemas";
-import { responderExito } from "../../shared/http/respuesta";
+import { responderError, responderExito } from "../../shared/http/respuesta";
 import { serializarPerfil } from "../../shared/serializers/perfil.serializer";
 import { serializarUsuario } from "../../shared/serializers/usuario.serializer";
 
@@ -58,7 +58,7 @@ authRoutes.post("/invitado", zValidator("json", createGuestSchema), async (c) =>
 
 authRoutes.post("/configuracion-dev", async (c) => {
   if (c.env.APP_ENV !== "development") {
-    return c.json({ ok: false, error: "No disponible fuera de desarrollo" }, 403);
+    return responderError("No disponible fuera de desarrollo", "NO_DISPONIBLE_EN_DESARROLLO", 403);
   }
 
   const db = c.get("db");

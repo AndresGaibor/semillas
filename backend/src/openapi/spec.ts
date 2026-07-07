@@ -71,12 +71,12 @@ const GuestAuthResponse = z.object({
 
 const SendaSchema = z.object({
   id: z.string().uuid().openapi({ description: "ID unico de la senda", example: uuidExample }),
-  code: z.string().openapi({ description: "Codigo identificador", example: "PADRE" }),
-  name: z.string().openapi({ description: "Nombre de la senda", example: "Padre" }),
-  description: z.string().nullable().openapi({ description: "Descripcion", example: "Senda del Padre Celestial" }),
+  codigo: z.string().openapi({ description: "Codigo identificador", example: "PADRE" }),
+  nombre: z.string().openapi({ description: "Nombre de la senda", example: "Padre" }),
+  descripcion: z.string().nullable().openapi({ description: "Descripcion", example: "Senda del Padre Celestial" }),
   color_hex: z.string().openapi({ description: "Color representativo en hex", example: "#3D8BD4" }),
-  icon_name: z.string().nullable().openapi({ description: "Nombre del icono asociado", example: "heart" }),
-  sort_order: z.number().openapi({ description: "Orden de visualizacion", example: 1 })
+  nombre_icono: z.string().nullable().openapi({ description: "Nombre del icono asociado", example: "heart" }),
+  orden: z.number().openapi({ description: "Orden de visualizacion", example: 1 })
 }).openapi("Senda");
 
 const GrupoEdadSchema = z.object({
@@ -204,7 +204,7 @@ const LogroSchema = z.object({
 
 const LogroUsuario = z.object({
   usuario_id: z.string().uuid(), logro_id: z.string().uuid(),
-  ganado_en: z.string().datetime(), achievement: LogroSchema.optional()
+  ganado_en: z.string().datetime(), logro: LogroSchema.optional()
 }).openapi("LogroUsuario");
 
 const UpdateProfileBody = z.object({
@@ -283,7 +283,7 @@ registry.registerPath({ method: "get", path: "/catalogo/tipos-actividad", operat
 
 registry.registerPath({ method: "get", path: "/catalogo/libros-biblicos", operationId: "listBibleBooks", tags: ["catalogo"],
   summary: "Libros biblicos", description: "Listado completo de libros de la Biblia",
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ id: z.number(), name: z.string(), sort_order: z.number(), testament_id: z.number() })) }) } }, description: "Lista de libros" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ codigo: z.string(), nombre: z.string(), orden: z.number(), testamento_id: z.number() })) }) } }, description: "Lista de libros" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/pasos-crecer", operationId: "listCrecerSteps", tags: ["catalogo"],
   summary: "Pasos CRECER", description: "Conectar, Relatar, Ensenar, Comprobar, Experimentar, Recompensar",
@@ -291,7 +291,7 @@ registry.registerPath({ method: "get", path: "/catalogo/pasos-crecer", operation
 
 registry.registerPath({ method: "get", path: "/catalogo/versiones-biblicas", operationId: "listBibleVersions", tags: ["catalogo"],
   summary: "Versiones biblicas", description: "NVI, RVR60, PDT, etc.",
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ id: z.string().uuid(), code: z.string(), name: z.string(), is_public_domain: z.boolean() })) }) } }, description: "Lista de versiones" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ id: z.string().uuid(), codigo: z.string(), nombre: z.string(), dominio_publico: z.boolean() })) }) } }, description: "Lista de versiones" } } });
 
 registry.registerPath({ method: "get", path: "/sendas", operationId: "listSendas", tags: ["sendas"],
   summary: "Listar sendas", description: "Padre (azul), Hijo (ambar) y Espiritu Santo (verde)",
@@ -302,24 +302,24 @@ registry.registerPath({ method: "get", path: "/temas", operationId: "listThemes"
   request: { query: z.object({ senda_id: z.string().uuid().optional().openapi({ example: uuidExample }) }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(TemaResumido) }) } }, description: "Lista de temas" } } });
 
-registry.registerPath({ method: "get", path: "/temas/{temaId}", operationId: "getTheme", tags: ["temas"],
+registry.registerPath({ method: "get", path: "/temas/{tema_id}", operationId: "getTheme", tags: ["temas"],
   summary: "Obtener tema completo", description: "Incluye senda, portada, versiculo clave y referencia biblica",
-  request: { params: z.object({ temaId: z.string().uuid().openapi({ example: uuidExample }) }) },
+  request: { params: z.object({ tema_id: z.string().uuid().openapi({ example: uuidExample }) }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaDetallado }) } }, description: "Tema encontrado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Tema no encontrado" } } });
 
-registry.registerPath({ method: "get", path: "/temas/{temaId}/pasos", operationId: "getThemeSteps", tags: ["temas"],
+registry.registerPath({ method: "get", path: "/temas/{tema_id}/pasos", operationId: "getThemeSteps", tags: ["temas"],
   summary: "Pasos CRECER de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",
-  request: { params: z.object({ temaId: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
+  request: { params: z.object({ tema_id: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(PasoCRECER) }) } }, description: "Pasos CRECER" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
-registry.registerPath({ method: "get", path: "/temas/{temaId}/actividades", operationId: "getThemeActivities", tags: ["temas"],
+registry.registerPath({ method: "get", path: "/temas/{tema_id}/actividades", operationId: "getThemeActivities", tags: ["temas"],
   summary: "Actividades de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",
-  request: { params: z.object({ temaId: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
+  request: { params: z.object({ tema_id: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ActividadSchema) }) } }, description: "Actividades del tema" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
-registry.registerPath({ method: "get", path: "/actividades/{actividadId}", operationId: "getActivity", tags: ["actividades"],
+registry.registerPath({ method: "get", path: "/actividades/{actividad_id}", operationId: "getActivity", tags: ["actividades"],
   summary: "Obtener actividad", description: "Actividad con opciones de respuesta y tipo",
-  request: { params: z.object({ actividadId: z.string().uuid() }) },
+  request: { params: z.object({ actividad_id: z.string().uuid() }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ActividadSchema }) } }, description: "Actividad encontrada" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrada" } } });
 
 registry.registerPath({ method: "get", path: "/perfil", operationId: "getMyProfile", tags: ["usuario"],

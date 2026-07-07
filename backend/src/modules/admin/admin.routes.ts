@@ -17,47 +17,47 @@ import { NotFoundError } from "../../shared/errors/http-error";
 function mapTheme(theme: Record<string, unknown>) {
   return {
     id: String(theme.id),
-    path_id: String(theme.senda_id ?? theme.path_id ?? ""),
-    title: String(theme.titulo ?? theme.title ?? ""),
+    senda_id: String(theme.senda_id ?? ""),
+    titulo: String(theme.titulo ?? ""),
     slug: String(theme.slug ?? ""),
-    objective: String(theme.objetivo ?? theme.objective ?? ""),
-    summary: (theme.resumen ?? theme.summary ?? null) as string | null,
-    cover_media_id: (theme.portada_recurso_id ?? theme.cover_media_id ?? null) as string | null,
-    status: String(theme.estado ?? theme.status ?? ""),
-    bible_version_id: (theme.version_biblica_id ?? theme.bible_version_id ?? null) as string | null,
-    xp_reward: Number(theme.xp_recompensa ?? theme.xp_reward ?? 0),
-    estimated_minutes: Number(theme.minutos_estimados ?? theme.estimated_minutes ?? 0),
-    content_version: Number(theme.version_contenido ?? theme.content_version ?? 0),
-    published_at: (theme.publicado_en ?? theme.published_at ?? null) as string | null
+    objetivo: String(theme.objetivo ?? ""),
+    resumen: (theme.resumen ?? null) as string | null,
+    portada_recurso_id: (theme.portada_recurso_id ?? null) as string | null,
+    estado: String(theme.estado ?? ""),
+    version_biblica_id: (theme.version_biblica_id ?? null) as string | null,
+    xp_recompensa: Number(theme.xp_recompensa ?? 0),
+    minutos_estimados: Number(theme.minutos_estimados ?? 0),
+    version_contenido: Number(theme.version_contenido ?? 0),
+    publicado_en: (theme.publicado_en ?? null) as string | null
   };
 }
 
 function mapStep(step: Record<string, unknown>) {
-  const stepTypeRaw = step.step_type as Record<string, unknown> | undefined;
-  const contents = Array.isArray(step.contents)
-    ? step.contents.map((content) => ({
+  const tipoPasoRaw = step.tipo_paso as Record<string, unknown> | undefined;
+  const contenidos = Array.isArray(step.contenidos)
+    ? step.contenidos.map((content) => ({
         id: String((content as Record<string, unknown>).id),
-        age_group_id: String((content as Record<string, unknown>).grupo_edad_id ?? (content as Record<string, unknown>).age_group_id ?? ""),
-        title: ((content as Record<string, unknown>).titulo ?? (content as Record<string, unknown>).title ?? null) as string | null,
-        body: String((content as Record<string, unknown>).cuerpo ?? (content as Record<string, unknown>).body ?? ""),
-        short_instruction: ((content as Record<string, unknown>).instruccion_corta ?? (content as Record<string, unknown>).short_instruction ?? null) as string | null
+        grupo_edad_id: String((content as Record<string, unknown>).grupo_edad_id ?? ""),
+        titulo: String((content as Record<string, unknown>).titulo ?? ""),
+        cuerpo: String((content as Record<string, unknown>).cuerpo ?? ""),
+        instruccion_corta: ((content as Record<string, unknown>).instruccion_corta ?? null) as string | null
       }))
     : [];
 
   return {
     id: String(step.id),
-    theme_id: String(step.tema_id ?? step.theme_id ?? ""),
-    sort_order: Number(step.orden ?? step.sort_order ?? 0),
-    step_type: stepTypeRaw
+    tema_id: String(step.tema_id ?? ""),
+    orden: Number(step.orden ?? 0),
+    tipo_paso: tipoPasoRaw
       ? {
-          id: String(stepTypeRaw.id ?? ""),
-          code: String(stepTypeRaw.codigo ?? stepTypeRaw.code ?? ""),
-          name: String(stepTypeRaw.nombre ?? stepTypeRaw.name ?? ""),
-          sort_order: Number(stepTypeRaw.orden ?? stepTypeRaw.sort_order ?? 0),
-          color_hex: (stepTypeRaw.color_hex ?? null) as string | null
+          id: String(tipoPasoRaw.id ?? ""),
+          codigo: String(tipoPasoRaw.codigo ?? ""),
+          nombre: String(tipoPasoRaw.nombre ?? ""),
+          orden: Number(tipoPasoRaw.orden ?? 0),
+          color_hex: (tipoPasoRaw.color_hex ?? null) as string | null
         }
       : null,
-    contents
+    contenidos
   };
 }
 
@@ -105,9 +105,9 @@ adminRoutes.get("/temas", async (c) => {
   return responderExito((data ?? []).map((theme) => mapTheme(theme as Record<string, unknown>)));
 });
 
-adminRoutes.get("/temas/:temaId", async (c) => {
+adminRoutes.get("/temas/:tema_id", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("temaId");
+  const themeId = c.req.param("tema_id");
 
   const { data, error } = await db
     .from("tema")
@@ -131,15 +131,15 @@ adminRoutes.post(
     const { data: theme, error } = await db
       .from("tema")
       .insert({
-        senda_id: body.pathId,
-        titulo: body.title,
+        senda_id: body.senda_id,
+        titulo: body.titulo,
         slug: body.slug,
-        objetivo: body.objective,
-        resumen: body.summary,
-        version_biblica_id: body.bibleVersionId,
+        objetivo: body.objetivo,
+        resumen: body.resumen,
+        version_biblica_id: body.version_biblica_id,
         estado: "borrador",
-        xp_recompensa: body.xpReward,
-        minutos_estimados: body.estimatedMinutes,
+        xp_recompensa: body.xp_recompensa,
+        minutos_estimados: body.minutos_estimados,
         creado_por: user.id
       })
       .select("*")
@@ -147,9 +147,9 @@ adminRoutes.post(
 
     if (error || !theme) throw error;
 
-    const rows = body.ageGroupIds.map((ageGroupId) => ({
+    const rows = body.grupo_edad_ids.map((grupoEdadId) => ({
       tema_id: theme.id,
-      grupo_edad_id: ageGroupId
+      grupo_edad_id: grupoEdadId
     }));
 
     const { error: ageError } = await db.from("tema_grupo_edad").insert(rows);
@@ -160,22 +160,22 @@ adminRoutes.post(
 );
 
 adminRoutes.patch(
-  "/temas/:temaId",
+  "/temas/:tema_id",
   zValidator("json", updateThemeSchema),
   async (c) => {
     const db = c.get("db");
-    const themeId = c.req.param("temaId");
+    const themeId = c.req.param("tema_id");
     const body = c.req.valid("json");
 
     const { data: theme, error } = await db
       .from("tema")
       .update({
-        titulo: body.title,
-        objetivo: body.objective,
-        resumen: body.summary,
-        minutos_estimados: body.estimatedMinutes,
-        xp_recompensa: body.xpReward,
-        version_biblica_id: body.bibleVersionId,
+        titulo: body.titulo,
+        objetivo: body.objetivo,
+        resumen: body.resumen,
+        minutos_estimados: body.minutos_estimados,
+        xp_recompensa: body.xp_recompensa,
+        version_biblica_id: body.version_biblica_id,
         actualizado_en: new Date().toISOString()
       })
       .eq("id", themeId)
@@ -184,11 +184,11 @@ adminRoutes.patch(
 
     if (error || !theme) throw new NotFoundError("Tema no encontrado");
 
-    if (body.ageGroupIds) {
+    if (body.grupo_edad_ids) {
       await db.from("tema_grupo_edad").delete().eq("tema_id", themeId);
-      const rows = body.ageGroupIds.map((ageGroupId) => ({
+      const rows = body.grupo_edad_ids.map((grupoEdadId) => ({
         tema_id: themeId,
-        grupo_edad_id: ageGroupId
+        grupo_edad_id: grupoEdadId
       }));
       await db.from("tema_grupo_edad").insert(rows);
     }
@@ -197,9 +197,9 @@ adminRoutes.patch(
   }
 );
 
-adminRoutes.delete("/temas/:temaId", async (c) => {
+adminRoutes.delete("/temas/:tema_id", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("temaId");
+  const themeId = c.req.param("tema_id");
 
   const { error } = await db.from("tema").delete().eq("id", themeId);
   if (error) throw error;
@@ -208,17 +208,17 @@ adminRoutes.delete("/temas/:temaId", async (c) => {
 });
 
 adminRoutes.post(
-  "/temas/:temaId/pasos",
+  "/temas/:tema_id/pasos",
   zValidator("json", upsertStepContentSchema),
   async (c) => {
     const db = c.get("db");
-    const themeId = c.req.param("temaId");
+    const themeId = c.req.param("tema_id");
     const body = c.req.valid("json");
 
     const { data: stepType } = await db
       .from("tipo_paso_crecer")
       .select("orden")
-      .eq("id", body.stepTypeId)
+      .eq("id", body.tipo_paso_id)
       .single();
 
     const sortOrder = stepType?.orden ?? 1;
@@ -228,7 +228,7 @@ adminRoutes.post(
       .upsert(
         {
           tema_id: themeId,
-          tipo_paso_id: body.stepTypeId,
+          tipo_paso_id: body.tipo_paso_id,
           orden: sortOrder,
           obligatorio: true
         },
@@ -244,10 +244,10 @@ adminRoutes.post(
       .upsert(
         {
           paso_id: step.id,
-          grupo_edad_id: body.ageGroupId,
-          titulo: body.title,
-          cuerpo: body.body,
-          instruccion_corta: body.shortInstruction ?? null
+          grupo_edad_id: body.grupo_edad_id,
+          titulo: body.titulo,
+          cuerpo: body.cuerpo,
+          instruccion_corta: body.instruccion_corta ?? null
         },
         { onConflict: "paso_id,grupo_edad_id" }
       )
@@ -257,41 +257,41 @@ adminRoutes.post(
     if (contentError) throw contentError;
 
     return responderExito({
-      step: mapStep(step as Record<string, unknown>),
-      content: {
+      paso: mapStep(step as Record<string, unknown>),
+      contenido: {
         id: String(content.id),
-        step_id: String(content.paso_id),
-        age_group_id: String(content.grupo_edad_id),
-        title: String(content.titulo),
-        body: String(content.cuerpo),
-        short_instruction: (content.instruccion_corta ?? null) as string | null
+        paso_id: String(content.paso_id),
+        grupo_edad_id: String(content.grupo_edad_id),
+        titulo: String(content.titulo),
+        cuerpo: String(content.cuerpo),
+        instruccion_corta: (content.instruccion_corta ?? null) as string | null
       }
     });
   }
 );
 
-adminRoutes.get("/temas/:temaId/pasos", async (c) => {
+adminRoutes.get("/temas/:tema_id/pasos", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("temaId");
+  const themeId = c.req.param("tema_id");
 
   const { data: steps, error } = await db
     .from("paso_tema")
     .select(`
       *,
-      step_type:tipo_paso_id(*),
-      contents:contenido_paso_tema(*)
+      tipo_paso:tipo_paso_id(*),
+      contenidos:contenido_paso_tema(*)
     `)
     .eq("tema_id", themeId)
     .order("orden", { ascending: true });
 
   if (error) throw error;
 
-    return responderExito((steps ?? []).map((step) => mapStep(step as Record<string, unknown>)));
+  return responderExito((steps ?? []).map((step) => mapStep(step as Record<string, unknown>)));
 });
 
-adminRoutes.delete("/temas/:temaId/pasos/:tipoPasoId", async (c) => {
+adminRoutes.delete("/temas/:tema_id/pasos/:tipo_paso_id", async (c) => {
   const db = c.get("db");
-  const { temaId: themeId, tipoPasoId: stepTypeId } = c.req.param();
+  const { tema_id: themeId, tipo_paso_id: stepTypeId } = c.req.param();
 
   const { data: step } = await db
     .from("paso_tema")
@@ -318,31 +318,33 @@ adminRoutes.post(
     const { data: activity, error } = await db
       .from("actividad")
       .insert({
-        tema_id: body.themeId,
-        paso_id: body.stepId,
-        grupo_edad_id: body.ageGroupId,
-        tipo_actividad_id: body.activityTypeId,
-        titulo: body.title,
-        consigna: body.prompt,
-        retroalimentacion: body.feedback ?? null,
-        orden: body.sortOrder,
-        xp_recompensa: body.xpReward,
-        dificultad: body.difficulty,
-        configuracion: body.config as Json
+        tema_id: body.tema_id,
+        paso_id: body.paso_id ?? null,
+        grupo_edad_id: body.grupo_edad_id,
+        tipo_actividad_id: body.tipo_actividad_id,
+        titulo: body.titulo,
+        consigna: body.consigna,
+        retroalimentacion: body.retroalimentacion ?? null,
+        orden: body.orden,
+        xp_recompensa: body.xp_recompensa,
+        limite_tiempo_seg: body.limite_tiempo_seg ?? null,
+        dificultad: body.dificultad,
+        obligatorio: body.obligatorio,
+        configuracion: body.configuracion as Json
       })
       .select("*")
       .single();
 
     if (error || !activity) throw error;
 
-    if (body.options.length > 0) {
-      const rows = body.options.map((option) => ({
+    if (body.opciones.length > 0) {
+      const rows = body.opciones.map((opcion) => ({
         actividad_id: activity.id,
-        etiqueta: option.label,
-        texto: option.text,
-        correcta: option.isCorrect,
-        orden: option.sortOrder,
-        retroalimentacion: option.feedback ?? null
+        etiqueta: opcion.etiqueta,
+        texto: opcion.texto,
+        correcta: opcion.correcta,
+        orden: opcion.orden,
+        retroalimentacion: opcion.retroalimentacion ?? null
       }));
 
       const { error: optionsError } = await db
@@ -357,23 +359,29 @@ adminRoutes.post(
 );
 
 adminRoutes.patch(
-  "/actividades/:actividadId",
+  "/actividades/:actividad_id",
   zValidator("json", updateActivitySchema),
   async (c) => {
     const db = c.get("db");
-    const activityId = c.req.param("actividadId");
+    const activityId = c.req.param("actividad_id");
     const body = c.req.valid("json");
 
     const { data: activity, error } = await db
       .from("actividad")
       .update({
-        ...(body.title && { titulo: body.title }),
-        ...(body.prompt && { consigna: body.prompt }),
-        ...(body.feedback !== undefined && { retroalimentacion: body.feedback }),
-        ...(body.sortOrder && { orden: body.sortOrder }),
-        ...(body.xpReward && { xp_recompensa: body.xpReward }),
-        ...(body.difficulty && { dificultad: body.difficulty }),
-        ...(body.config && { configuracion: body.config as Json }),
+        ...(body.tema_id && { tema_id: body.tema_id }),
+        ...(body.paso_id !== undefined && { paso_id: body.paso_id }),
+        ...(body.grupo_edad_id && { grupo_edad_id: body.grupo_edad_id }),
+        ...(body.tipo_actividad_id && { tipo_actividad_id: body.tipo_actividad_id }),
+        ...(body.titulo && { titulo: body.titulo }),
+        ...(body.consigna && { consigna: body.consigna }),
+        ...(body.retroalimentacion !== undefined && { retroalimentacion: body.retroalimentacion }),
+        ...(body.orden && { orden: body.orden }),
+        ...(body.xp_recompensa && { xp_recompensa: body.xp_recompensa }),
+        ...(body.limite_tiempo_seg !== undefined && { limite_tiempo_seg: body.limite_tiempo_seg }),
+        ...(body.dificultad && { dificultad: body.dificultad }),
+        ...(body.obligatorio !== undefined && { obligatorio: body.obligatorio }),
+        ...(body.configuracion && { configuracion: body.configuracion as Json }),
         actualizado_en: new Date().toISOString()
       } as Database["public"]["Tables"]["actividad"]["Update"])
       .eq("id", activityId)
@@ -382,20 +390,20 @@ adminRoutes.patch(
 
     if (error || !activity) throw new NotFoundError("Actividad no encontrada");
 
-    if (body.options) {
+    if (body.opciones) {
       const { error: delError } = await db
         .from("opcion_actividad")
         .delete()
         .eq("actividad_id", activityId);
       if (delError) throw delError;
 
-      const rows = body.options.map((option) => ({
+      const rows = body.opciones.map((opcion) => ({
         actividad_id: activityId,
-        etiqueta: option.label,
-        texto: option.text,
-        correcta: option.isCorrect,
-        orden: option.sortOrder,
-        retroalimentacion: option.feedback ?? null
+        etiqueta: opcion.etiqueta,
+        texto: opcion.texto,
+        correcta: opcion.correcta,
+        orden: opcion.orden,
+        retroalimentacion: opcion.retroalimentacion ?? null
       }));
 
       const { error: insError } = await db.from("opcion_actividad").insert(rows);
@@ -406,9 +414,9 @@ adminRoutes.patch(
   }
 );
 
-adminRoutes.delete("/actividades/:actividadId", async (c) => {
+adminRoutes.delete("/actividades/:actividad_id", async (c) => {
   const db = c.get("db");
-  const activityId = c.req.param("actividadId");
+  const activityId = c.req.param("actividad_id");
 
   await db.from("opcion_actividad").delete().eq("actividad_id", activityId);
   await db.from("progreso_actividad_usuario").delete().eq("actividad_id", activityId);
@@ -419,10 +427,10 @@ adminRoutes.delete("/actividades/:actividadId", async (c) => {
   return responderExito({ deleted: true });
 });
 
-adminRoutes.post("/temas/:temaId/publicar", async (c) => {
+adminRoutes.post("/temas/:tema_id/publicar", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
-  const themeId = c.req.param("temaId");
+  const themeId = c.req.param("tema_id");
 
   const { data: theme, error: themeError } = await db
     .from("tema")
@@ -454,9 +462,9 @@ adminRoutes.post("/temas/:temaId/publicar", async (c) => {
     return responderExito(mapTheme(data as Record<string, unknown>));
 });
 
-adminRoutes.post("/temas/:temaId/borrador", async (c) => {
+adminRoutes.post("/temas/:tema_id/borrador", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("temaId");
+  const themeId = c.req.param("tema_id");
 
   const { data, error } = await db
     .from("tema")

@@ -142,6 +142,26 @@ function instalarMockSupabase() {
       );
     }
 
+    if (ruta.includes("/rest/v1/senda")) {
+      return new Response(
+        JSON.stringify([
+          {
+            id: "senda-1",
+            code: "PADRE",
+            name: "Senda del Padre",
+            description: "Dios es nuestro Padre amoroso.",
+            color_hex: "#3D8BD4",
+            icon_name: "crown",
+            sort_order: 1
+          }
+        ]),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        }
+      );
+    }
+
     if (ruta.includes("/rest/v1/v_temas_publicos")) {
       return new Response(
         JSON.stringify([
@@ -485,6 +505,129 @@ describe("app routes", () => {
           nombre_nivel: "Explorador"
         },
         logros: []
+      }
+    });
+  });
+
+  it("expone sendas con envelope y claves canónicas en español", async () => {
+    instalarMockSupabase();
+
+    const response = await app.fetch(new Request("http://localhost/sendas"), env);
+
+    expect(response.status).toBe(200);
+
+    expect(await jsonResponse(response)).toEqual({
+      exito: true,
+      datos: [
+        {
+          id: "senda-1",
+          codigo: "PADRE",
+          nombre: "Senda del Padre",
+          descripcion: "Dios es nuestro Padre amoroso.",
+          color_hex: "#3D8BD4",
+          nombre_icono: "crown",
+          orden: 1
+        }
+      ]
+    });
+  });
+
+  it("responde configuracion-dev con envelope español fuera de desarrollo", async () => {
+    instalarMockSupabase();
+
+    const response = await app.fetch(
+      new Request("http://localhost/autenticacion/configuracion-dev", {
+        method: "POST"
+      }),
+      {
+        ...env,
+        APP_ENV: "production"
+      }
+    );
+
+    expect(response.status).toBe(403);
+    expect(await jsonResponse(response)).toEqual({
+      exito: false,
+      error: "No disponible fuera de desarrollo",
+      codigo: "NO_DISPONIBLE_EN_DESARROLLO"
+    });
+  });
+
+  it("expone gamificación con la clave logro y sin achievement", async () => {
+    instalarMockSupabase();
+
+    const baseFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/logro_usuario")) {
+        return new Response(
+          JSON.stringify([
+            {
+              usuario_id: usuarioInvitado.id,
+              logro_id: "logro-1",
+              ganado_en: "2026-01-02T00:00:00.000Z",
+              achievement: {
+                id: "logro-1",
+                codigo: "PRIMER_TEMA",
+                nombre: "Primer paso",
+                descripcion: "Completaste tu primera lección.",
+                codigo_criterio: "temas_completados",
+                valor_criterio: 1,
+                bono_xp: 20,
+                url_icono: null,
+                activo: true,
+                creado_en: "2026-01-01T00:00:00.000Z"
+              }
+            }
+          ]),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          }
+        );
+      }
+
+      return baseFetch(input, init);
+    }) as typeof fetch;
+
+    const response = await app.fetch(
+      new Request("http://localhost/gamificacion/mi", {
+        headers: { "x-guest-user-id": usuarioInvitado.id }
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+    expect(await jsonResponse(response)).toEqual({
+      exito: true,
+      datos: {
+        nivel: {
+          usuario_id: usuarioInvitado.id,
+          xp_total: 150,
+          numero_nivel: 3,
+          nombre_nivel: "Explorador"
+        },
+        logros: [
+          {
+            usuario_id: usuarioInvitado.id,
+            logro_id: "logro-1",
+            ganado_en: "2026-01-02T00:00:00.000Z",
+            logro: {
+              id: "logro-1",
+              codigo: "PRIMER_TEMA",
+              nombre: "Primer paso",
+              descripcion: "Completaste tu primera lección.",
+              codigo_criterio: "temas_completados",
+              valor_criterio: 1,
+              bono_xp: 20,
+              url_icono: null,
+              activo: true,
+              creado_en: "2026-01-01T00:00:00.000Z"
+            }
+          }
+        ]
       }
     });
   });

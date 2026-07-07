@@ -1,77 +1,81 @@
 import { z } from "zod";
 
+const opcionActividadSchema = z.object({
+  etiqueta: z.string().max(5),
+  texto: z.string().min(1),
+  correcta: z.boolean().default(false),
+  orden: z.number().int().min(1),
+  retroalimentacion: z.string().optional()
+});
+
 export const createThemeSchema = z.object({
-  pathId: z.string().uuid(),
-  title: z.string().min(3).max(120),
+  senda_id: z.string().uuid(),
+  titulo: z.string().min(3).max(120),
   slug: z.string().min(3).max(140),
-  objective: z.string().min(10),
-  summary: z.string().min(10),
-  bibleVersionId: z.string().uuid(),
-  estimatedMinutes: z.number().int().min(1).max(120).default(10),
-  xpReward: z.number().int().min(0).max(500).default(50),
-  ageGroupIds: z.array(z.string().uuid()).min(1)
+  objetivo: z.string().min(10),
+  resumen: z.string().min(10),
+  version_biblica_id: z.string().uuid(),
+  minutos_estimados: z.number().int().min(1).max(120).default(10),
+  xp_recompensa: z.number().int().min(0).max(500).default(50),
+  grupo_edad_ids: z.array(z.string().uuid()).min(1)
 });
 
 export const updateThemeSchema = z.object({
-  title: z.string().min(3).max(120).optional(),
-  objective: z.string().min(10).optional(),
-  summary: z.string().min(10).optional(),
-  estimatedMinutes: z.number().int().min(1).max(120).optional(),
-  xpReward: z.number().int().min(0).max(500).optional(),
-  bibleVersionId: z.string().uuid().optional(),
-  ageGroupIds: z.array(z.string().uuid()).min(1).optional()
+  titulo: z.string().min(3).max(120).optional(),
+  objetivo: z.string().min(10).optional(),
+  resumen: z.string().min(10).optional(),
+  minutos_estimados: z.number().int().min(1).max(120).optional(),
+  xp_recompensa: z.number().int().min(0).max(500).optional(),
+  version_biblica_id: z.string().uuid().optional(),
+  grupo_edad_ids: z.array(z.string().uuid()).min(1).optional()
 });
 
 export const upsertStepContentSchema = z.object({
-  stepTypeId: z.string().uuid(),
-  ageGroupId: z.string().uuid(),
-  title: z.string().min(2).max(120),
-  body: z.string().min(5),
-  shortInstruction: z.string().optional()
+  tipo_paso_id: z.string().uuid(),
+  grupo_edad_id: z.string().uuid(),
+  titulo: z.string().min(2).max(120),
+  cuerpo: z.string().min(5),
+  instruccion_corta: z.string().optional()
 });
 
 export const updateActivitySchema = z.object({
-  title: z.string().min(3).optional(),
-  prompt: z.string().min(3).optional(),
-  feedback: z.string().optional(),
-  sortOrder: z.number().int().min(1).optional(),
-  xpReward: z.number().int().min(0).optional(),
-  difficulty: z.enum(["easy", "normal", "hard"]).optional(),
-  config: z.record(z.string(), z.unknown()).optional(),
-  options: z
+  tema_id: z.string().uuid().optional(),
+  paso_id: z.string().uuid().nullable().optional(),
+  grupo_edad_id: z.string().uuid().optional(),
+  tipo_actividad_id: z.string().uuid().optional(),
+  titulo: z.string().min(3).optional(),
+  consigna: z.string().min(3).optional(),
+  retroalimentacion: z.string().optional(),
+  orden: z.number().int().min(1).optional(),
+  xp_recompensa: z.number().int().min(0).optional(),
+  limite_tiempo_seg: z.number().int().positive().nullable().optional(),
+  dificultad: z.enum(["facil", "normal", "dificil"]).optional(),
+  obligatorio: z.boolean().optional(),
+  configuracion: z.record(z.string(), z.unknown()).optional(),
+  opciones: z
     .array(
-      z.object({
-        label: z.string().max(5),
-        text: z.string().min(1),
-        isCorrect: z.boolean().default(false),
-        sortOrder: z.number().int().min(1),
-        feedback: z.string().optional()
-      })
+      opcionActividadSchema
     )
     .optional()
 });
 
 export const createActivitySchema = z.object({
-  themeId: z.string().uuid(),
-  stepId: z.string().uuid(),
-  ageGroupId: z.string().uuid(),
-  activityTypeId: z.string().uuid(),
-  title: z.string().min(3),
-  prompt: z.string().min(3),
-  feedback: z.string().optional(),
-  sortOrder: z.number().int().min(1).default(1),
-  xpReward: z.number().int().min(0).default(10),
-  difficulty: z.enum(["easy", "normal", "hard"]).default("easy"),
-  config: z.record(z.string(), z.unknown()).default({}),
-  options: z
+  tema_id: z.string().uuid(),
+  paso_id: z.string().uuid().nullable().optional(),
+  grupo_edad_id: z.string().uuid(),
+  tipo_actividad_id: z.string().uuid(),
+  titulo: z.string().min(3),
+  consigna: z.string().min(3),
+  retroalimentacion: z.string().optional(),
+  orden: z.number().int().min(1).default(1),
+  xp_recompensa: z.number().int().min(0).default(10),
+  limite_tiempo_seg: z.number().int().positive().nullable().optional(),
+  dificultad: z.enum(["facil", "normal", "dificil"]).default("facil"),
+  obligatorio: z.boolean().default(true),
+  configuracion: z.record(z.string(), z.unknown()).default({}),
+  opciones: z
     .array(
-      z.object({
-        label: z.string().max(5),
-        text: z.string().min(1),
-        isCorrect: z.boolean().default(false),
-        sortOrder: z.number().int().min(1),
-        feedback: z.string().optional()
-      })
+      opcionActividadSchema
     )
     .default([])
 });
