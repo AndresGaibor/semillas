@@ -5,9 +5,5 @@ export const Route = createFileRoute("/onboarding")({
 });
 
 function OnboardingLayout() {
-  return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-[#123B2C]">
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }

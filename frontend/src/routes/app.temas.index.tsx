@@ -126,7 +126,7 @@ function PaginaTemas() {
 
       return cumpleBusqueda && cumpleTab;
     });
-  }, [temasBase, filtroTab, busqueda]);
+  }, [temasConPortadas, filtroTab, busqueda]);
 
   const stats = useMemo(() => {
     return {
