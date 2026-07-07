@@ -12,6 +12,21 @@ export type FilaTema = {
   minutos_estimados: number;
   version_contenido: number;
   publicado_en: string | null;
+  senda_codigo?: string | null;
+  senda_nombre?: string | null;
+  senda_color_hex?: string | null;
+  portada_recurso?: {
+    id: string;
+    tipo: string;
+    url_publica: string;
+    texto_alternativo: string | null;
+    titulo: string | null;
+    tipo_mime: string | null;
+    tamano_bytes: number | null;
+    duracion_seg: number | null;
+    ancho_px: number | null;
+    alto_px: number | null;
+  } | null;
 };
 
 export type FilaTemaDetalle = FilaTema & {
@@ -106,6 +121,16 @@ function serializarReferenciaBiblica(referenciaBiblica: NonNullable<FilaTemaDeta
 }
 
 export function serializarTema(fila: FilaTema) {
+  const senda =
+    fila.senda_codigo || fila.senda_nombre
+      ? {
+          id: fila.senda_id,
+          codigo: fila.senda_codigo ?? "",
+          nombre: fila.senda_nombre ?? "",
+          color_hex: fila.senda_color_hex ?? null
+        }
+      : null;
+
   return {
     id: fila.id,
     senda_id: fila.senda_id,
@@ -114,12 +139,14 @@ export function serializarTema(fila: FilaTema) {
     objetivo: fila.objetivo,
     resumen: fila.resumen,
     portada_recurso_id: fila.portada_recurso_id,
+    portada_recurso: fila.portada_recurso ?? null,
     estado: fila.estado,
     version_biblica_id: fila.version_biblica_id,
     xp_recompensa: fila.xp_recompensa,
     minutos_estimados: fila.minutos_estimados,
     version_contenido: fila.version_contenido,
-    publicado_en: fila.publicado_en
+    publicado_en: fila.publicado_en,
+    senda
   };
 }
 
