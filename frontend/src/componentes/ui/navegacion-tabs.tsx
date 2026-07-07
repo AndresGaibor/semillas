@@ -102,7 +102,7 @@ export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
             )}
           >
             <span>{opcion.label}</span>
-            {opcion.count !== undefined && opcion.count > 0 && (opcion.mostrarBadge ?? true) && (
+            {opcion.count !== undefined && (opcion.mostrarBadge ?? true) && (
               <span
                 className={unirClases(
                   "inline-flex px-2 py-0.5 rounded-full text-[10px]",

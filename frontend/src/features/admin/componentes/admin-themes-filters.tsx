@@ -1,4 +1,3 @@
-import { Button } from "@/componentes/ui/button";
 import { CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
 
 type FilterItem = {
@@ -45,6 +44,7 @@ export function AdminThemesFilters({
         <select
           value={selectedSendaId}
           onChange={(e) => onSendaChange(e.target.value)}
+          aria-label="Filtrar por senda"
           className="w-full px-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] transition-all appearance-none cursor-pointer"
         >
           <option value="">Todas las sendas</option>
@@ -62,6 +62,7 @@ export function AdminThemesFilters({
         <select
           value={selectedAgeGroupId}
           onChange={(e) => onAgeGroupChange(e.target.value)}
+          aria-label="Filtrar por franja de edad"
           className="w-full px-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] transition-all appearance-none cursor-pointer"
         >
           <option value="">Todas las franjas</option>
