@@ -20,19 +20,19 @@ GET http://localhost:8787/
 ### Catálogo: Franjas de edad
 ### ────────────────────────────────────────────
 ### @name ageGroups
-GET http://localhost:8787/catalog/age-groups
+GET http://localhost:8787/catalogo/grupos-etarios
 
 ### ────────────────────────────────────────────
 ### Catálogo: Tipos de actividad
 ### ────────────────────────────────────────────
 ### @name activityTypes
-GET http://localhost:8787/catalog/activity-types
+GET http://localhost:8787/catalogo/tipos-actividad
 
 ### ────────────────────────────────────────────
 ### Catálogo: Pasos CRECER
 ### ────────────────────────────────────────────
 ### @name crecerSteps
-GET http://localhost:8787/catalog/crecer-steps
+GET http://localhost:8787/catalogo/pasos-crecer
 
 ### ────────────────────────────────────────────
 ### Sendas
@@ -44,7 +44,7 @@ GET http://localhost:8787/sendas
 ### Auth: Crear invitado
 ### ────────────────────────────────────────────
 ### @name createGuest
-POST http://localhost:8787/auth/guest
+POST http://localhost:8787/autenticacion/invitado
 Content-Type: application/json
 
 {
@@ -52,7 +52,7 @@ Content-Type: application/json
 }
 
 ### Auth: Crear invitado con franja
-POST http://localhost:8787/auth/guest
+POST http://localhost:8787/autenticacion/invitado
 Content-Type: application/json
 
 {
@@ -65,11 +65,11 @@ Content-Type: application/json
 ### ────────────────────────────────────────────
 ### @name me
 ### Reemplaza GUEST_ID con el headerValue de createGuest
-GET http://localhost:8787/me
+GET http://localhost:8787/perfil
 X-Guest-User-Id: GUEST_ID
 
 ### Actualizar perfil
-PATCH http://localhost:8787/me/profile
+PATCH http://localhost:8787/perfil/actualizar
 Content-Type: application/json
 X-Guest-User-Id: GUEST_ID
 
@@ -84,44 +84,44 @@ X-Guest-User-Id: GUEST_ID
 ### ────────────────────────────────────────────
 ### Listar temas publicados
 ### @name themes
-GET http://localhost:8787/themes
+GET http://localhost:8787/temas
 
 ### Listar temas por senda
-GET http://localhost:8787/themes?pathId=PATH_ID
+GET http://localhost:8787/temas?pathId=PATH_ID
 
 ### Detalle de tema
 ### @name themeDetail
 ### Reemplaza THEME_ID con un id del listado
-GET http://localhost:8787/themes/THEME_ID
+GET http://localhost:8787/temas/THEME_ID
 
 ### ────────────────────────────────────────────
 ### Pasos CRECER de un tema
 ### ────────────────────────────────────────────
 ### @name themeSteps
-GET http://localhost:8787/themes/THEME_ID/steps
+GET http://localhost:8787/temas/THEME_ID/pasos
 
 ### Pasos filtrados por franja
-GET http://localhost:8787/themes/THEME_ID/steps?ageGroupId=AGE_GROUP_ID
+GET http://localhost:8787/temas/THEME_ID/pasos?ageGroupId=AGE_GROUP_ID
 
 ### ────────────────────────────────────────────
 ### Actividades de un tema
 ### ────────────────────────────────────────────
 ### @name themeActivities
-GET http://localhost:8787/themes/THEME_ID/activities
+GET http://localhost:8787/temas/THEME_ID/actividades
 
 ### Actividades filtradas por franja
-GET http://localhost:8787/themes/THEME_ID/activities?ageGroupId=AGE_GROUP_ID
+GET http://localhost:8787/temas/THEME_ID/actividades?ageGroupId=AGE_GROUP_ID
 
 ### ────────────────────────────────────────────
 ### Actividades individuales
 ### ────────────────────────────────────────────
 ### @name activityDetail
 ### Reemplaza ACTIVITY_ID con un id del listado
-GET http://localhost:8787/activities/ACTIVITY_ID
+GET http://localhost:8787/actividades/ACTIVITY_ID
 
 ### Responder actividad (quiz)
 ### @name answerActivity
-POST http://localhost:8787/activities/ACTIVITY_ID/answer
+POST http://localhost:8787/actividades/ACTIVITY_ID/responder
 Content-Type: application/json
 X-Guest-User-Id: GUEST_ID
 
@@ -134,12 +134,12 @@ X-Guest-User-Id: GUEST_ID
 ### Progreso
 ### ────────────────────────────────────────────
 ### @name progressMe
-GET http://localhost:8787/progress/me
+GET http://localhost:8787/progreso/mi
 X-Guest-User-Id: GUEST_ID
 
 ### Enviar evento de progreso
 ### @name progressEvent
-POST http://localhost:8787/progress/events
+POST http://localhost:8787/progreso/eventos
 Content-Type: application/json
 X-Guest-User-Id: GUEST_ID
 
@@ -155,7 +155,7 @@ X-Guest-User-Id: GUEST_ID
 ### Gamificación
 ### ────────────────────────────────────────────
 ### @name gamificationMe
-GET http://localhost:8787/gamification/me
+GET http://localhost:8787/gamificacion/mi
 X-Guest-User-Id: GUEST_ID
 
 ### ────────────────────────────────────────────

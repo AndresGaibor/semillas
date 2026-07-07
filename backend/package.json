@@ -8,9 +8,13 @@
     "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > src/db/database.types.ts"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@hono/zod-openapi": "^1.4.0",
     "@hono/zod-validator": "latest",
+    "@scalar/hono-api-reference": "^0.11.8",
     "@supabase/supabase-js": "latest",
     "hono": "latest",
+    "openapi3-ts": "^4.6.0",
     "zod": "latest"
   },
   "devDependencies": {

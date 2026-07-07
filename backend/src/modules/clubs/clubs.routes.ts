@@ -22,14 +22,14 @@ export const clubsRoutes = new Hono<AppBindings>();
 
 clubsRoutes.use("*", authMiddleware);
 
-clubsRoutes.get("/mine", async (c) => {
+clubsRoutes.get("/mios", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
 
   const { data: memberships, error } = await db
-    .from("club_member")
+    .from("miembro_club")
     .select("*, club:club_id(*)")
-    .eq("user_id", user.id);
+    .eq("usuario_id", user.id);
 
   if (error) throw error;
 
@@ -45,12 +45,12 @@ clubsRoutes.get("/", async (c) => {
 
   let query = db
     .from("club")
-    .select("*, member_count:club_member(count)")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
+    .select("*, member_count:miembro_club(count)")
+    .eq("activo", true)
+    .order("creado_en", { ascending: false });
 
   if (search) {
-    query = query.ilike("name", `%${search}%`);
+    query = query.ilike("nombre", `%${search}%`);
   }
 
   const { data, error } = await query;
@@ -66,7 +66,7 @@ clubsRoutes.get("/:clubId", async (c) => {
 
   const { data: club, error } = await db
     .from("club")
-    .select("*, created_by(id, display_name), members:club_member(*)")
+    .select("*, created_by:creado_por(id, nombre_visible), members:miembro_club(*)")
     .eq("id", clubId)
     .single();
 
@@ -86,7 +86,7 @@ clubsRoutes.post("/", zValidator("json", createClubSchema), async (c) => {
     const { data: existing } = await db
       .from("club")
       .select("id")
-      .eq("invite_code", inviteCode)
+      .eq("codigo_invitacion", inviteCode)
       .maybeSingle();
     if (!existing) break;
     inviteCode = generateInviteCode();
@@ -96,26 +96,26 @@ clubsRoutes.post("/", zValidator("json", createClubSchema), async (c) => {
   const { data: club, error } = await db
     .from("club")
     .insert({
-      name: body.name,
-      description: body.description ?? null,
-      invite_code: inviteCode,
-      created_by: user.id
+      nombre: body.name,
+      descripcion: body.description ?? null,
+      codigo_invitacion: inviteCode,
+      creado_por: user.id
     })
     .select("*")
     .single();
 
   if (error || !club) throw error;
 
-  await db.from("club_member").insert({
+  await db.from("miembro_club").insert({
     club_id: club.id,
-    user_id: user.id,
-    member_role: "leader"
+    usuario_id: user.id,
+    rol_miembro: "lider"
   });
 
   return c.json({ ok: true, data: club }, 201);
 });
 
-clubsRoutes.post("/:clubId/join", zValidator("json", joinClubSchema), async (c) => {
+clubsRoutes.post("/:clubId/unirse", zValidator("json", joinClubSchema), async (c) => {
   const db = c.get("db");
   const user = c.get("user");
   const clubId = c.req.param("clubId");
@@ -123,31 +123,31 @@ clubsRoutes.post("/:clubId/join", zValidator("json", joinClubSchema), async (c) 
 
   const { data: club, error: clubError } = await db
     .from("club")
-    .select("id, invite_code, is_active")
+    .select("id, codigo_invitacion, activo")
     .eq("id", clubId)
     .single();
 
   if (clubError || !club) throw new NotFoundError("Club no encontrado");
-  if (!club.is_active) throw new ForbiddenError("Club inactivo");
-  if (club.invite_code !== body.inviteCode) {
+  if (!club.activo) throw new ForbiddenError("Club inactivo");
+  if (club.codigo_invitacion !== body.inviteCode) {
     return c.json({ ok: false, error: { message: "Código de invitación incorrecto" } }, 403);
   }
 
   const { data: existing } = await db
-    .from("club_member")
+    .from("miembro_club")
     .select("id")
     .eq("club_id", clubId)
-    .eq("user_id", user.id)
+    .eq("usuario_id", user.id)
     .maybeSingle();
 
   if (existing) {
     return c.json({ ok: true, message: "Ya eres miembro de este club" });
   }
 
-  const { error: joinError } = await db.from("club_member").insert({
+  const { error: joinError } = await db.from("miembro_club").insert({
     club_id: clubId,
-    user_id: user.id,
-    member_role: "member"
+    usuario_id: user.id,
+    rol_miembro: "miembro"
   });
 
   if (joinError) throw joinError;
@@ -155,23 +155,23 @@ clubsRoutes.post("/:clubId/join", zValidator("json", joinClubSchema), async (c) 
   return c.json({ ok: true, data: { joined: true } });
 });
 
-clubsRoutes.post("/:clubId/leave", async (c) => {
+clubsRoutes.post("/:clubId/salir", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
   const clubId = c.req.param("clubId");
 
   const { data: membership } = await db
-    .from("club_member")
-    .select("member_role")
+    .from("miembro_club")
+    .select("rol_miembro")
     .eq("club_id", clubId)
-    .eq("user_id", user.id)
+    .eq("usuario_id", user.id)
     .single();
 
   if (!membership) throw new NotFoundError("No eres miembro de este club");
 
-  if (membership.member_role === "leader") {
+  if (membership.rol_miembro === "lider") {
     const { count } = await db
-      .from("club_member")
+      .from("miembro_club")
       .select("id", { count: "exact", head: true })
       .eq("club_id", clubId);
 
@@ -183,17 +183,17 @@ clubsRoutes.post("/:clubId/leave", async (c) => {
     }
   }
 
-  await db.from("club_member").delete()
+  await db.from("miembro_club").delete()
     .eq("club_id", clubId)
-    .eq("user_id", user.id);
+    .eq("usuario_id", user.id);
 
   const { count } = await db
-    .from("club_member")
+    .from("miembro_club")
     .select("id", { count: "exact", head: true })
     .eq("club_id", clubId);
 
   if (count === 0) {
-    await db.from("club").update({ is_active: false }).eq("id", clubId);
+    await db.from("club").update({ activo: false }).eq("id", clubId);
   }
 
   return c.json({ ok: true, data: { left: true } });
@@ -204,25 +204,25 @@ clubsRoutes.get("/:clubId/ranking", async (c) => {
   const clubId = c.req.param("clubId");
 
   const { data, error } = await db
-    .from("v_club_ranking")
+    .from("v_ranking_club")
     .select("*")
     .eq("club_id", clubId)
-    .order("rank_no", { ascending: true });
+    .order("numero_ranking", { ascending: true });
 
   if (error) throw error;
 
   return c.json({ ok: true, data });
 });
 
-clubsRoutes.get("/:clubId/challenges", async (c) => {
+clubsRoutes.get("/:clubId/retos", async (c) => {
   const db = c.get("db");
   const clubId = c.req.param("clubId");
 
   const { data, error } = await db
-    .from("club_challenge")
+    .from("reto_club")
     .select("*")
     .eq("club_id", clubId)
-    .order("starts_on", { ascending: false });
+    .order("fecha_inicio", { ascending: false });
 
   if (error) throw error;
 
@@ -230,7 +230,7 @@ clubsRoutes.get("/:clubId/challenges", async (c) => {
 });
 
 clubsRoutes.post(
-  "/:clubId/challenges",
+  "/:clubId/retos",
   zValidator("json", createChallengeSchema),
   async (c) => {
     const db = c.get("db");
@@ -239,28 +239,28 @@ clubsRoutes.post(
     const body = c.req.valid("json");
 
     const { data: membership } = await db
-      .from("club_member")
-      .select("member_role")
+      .from("miembro_club")
+      .select("rol_miembro")
       .eq("club_id", clubId)
-      .eq("user_id", user.id)
+      .eq("usuario_id", user.id)
       .single();
 
-    if (!membership || membership.member_role !== "leader") {
+    if (!membership || membership.rol_miembro !== "lider") {
       throw new ForbiddenError("Solo el líder puede crear retos");
     }
 
     const { data, error } = await db
-      .from("club_challenge")
+      .from("reto_club")
       .insert({
         club_id: clubId,
-        name: body.name,
-        description: body.description ?? null,
-        metric_code: body.metricCode,
-        target_value: body.targetValue,
-        reward_xp: body.rewardXp,
-        starts_on: body.startsOn,
-        ends_on: body.endsOn,
-        created_by: user.id
+        nombre: body.name,
+        descripcion: body.description ?? null,
+        codigo_metrica: body.metricCode,
+        valor_objetivo: body.targetValue,
+        xp_reto: body.rewardXp,
+        fecha_inicio: body.startsOn,
+        fecha_fin: body.endsOn,
+        creado_por: user.id
       })
       .select("*")
       .single();

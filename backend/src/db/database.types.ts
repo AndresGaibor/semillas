@@ -14,1952 +14,1952 @@ export type Database = {
   }
   public: {
     Tables: {
-      achievement: {
+      actividad: {
         Row: {
-          code: string
-          created_at: string
-          criterion_code: string
-          criterion_value: number | null
-          description: string | null
-          icon_url: string | null
+          actualizado_en: string
+          configuracion: Json
+          consigna: string
+          creado_en: string
+          dificultad: string
+          grupo_edad_id: string
           id: string
-          is_active: boolean
-          name: string
-          xp_bonus: number
+          limite_tiempo_seg: number | null
+          obligatorio: boolean
+          orden: number
+          paso_id: string | null
+          retroalimentacion: string | null
+          tema_id: string
+          tipo_actividad_id: string
+          titulo: string
+          xp_recompensa: number
         }
         Insert: {
-          code: string
-          created_at?: string
-          criterion_code: string
-          criterion_value?: number | null
-          description?: string | null
-          icon_url?: string | null
+          actualizado_en?: string
+          configuracion?: Json
+          consigna: string
+          creado_en?: string
+          dificultad?: string
+          grupo_edad_id: string
           id?: string
-          is_active?: boolean
-          name: string
-          xp_bonus?: number
+          limite_tiempo_seg?: number | null
+          obligatorio?: boolean
+          orden: number
+          paso_id?: string | null
+          retroalimentacion?: string | null
+          tema_id: string
+          tipo_actividad_id: string
+          titulo: string
+          xp_recompensa?: number
         }
         Update: {
-          code?: string
-          created_at?: string
-          criterion_code?: string
-          criterion_value?: number | null
-          description?: string | null
-          icon_url?: string | null
+          actualizado_en?: string
+          configuracion?: Json
+          consigna?: string
+          creado_en?: string
+          dificultad?: string
+          grupo_edad_id?: string
           id?: string
-          is_active?: boolean
-          name?: string
-          xp_bonus?: number
-        }
-        Relationships: []
-      }
-      activity: {
-        Row: {
-          activity_type_id: string
-          age_group_id: string
-          config: Json
-          created_at: string
-          difficulty: string
-          feedback: string | null
-          id: string
-          is_required: boolean
-          prompt: string
-          sort_order: number
-          step_id: string | null
-          theme_id: string
-          time_limit_sec: number | null
-          title: string
-          updated_at: string
-          xp_reward: number
-        }
-        Insert: {
-          activity_type_id: string
-          age_group_id: string
-          config?: Json
-          created_at?: string
-          difficulty?: string
-          feedback?: string | null
-          id?: string
-          is_required?: boolean
-          prompt: string
-          sort_order: number
-          step_id?: string | null
-          theme_id: string
-          time_limit_sec?: number | null
-          title: string
-          updated_at?: string
-          xp_reward?: number
-        }
-        Update: {
-          activity_type_id?: string
-          age_group_id?: string
-          config?: Json
-          created_at?: string
-          difficulty?: string
-          feedback?: string | null
-          id?: string
-          is_required?: boolean
-          prompt?: string
-          sort_order?: number
-          step_id?: string | null
-          theme_id?: string
-          time_limit_sec?: number | null
-          title?: string
-          updated_at?: string
-          xp_reward?: number
+          limite_tiempo_seg?: number | null
+          obligatorio?: boolean
+          orden?: number
+          paso_id?: string | null
+          retroalimentacion?: string | null
+          tema_id?: string
+          tipo_actividad_id?: string
+          titulo?: string
+          xp_recompensa?: number
         }
         Relationships: [
           {
-            foreignKeyName: "activity_activity_type_id_fkey"
-            columns: ["activity_type_id"]
+            foreignKeyName: "actividad_grupo_edad_id_fkey"
+            columns: ["grupo_edad_id"]
             isOneToOne: false
-            referencedRelation: "activity_type"
+            referencedRelation: "grupo_edad"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "activity_age_group_id_fkey"
-            columns: ["age_group_id"]
+            foreignKeyName: "actividad_paso_id_fkey"
+            columns: ["paso_id"]
             isOneToOne: false
-            referencedRelation: "age_group"
+            referencedRelation: "paso_tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "activity_step_id_fkey"
-            columns: ["step_id"]
+            foreignKeyName: "actividad_tema_id_fkey"
+            columns: ["tema_id"]
             isOneToOne: false
-            referencedRelation: "theme_step"
+            referencedRelation: "tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "activity_theme_id_fkey"
-            columns: ["theme_id"]
+            foreignKeyName: "actividad_tema_id_fkey"
+            columns: ["tema_id"]
             isOneToOne: false
-            referencedRelation: "theme"
+            referencedRelation: "v_temas_publicos"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "activity_theme_id_fkey"
-            columns: ["theme_id"]
+            foreignKeyName: "actividad_tipo_actividad_id_fkey"
+            columns: ["tipo_actividad_id"]
             isOneToOne: false
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      activity_option: {
-        Row: {
-          activity_id: string
-          feedback: string | null
-          id: string
-          is_correct: boolean
-          label: string | null
-          sort_order: number
-          text: string
-        }
-        Insert: {
-          activity_id: string
-          feedback?: string | null
-          id?: string
-          is_correct?: boolean
-          label?: string | null
-          sort_order: number
-          text: string
-        }
-        Update: {
-          activity_id?: string
-          feedback?: string | null
-          id?: string
-          is_correct?: boolean
-          label?: string | null
-          sort_order?: number
-          text?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activity_option_activity_id_fkey"
-            columns: ["activity_id"]
-            isOneToOne: false
-            referencedRelation: "activity"
+            referencedRelation: "tipo_actividad"
             referencedColumns: ["id"]
           },
         ]
-      }
-      activity_type: {
-        Row: {
-          code: string
-          created_at: string
-          description: string | null
-          id: string
-          is_active: boolean
-          is_game: boolean
-          name: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          is_game?: boolean
-          name: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          is_game?: boolean
-          name?: string
-        }
-        Relationships: []
-      }
-      age_group: {
-        Row: {
-          code: string
-          created_at: string
-          description: string | null
-          id: string
-          max_age: number
-          min_age: number
-          name: string
-          sort_order: number
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          max_age: number
-          min_age: number
-          name: string
-          sort_order: number
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          max_age?: number
-          min_age?: number
-          name?: string
-          sort_order?: number
-        }
-        Relationships: []
-      }
-      app_user: {
-        Row: {
-          created_at: string
-          display_name: string
-          email: string | null
-          external_id: string | null
-          id: string
-          is_active: boolean
-          last_login_at: string | null
-          provider: Database["public"]["Enums"]["auth_provider"]
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          display_name: string
-          email?: string | null
-          external_id?: string | null
-          id?: string
-          is_active?: boolean
-          last_login_at?: string | null
-          provider: Database["public"]["Enums"]["auth_provider"]
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          display_name?: string
-          email?: string | null
-          external_id?: string | null
-          id?: string
-          is_active?: boolean
-          last_login_at?: string | null
-          provider?: Database["public"]["Enums"]["auth_provider"]
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      audit_log: {
-        Row: {
-          action: string
-          actor_user_id: string | null
-          after_data: Json | null
-          before_data: Json | null
-          created_at: string
-          entity_id: string | null
-          entity_type: string
-          id: string
-          ip_address: unknown
-          user_agent: string | null
-        }
-        Insert: {
-          action: string
-          actor_user_id?: string | null
-          after_data?: Json | null
-          before_data?: Json | null
-          created_at?: string
-          entity_id?: string | null
-          entity_type: string
-          id?: string
-          ip_address?: unknown
-          user_agent?: string | null
-        }
-        Update: {
-          action?: string
-          actor_user_id?: string | null
-          after_data?: Json | null
-          before_data?: Json | null
-          created_at?: string
-          entity_id?: string | null
-          entity_type?: string
-          id?: string
-          ip_address?: unknown
-          user_agent?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "audit_log_actor_user_id_fkey"
-            columns: ["actor_user_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "audit_log_actor_user_id_fkey"
-            columns: ["actor_user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "audit_log_actor_user_id_fkey"
-            columns: ["actor_user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      bible_book: {
-        Row: {
-          id: number
-          name: string
-          sort_order: number
-          testament_id: number
-        }
-        Insert: {
-          id?: never
-          name: string
-          sort_order: number
-          testament_id: number
-        }
-        Update: {
-          id?: never
-          name?: string
-          sort_order?: number
-          testament_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bible_book_testament_id_fkey"
-            columns: ["testament_id"]
-            isOneToOne: false
-            referencedRelation: "bible_testament"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bible_reference: {
-        Row: {
-          book_id: number
-          chapter: number
-          id: string
-          is_main: boolean
-          theme_id: string
-          verse_end: number
-          verse_start: number
-        }
-        Insert: {
-          book_id: number
-          chapter: number
-          id?: string
-          is_main?: boolean
-          theme_id: string
-          verse_end: number
-          verse_start: number
-        }
-        Update: {
-          book_id?: number
-          chapter?: number
-          id?: string
-          is_main?: boolean
-          theme_id?: string
-          verse_end?: number
-          verse_start?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bible_reference_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "bible_book"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bible_reference_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bible_reference_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bible_testament: {
-        Row: {
-          code: string
-          id: number
-          name: string
-        }
-        Insert: {
-          code: string
-          id?: never
-          name: string
-        }
-        Update: {
-          code?: string
-          id?: never
-          name?: string
-        }
-        Relationships: []
-      }
-      bible_version: {
-        Row: {
-          code: string
-          created_at: string
-          id: string
-          is_public_domain: boolean
-          name: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          is_public_domain?: boolean
-          name: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          is_public_domain?: boolean
-          name?: string
-        }
-        Relationships: []
       }
       club: {
         Row: {
-          created_at: string
-          created_by: string
-          description: string | null
+          activo: boolean
+          codigo_invitacion: string
+          creado_en: string
+          creado_por: string
+          descripcion: string | null
           id: string
-          invite_code: string
-          is_active: boolean
-          name: string
+          nombre: string
         }
         Insert: {
-          created_at?: string
-          created_by: string
-          description?: string | null
+          activo?: boolean
+          codigo_invitacion: string
+          creado_en?: string
+          creado_por: string
+          descripcion?: string | null
           id?: string
-          invite_code: string
-          is_active?: boolean
-          name: string
+          nombre: string
         }
         Update: {
-          created_at?: string
-          created_by?: string
-          description?: string | null
+          activo?: boolean
+          codigo_invitacion?: string
+          creado_en?: string
+          creado_por?: string
+          descripcion?: string | null
           id?: string
-          invite_code?: string
-          is_active?: boolean
-          name?: string
+          nombre?: string
         }
         Relationships: [
           {
-            foreignKeyName: "club_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "club_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "club_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "club_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "club_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
         ]
       }
-      club_challenge: {
+      contenido_paso_tema: {
         Row: {
-          club_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          ends_on: string
+          cuerpo: string
+          datos_extra: Json
+          grupo_edad_id: string
           id: string
-          metric_code: string
-          name: string
-          reward_xp: number
-          starts_on: string
-          target_value: number
+          instruccion_corta: string | null
+          paso_id: string
+          recurso_audio_id: string | null
+          recurso_id: string | null
+          titulo: string
         }
         Insert: {
-          club_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          ends_on: string
+          cuerpo: string
+          datos_extra?: Json
+          grupo_edad_id: string
           id?: string
-          metric_code: string
-          name: string
-          reward_xp?: number
-          starts_on: string
-          target_value: number
+          instruccion_corta?: string | null
+          paso_id: string
+          recurso_audio_id?: string | null
+          recurso_id?: string | null
+          titulo: string
         }
         Update: {
-          club_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          ends_on?: string
+          cuerpo?: string
+          datos_extra?: Json
+          grupo_edad_id?: string
           id?: string
-          metric_code?: string
-          name?: string
-          reward_xp?: number
-          starts_on?: string
-          target_value?: number
+          instruccion_corta?: string | null
+          paso_id?: string
+          recurso_audio_id?: string | null
+          recurso_id?: string | null
+          titulo?: string
         }
         Relationships: [
           {
-            foreignKeyName: "club_challenge_club_id_fkey"
-            columns: ["club_id"]
+            foreignKeyName: "contenido_paso_tema_grupo_edad_id_fkey"
+            columns: ["grupo_edad_id"]
             isOneToOne: false
-            referencedRelation: "club"
+            referencedRelation: "grupo_edad"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_challenge_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "contenido_paso_tema_paso_id_fkey"
+            columns: ["paso_id"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "paso_tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_challenge_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "contenido_paso_tema_recurso_audio_id_fkey"
+            columns: ["recurso_audio_id"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "recurso_multimedia"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_challenge_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "contenido_paso_tema_recurso_id_fkey"
+            columns: ["recurso_id"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "recurso_multimedia"
+            referencedColumns: ["id"]
           },
         ]
       }
-      club_member: {
+      descarga_sin_conexion_usuario: {
+        Row: {
+          descargado_en: string
+          paquete_id: string
+          ultimo_abierto_en: string | null
+          usuario_id: string
+        }
+        Insert: {
+          descargado_en?: string
+          paquete_id: string
+          ultimo_abierto_en?: string | null
+          usuario_id: string
+        }
+        Update: {
+          descargado_en?: string
+          paquete_id?: string
+          ultimo_abierto_en?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "descarga_sin_conexion_usuario_paquete_id_fkey"
+            columns: ["paquete_id"]
+            isOneToOne: false
+            referencedRelation: "paquete_sin_conexion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "descarga_sin_conexion_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "descarga_sin_conexion_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "descarga_sin_conexion_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      evento_progreso: {
+        Row: {
+          actividad_id: string | null
+          correcta: boolean | null
+          datos: Json
+          dispositivo_id: string | null
+          id: string
+          id_evento_cliente: string
+          ocurrido_en_cliente: string
+          paso_id: string | null
+          puntaje: number | null
+          recibido_en_servidor: string
+          tema_id: string | null
+          tipo_evento: Database["public"]["Enums"]["tipo_evento_progreso"]
+          usuario_id: string
+          xp_otorgada: number
+        }
+        Insert: {
+          actividad_id?: string | null
+          correcta?: boolean | null
+          datos?: Json
+          dispositivo_id?: string | null
+          id?: string
+          id_evento_cliente: string
+          ocurrido_en_cliente: string
+          paso_id?: string | null
+          puntaje?: number | null
+          recibido_en_servidor?: string
+          tema_id?: string | null
+          tipo_evento: Database["public"]["Enums"]["tipo_evento_progreso"]
+          usuario_id: string
+          xp_otorgada?: number
+        }
+        Update: {
+          actividad_id?: string | null
+          correcta?: boolean | null
+          datos?: Json
+          dispositivo_id?: string | null
+          id?: string
+          id_evento_cliente?: string
+          ocurrido_en_cliente?: string
+          paso_id?: string | null
+          puntaje?: number | null
+          recibido_en_servidor?: string
+          tema_id?: string | null
+          tipo_evento?: Database["public"]["Enums"]["tipo_evento_progreso"]
+          usuario_id?: string
+          xp_otorgada?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evento_progreso_actividad_id_fkey"
+            columns: ["actividad_id"]
+            isOneToOne: false
+            referencedRelation: "actividad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evento_progreso_paso_id_fkey"
+            columns: ["paso_id"]
+            isOneToOne: false
+            referencedRelation: "paso_tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evento_progreso_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evento_progreso_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evento_progreso_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evento_progreso_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "evento_progreso_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      grupo_edad: {
+        Row: {
+          codigo: string
+          creado_en: string
+          descripcion: string | null
+          edad_maxima: number
+          edad_minima: number
+          id: string
+          nombre: string
+          orden: number
+        }
+        Insert: {
+          codigo: string
+          creado_en?: string
+          descripcion?: string | null
+          edad_maxima: number
+          edad_minima: number
+          id?: string
+          nombre: string
+          orden: number
+        }
+        Update: {
+          codigo?: string
+          creado_en?: string
+          descripcion?: string | null
+          edad_maxima?: number
+          edad_minima?: number
+          id?: string
+          nombre?: string
+          orden?: number
+        }
+        Relationships: []
+      }
+      libro_biblico: {
+        Row: {
+          id: number
+          nombre: string
+          orden: number
+          testamento_id: number
+        }
+        Insert: {
+          id?: never
+          nombre: string
+          orden: number
+          testamento_id: number
+        }
+        Update: {
+          id?: never
+          nombre?: string
+          orden?: number
+          testamento_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "libro_biblico_testamento_id_fkey"
+            columns: ["testamento_id"]
+            isOneToOne: false
+            referencedRelation: "testamento_biblico"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      logro: {
+        Row: {
+          activo: boolean
+          bono_xp: number
+          codigo: string
+          codigo_criterio: string
+          creado_en: string
+          descripcion: string | null
+          id: string
+          nombre: string
+          url_icono: string | null
+          valor_criterio: number | null
+        }
+        Insert: {
+          activo?: boolean
+          bono_xp?: number
+          codigo: string
+          codigo_criterio: string
+          creado_en?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          url_icono?: string | null
+          valor_criterio?: number | null
+        }
+        Update: {
+          activo?: boolean
+          bono_xp?: number
+          codigo?: string
+          codigo_criterio?: string
+          creado_en?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          url_icono?: string | null
+          valor_criterio?: number | null
+        }
+        Relationships: []
+      }
+      logro_usuario: {
+        Row: {
+          ganado_en: string
+          logro_id: string
+          usuario_id: string
+        }
+        Insert: {
+          ganado_en?: string
+          logro_id: string
+          usuario_id: string
+        }
+        Update: {
+          ganado_en?: string
+          logro_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logro_usuario_logro_id_fkey"
+            columns: ["logro_id"]
+            isOneToOne: false
+            referencedRelation: "logro"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logro_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logro_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "logro_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      miembro_club: {
         Row: {
           club_id: string
-          joined_at: string
-          member_role: string
-          user_id: string
+          rol_miembro: string
+          unido_en: string
+          usuario_id: string
         }
         Insert: {
           club_id: string
-          joined_at?: string
-          member_role?: string
-          user_id: string
+          rol_miembro?: string
+          unido_en?: string
+          usuario_id: string
         }
         Update: {
           club_id?: string
-          joined_at?: string
-          member_role?: string
-          user_id?: string
+          rol_miembro?: string
+          unido_en?: string
+          usuario_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "club_member_club_id_fkey"
+            foreignKeyName: "miembro_club_club_id_fkey"
             columns: ["club_id"]
             isOneToOne: false
             referencedRelation: "club"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_member_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_member_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "club_member_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
         ]
       }
-      content_review: {
+      opcion_actividad: {
         Row: {
-          created_at: string
+          actividad_id: string
+          correcta: boolean
+          etiqueta: string | null
           id: string
-          notes: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: Database["public"]["Enums"]["content_review_status"]
-          submitted_by: string | null
-          theme_id: string
+          orden: number
+          retroalimentacion: string | null
+          texto: string
         }
         Insert: {
-          created_at?: string
+          actividad_id: string
+          correcta?: boolean
+          etiqueta?: string | null
           id?: string
-          notes?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["content_review_status"]
-          submitted_by?: string | null
-          theme_id: string
+          orden: number
+          retroalimentacion?: string | null
+          texto: string
         }
         Update: {
-          created_at?: string
+          actividad_id?: string
+          correcta?: boolean
+          etiqueta?: string | null
           id?: string
-          notes?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["content_review_status"]
-          submitted_by?: string | null
-          theme_id?: string
+          orden?: number
+          retroalimentacion?: string | null
+          texto?: string
         }
         Relationships: [
           {
-            foreignKeyName: "content_review_reviewed_by_fkey"
-            columns: ["reviewed_by"]
+            foreignKeyName: "opcion_actividad_actividad_id_fkey"
+            columns: ["actividad_id"]
             isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_review_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "content_review_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "content_review_submitted_by_fkey"
-            columns: ["submitted_by"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_review_submitted_by_fkey"
-            columns: ["submitted_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "content_review_submitted_by_fkey"
-            columns: ["submitted_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "content_review_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_review_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
+            referencedRelation: "actividad"
             referencedColumns: ["id"]
           },
         ]
       }
-      crecer_step_type: {
+      paquete_sin_conexion: {
         Row: {
-          code: string
-          color_hex: string | null
-          description: string | null
+          creado_en: string
           id: string
-          name: string
-          sort_order: number
+          manifiesto: Json
+          tamano_bytes: number
+          tema_id: string
+          version_contenido: number
         }
         Insert: {
-          code: string
-          color_hex?: string | null
-          description?: string | null
+          creado_en?: string
           id?: string
-          name: string
-          sort_order: number
+          manifiesto?: Json
+          tamano_bytes?: number
+          tema_id: string
+          version_contenido: number
         }
         Update: {
-          code?: string
-          color_hex?: string | null
-          description?: string | null
+          creado_en?: string
           id?: string
-          name?: string
-          sort_order?: number
+          manifiesto?: Json
+          tamano_bytes?: number
+          tema_id?: string
+          version_contenido?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paquete_sin_conexion_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paquete_sin_conexion_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      paso_tema: {
+        Row: {
+          creado_en: string
+          id: string
+          obligatorio: boolean
+          orden: number
+          tema_id: string
+          tipo_paso_id: string
+        }
+        Insert: {
+          creado_en?: string
+          id?: string
+          obligatorio?: boolean
+          orden: number
+          tema_id: string
+          tipo_paso_id: string
+        }
+        Update: {
+          creado_en?: string
+          id?: string
+          obligatorio?: boolean
+          orden?: number
+          tema_id?: string
+          tipo_paso_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paso_tema_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paso_tema_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paso_tema_tipo_paso_id_fkey"
+            columns: ["tipo_paso_id"]
+            isOneToOne: false
+            referencedRelation: "tipo_paso_crecer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      perfil: {
+        Row: {
+          actualizado_en: string
+          apodo: string
+          clave_avatar: string | null
+          creado_en: string
+          grupo_edad_id: string | null
+          id: string
+          prefiere_audio: boolean
+          tamano_texto_preferido: string
+          url_avatar: string | null
+          usuario_id: string
+        }
+        Insert: {
+          actualizado_en?: string
+          apodo: string
+          clave_avatar?: string | null
+          creado_en?: string
+          grupo_edad_id?: string | null
+          id?: string
+          prefiere_audio?: boolean
+          tamano_texto_preferido?: string
+          url_avatar?: string | null
+          usuario_id: string
+        }
+        Update: {
+          actualizado_en?: string
+          apodo?: string
+          clave_avatar?: string | null
+          creado_en?: string
+          grupo_edad_id?: string | null
+          id?: string
+          prefiere_audio?: boolean
+          tamano_texto_preferido?: string
+          url_avatar?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfil_grupo_edad_id_fkey"
+            columns: ["grupo_edad_id"]
+            isOneToOne: false
+            referencedRelation: "grupo_edad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfil_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfil_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "perfil_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      pregunta_reflexion: {
+        Row: {
+          grupo_edad_id: string
+          id: string
+          orden: number
+          paso_id: string
+          pregunta: string
+        }
+        Insert: {
+          grupo_edad_id: string
+          id?: string
+          orden: number
+          paso_id: string
+          pregunta: string
+        }
+        Update: {
+          grupo_edad_id?: string
+          id?: string
+          orden?: number
+          paso_id?: string
+          pregunta?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pregunta_reflexion_grupo_edad_id_fkey"
+            columns: ["grupo_edad_id"]
+            isOneToOne: false
+            referencedRelation: "grupo_edad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pregunta_reflexion_paso_id_fkey"
+            columns: ["paso_id"]
+            isOneToOne: false
+            referencedRelation: "paso_tema"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progreso_actividad_usuario: {
+        Row: {
+          actividad_id: string
+          actualizado_en: string
+          completado: boolean
+          completado_en: string | null
+          intentos: number
+          mejor_puntaje: number
+          usuario_id: string
+        }
+        Insert: {
+          actividad_id: string
+          actualizado_en?: string
+          completado?: boolean
+          completado_en?: string | null
+          intentos?: number
+          mejor_puntaje?: number
+          usuario_id: string
+        }
+        Update: {
+          actividad_id?: string
+          actualizado_en?: string
+          completado?: boolean
+          completado_en?: string | null
+          intentos?: number
+          mejor_puntaje?: number
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progreso_actividad_usuario_actividad_id_fkey"
+            columns: ["actividad_id"]
+            isOneToOne: false
+            referencedRelation: "actividad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progreso_actividad_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progreso_actividad_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "progreso_actividad_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      progreso_tema_usuario: {
+        Row: {
+          actualizado_en: string
+          completado_en: string | null
+          estado: string
+          iniciado_en: string | null
+          porcentaje: number
+          tema_id: string
+          ultimo_paso_id: string | null
+          usuario_id: string
+        }
+        Insert: {
+          actualizado_en?: string
+          completado_en?: string | null
+          estado?: string
+          iniciado_en?: string | null
+          porcentaje?: number
+          tema_id: string
+          ultimo_paso_id?: string | null
+          usuario_id: string
+        }
+        Update: {
+          actualizado_en?: string
+          completado_en?: string | null
+          estado?: string
+          iniciado_en?: string | null
+          porcentaje?: number
+          tema_id?: string
+          ultimo_paso_id?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progreso_tema_usuario_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progreso_tema_usuario_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progreso_tema_usuario_ultimo_paso_id_fkey"
+            columns: ["ultimo_paso_id"]
+            isOneToOne: false
+            referencedRelation: "paso_tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progreso_tema_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progreso_tema_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "progreso_tema_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      recurso_multimedia: {
+        Row: {
+          alto_px: number | null
+          ancho_px: number | null
+          bucket_almacenamiento: string | null
+          clave_almacenamiento: string | null
+          creado_en: string
+          creado_por: string | null
+          duracion_seg: number | null
+          id: string
+          tamano_bytes: number | null
+          texto_alternativo: string | null
+          tipo: Database["public"]["Enums"]["tipo_recurso_multimedia"]
+          tipo_mime: string | null
+          titulo: string | null
+          url_publica: string
+        }
+        Insert: {
+          alto_px?: number | null
+          ancho_px?: number | null
+          bucket_almacenamiento?: string | null
+          clave_almacenamiento?: string | null
+          creado_en?: string
+          creado_por?: string | null
+          duracion_seg?: number | null
+          id?: string
+          tamano_bytes?: number | null
+          texto_alternativo?: string | null
+          tipo: Database["public"]["Enums"]["tipo_recurso_multimedia"]
+          tipo_mime?: string | null
+          titulo?: string | null
+          url_publica: string
+        }
+        Update: {
+          alto_px?: number | null
+          ancho_px?: number | null
+          bucket_almacenamiento?: string | null
+          clave_almacenamiento?: string | null
+          creado_en?: string
+          creado_por?: string | null
+          duracion_seg?: number | null
+          id?: string
+          tamano_bytes?: number | null
+          texto_alternativo?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_recurso_multimedia"]
+          tipo_mime?: string | null
+          titulo?: string | null
+          url_publica?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurso_multimedia_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurso_multimedia_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "recurso_multimedia_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      referencia_biblica: {
+        Row: {
+          capitulo: number
+          id: string
+          libro_id: number
+          principal: boolean
+          tema_id: string
+          versiculo_fin: number
+          versiculo_inicio: number
+        }
+        Insert: {
+          capitulo: number
+          id?: string
+          libro_id: number
+          principal?: boolean
+          tema_id: string
+          versiculo_fin: number
+          versiculo_inicio: number
+        }
+        Update: {
+          capitulo?: number
+          id?: string
+          libro_id?: number
+          principal?: boolean
+          tema_id?: string
+          versiculo_fin?: number
+          versiculo_inicio?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referencia_biblica_libro_id_fkey"
+            columns: ["libro_id"]
+            isOneToOne: false
+            referencedRelation: "libro_biblico"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referencia_biblica_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referencia_biblica_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registro_auditoria: {
+        Row: {
+          accion: string
+          actor_usuario_id: string | null
+          agente_usuario: string | null
+          creado_en: string
+          datos_antes: Json | null
+          datos_despues: Json | null
+          direccion_ip: unknown
+          entidad_id: string | null
+          id: string
+          tipo_entidad: string
+        }
+        Insert: {
+          accion: string
+          actor_usuario_id?: string | null
+          agente_usuario?: string | null
+          creado_en?: string
+          datos_antes?: Json | null
+          datos_despues?: Json | null
+          direccion_ip?: unknown
+          entidad_id?: string | null
+          id?: string
+          tipo_entidad: string
+        }
+        Update: {
+          accion?: string
+          actor_usuario_id?: string | null
+          agente_usuario?: string | null
+          creado_en?: string
+          datos_antes?: Json | null
+          datos_despues?: Json | null
+          direccion_ip?: unknown
+          entidad_id?: string | null
+          id?: string
+          tipo_entidad?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registro_auditoria_actor_usuario_id_fkey"
+            columns: ["actor_usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registro_auditoria_actor_usuario_id_fkey"
+            columns: ["actor_usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "registro_auditoria_actor_usuario_id_fkey"
+            columns: ["actor_usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      regla_nivel: {
+        Row: {
+          color_insignia: string | null
+          id: string
+          nombre: string
+          numero_nivel: number
+          xp_minima: number
+        }
+        Insert: {
+          color_insignia?: string | null
+          id?: string
+          nombre: string
+          numero_nivel: number
+          xp_minima: number
+        }
+        Update: {
+          color_insignia?: string | null
+          id?: string
+          nombre?: string
+          numero_nivel?: number
+          xp_minima?: number
         }
         Relationships: []
       }
-      guardian_child_link: {
+      reto_club: {
         Row: {
-          accepted_at: string | null
-          child_id: string
-          created_at: string
-          guardian_id: string
+          club_id: string | null
+          codigo_metrica: string
+          creado_en: string
+          creado_por: string | null
+          descripcion: string | null
+          fecha_fin: string
+          fecha_inicio: string
           id: string
-          invite_code: string | null
-          relationship: string
-          status: string
+          nombre: string
+          valor_objetivo: number
+          xp_reto: number
         }
         Insert: {
-          accepted_at?: string | null
-          child_id: string
-          created_at?: string
-          guardian_id: string
+          club_id?: string | null
+          codigo_metrica: string
+          creado_en?: string
+          creado_por?: string | null
+          descripcion?: string | null
+          fecha_fin: string
+          fecha_inicio: string
           id?: string
-          invite_code?: string | null
-          relationship?: string
-          status?: string
+          nombre: string
+          valor_objetivo: number
+          xp_reto?: number
         }
         Update: {
-          accepted_at?: string | null
-          child_id?: string
-          created_at?: string
-          guardian_id?: string
+          club_id?: string | null
+          codigo_metrica?: string
+          creado_en?: string
+          creado_por?: string | null
+          descripcion?: string | null
+          fecha_fin?: string
+          fecha_inicio?: string
           id?: string
-          invite_code?: string | null
-          relationship?: string
-          status?: string
+          nombre?: string
+          valor_objetivo?: number
+          xp_reto?: number
         }
         Relationships: [
           {
-            foreignKeyName: "guardian_child_link_child_id_fkey"
-            columns: ["child_id"]
+            foreignKeyName: "reto_club_club_id_fkey"
+            columns: ["club_id"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "club"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "guardian_child_link_child_id_fkey"
-            columns: ["child_id"]
+            foreignKeyName: "reto_club_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "guardian_child_link_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "guardian_child_link_guardian_id_fkey"
-            columns: ["guardian_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "guardian_child_link_guardian_id_fkey"
-            columns: ["guardian_id"]
+            foreignKeyName: "reto_club_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "guardian_child_link_guardian_id_fkey"
-            columns: ["guardian_id"]
+            foreignKeyName: "reto_club_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
         ]
       }
-      key_verse: {
+      revision_contenido: {
         Row: {
-          book_id: number
-          chapter: number
+          creado_en: string
+          enviado_por: string | null
+          estado: Database["public"]["Enums"]["estado_revision_contenido"]
           id: string
-          text: string
-          theme_id: string
-          verse: number
+          notas: string | null
+          revisado_en: string | null
+          revisado_por: string | null
+          tema_id: string
         }
         Insert: {
-          book_id: number
-          chapter: number
+          creado_en?: string
+          enviado_por?: string | null
+          estado?: Database["public"]["Enums"]["estado_revision_contenido"]
           id?: string
-          text: string
-          theme_id: string
-          verse: number
+          notas?: string | null
+          revisado_en?: string | null
+          revisado_por?: string | null
+          tema_id: string
         }
         Update: {
-          book_id?: number
-          chapter?: number
+          creado_en?: string
+          enviado_por?: string | null
+          estado?: Database["public"]["Enums"]["estado_revision_contenido"]
           id?: string
-          text?: string
-          theme_id?: string
-          verse?: number
+          notas?: string | null
+          revisado_en?: string | null
+          revisado_por?: string | null
+          tema_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "key_verse_book_id_fkey"
-            columns: ["book_id"]
+            foreignKeyName: "revision_contenido_enviado_por_fkey"
+            columns: ["enviado_por"]
             isOneToOne: false
-            referencedRelation: "bible_book"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "key_verse_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: true
-            referencedRelation: "theme"
+            foreignKeyName: "revision_contenido_enviado_por_fkey"
+            columns: ["enviado_por"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "revision_contenido_enviado_por_fkey"
+            columns: ["enviado_por"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "revision_contenido_revisado_por_fkey"
+            columns: ["revisado_por"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "key_verse_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: true
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      level_rule: {
-        Row: {
-          badge_color: string | null
-          id: string
-          level_no: number
-          min_xp: number
-          name: string
-        }
-        Insert: {
-          badge_color?: string | null
-          id?: string
-          level_no: number
-          min_xp: number
-          name: string
-        }
-        Update: {
-          badge_color?: string | null
-          id?: string
-          level_no?: number
-          min_xp?: number
-          name?: string
-        }
-        Relationships: []
-      }
-      media_asset: {
-        Row: {
-          alt_text: string | null
-          created_at: string
-          created_by: string | null
-          duration_sec: number | null
-          height_px: number | null
-          id: string
-          kind: Database["public"]["Enums"]["media_kind"]
-          mime_type: string | null
-          public_url: string
-          size_bytes: number | null
-          storage_bucket: string | null
-          storage_key: string | null
-          title: string | null
-          width_px: number | null
-        }
-        Insert: {
-          alt_text?: string | null
-          created_at?: string
-          created_by?: string | null
-          duration_sec?: number | null
-          height_px?: number | null
-          id?: string
-          kind: Database["public"]["Enums"]["media_kind"]
-          mime_type?: string | null
-          public_url: string
-          size_bytes?: number | null
-          storage_bucket?: string | null
-          storage_key?: string | null
-          title?: string | null
-          width_px?: number | null
-        }
-        Update: {
-          alt_text?: string | null
-          created_at?: string
-          created_by?: string | null
-          duration_sec?: number | null
-          height_px?: number | null
-          id?: string
-          kind?: Database["public"]["Enums"]["media_kind"]
-          mime_type?: string | null
-          public_url?: string
-          size_bytes?: number | null
-          storage_bucket?: string | null
-          storage_key?: string | null
-          title?: string | null
-          width_px?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "media_asset_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "revision_contenido_revisado_por_fkey"
+            columns: ["revisado_por"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "revision_contenido_revisado_por_fkey"
+            columns: ["revisado_por"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "revision_contenido_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "media_asset_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "revision_contenido_tema_id_fkey"
+            columns: ["tema_id"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "media_asset_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      offline_package: {
-        Row: {
-          content_version: number
-          created_at: string
-          id: string
-          manifest: Json
-          size_bytes: number
-          theme_id: string
-        }
-        Insert: {
-          content_version: number
-          created_at?: string
-          id?: string
-          manifest?: Json
-          size_bytes?: number
-          theme_id: string
-        }
-        Update: {
-          content_version?: number
-          created_at?: string
-          id?: string
-          manifest?: Json
-          size_bytes?: number
-          theme_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "offline_package_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "offline_package_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
+            referencedRelation: "v_temas_publicos"
             referencedColumns: ["id"]
           },
         ]
       }
-      path: {
+      senda: {
         Row: {
-          code: string
+          activo: boolean
+          codigo: string
           color_hex: string
-          created_at: string
-          description: string | null
-          icon_name: string | null
+          creado_en: string
+          descripcion: string | null
           id: string
-          is_active: boolean
-          name: string
-          sort_order: number
+          nombre: string
+          nombre_icono: string | null
+          orden: number
         }
         Insert: {
-          code: string
+          activo?: boolean
+          codigo: string
           color_hex: string
-          created_at?: string
-          description?: string | null
-          icon_name?: string | null
+          creado_en?: string
+          descripcion?: string | null
           id?: string
-          is_active?: boolean
-          name: string
-          sort_order: number
+          nombre: string
+          nombre_icono?: string | null
+          orden: number
         }
         Update: {
-          code?: string
+          activo?: boolean
+          codigo?: string
           color_hex?: string
-          created_at?: string
-          description?: string | null
-          icon_name?: string | null
+          creado_en?: string
+          descripcion?: string | null
           id?: string
-          is_active?: boolean
-          name?: string
-          sort_order?: number
+          nombre?: string
+          nombre_icono?: string | null
+          orden?: number
         }
         Relationships: []
       }
-      profile: {
+      tarjeta_compartida: {
         Row: {
-          age_group_id: string | null
-          avatar_key: string | null
-          avatar_url: string | null
-          created_at: string
+          creado_en: string
           id: string
-          nickname: string
-          preferred_audio: boolean
-          preferred_text_size: string
-          updated_at: string
-          user_id: string
+          logro_id: string | null
+          tema_id: string | null
+          url_imagen: string
+          usuario_id: string
         }
         Insert: {
-          age_group_id?: string | null
-          avatar_key?: string | null
-          avatar_url?: string | null
-          created_at?: string
+          creado_en?: string
           id?: string
-          nickname: string
-          preferred_audio?: boolean
-          preferred_text_size?: string
-          updated_at?: string
-          user_id: string
+          logro_id?: string | null
+          tema_id?: string | null
+          url_imagen: string
+          usuario_id: string
         }
         Update: {
-          age_group_id?: string | null
-          avatar_key?: string | null
-          avatar_url?: string | null
-          created_at?: string
+          creado_en?: string
           id?: string
-          nickname?: string
-          preferred_audio?: boolean
-          preferred_text_size?: string
-          updated_at?: string
-          user_id?: string
+          logro_id?: string | null
+          tema_id?: string | null
+          url_imagen?: string
+          usuario_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "profile_age_group_id_fkey"
-            columns: ["age_group_id"]
+            foreignKeyName: "tarjeta_compartida_logro_id_fkey"
+            columns: ["logro_id"]
             isOneToOne: false
-            referencedRelation: "age_group"
+            referencedRelation: "logro"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profile_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "app_user"
+            foreignKeyName: "tarjeta_compartida_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profile_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            foreignKeyName: "tarjeta_compartida_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profile_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            foreignKeyName: "tarjeta_compartida_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tarjeta_compartida_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "tarjeta_compartida_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
         ]
       }
-      progress_event: {
+      tema: {
         Row: {
-          activity_id: string | null
-          client_event_id: string
-          device_id: string | null
-          event_type: Database["public"]["Enums"]["progress_event_type"]
+          actualizado_en: string
+          creado_en: string
+          creado_por: string | null
+          estado: Database["public"]["Enums"]["estado_publicacion"]
           id: string
-          is_correct: boolean | null
-          occurred_at_client: string
-          payload: Json
-          received_at_server: string
-          score: number | null
-          step_id: string | null
-          theme_id: string | null
-          user_id: string
-          xp_awarded: number
-        }
-        Insert: {
-          activity_id?: string | null
-          client_event_id: string
-          device_id?: string | null
-          event_type: Database["public"]["Enums"]["progress_event_type"]
-          id?: string
-          is_correct?: boolean | null
-          occurred_at_client: string
-          payload?: Json
-          received_at_server?: string
-          score?: number | null
-          step_id?: string | null
-          theme_id?: string | null
-          user_id: string
-          xp_awarded?: number
-        }
-        Update: {
-          activity_id?: string | null
-          client_event_id?: string
-          device_id?: string | null
-          event_type?: Database["public"]["Enums"]["progress_event_type"]
-          id?: string
-          is_correct?: boolean | null
-          occurred_at_client?: string
-          payload?: Json
-          received_at_server?: string
-          score?: number | null
-          step_id?: string | null
-          theme_id?: string | null
-          user_id?: string
-          xp_awarded?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "progress_event_activity_id_fkey"
-            columns: ["activity_id"]
-            isOneToOne: false
-            referencedRelation: "activity"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_event_step_id_fkey"
-            columns: ["step_id"]
-            isOneToOne: false
-            referencedRelation: "theme_step"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_event_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_event_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_event_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_event_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "progress_event_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      reflection_question: {
-        Row: {
-          age_group_id: string
-          id: string
-          question: string
-          sort_order: number
-          step_id: string
-        }
-        Insert: {
-          age_group_id: string
-          id?: string
-          question: string
-          sort_order: number
-          step_id: string
-        }
-        Update: {
-          age_group_id?: string
-          id?: string
-          question?: string
-          sort_order?: number
-          step_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reflection_question_age_group_id_fkey"
-            columns: ["age_group_id"]
-            isOneToOne: false
-            referencedRelation: "age_group"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reflection_question_step_id_fkey"
-            columns: ["step_id"]
-            isOneToOne: false
-            referencedRelation: "theme_step"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      share_card: {
-        Row: {
-          achievement_id: string | null
-          created_at: string
-          id: string
-          image_url: string
-          theme_id: string | null
-          user_id: string
-        }
-        Insert: {
-          achievement_id?: string | null
-          created_at?: string
-          id?: string
-          image_url: string
-          theme_id?: string | null
-          user_id: string
-        }
-        Update: {
-          achievement_id?: string | null
-          created_at?: string
-          id?: string
-          image_url?: string
-          theme_id?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "share_card_achievement_id_fkey"
-            columns: ["achievement_id"]
-            isOneToOne: false
-            referencedRelation: "achievement"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "share_card_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "share_card_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "share_card_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "share_card_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "share_card_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      theme: {
-        Row: {
-          bible_version_id: string | null
-          content_version: number
-          cover_media_id: string | null
-          created_at: string
-          created_by: string | null
-          estimated_minutes: number
-          id: string
-          objective: string
-          path_id: string
-          published_at: string | null
-          published_by: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
+          minutos_estimados: number
+          objetivo: string
+          portada_recurso_id: string | null
+          publicado_en: string | null
+          publicado_por: string | null
+          resumen: string | null
+          revisado_en: string | null
+          revisado_por: string | null
+          senda_id: string
           slug: string
-          status: Database["public"]["Enums"]["publication_status"]
-          summary: string | null
-          title: string
-          updated_at: string
-          xp_reward: number
+          titulo: string
+          version_biblica_id: string | null
+          version_contenido: number
+          xp_recompensa: number
         }
         Insert: {
-          bible_version_id?: string | null
-          content_version?: number
-          cover_media_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          estimated_minutes?: number
+          actualizado_en?: string
+          creado_en?: string
+          creado_por?: string | null
+          estado?: Database["public"]["Enums"]["estado_publicacion"]
           id?: string
-          objective: string
-          path_id: string
-          published_at?: string | null
-          published_by?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
+          minutos_estimados?: number
+          objetivo: string
+          portada_recurso_id?: string | null
+          publicado_en?: string | null
+          publicado_por?: string | null
+          resumen?: string | null
+          revisado_en?: string | null
+          revisado_por?: string | null
+          senda_id: string
           slug: string
-          status?: Database["public"]["Enums"]["publication_status"]
-          summary?: string | null
-          title: string
-          updated_at?: string
-          xp_reward?: number
+          titulo: string
+          version_biblica_id?: string | null
+          version_contenido?: number
+          xp_recompensa?: number
         }
         Update: {
-          bible_version_id?: string | null
-          content_version?: number
-          cover_media_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          estimated_minutes?: number
+          actualizado_en?: string
+          creado_en?: string
+          creado_por?: string | null
+          estado?: Database["public"]["Enums"]["estado_publicacion"]
           id?: string
-          objective?: string
-          path_id?: string
-          published_at?: string | null
-          published_by?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
+          minutos_estimados?: number
+          objetivo?: string
+          portada_recurso_id?: string | null
+          publicado_en?: string | null
+          publicado_por?: string | null
+          resumen?: string | null
+          revisado_en?: string | null
+          revisado_por?: string | null
+          senda_id?: string
           slug?: string
-          status?: Database["public"]["Enums"]["publication_status"]
-          summary?: string | null
-          title?: string
-          updated_at?: string
-          xp_reward?: number
+          titulo?: string
+          version_biblica_id?: string | null
+          version_contenido?: number
+          xp_recompensa?: number
         }
         Relationships: [
           {
-            foreignKeyName: "theme_bible_version_id_fkey"
-            columns: ["bible_version_id"]
+            foreignKeyName: "tema_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "bible_version"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_cover_media_id_fkey"
-            columns: ["cover_media_id"]
+            foreignKeyName: "tema_creado_por_fkey"
+            columns: ["creado_por"]
             isOneToOne: false
-            referencedRelation: "media_asset"
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "tema_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "tema_portada_recurso_id_fkey"
+            columns: ["portada_recurso_id"]
+            isOneToOne: false
+            referencedRelation: "recurso_multimedia"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "tema_publicado_por_fkey"
+            columns: ["publicado_por"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "tema_publicado_por_fkey"
+            columns: ["publicado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "theme_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "tema_publicado_por_fkey"
+            columns: ["publicado_por"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "theme_path_id_fkey"
-            columns: ["path_id"]
+            foreignKeyName: "tema_revisado_por_fkey"
+            columns: ["revisado_por"]
             isOneToOne: false
-            referencedRelation: "path"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_published_by_fkey"
-            columns: ["published_by"]
+            foreignKeyName: "tema_revisado_por_fkey"
+            columns: ["revisado_por"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "tema_revisado_por_fkey"
+            columns: ["revisado_por"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "tema_senda_id_fkey"
+            columns: ["senda_id"]
+            isOneToOne: false
+            referencedRelation: "senda"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_published_by_fkey"
-            columns: ["published_by"]
+            foreignKeyName: "tema_version_biblica_id_fkey"
+            columns: ["version_biblica_id"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "theme_published_by_fkey"
-            columns: ["published_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "theme_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "version_biblica"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "theme_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "theme_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
           },
         ]
       }
-      theme_age_group: {
+      tema_grupo_edad: {
         Row: {
-          age_group_id: string
-          theme_id: string
+          grupo_edad_id: string
+          tema_id: string
         }
         Insert: {
-          age_group_id: string
-          theme_id: string
+          grupo_edad_id: string
+          tema_id: string
         }
         Update: {
-          age_group_id?: string
-          theme_id?: string
+          grupo_edad_id?: string
+          tema_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "theme_age_group_age_group_id_fkey"
-            columns: ["age_group_id"]
+            foreignKeyName: "tema_grupo_edad_grupo_edad_id_fkey"
+            columns: ["grupo_edad_id"]
             isOneToOne: false
-            referencedRelation: "age_group"
+            referencedRelation: "grupo_edad"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_age_group_theme_id_fkey"
-            columns: ["theme_id"]
+            foreignKeyName: "tema_grupo_edad_tema_id_fkey"
+            columns: ["tema_id"]
             isOneToOne: false
-            referencedRelation: "theme"
+            referencedRelation: "tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_age_group_theme_id_fkey"
-            columns: ["theme_id"]
+            foreignKeyName: "tema_grupo_edad_tema_id_fkey"
+            columns: ["tema_id"]
             isOneToOne: false
-            referencedRelation: "v_theme_public"
+            referencedRelation: "v_temas_publicos"
             referencedColumns: ["id"]
           },
         ]
       }
-      theme_step: {
+      testamento_biblico: {
         Row: {
-          created_at: string
+          codigo: string
+          id: number
+          nombre: string
+        }
+        Insert: {
+          codigo: string
+          id?: never
+          nombre: string
+        }
+        Update: {
+          codigo?: string
+          id?: never
+          nombre?: string
+        }
+        Relationships: []
+      }
+      tipo_actividad: {
+        Row: {
+          activo: boolean
+          codigo: string
+          creado_en: string
+          descripcion: string | null
+          es_juego: boolean
           id: string
-          is_required: boolean
-          sort_order: number
-          step_type_id: string
-          theme_id: string
+          nombre: string
         }
         Insert: {
-          created_at?: string
+          activo?: boolean
+          codigo: string
+          creado_en?: string
+          descripcion?: string | null
+          es_juego?: boolean
           id?: string
-          is_required?: boolean
-          sort_order: number
-          step_type_id: string
-          theme_id: string
+          nombre: string
         }
         Update: {
-          created_at?: string
+          activo?: boolean
+          codigo?: string
+          creado_en?: string
+          descripcion?: string | null
+          es_juego?: boolean
           id?: string
-          is_required?: boolean
-          sort_order?: number
-          step_type_id?: string
-          theme_id?: string
+          nombre?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "theme_step_step_type_id_fkey"
-            columns: ["step_type_id"]
-            isOneToOne: false
-            referencedRelation: "crecer_step_type"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "theme_step_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "theme_step_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      theme_step_content: {
+      tipo_paso_crecer: {
         Row: {
-          age_group_id: string
-          audio_media_id: string | null
-          body: string
-          extra: Json
+          codigo: string
+          color_hex: string | null
+          descripcion: string | null
           id: string
-          media_id: string | null
-          short_instruction: string | null
-          step_id: string
-          title: string
+          nombre: string
+          orden: number
         }
         Insert: {
-          age_group_id: string
-          audio_media_id?: string | null
-          body: string
-          extra?: Json
+          codigo: string
+          color_hex?: string | null
+          descripcion?: string | null
           id?: string
-          media_id?: string | null
-          short_instruction?: string | null
-          step_id: string
-          title: string
+          nombre: string
+          orden: number
         }
         Update: {
-          age_group_id?: string
-          audio_media_id?: string | null
-          body?: string
-          extra?: Json
+          codigo?: string
+          color_hex?: string | null
+          descripcion?: string | null
           id?: string
-          media_id?: string | null
-          short_instruction?: string | null
-          step_id?: string
-          title?: string
+          nombre?: string
+          orden?: number
+        }
+        Relationships: []
+      }
+      usuario_app: {
+        Row: {
+          activo: boolean
+          actualizado_en: string
+          correo: string | null
+          creado_en: string
+          id: string
+          id_externo: string | null
+          nombre_visible: string
+          proveedor: Database["public"]["Enums"]["proveedor_autenticacion"]
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          ultimo_login_en: string | null
+        }
+        Insert: {
+          activo?: boolean
+          actualizado_en?: string
+          correo?: string | null
+          creado_en?: string
+          id?: string
+          id_externo?: string | null
+          nombre_visible: string
+          proveedor: Database["public"]["Enums"]["proveedor_autenticacion"]
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          ultimo_login_en?: string | null
+        }
+        Update: {
+          activo?: boolean
+          actualizado_en?: string
+          correo?: string | null
+          creado_en?: string
+          id?: string
+          id_externo?: string | null
+          nombre_visible?: string
+          proveedor?: Database["public"]["Enums"]["proveedor_autenticacion"]
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          ultimo_login_en?: string | null
+        }
+        Relationships: []
+      }
+      versiculo_clave: {
+        Row: {
+          capitulo: number
+          id: string
+          libro_id: number
+          tema_id: string
+          texto: string
+          versiculo: number
+        }
+        Insert: {
+          capitulo: number
+          id?: string
+          libro_id: number
+          tema_id: string
+          texto: string
+          versiculo: number
+        }
+        Update: {
+          capitulo?: number
+          id?: string
+          libro_id?: number
+          tema_id?: string
+          texto?: string
+          versiculo?: number
         }
         Relationships: [
           {
-            foreignKeyName: "theme_step_content_age_group_id_fkey"
-            columns: ["age_group_id"]
+            foreignKeyName: "versiculo_clave_libro_id_fkey"
+            columns: ["libro_id"]
             isOneToOne: false
-            referencedRelation: "age_group"
+            referencedRelation: "libro_biblico"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_step_content_audio_media_id_fkey"
-            columns: ["audio_media_id"]
-            isOneToOne: false
-            referencedRelation: "media_asset"
+            foreignKeyName: "versiculo_clave_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: true
+            referencedRelation: "tema"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_step_content_media_id_fkey"
-            columns: ["media_id"]
-            isOneToOne: false
-            referencedRelation: "media_asset"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "theme_step_content_step_id_fkey"
-            columns: ["step_id"]
-            isOneToOne: false
-            referencedRelation: "theme_step"
+            foreignKeyName: "versiculo_clave_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: true
+            referencedRelation: "v_temas_publicos"
             referencedColumns: ["id"]
           },
         ]
       }
-      user_achievement: {
+      version_biblica: {
         Row: {
-          achievement_id: string
-          earned_at: string
-          user_id: string
+          codigo: string
+          creado_en: string
+          dominio_publico: boolean
+          id: string
+          nombre: string
         }
         Insert: {
-          achievement_id: string
-          earned_at?: string
-          user_id: string
+          codigo: string
+          creado_en?: string
+          dominio_publico?: boolean
+          id?: string
+          nombre: string
         }
         Update: {
-          achievement_id?: string
-          earned_at?: string
-          user_id?: string
+          codigo?: string
+          creado_en?: string
+          dominio_publico?: boolean
+          id?: string
+          nombre?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_achievement_achievement_id_fkey"
-            columns: ["achievement_id"]
-            isOneToOne: false
-            referencedRelation: "achievement"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_achievement_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_achievement_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_achievement_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
-      user_activity_progress: {
+      vinculo_tutor_menor: {
         Row: {
-          activity_id: string
-          attempts: number
-          best_score: number
-          completed_at: string | null
-          is_completed: boolean
-          updated_at: string
-          user_id: string
+          aceptado_en: string | null
+          codigo_invitacion: string | null
+          creado_en: string
+          estado: string
+          id: string
+          menor_id: string
+          relacion: string
+          tutor_id: string
         }
         Insert: {
-          activity_id: string
-          attempts?: number
-          best_score?: number
-          completed_at?: string | null
-          is_completed?: boolean
-          updated_at?: string
-          user_id: string
+          aceptado_en?: string | null
+          codigo_invitacion?: string | null
+          creado_en?: string
+          estado?: string
+          id?: string
+          menor_id: string
+          relacion?: string
+          tutor_id: string
         }
         Update: {
-          activity_id?: string
-          attempts?: number
-          best_score?: number
-          completed_at?: string | null
-          is_completed?: boolean
-          updated_at?: string
-          user_id?: string
+          aceptado_en?: string | null
+          codigo_invitacion?: string | null
+          creado_en?: string
+          estado?: string
+          id?: string
+          menor_id?: string
+          relacion?: string
+          tutor_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_activity_progress_activity_id_fkey"
-            columns: ["activity_id"]
+            foreignKeyName: "vinculo_tutor_menor_menor_id_fkey"
+            columns: ["menor_id"]
             isOneToOne: false
-            referencedRelation: "activity"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_activity_progress_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "vinculo_tutor_menor_menor_id_fkey"
+            columns: ["menor_id"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "vinculo_tutor_menor_menor_id_fkey"
+            columns: ["menor_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "vinculo_tutor_menor_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_activity_progress_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "vinculo_tutor_menor_tutor_id_fkey"
+            columns: ["tutor_id"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "user_activity_progress_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "vinculo_tutor_menor_tutor_id_fkey"
+            columns: ["tutor_id"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      user_offline_download: {
-        Row: {
-          downloaded_at: string
-          last_opened_at: string | null
-          package_id: string
-          user_id: string
-        }
-        Insert: {
-          downloaded_at?: string
-          last_opened_at?: string | null
-          package_id: string
-          user_id: string
-        }
-        Update: {
-          downloaded_at?: string
-          last_opened_at?: string | null
-          package_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_offline_download_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "offline_package"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_offline_download_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_offline_download_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_offline_download_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      user_theme_progress: {
-        Row: {
-          completed_at: string | null
-          last_step_id: string | null
-          percent: number
-          started_at: string | null
-          status: string
-          theme_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          last_step_id?: string | null
-          percent?: number
-          started_at?: string | null
-          status?: string
-          theme_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          last_step_id?: string | null
-          percent?: number
-          started_at?: string | null
-          status?: string
-          theme_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_theme_progress_last_step_id_fkey"
-            columns: ["last_step_id"]
-            isOneToOne: false
-            referencedRelation: "theme_step"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_theme_progress_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_theme_progress_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "v_theme_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_theme_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "app_user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_theme_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_theme_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
         ]
       }
     }
     Views: {
-      v_club_ranking: {
+      v_nivel_usuario: {
         Row: {
+          nombre_nivel: string | null
+          numero_nivel: number | null
+          usuario_id: string | null
+          xp_total: number | null
+        }
+        Relationships: []
+      }
+      v_ranking_club: {
+        Row: {
+          apodo: string | null
           club_id: string | null
-          nickname: string | null
-          rank_no: number | null
-          user_id: string | null
+          numero_ranking: number | null
+          usuario_id: string | null
           xp_total: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "club_member_club_id_fkey"
+            foreignKeyName: "miembro_club_club_id_fkey"
             columns: ["club_id"]
             isOneToOne: false
             referencedRelation: "club"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_member_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "app_user"
+            referencedRelation: "usuario_app"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "club_member_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "v_user_level"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
           },
           {
-            foreignKeyName: "club_member_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "v_user_xp"
-            referencedColumns: ["user_id"]
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
           },
         ]
       }
-      v_theme_public: {
+      v_temas_publicos: {
         Row: {
-          content_version: number | null
-          cover_media_id: string | null
-          estimated_minutes: number | null
+          estado: Database["public"]["Enums"]["estado_publicacion"] | null
           id: string | null
-          objective: string | null
-          path_code: string | null
-          path_color_hex: string | null
-          path_id: string | null
-          path_name: string | null
-          published_at: string | null
+          minutos_estimados: number | null
+          objetivo: string | null
+          portada_recurso_id: string | null
+          publicado_en: string | null
+          resumen: string | null
+          senda_codigo: string | null
+          senda_color_hex: string | null
+          senda_id: string | null
+          senda_nombre: string | null
           slug: string | null
-          status: Database["public"]["Enums"]["publication_status"] | null
-          summary: string | null
-          title: string | null
-          xp_reward: number | null
+          titulo: string | null
+          version_contenido: number | null
+          xp_recompensa: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "theme_cover_media_id_fkey"
-            columns: ["cover_media_id"]
+            foreignKeyName: "tema_portada_recurso_id_fkey"
+            columns: ["portada_recurso_id"]
             isOneToOne: false
-            referencedRelation: "media_asset"
+            referencedRelation: "recurso_multimedia"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "theme_path_id_fkey"
-            columns: ["path_id"]
+            foreignKeyName: "tema_senda_id_fkey"
+            columns: ["senda_id"]
             isOneToOne: false
-            referencedRelation: "path"
+            referencedRelation: "senda"
             referencedColumns: ["id"]
           },
         ]
       }
-      v_user_level: {
+      v_xp_usuario: {
         Row: {
-          level_name: string | null
-          level_no: number | null
-          user_id: string | null
-          xp_total: number | null
-        }
-        Relationships: []
-      }
-      v_user_xp: {
-        Row: {
-          user_id: string | null
+          usuario_id: string | null
           xp_total: number | null
         }
         Relationships: []
@@ -1969,33 +1969,38 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      auth_provider: "google" | "facebook" | "guest" | "email"
-      content_review_status:
-        | "draft"
-        | "submitted"
-        | "changes_requested"
-        | "approved"
-        | "published"
-        | "rejected"
-      media_kind: "image" | "audio" | "video" | "document" | "icon"
-      progress_event_type:
-        | "theme_started"
-        | "theme_completed"
-        | "block_started"
-        | "block_completed"
-        | "activity_started"
-        | "activity_answered"
-        | "activity_completed"
-        | "reward_claimed"
-        | "theme_downloaded"
-        | "sync_marker"
-      publication_status:
-        | "draft"
-        | "review"
-        | "approved"
-        | "published"
-        | "archived"
-      user_role: "admin" | "user" | "guest" | "parent"
+      estado_publicacion:
+        | "borrador"
+        | "revision"
+        | "aprobado"
+        | "publicado"
+        | "archivado"
+      estado_revision_contenido:
+        | "borrador"
+        | "enviado"
+        | "cambios_solicitados"
+        | "aprobado"
+        | "publicado"
+        | "rechazado"
+      proveedor_autenticacion: "google" | "facebook" | "invitado" | "correo"
+      rol_usuario: "administrador" | "usuario" | "invitado" | "padre"
+      tipo_evento_progreso:
+        | "tema_iniciado"
+        | "tema_completado"
+        | "bloque_iniciado"
+        | "bloque_completado"
+        | "actividad_iniciada"
+        | "actividad_respondida"
+        | "actividad_completada"
+        | "recompensa_reclamada"
+        | "tema_descargado"
+        | "marcador_sincronizacion"
+      tipo_recurso_multimedia:
+        | "imagen"
+        | "audio"
+        | "video"
+        | "documento"
+        | "icono"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2123,36 +2128,42 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      auth_provider: ["google", "facebook", "guest", "email"],
-      content_review_status: [
-        "draft",
-        "submitted",
-        "changes_requested",
-        "approved",
-        "published",
-        "rejected",
+      estado_publicacion: [
+        "borrador",
+        "revision",
+        "aprobado",
+        "publicado",
+        "archivado",
       ],
-      media_kind: ["image", "audio", "video", "document", "icon"],
-      progress_event_type: [
-        "theme_started",
-        "theme_completed",
-        "block_started",
-        "block_completed",
-        "activity_started",
-        "activity_answered",
-        "activity_completed",
-        "reward_claimed",
-        "theme_downloaded",
-        "sync_marker",
+      estado_revision_contenido: [
+        "borrador",
+        "enviado",
+        "cambios_solicitados",
+        "aprobado",
+        "publicado",
+        "rechazado",
       ],
-      publication_status: [
-        "draft",
-        "review",
-        "approved",
-        "published",
-        "archived",
+      proveedor_autenticacion: ["google", "facebook", "invitado", "correo"],
+      rol_usuario: ["administrador", "usuario", "invitado", "padre"],
+      tipo_evento_progreso: [
+        "tema_iniciado",
+        "tema_completado",
+        "bloque_iniciado",
+        "bloque_completado",
+        "actividad_iniciada",
+        "actividad_respondida",
+        "actividad_completada",
+        "recompensa_reclamada",
+        "tema_descargado",
+        "marcador_sincronizacion",
       ],
-      user_role: ["admin", "user", "guest", "parent"],
+      tipo_recurso_multimedia: [
+        "imagen",
+        "audio",
+        "video",
+        "documento",
+        "icono",
+      ],
     },
   },
 } as const

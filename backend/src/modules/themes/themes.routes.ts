@@ -3,7 +3,7 @@ import type { AppBindings } from "../../config/env";
 import { NotFoundError } from "../../shared/errors/http-error";
 import { responderExito } from "../../shared/http/respuesta";
 import { serializarActividad } from "../../shared/serializers/actividad.serializer";
-import { serializarTema } from "../../shared/serializers/tema.serializer";
+import { serializarTema, serializarTemaDetalle } from "../../shared/serializers/tema.serializer";
 
 function mapearPaso(paso: Record<string, unknown>) {
   const contenidos = Array.isArray(paso.contenidos)
@@ -58,13 +58,17 @@ themesRoutes.get("/:tema_id", async (c) => {
   const db = c.get("db");
   const temaId = c.req.param("tema_id");
 
-  const { data, error } = await db.from("tema").select("*").eq("id", temaId).single();
+  const { data, error } = await db
+    .from("tema")
+    .select("*, senda:senda_id(*), portada_recurso:portada_recurso_id(*), versiculo_clave:versiculo_clave(*), referencias_biblicas:referencia_biblica(*)")
+    .eq("id", temaId)
+    .single();
 
   if (error || !data) {
     throw new NotFoundError("Tema no encontrado");
   }
 
-  return responderExito(serializarTema(data as unknown as Parameters<typeof serializarTema>[0]));
+  return responderExito(serializarTemaDetalle(data as unknown as Parameters<typeof serializarTemaDetalle>[0]));
 });
 
 themesRoutes.get("/:tema_id/pasos", async (c) => {
@@ -103,7 +107,11 @@ themesRoutes.get("/:tema_id/actividades", async (c) => {
   const temaId = c.req.param("tema_id");
   const grupoEdadId = c.req.query("grupo_edad_id");
 
-  let query = db.from("actividad").select("*").eq("tema_id", temaId).order("orden", { ascending: true });
+  let query = db
+    .from("actividad")
+    .select("*, tipo_actividad:tipo_actividad_id(*), opciones:opcion_actividad(*)")
+    .eq("tema_id", temaId)
+    .order("orden", { ascending: true });
 
   if (grupoEdadId) {
     query = query.eq("grupo_edad_id", grupoEdadId);

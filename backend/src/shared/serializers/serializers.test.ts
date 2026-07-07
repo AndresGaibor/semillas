@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { serializarActividad } from "./actividad.serializer";
 import { serializarPerfil } from "./perfil.serializer";
 import { serializarProgresoActividad, serializarProgresoTema, serializarNivelUsuario } from "./progreso.serializer";
-import { serializarTema } from "./tema.serializer";
+import { serializarTema, serializarTemaDetalle } from "./tema.serializer";
 import { serializarUsuario } from "./usuario.serializer";
 
 describe("serializadores", () => {
@@ -82,6 +82,118 @@ describe("serializadores", () => {
     });
   });
 
+  it("serializa tema detallado con senda, portada, versiculo y referencia biblica", () => {
+    expect(
+      serializarTemaDetalle({
+        id: "tema-1",
+        senda_id: "senda-1",
+        titulo: "La creación",
+        slug: "la-creacion",
+        objetivo: "Entender que Dios creó todo",
+        resumen: "Resumen",
+        portada_recurso_id: "recurso-1",
+        estado: "publicado",
+        version_biblica_id: "biblia-1",
+        xp_recompensa: 50,
+        minutos_estimados: 15,
+        version_contenido: 2,
+        publicado_en: "2026-01-01T00:00:00.000Z",
+        senda: {
+          id: "senda-1",
+          codigo: "PADRE",
+          nombre: "Senda del Padre",
+          descripcion: "Senda del Padre Celestial",
+          color_hex: "#3D8BD4",
+          nombre_icono: "crown",
+          orden: 1
+        },
+        portada_recurso: {
+          id: "recurso-1",
+          tipo: "imagen",
+          url_publica: "https://cdn.ejemplo.com/portada.png",
+          texto_alternativo: "Portada del tema",
+          titulo: "Portada",
+          tipo_mime: "image/png",
+          tamano_bytes: 102400,
+          duracion_seg: null,
+          ancho_px: 1280,
+          alto_px: 720
+        },
+        versiculo_clave: {
+          id: "versiculo-1",
+          tema_id: "tema-1",
+          texto: "En el principio creo Dios los cielos y la tierra.",
+          libro_id: 1,
+          capitulo: 1,
+          versiculo: 1
+        },
+        referencias_biblicas: [
+          {
+            id: "ref-1",
+            tema_id: "tema-1",
+            libro_id: 1,
+            capitulo: 1,
+            versiculo_inicio: 1,
+            versiculo_fin: 3,
+            principal: true
+          }
+        ]
+      })
+    ).toEqual({
+      id: "tema-1",
+      senda_id: "senda-1",
+      titulo: "La creación",
+      slug: "la-creacion",
+      objetivo: "Entender que Dios creó todo",
+      resumen: "Resumen",
+      portada_recurso_id: "recurso-1",
+      estado: "publicado",
+      version_biblica_id: "biblia-1",
+      xp_recompensa: 50,
+      minutos_estimados: 15,
+      version_contenido: 2,
+      publicado_en: "2026-01-01T00:00:00.000Z",
+      senda: {
+        id: "senda-1",
+        codigo: "PADRE",
+        nombre: "Senda del Padre",
+        descripcion: "Senda del Padre Celestial",
+        color_hex: "#3D8BD4",
+        nombre_icono: "crown",
+        orden: 1
+      },
+      portada_recurso: {
+        id: "recurso-1",
+        tipo: "imagen",
+        url_publica: "https://cdn.ejemplo.com/portada.png",
+        texto_alternativo: "Portada del tema",
+        titulo: "Portada",
+        tipo_mime: "image/png",
+        tamano_bytes: 102400,
+        duracion_seg: null,
+        ancho_px: 1280,
+        alto_px: 720
+      },
+      versiculo_clave: {
+        id: "versiculo-1",
+        tema_id: "tema-1",
+        texto: "En el principio creo Dios los cielos y la tierra.",
+        libro_id: 1,
+        capitulo: 1,
+        versiculo: 1
+      },
+      referencia_biblica: {
+        id: "ref-1",
+        tema_id: "tema-1",
+        libro_id: 1,
+        capitulo: 1,
+        versiculo_inicio: 1,
+        versiculo_fin: 3,
+        principal: true
+      }
+    });
+  });
+
   it("serializa actividad con claves exactas en español", () => {
     expect(
       serializarActividad({
@@ -100,7 +212,36 @@ describe("serializadores", () => {
         retroalimentacion: "Bien",
         configuracion: { intentos: 3 },
         creado_en: "2026-01-01T00:00:00.000Z",
-        actualizado_en: "2026-01-02T00:00:00.000Z"
+        actualizado_en: "2026-01-02T00:00:00.000Z",
+        tipo_actividad: {
+          id: "tipo-1",
+          codigo: "QUIZ",
+          nombre: "Quiz",
+          descripcion: "Pregunta de selección múltiple",
+          es_juego: true,
+          activo: true,
+          creado_en: "2026-01-01T00:00:00.000Z"
+        },
+        opciones: [
+          {
+            id: "opcion-2",
+            actividad_id: "actividad-1",
+            etiqueta: "B",
+            texto: "Jesús",
+            correcta: false,
+            orden: 2,
+            retroalimentacion: null
+          },
+          {
+            id: "opcion-1",
+            actividad_id: "actividad-1",
+            etiqueta: "A",
+            texto: "Dios",
+            correcta: true,
+            orden: 1,
+            retroalimentacion: "Correcto"
+          }
+        ]
       })
     ).toEqual({
       id: "actividad-1",
@@ -118,7 +259,36 @@ describe("serializadores", () => {
       retroalimentacion: "Bien",
       configuracion: { intentos: 3 },
       creado_en: "2026-01-01T00:00:00.000Z",
-      actualizado_en: "2026-01-02T00:00:00.000Z"
+      actualizado_en: "2026-01-02T00:00:00.000Z",
+      tipo_actividad: {
+        id: "tipo-1",
+        codigo: "QUIZ",
+        nombre: "Quiz",
+        descripcion: "Pregunta de selección múltiple",
+        es_juego: true,
+        activo: true,
+        creado_en: "2026-01-01T00:00:00.000Z"
+      },
+      opciones: [
+        {
+          id: "opcion-1",
+          actividad_id: "actividad-1",
+          etiqueta: "A",
+          texto: "Dios",
+          correcta: true,
+          orden: 1,
+          retroalimentacion: "Correcto"
+        },
+        {
+          id: "opcion-2",
+          actividad_id: "actividad-1",
+          etiqueta: "B",
+          texto: "Jesús",
+          correcta: false,
+          orden: 2,
+          retroalimentacion: null
+        }
+      ]
     });
   });
 

@@ -90,7 +90,6 @@ authRoutes.post("/configuracion-dev", async (c) => {
   return responderExito({
     usuario: serializarUsuario(user),
     perfil: serializarPerfil(profile),
-    mensaje: "Administrador creado. Copia este ID en localStorage:",
-    localStorage: `localStorage.setItem("semillas_guest_user_id", "${user.id}")`
+    mensaje: "Administrador creado. Usa este ID para autenticar solicitudes durante desarrollo."
   });
 });
