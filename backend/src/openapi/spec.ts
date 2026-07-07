@@ -152,6 +152,22 @@ const ProgressEventBody = z.object({
   dispositivo_id: z.string().optional()
 }).openapi("ProgressEventBody");
 
+const ProgressEventCreatedResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    duplicado: z.literal(false),
+    evento: z.unknown()
+  })
+});
+
+const ProgressEventDuplicateResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    duplicado: z.literal(true),
+    mensaje: z.string()
+  })
+});
+
 const TipoActividadSchema = z.object({
   id: z.string().uuid(), codigo: z.string(), nombre: z.string(),
   descripcion: z.string().nullable(), es_juego: z.boolean(), activo: z.boolean(),
@@ -338,7 +354,7 @@ registry.registerPath({ method: "get", path: "/progreso/mi", operationId: "getMy
 registry.registerPath({ method: "post", path: "/progreso/eventos", operationId: "postProgressEvent", tags: ["progreso"],
   summary: "Enviar evento de progreso", description: "Evento idempotente (clientEventId unico). No duplica XP si ya existe.",
   request: { body: { content: { "application/json": { schema: ProgressEventBody } }, required: true } },
-  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), duplicado: z.literal(false), datos: z.unknown() }) } }, description: "Evento nuevo registrado" }, 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), duplicado: z.literal(true), mensaje: z.string() }) } }, description: "Evento duplicado (ya procesado)" } } });
+  responses: { 201: { content: { "application/json": { schema: ProgressEventCreatedResponse } }, description: "Evento nuevo registrado" }, 200: { content: { "application/json": { schema: ProgressEventDuplicateResponse } }, description: "Evento duplicado (ya procesado)" } } });
 
 registry.registerPath({ method: "get", path: "/clubes", operationId: "listClubs", tags: ["clubes"],
   summary: "Listar clubes", description: "Clubs publicos disponibles",

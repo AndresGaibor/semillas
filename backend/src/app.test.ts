@@ -667,10 +667,10 @@ describe("app routes", () => {
   });
 
   it("rechaza aliases legacy con 404", async () => {
-    const rutasLegacy = ["/auth", "/me", "/themes", "/activities", "/progress", "/admin"];
+    const rutasLegacy = ["/auth", "/me", "/themes", "/activities", "/progress", "/admin", "/catalog", "/gamification"];
 
     const respuestas = await Promise.all(rutasLegacy.map((ruta) => app.fetch(new Request(`http://localhost${ruta}`), env)));
 
-    expect(respuestas.map((response) => response.status)).toEqual([404, 404, 404, 404, 404, 404]);
+    expect(respuestas.map((response) => response.status)).toEqual([404, 404, 404, 404, 404, 404, 404, 404]);
   });
 });

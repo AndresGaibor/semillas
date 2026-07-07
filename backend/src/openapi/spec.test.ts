@@ -46,4 +46,16 @@ describe("openapi spec", () => {
       "logro"
     ]);
   });
+
+  it("documenta /progreso/eventos con el envelope canónico exito + datos", () => {
+    const responseCreado = spec.paths["/progreso/eventos"].post.responses[201].content["application/json"].schema;
+    const responseDuplicado = spec.paths["/progreso/eventos"].post.responses[200].content["application/json"].schema;
+
+    expect(Object.keys(responseCreado.properties)).toEqual(["exito", "datos"]);
+    expect(Object.keys(responseCreado.properties.datos.properties)).toEqual(["duplicado", "evento"]);
+    expect(Object.keys(responseDuplicado.properties)).toEqual(["exito", "datos"]);
+    expect(Object.keys(responseDuplicado.properties.datos.properties)).toEqual(["duplicado", "mensaje"]);
+    expect(responseCreado.properties).not.toHaveProperty("duplicado");
+    expect(responseDuplicado.properties).not.toHaveProperty("duplicado");
+  });
 });
