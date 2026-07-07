@@ -57,7 +57,7 @@ authRoutes.post("/invitado", zValidator("json", createGuestSchema), async (c) =>
 });
 
 authRoutes.post("/configuracion-dev", async (c) => {
-  if (c.env.APP_ENV !== "development") {
+  if (c.env.APP_ENV !== "development" && c.env.APP_ENV !== "local") {
     return responderError("No disponible fuera de desarrollo", "NO_DISPONIBLE_EN_DESARROLLO", 403);
   }
 
