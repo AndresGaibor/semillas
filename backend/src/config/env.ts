@@ -16,9 +16,9 @@ export type Env = {
   CORS_ORIGIN: string;
 
   SUPABASE_URL: string;
-  SUPABASE_PUBLISHABLE_KEY: string;
-  SUPABASE_SERVER_KEY: string;
-  SUPABASE_PROJECT_REF: string;
+  SUPABASE_ANON_KEY: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
+  SUPABASE_PROJECT_REF?: string;
 };
 
 export type Variables = {
