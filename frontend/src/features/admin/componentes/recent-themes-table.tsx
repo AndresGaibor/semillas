@@ -85,6 +85,7 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
       </TablaBase>
 
       <button
+        type="button"
         onClick={onVerTodos}
         className="mt-4 inline-block select-none py-1 text-center text-xs font-extrabold text-primario transition-colors hover:text-primario-oscuro"
       >
