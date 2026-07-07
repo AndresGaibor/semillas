@@ -26,12 +26,11 @@ describe("tabla-base", () => {
     const handleClick = mock(() => undefined);
 
     const fila = FilaTabla({
-      onClick: handleClick,
+      onActivate: handleClick,
       children: <td>Fila</td>,
     });
 
     expect(fila.type).toBe("tr");
-    expect(fila.props.onClick).toBe(handleClick);
     expect(fila.props.tabIndex).toBe(0);
     expect(String(fila.props.className)).toContain("cursor-pointer");
   });

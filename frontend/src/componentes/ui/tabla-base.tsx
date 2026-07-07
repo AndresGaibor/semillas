@@ -22,6 +22,7 @@ export type TablaBaseProps = {
 
 export type FilaTablaProps = React.ComponentPropsWithoutRef<"tr"> & {
   onClick?: React.MouseEventHandler<HTMLTableRowElement>;
+  onActivate?: () => void;
 };
 
 export function TablaBase({
@@ -77,13 +78,13 @@ export function TablaBase({
   );
 }
 
-export function FilaTabla({ className, onClick, onKeyDown, tabIndex, ...props }: FilaTablaProps) {
-  const esInteractiva = Boolean(onClick);
+export function FilaTabla({ className, onClick, onActivate, onKeyDown, tabIndex, ...props }: FilaTablaProps) {
+  const esInteractiva = Boolean(onActivate || onClick);
 
   const manejarKeyDown: React.KeyboardEventHandler<HTMLTableRowElement> = (evento) => {
     if (evento.key === "Enter" || evento.key === " ") {
       evento.preventDefault();
-      (evento.currentTarget as HTMLTableRowElement).click();
+      onActivate?.();
     }
 
     onKeyDown?.(evento);
@@ -92,7 +93,7 @@ export function FilaTabla({ className, onClick, onKeyDown, tabIndex, ...props }:
   return (
     <tr
       {...props}
-      onClick={onClick}
+      onClick={onActivate ? () => onActivate() : onClick}
       onKeyDown={esInteractiva ? manejarKeyDown : onKeyDown}
       tabIndex={esInteractiva ? (tabIndex ?? 0) : tabIndex}
       role={esInteractiva ? "button" : props.role}
