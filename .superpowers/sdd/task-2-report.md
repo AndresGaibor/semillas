@@ -11,7 +11,7 @@ Reemplacé el consumo frontend del backend para que use el contrato exacto en es
 
 ## Commits
 - `e6793f2` `test: add frontend contract español`
-- Pendiente: commit de implementación y normalización final del frontend.
+- `f0a5707` `fix: frontend consume API en español`
 
 ## Preocupaciones
 - El worktree ya traía cambios ajenos preexistentes; no los toqué ni los incluí en el alcance de esta task.
