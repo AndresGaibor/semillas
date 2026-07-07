@@ -20,8 +20,7 @@ export type TablaBaseProps = {
   colSpanVacio?: number;
 };
 
-export type FilaTablaProps = React.ComponentPropsWithoutRef<"tr"> & {
-  onClick?: React.MouseEventHandler<HTMLTableRowElement>;
+export type FilaTablaProps = Omit<React.ComponentPropsWithoutRef<"tr">, "onClick"> & {
   onActivate?: () => void;
 };
 
@@ -78,8 +77,8 @@ export function TablaBase({
   );
 }
 
-export function FilaTabla({ className, onClick, onActivate, onKeyDown, tabIndex, ...props }: FilaTablaProps) {
-  const esInteractiva = Boolean(onActivate || onClick);
+export function FilaTabla({ children, className, onActivate, onKeyDown, tabIndex, ...props }: FilaTablaProps) {
+  const esInteractiva = Boolean(onActivate);
 
   const manejarKeyDown: React.KeyboardEventHandler<HTMLTableRowElement> = (evento) => {
     if (evento.key === "Enter" || evento.key === " ") {
@@ -93,12 +92,14 @@ export function FilaTabla({ className, onClick, onActivate, onKeyDown, tabIndex,
   return (
     <tr
       {...props}
-      onClick={onActivate ? () => onActivate() : onClick}
+      onClick={onActivate ? () => onActivate() : undefined}
       onKeyDown={esInteractiva ? manejarKeyDown : onKeyDown}
       tabIndex={esInteractiva ? (tabIndex ?? 0) : tabIndex}
       role={esInteractiva ? "button" : props.role}
       aria-label={esInteractiva ? (props["aria-label"] ?? "Fila interactiva") : props["aria-label"]}
       className={unirClases("transition-colors", esInteractiva && "cursor-pointer hover:bg-slate-50/50", className)}
-    />
+    >
+      {children}
+    </tr>
   );
 }
