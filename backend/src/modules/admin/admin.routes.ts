@@ -4,6 +4,7 @@ import type { Database, Json } from "../../db/database.types";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { requireRole } from "../../shared/middleware/role.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
+import { responderExito } from "../../shared/http/respuesta";
 import {
   createActivitySchema,
   createThemeSchema,
@@ -13,70 +14,114 @@ import {
 } from "./admin.schemas";
 import { NotFoundError } from "../../shared/errors/http-error";
 
+function mapTheme(theme: Record<string, unknown>) {
+  return {
+    id: String(theme.id),
+    path_id: String(theme.senda_id ?? theme.path_id ?? ""),
+    title: String(theme.titulo ?? theme.title ?? ""),
+    slug: String(theme.slug ?? ""),
+    objective: String(theme.objetivo ?? theme.objective ?? ""),
+    summary: (theme.resumen ?? theme.summary ?? null) as string | null,
+    cover_media_id: (theme.portada_recurso_id ?? theme.cover_media_id ?? null) as string | null,
+    status: String(theme.estado ?? theme.status ?? ""),
+    bible_version_id: (theme.version_biblica_id ?? theme.bible_version_id ?? null) as string | null,
+    xp_reward: Number(theme.xp_recompensa ?? theme.xp_reward ?? 0),
+    estimated_minutes: Number(theme.minutos_estimados ?? theme.estimated_minutes ?? 0),
+    content_version: Number(theme.version_contenido ?? theme.content_version ?? 0),
+    published_at: (theme.publicado_en ?? theme.published_at ?? null) as string | null
+  };
+}
+
+function mapStep(step: Record<string, unknown>) {
+  const stepTypeRaw = step.step_type as Record<string, unknown> | undefined;
+  const contents = Array.isArray(step.contents)
+    ? step.contents.map((content) => ({
+        id: String((content as Record<string, unknown>).id),
+        age_group_id: String((content as Record<string, unknown>).grupo_edad_id ?? (content as Record<string, unknown>).age_group_id ?? ""),
+        title: ((content as Record<string, unknown>).titulo ?? (content as Record<string, unknown>).title ?? null) as string | null,
+        body: String((content as Record<string, unknown>).cuerpo ?? (content as Record<string, unknown>).body ?? ""),
+        short_instruction: ((content as Record<string, unknown>).instruccion_corta ?? (content as Record<string, unknown>).short_instruction ?? null) as string | null
+      }))
+    : [];
+
+  return {
+    id: String(step.id),
+    theme_id: String(step.tema_id ?? step.theme_id ?? ""),
+    sort_order: Number(step.orden ?? step.sort_order ?? 0),
+    step_type: stepTypeRaw
+      ? {
+          id: String(stepTypeRaw.id ?? ""),
+          code: String(stepTypeRaw.codigo ?? stepTypeRaw.code ?? ""),
+          name: String(stepTypeRaw.nombre ?? stepTypeRaw.name ?? ""),
+          sort_order: Number(stepTypeRaw.orden ?? stepTypeRaw.sort_order ?? 0),
+          color_hex: (stepTypeRaw.color_hex ?? null) as string | null
+        }
+      : null,
+    contents
+  };
+}
+
 export const adminRoutes = new Hono<AppBindings>();
 
 adminRoutes.use("*", authMiddleware);
-adminRoutes.use("*", requireRole("admin"));
+adminRoutes.use("*", requireRole("administrador"));
 
-adminRoutes.get("/dashboard", async (c) => {
+adminRoutes.get("/resumen", async (c) => {
   const db = c.get("db");
 
   const [themes, users, activities, published] = await Promise.all([
-    db.from("theme").select("id", { count: "exact", head: true }),
-    db.from("app_user").select("id", { count: "exact", head: true }),
-    db.from("activity").select("id", { count: "exact", head: true }),
-    db.from("theme").select("id", { count: "exact", head: true }).eq("status", "published")
+    db.from("tema").select("id", { count: "exact", head: true }),
+    db.from("usuario_app").select("id", { count: "exact", head: true }),
+    db.from("actividad").select("id", { count: "exact", head: true }),
+    db.from("tema").select("id", { count: "exact", head: true }).eq("estado", "publicado")
   ]);
 
-  return c.json({
-    ok: true,
-    data: {
-      themes: themes.count ?? 0,
-      published: published.count ?? 0,
-      users: users.count ?? 0,
-      activities: activities.count ?? 0
-    }
+  return responderExito({
+    temas: themes.count ?? 0,
+    publicados: published.count ?? 0,
+    usuarios: users.count ?? 0,
+    actividades: activities.count ?? 0
   });
 });
 
-adminRoutes.get("/themes", async (c) => {
+adminRoutes.get("/temas", async (c) => {
   const db = c.get("db");
 
   const status = c.req.query("status");
 
   let query = db
-    .from("theme")
-    .select("*, path:path_id(id, code, name, color_hex), created_by(id, display_name)")
-    .order("updated_at", { ascending: false });
+    .from("tema")
+    .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible)")
+    .order("actualizado_en", { ascending: false });
 
   if (status) {
-    query = query.eq("status", status as Database["public"]["Enums"]["publication_status"]);
+    query = query.eq("estado", status as Database["public"]["Enums"]["estado_publicacion"]);
   }
 
   const { data, error } = await query;
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+  return c.json({ ok: true, data: (data ?? []).map((theme) => mapTheme(theme as Record<string, unknown>)) });
 });
 
-adminRoutes.get("/themes/:themeId", async (c) => {
+adminRoutes.get("/temas/:temaId", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
+  const themeId = c.req.param("temaId");
 
   const { data, error } = await db
-    .from("theme")
-    .select("*, path:path_id(*), theme_age_group(age_group_id)")
+    .from("tema")
+    .select("*, path:senda_id(*), theme_age_group:tema_grupo_edad(grupo_edad_id)")
     .eq("id", themeId)
     .single();
 
   if (error || !data) throw new NotFoundError("Tema no encontrado");
 
-  return c.json({ ok: true, data });
+  return c.json({ ok: true, data: mapTheme(data as Record<string, unknown>) });
 });
 
 adminRoutes.post(
-  "/themes",
+  "/temas",
   zValidator("json", createThemeSchema),
   async (c) => {
     const db = c.get("db");
@@ -84,18 +129,18 @@ adminRoutes.post(
     const body = c.req.valid("json");
 
     const { data: theme, error } = await db
-      .from("theme")
+      .from("tema")
       .insert({
-        path_id: body.pathId,
-        title: body.title,
+        senda_id: body.pathId,
+        titulo: body.title,
         slug: body.slug,
-        objective: body.objective,
-        summary: body.summary,
-        bible_version_id: body.bibleVersionId,
-        status: "draft",
-        xp_reward: body.xpReward,
-        estimated_minutes: body.estimatedMinutes,
-        created_by: user.id
+        objetivo: body.objective,
+        resumen: body.summary,
+        version_biblica_id: body.bibleVersionId,
+        estado: "borrador",
+        xp_recompensa: body.xpReward,
+        minutos_estimados: body.estimatedMinutes,
+        creado_por: user.id
       })
       .select("*")
       .single();
@@ -103,35 +148,35 @@ adminRoutes.post(
     if (error || !theme) throw error;
 
     const rows = body.ageGroupIds.map((ageGroupId) => ({
-      theme_id: theme.id,
-      age_group_id: ageGroupId
+      tema_id: theme.id,
+      grupo_edad_id: ageGroupId
     }));
 
-    const { error: ageError } = await db.from("theme_age_group").insert(rows);
+    const { error: ageError } = await db.from("tema_grupo_edad").insert(rows);
     if (ageError) throw ageError;
 
-    return c.json({ ok: true, data: theme }, 201);
+    return c.json({ ok: true, data: mapTheme(theme as Record<string, unknown>) }, 201);
   }
 );
 
 adminRoutes.patch(
-  "/themes/:themeId",
+  "/temas/:temaId",
   zValidator("json", updateThemeSchema),
   async (c) => {
     const db = c.get("db");
-    const themeId = c.req.param("themeId");
+    const themeId = c.req.param("temaId");
     const body = c.req.valid("json");
 
     const { data: theme, error } = await db
-      .from("theme")
+      .from("tema")
       .update({
-        title: body.title,
-        objective: body.objective,
-        summary: body.summary,
-        estimated_minutes: body.estimatedMinutes,
-        xp_reward: body.xpReward,
-        bible_version_id: body.bibleVersionId,
-        updated_at: new Date().toISOString()
+        titulo: body.title,
+        objetivo: body.objective,
+        resumen: body.summary,
+        minutos_estimados: body.estimatedMinutes,
+        xp_recompensa: body.xpReward,
+        version_biblica_id: body.bibleVersionId,
+        actualizado_en: new Date().toISOString()
       })
       .eq("id", themeId)
       .select("*")
@@ -140,54 +185,54 @@ adminRoutes.patch(
     if (error || !theme) throw new NotFoundError("Tema no encontrado");
 
     if (body.ageGroupIds) {
-      await db.from("theme_age_group").delete().eq("theme_id", themeId);
+      await db.from("tema_grupo_edad").delete().eq("tema_id", themeId);
       const rows = body.ageGroupIds.map((ageGroupId) => ({
-        theme_id: themeId,
-        age_group_id: ageGroupId
+        tema_id: themeId,
+        grupo_edad_id: ageGroupId
       }));
-      await db.from("theme_age_group").insert(rows);
+      await db.from("tema_grupo_edad").insert(rows);
     }
 
-    return c.json({ ok: true, data: theme });
+    return c.json({ ok: true, data: mapTheme(theme as Record<string, unknown>) });
   }
 );
 
-adminRoutes.delete("/themes/:themeId", async (c) => {
+adminRoutes.delete("/temas/:temaId", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
+  const themeId = c.req.param("temaId");
 
-  const { error } = await db.from("theme").delete().eq("id", themeId);
+  const { error } = await db.from("tema").delete().eq("id", themeId);
   if (error) throw error;
 
   return c.json({ ok: true, data: { deleted: true } });
 });
 
 adminRoutes.post(
-  "/themes/:themeId/steps",
+  "/temas/:temaId/pasos",
   zValidator("json", upsertStepContentSchema),
   async (c) => {
     const db = c.get("db");
-    const themeId = c.req.param("themeId");
+    const themeId = c.req.param("temaId");
     const body = c.req.valid("json");
 
     const { data: stepType } = await db
-      .from("crecer_step_type")
-      .select("sort_order")
+      .from("tipo_paso_crecer")
+      .select("orden")
       .eq("id", body.stepTypeId)
       .single();
 
-    const sortOrder = stepType?.sort_order ?? 1;
+    const sortOrder = stepType?.orden ?? 1;
 
     const { data: step, error: stepError } = await db
-      .from("theme_step")
+      .from("paso_tema")
       .upsert(
         {
-          theme_id: themeId,
-          step_type_id: body.stepTypeId,
-          sort_order: sortOrder,
-          is_required: true
+          tema_id: themeId,
+          tipo_paso_id: body.stepTypeId,
+          orden: sortOrder,
+          obligatorio: true
         },
-        { onConflict: "theme_id,step_type_id" }
+        { onConflict: "tema_id,tipo_paso_id" }
       )
       .select("*")
       .single();
@@ -195,85 +240,98 @@ adminRoutes.post(
     if (stepError || !step) throw stepError;
 
     const { data: content, error: contentError } = await db
-      .from("theme_step_content")
+      .from("contenido_paso_tema")
       .upsert(
         {
-          step_id: step.id,
-          age_group_id: body.ageGroupId,
-          title: body.title,
-          body: body.body,
-          short_instruction: body.shortInstruction ?? null
+          paso_id: step.id,
+          grupo_edad_id: body.ageGroupId,
+          titulo: body.title,
+          cuerpo: body.body,
+          instruccion_corta: body.shortInstruction ?? null
         },
-        { onConflict: "step_id,age_group_id" }
+        { onConflict: "paso_id,grupo_edad_id" }
       )
       .select("*")
       .single();
 
     if (contentError) throw contentError;
 
-    return c.json({ ok: true, data: { step, content } });
+    return c.json({
+      ok: true,
+      data: {
+        step: mapStep(step as Record<string, unknown>),
+        content: {
+          id: String(content.id),
+          step_id: String(content.paso_id),
+          age_group_id: String(content.grupo_edad_id),
+          title: String(content.titulo),
+          body: String(content.cuerpo),
+          short_instruction: (content.instruccion_corta ?? null) as string | null
+        }
+      }
+    });
   }
 );
 
-adminRoutes.get("/themes/:themeId/steps", async (c) => {
+adminRoutes.get("/temas/:temaId/pasos", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
+  const themeId = c.req.param("temaId");
 
   const { data: steps, error } = await db
-    .from("theme_step")
+    .from("paso_tema")
     .select(`
       *,
-      step_type:step_type_id(*),
-      contents:theme_step_content(*)
+      step_type:tipo_paso_id(*),
+      contents:contenido_paso_tema(*)
     `)
-    .eq("theme_id", themeId)
-    .order("sort_order", { ascending: true });
+    .eq("tema_id", themeId)
+    .order("orden", { ascending: true });
 
   if (error) throw error;
 
-  return c.json({ ok: true, data: steps ?? [] });
+    return c.json({ ok: true, data: (steps ?? []).map((step) => mapStep(step as Record<string, unknown>)) });
 });
 
-adminRoutes.delete("/themes/:themeId/steps/:stepTypeId", async (c) => {
+adminRoutes.delete("/temas/:temaId/pasos/:tipoPasoId", async (c) => {
   const db = c.get("db");
-  const { themeId, stepTypeId } = c.req.param();
+  const { temaId: themeId, tipoPasoId: stepTypeId } = c.req.param();
 
   const { data: step } = await db
-    .from("theme_step")
+    .from("paso_tema")
     .select("id")
-    .eq("theme_id", themeId)
-    .eq("step_type_id", stepTypeId)
+    .eq("tema_id", themeId)
+    .eq("tipo_paso_id", stepTypeId)
     .single();
 
   if (!step) throw new NotFoundError("Paso no encontrado");
 
-  await db.from("theme_step_content").delete().eq("step_id", step.id);
-  await db.from("theme_step").delete().eq("id", step.id);
+  await db.from("contenido_paso_tema").delete().eq("paso_id", step.id);
+  await db.from("paso_tema").delete().eq("id", step.id);
 
   return c.json({ ok: true, data: { deleted: true } });
 });
 
 adminRoutes.post(
-  "/activities",
+  "/actividades",
   zValidator("json", createActivitySchema),
   async (c) => {
     const db = c.get("db");
     const body = c.req.valid("json");
 
     const { data: activity, error } = await db
-      .from("activity")
+      .from("actividad")
       .insert({
-        theme_id: body.themeId,
-        step_id: body.stepId,
-        age_group_id: body.ageGroupId,
-        activity_type_id: body.activityTypeId,
-        title: body.title,
-        prompt: body.prompt,
-        feedback: body.feedback ?? null,
-        sort_order: body.sortOrder,
-        xp_reward: body.xpReward,
-        difficulty: body.difficulty,
-        config: body.config as Json
+        tema_id: body.themeId,
+        paso_id: body.stepId,
+        grupo_edad_id: body.ageGroupId,
+        tipo_actividad_id: body.activityTypeId,
+        titulo: body.title,
+        consigna: body.prompt,
+        retroalimentacion: body.feedback ?? null,
+        orden: body.sortOrder,
+        xp_recompensa: body.xpReward,
+        dificultad: body.difficulty,
+        configuracion: body.config as Json
       })
       .select("*")
       .single();
@@ -282,16 +340,16 @@ adminRoutes.post(
 
     if (body.options.length > 0) {
       const rows = body.options.map((option) => ({
-        activity_id: activity.id,
-        label: option.label,
-        text: option.text,
-        is_correct: option.isCorrect,
-        sort_order: option.sortOrder,
-        feedback: option.feedback ?? null
+        actividad_id: activity.id,
+        etiqueta: option.label,
+        texto: option.text,
+        correcta: option.isCorrect,
+        orden: option.sortOrder,
+        retroalimentacion: option.feedback ?? null
       }));
 
       const { error: optionsError } = await db
-        .from("activity_option")
+        .from("opcion_actividad")
         .insert(rows);
 
       if (optionsError) throw optionsError;
@@ -302,25 +360,25 @@ adminRoutes.post(
 );
 
 adminRoutes.patch(
-  "/activities/:activityId",
+  "/actividades/:actividadId",
   zValidator("json", updateActivitySchema),
   async (c) => {
     const db = c.get("db");
-    const activityId = c.req.param("activityId");
+    const activityId = c.req.param("actividadId");
     const body = c.req.valid("json");
 
     const { data: activity, error } = await db
-      .from("activity")
+      .from("actividad")
       .update({
-        ...(body.title && { title: body.title }),
-        ...(body.prompt && { prompt: body.prompt }),
-        ...(body.feedback !== undefined && { feedback: body.feedback }),
-        ...(body.sortOrder && { sort_order: body.sortOrder }),
-        ...(body.xpReward && { xp_reward: body.xpReward }),
-        ...(body.difficulty && { difficulty: body.difficulty }),
-        ...(body.config && { config: body.config as Json }),
-        updated_at: new Date().toISOString()
-      } as Database["public"]["Tables"]["activity"]["Update"])
+        ...(body.title && { titulo: body.title }),
+        ...(body.prompt && { consigna: body.prompt }),
+        ...(body.feedback !== undefined && { retroalimentacion: body.feedback }),
+        ...(body.sortOrder && { orden: body.sortOrder }),
+        ...(body.xpReward && { xp_recompensa: body.xpReward }),
+        ...(body.difficulty && { dificultad: body.difficulty }),
+        ...(body.config && { configuracion: body.config as Json }),
+        actualizado_en: new Date().toISOString()
+      } as Database["public"]["Tables"]["actividad"]["Update"])
       .eq("id", activityId)
       .select("*")
       .single();
@@ -329,21 +387,21 @@ adminRoutes.patch(
 
     if (body.options) {
       const { error: delError } = await db
-        .from("activity_option")
+        .from("opcion_actividad")
         .delete()
-        .eq("activity_id", activityId);
+        .eq("actividad_id", activityId);
       if (delError) throw delError;
 
       const rows = body.options.map((option) => ({
-        activity_id: activityId,
-        label: option.label,
-        text: option.text,
-        is_correct: option.isCorrect,
-        sort_order: option.sortOrder,
-        feedback: option.feedback ?? null
+        actividad_id: activityId,
+        etiqueta: option.label,
+        texto: option.text,
+        correcta: option.isCorrect,
+        orden: option.sortOrder,
+        retroalimentacion: option.feedback ?? null
       }));
 
-      const { error: insError } = await db.from("activity_option").insert(rows);
+      const { error: insError } = await db.from("opcion_actividad").insert(rows);
       if (insError) throw insError;
     }
 
@@ -351,27 +409,27 @@ adminRoutes.patch(
   }
 );
 
-adminRoutes.delete("/activities/:activityId", async (c) => {
+adminRoutes.delete("/actividades/:actividadId", async (c) => {
   const db = c.get("db");
-  const activityId = c.req.param("activityId");
+  const activityId = c.req.param("actividadId");
 
-  await db.from("activity_option").delete().eq("activity_id", activityId);
-  await db.from("user_activity_progress").delete().eq("activity_id", activityId);
+  await db.from("opcion_actividad").delete().eq("actividad_id", activityId);
+  await db.from("progreso_actividad_usuario").delete().eq("actividad_id", activityId);
 
-  const { error } = await db.from("activity").delete().eq("id", activityId);
+  const { error } = await db.from("actividad").delete().eq("id", activityId);
   if (error) throw error;
 
   return c.json({ ok: true, data: { deleted: true } });
 });
 
-adminRoutes.post("/themes/:themeId/publish", async (c) => {
+adminRoutes.post("/temas/:temaId/publicar", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
-  const themeId = c.req.param("themeId");
+  const themeId = c.req.param("temaId");
 
   const { data: theme, error: themeError } = await db
-    .from("theme")
-    .select("id, content_version")
+    .from("tema")
+    .select("id, version_contenido")
     .eq("id", themeId)
     .single();
 
@@ -379,16 +437,16 @@ adminRoutes.post("/themes/:themeId/publish", async (c) => {
     throw new NotFoundError("Tema no encontrado");
   }
 
-  const currentVersion = theme.content_version ?? 0;
+  const currentVersion = theme.version_contenido ?? 0;
 
   const { data, error } = await db
-    .from("theme")
+    .from("tema")
     .update({
-      status: "published",
-      content_version: currentVersion + 1,
-      published_by: user.id,
-      published_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      estado: "publicado",
+      version_contenido: currentVersion + 1,
+      publicado_por: user.id,
+      publicado_en: new Date().toISOString(),
+      actualizado_en: new Date().toISOString()
     })
     .eq("id", themeId)
     .select("*")
@@ -396,18 +454,18 @@ adminRoutes.post("/themes/:themeId/publish", async (c) => {
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+    return c.json({ ok: true, data: mapTheme(data as Record<string, unknown>) });
 });
 
-adminRoutes.post("/themes/:themeId/draft", async (c) => {
+adminRoutes.post("/temas/:temaId/borrador", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
+  const themeId = c.req.param("temaId");
 
   const { data, error } = await db
-    .from("theme")
+    .from("tema")
     .update({
-      status: "draft",
-      updated_at: new Date().toISOString()
+      estado: "borrador",
+      actualizado_en: new Date().toISOString()
     })
     .eq("id", themeId)
     .select("*")
@@ -415,5 +473,5 @@ adminRoutes.post("/themes/:themeId/draft", async (c) => {
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+    return c.json({ ok: true, data: mapTheme(data as Record<string, unknown>) });
 });

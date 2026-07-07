@@ -12,10 +12,10 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
 
   if (guestUserId) {
     const { data, error } = await db
-      .from("app_user")
-      .select("id, role, display_name, email")
+      .from("usuario_app")
+      .select("id, rol, proveedor, nombre_visible, correo")
       .eq("id", guestUserId)
-      .eq("provider", "guest")
+      .eq("proveedor", "invitado")
       .single();
 
     if (error || !data) {
@@ -24,9 +24,10 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
 
     c.set("user", {
       id: data.id,
-      role: data.role,
-      displayName: data.display_name,
-      email: data.email
+      role: data.rol,
+      displayName: data.nombre_visible,
+      email: data.correo,
+      provider: data.proveedor
     });
 
     await next();
@@ -54,12 +55,12 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
       ? "facebook"
       : user.app_metadata?.provider === "google"
         ? "google"
-        : "email";
+        : "correo";
 
   const { data: appUser, error: userError } = await db
-    .from("app_user")
-    .select("id, role, display_name, email")
-    .eq("external_id", user.id)
+    .from("usuario_app")
+    .select("id, rol, nombre_visible, correo")
+    .eq("id_externo", user.id)
     .maybeSingle();
 
   if (userError) {
@@ -68,36 +69,37 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
 
   if (!appUser) {
     const { data: createdUser, error: createError } = await db
-      .from("app_user")
+      .from("usuario_app")
       .insert({
-        provider,
-        external_id: user.id,
-        email: user.email ?? null,
-        display_name:
+        proveedor: provider,
+        id_externo: user.id,
+        correo: user.email ?? null,
+        nombre_visible:
           user.user_metadata?.full_name ??
           user.user_metadata?.name ??
           user.email ??
           "Semillero",
-        role: "user"
+        rol: "usuario"
       })
-      .select("id, role, display_name, email")
+      .select("id, rol, nombre_visible, correo")
       .single();
 
     if (createError || !createdUser) {
       throw createError;
     }
 
-    await db.from("profile").insert({
-      user_id: createdUser.id,
-      nickname: createdUser.display_name
+    await db.from("perfil").insert({
+      usuario_id: createdUser.id,
+      apodo: createdUser.nombre_visible
     });
 
-    c.set("user", {
-      id: createdUser.id,
-      role: createdUser.role,
-      displayName: createdUser.display_name,
-      email: createdUser.email
-    });
+  c.set("user", {
+    id: createdUser.id,
+    role: createdUser.rol,
+    displayName: createdUser.nombre_visible,
+    email: createdUser.correo,
+    provider
+  });
 
     await next();
     return;
@@ -105,9 +107,10 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
 
   c.set("user", {
     id: appUser.id,
-    role: appUser.role,
-    displayName: appUser.display_name,
-    email: appUser.email
+    role: appUser.rol,
+    displayName: appUser.nombre_visible,
+    email: appUser.correo,
+    provider: "correo"
   });
 
   await next();

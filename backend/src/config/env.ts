@@ -1,13 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../db/database.types";
 
-export type UserRole = "admin" | "user" | "guest" | "parent";
+export type UserRole = "administrador" | "usuario" | "invitado" | "padre";
 
 export type AuthUser = {
   id: string;
   role: UserRole;
   displayName: string;
   email: string | null;
+  provider: string;
 };
 
 export type Env = {

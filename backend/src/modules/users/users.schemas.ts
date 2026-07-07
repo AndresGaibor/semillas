@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const updateProfileSchema = z.object({
-  nickname: z.string().min(2).max(40).optional(),
-  ageGroupId: z.string().uuid().nullable().optional(),
-  avatarUrl: z.string().url().nullable().optional(),
-  preferredAudio: z.boolean().optional(),
-  preferredTextSize: z.enum(["small", "medium", "large"]).optional()
+  apodo: z.string().min(2).max(40).optional(),
+  grupo_edad_id: z.string().uuid().nullable().optional(),
+  url_avatar: z.string().url().nullable().optional(),
+  prefiere_audio: z.boolean().optional(),
+  tamano_texto_preferido: z.enum(["small", "medium", "large"]).optional()
 });

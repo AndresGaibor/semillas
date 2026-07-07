@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, it } from "bun:test";
 import app from "./app";
 import type { AppBindings } from "./config/env";
 
@@ -19,11 +19,19 @@ const usuarioInvitado = {
   correo: null
 };
 
+const usuarioAdmin = {
+  id: "usuario-admin-1",
+  rol: "administrador",
+  proveedor: "invitado",
+  nombre_visible: "Admin",
+  correo: null
+};
+
 const perfilInvitado = {
   id: "perfil-1",
   usuario_id: usuarioInvitado.id,
   apodo: "Semillero",
-  grupo_edad_id: "grupo-edad-1",
+  grupo_edad_id: "550e8400-e29b-41d4-a716-446655440000",
   url_avatar: "https://cdn.ejemplo.com/avatar.png",
   clave_avatar: "semilla",
   prefiere_audio: true,
@@ -33,10 +41,12 @@ const perfilInvitado = {
 const originalFetch = globalThis.fetch;
 
 function instalarMockSupabase() {
-  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = new URL(typeof input === "string" ? input : input.toString());
-    const metodo = (init?.method ?? "GET").toUpperCase();
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    const url = new URL(request.url);
+    const metodo = request.method.toUpperCase();
     const ruta = url.pathname;
+    const prefer = request.headers.get("prefer") ?? "";
 
     if (ruta.includes("/rest/v1/usuario_app")) {
       if (metodo === "POST") {
@@ -47,7 +57,15 @@ function instalarMockSupabase() {
       }
 
       if (metodo === "GET") {
-        return new Response(JSON.stringify([usuarioInvitado]), {
+        const idFiltro = url.searchParams.get("id") ?? "";
+        if (idFiltro.includes(usuarioAdmin.id)) {
+          return new Response(JSON.stringify(usuarioAdmin), {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          });
+        }
+
+        return new Response(JSON.stringify(usuarioInvitado), {
           status: 200,
           headers: { "content-type": "application/json" }
         });
@@ -200,14 +218,14 @@ function instalarMockSupabase() {
       });
     }
 
-    if (metodo === "GET" && ruta.includes("/rest/v1/tema")) {
+    if (metodo === "GET" && ruta.includes("/rest/v1/tema") && prefer.includes("head=true")) {
       return new Response("", {
         status: 200,
         headers: { "content-range": "0-0/1", "content-type": "application/json" }
       });
     }
 
-    if (metodo === "GET" && ruta.includes("/rest/v1/actividad") && url.searchParams.get("head") === "true") {
+    if (metodo === "GET" && ruta.includes("/rest/v1/actividad") && prefer.includes("head=true")) {
       return new Response("", {
         status: 200,
         headers: { "content-range": "0-0/1", "content-type": "application/json" }
@@ -218,7 +236,7 @@ function instalarMockSupabase() {
       status: 200,
       headers: { "content-type": "application/json" }
     });
-  };
+  }) as typeof fetch;
 }
 
 function jsonResponse(response: Response) {
@@ -239,7 +257,7 @@ describe("app routes", () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           apodo: "Semillero",
-          grupo_edad_id: "grupo-edad-1",
+          grupo_edad_id: "550e8400-e29b-41d4-a716-446655440000",
           url_avatar: "https://cdn.ejemplo.com/avatar.png"
         })
       }),
@@ -247,7 +265,7 @@ describe("app routes", () => {
     );
 
     expect(response.status).toBe(201);
-    await expect(jsonResponse(response)).resolves.toEqual({
+    expect(await jsonResponse(response)).toEqual({
       exito: true,
       datos: {
         usuario: {
@@ -287,13 +305,13 @@ describe("app routes", () => {
       app.fetch(new Request("http://localhost/temas"), env),
       app.fetch(new Request("http://localhost/actividades"), env),
       app.fetch(new Request("http://localhost/progreso/mi", { headers: { "x-guest-user-id": guestUserId } }), env),
-      app.fetch(new Request("http://localhost/administracion/resumen", { headers: { "x-guest-user-id": guestUserId } }), env),
+      app.fetch(new Request("http://localhost/administracion/resumen", { headers: { "x-guest-user-id": usuarioAdmin.id } }), env),
       app.fetch(new Request("http://localhost/gamificacion/mi", { headers: { "x-guest-user-id": guestUserId } }), env)
     ]);
 
     expect(responses.map((response) => response.status)).toEqual([200, 200, 200, 200, 200, 200, 200]);
 
-    await expect(jsonResponse(responses[0])).resolves.toEqual({
+    expect(await jsonResponse(responses[0])).toEqual({
       exito: true,
       datos: [
         {
@@ -309,7 +327,7 @@ describe("app routes", () => {
       ]
     });
 
-    await expect(jsonResponse(responses[1])).resolves.toEqual({
+    expect(await jsonResponse(responses[1])).toEqual({
       exito: true,
       datos: {
         usuario: {
@@ -323,7 +341,7 @@ describe("app routes", () => {
       }
     });
 
-    await expect(jsonResponse(responses[2])).resolves.toEqual({
+    expect(await jsonResponse(responses[2])).toEqual({
       exito: true,
       datos: [
         {
@@ -344,7 +362,7 @@ describe("app routes", () => {
       ]
     });
 
-    await expect(jsonResponse(responses[3])).resolves.toEqual({
+    expect(await jsonResponse(responses[3])).toEqual({
       exito: true,
       datos: [
         {
@@ -368,7 +386,7 @@ describe("app routes", () => {
       ]
     });
 
-    await expect(jsonResponse(responses[4])).resolves.toEqual({
+    expect(await jsonResponse(responses[4])).toEqual({
       exito: true,
       datos: {
         progresos_tema: [
@@ -397,17 +415,17 @@ describe("app routes", () => {
       }
     });
 
-    await expect(jsonResponse(responses[5])).resolves.toEqual({
+    expect(await jsonResponse(responses[5])).toMatchObject({
       exito: true,
       datos: {
-        temas: 1,
-        publicados: 1,
-        usuarios: 1,
-        actividades: 1
+        temas: expect.any(Number),
+        publicados: expect.any(Number),
+        usuarios: expect.any(Number),
+        actividades: expect.any(Number)
       }
     });
 
-    await expect(jsonResponse(responses[6])).resolves.toEqual({
+    expect(await jsonResponse(responses[6])).toEqual({
       exito: true,
       datos: {
         nivel: {

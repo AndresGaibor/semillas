@@ -1,21 +1,48 @@
 import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
 import { NotFoundError } from "../../shared/errors/http-error";
+import { responderExito } from "../../shared/http/respuesta";
+import { serializarActividad } from "../../shared/serializers/actividad.serializer";
+import { serializarTema } from "../../shared/serializers/tema.serializer";
+
+function mapearPaso(paso: Record<string, unknown>) {
+  const contenidos = Array.isArray(paso.contenidos)
+    ? paso.contenidos.map((contenido) => ({
+        id: String((contenido as Record<string, unknown>).id),
+        grupo_edad_id: String((contenido as Record<string, unknown>).grupo_edad_id ?? ""),
+        titulo: String((contenido as Record<string, unknown>).titulo ?? ""),
+        cuerpo: String((contenido as Record<string, unknown>).cuerpo ?? ""),
+        instruccion_corta: ((contenido as Record<string, unknown>).instruccion_corta ?? null) as string | null
+      }))
+    : [];
+
+  return {
+    id: String(paso.id),
+    tema_id: String(paso.tema_id ?? ""),
+    orden: Number(paso.orden ?? 0),
+    tipo_paso: paso.tipo_paso
+      ? {
+          id: String((paso.tipo_paso as Record<string, unknown>).id ?? ""),
+          codigo: String((paso.tipo_paso as Record<string, unknown>).codigo ?? ""),
+          nombre: String((paso.tipo_paso as Record<string, unknown>).nombre ?? ""),
+          orden: Number((paso.tipo_paso as Record<string, unknown>).orden ?? 0),
+          color_hex: ((paso.tipo_paso as Record<string, unknown>).color_hex ?? null) as string | null
+        }
+      : null,
+    contenidos
+  };
+}
 
 export const themesRoutes = new Hono<AppBindings>();
 
 themesRoutes.get("/", async (c) => {
   const db = c.get("db");
+  const sendaId = c.req.query("senda_id");
 
-  const pathId = c.req.query("pathId");
+  let query = db.from("v_temas_publicos").select("*").order("publicado_en", { ascending: false });
 
-  let query = db
-    .from("v_theme_public")
-    .select("*")
-    .order("published_at", { ascending: false });
-
-  if (pathId) {
-    query = query.eq("path_id", pathId);
+  if (sendaId) {
+    query = query.eq("senda_id", sendaId);
   }
 
   const { data, error } = await query;
@@ -24,95 +51,62 @@ themesRoutes.get("/", async (c) => {
     throw error;
   }
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito((data ?? []).map((tema) => serializarTema(tema as unknown as Parameters<typeof serializarTema>[0])));
 });
 
-themesRoutes.get("/:themeId", async (c) => {
+themesRoutes.get("/:tema_id", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
+  const temaId = c.req.param("tema_id");
 
-  const { data, error } = await db
-    .from("theme")
-    .select(
-      `
-      *,
-      path:path_id(*),
-      cover:cover_media_id(*),
-      key_verse(*),
-      bible_reference(*)
-    `
-    )
-    .eq("id", themeId)
-    .single();
+  const { data, error } = await db.from("tema").select("*").eq("id", temaId).single();
 
   if (error || !data) {
     throw new NotFoundError("Tema no encontrado");
   }
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(serializarTema(data as unknown as Parameters<typeof serializarTema>[0]));
 });
 
-themesRoutes.get("/:themeId/steps", async (c) => {
+themesRoutes.get("/:tema_id/pasos", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
-  const ageGroupId = c.req.query("ageGroupId");
+  const temaId = c.req.param("tema_id");
+  const grupoEdadId = c.req.query("grupo_edad_id");
 
-  const { data: steps, error } = await db
-    .from("theme_step")
-    .select(
-      `
-      *,
-      step_type:step_type_id(*),
-      contents:theme_step_content(*)
-    `
-    )
-    .eq("theme_id", themeId)
-    .order("sort_order", { ascending: true });
+  const { data, error } = await db
+    .from("paso_tema")
+    .select("*, tipo_paso:tipo_paso_id(*), contenidos:contenido_paso_tema(*)")
+    .eq("tema_id", temaId)
+    .order("orden", { ascending: true });
 
   if (error) {
     throw error;
   }
 
-  const filtered = ageGroupId
-    ? steps?.map((step) => ({
-        ...step,
-        contents: step.contents?.filter(
-          (content: { age_group_id: string }) => content.age_group_id === ageGroupId
-        )
-      }))
-    : steps;
+  const pasos = (data ?? []).map((paso) => {
+    const mapeado = mapearPaso(paso as Record<string, unknown>);
 
-  return c.json({
-    ok: true,
-    data: filtered
+    if (!grupoEdadId) {
+      return mapeado;
+    }
+
+    return {
+      ...mapeado,
+      contenidos: mapeado.contenidos.filter((contenido) => contenido.grupo_edad_id === grupoEdadId)
+    };
   });
+
+  return responderExito(pasos);
 });
 
-themesRoutes.get("/:themeId/activities", async (c) => {
+themesRoutes.get("/:tema_id/actividades", async (c) => {
   const db = c.get("db");
-  const themeId = c.req.param("themeId");
-  const ageGroupId = c.req.query("ageGroupId");
+  const temaId = c.req.param("tema_id");
+  const grupoEdadId = c.req.query("grupo_edad_id");
 
-  let query = db
-    .from("activity")
-    .select(
-      `
-      *,
-      activity_type:activity_type_id(*),
-      options:activity_option(*)
-    `
-    )
-    .eq("theme_id", themeId)
-    .order("sort_order", { ascending: true });
+  let query = db.from("actividad").select("*").eq("tema_id", temaId).order("orden", { ascending: true });
 
-  if (ageGroupId) {
-    query = query.eq("age_group_id", ageGroupId);
+  if (grupoEdadId) {
+    query = query.eq("grupo_edad_id", grupoEdadId);
   }
 
   const { data, error } = await query;
@@ -121,8 +115,7 @@ themesRoutes.get("/:themeId/activities", async (c) => {
     throw error;
   }
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(
+    (data ?? []).map((actividad) => serializarActividad(actividad as unknown as Parameters<typeof serializarActividad>[0]))
+  );
 });

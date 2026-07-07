@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createGuestSchema = z.object({
-  nickname: z.string().min(2).max(40).default("Invitado"),
-  ageGroupId: z.string().uuid().optional(),
-  avatarUrl: z.string().url().optional()
+  apodo: z.string().min(2).max(40).default("Invitado"),
+  grupo_edad_id: z.string().uuid().optional(),
+  url_avatar: z.string().url().optional()
 });

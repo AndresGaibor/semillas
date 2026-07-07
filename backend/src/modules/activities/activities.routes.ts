@@ -3,167 +3,154 @@ import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { NotFoundError } from "../../shared/errors/http-error";
-import { answerActivitySchema } from "./activities.schemas";
+import { responderExito } from "../../shared/http/respuesta";
+import { serializarActividad } from "../../shared/serializers/actividad.serializer";
+import { responderActividadSchema } from "./activities.schemas";
 
 export const activitiesRoutes = new Hono<AppBindings>();
 
-activitiesRoutes.get("/:activityId", async (c) => {
-  const db = c.get("db");
-  const activityId = c.req.param("activityId");
+function mapearActividad(actividad: Record<string, unknown>) {
+  return serializarActividad({
+    id: String(actividad.id),
+    tema_id: String(actividad.tema_id ?? ""),
+    paso_id: (actividad.paso_id ?? null) as string | null,
+    grupo_edad_id: String(actividad.grupo_edad_id ?? ""),
+    tipo_actividad_id: String(actividad.tipo_actividad_id ?? ""),
+    titulo: String(actividad.titulo ?? ""),
+    consigna: String(actividad.consigna ?? ""),
+    orden: Number(actividad.orden ?? 0),
+    xp_recompensa: Number(actividad.xp_recompensa ?? 0),
+    dificultad: String(actividad.dificultad ?? ""),
+    limite_tiempo_seg: (actividad.limite_tiempo_seg ?? null) as number | null,
+    obligatorio: Boolean(actividad.obligatorio ?? false),
+    retroalimentacion: (actividad.retroalimentacion ?? null) as string | null,
+    configuracion: (actividad.configuracion ?? {}) as Record<string, unknown>,
+    creado_en: String(actividad.creado_en ?? ""),
+    actualizado_en: String(actividad.actualizado_en ?? "")
+  });
+}
 
-  const { data, error } = await db
-    .from("activity")
-    .select(
-      `
-      *,
-      activity_type:activity_type_id(*),
-      options:activity_option(*)
-    `
-    )
-    .eq("id", activityId)
-    .single();
+activitiesRoutes.get("/", async (c) => {
+  const db = c.get("db");
+
+  const { data, error } = await db.from("actividad").select("*").order("orden", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return responderExito((data ?? []).map((actividad) => mapearActividad(actividad as Record<string, unknown>)));
+});
+
+activitiesRoutes.get("/:actividad_id", async (c) => {
+  const db = c.get("db");
+  const actividadId = c.req.param("actividad_id");
+
+  const { data, error } = await db.from("actividad").select("*").eq("id", actividadId).single();
 
   if (error || !data) {
     throw new NotFoundError("Actividad no encontrada");
   }
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(mapearActividad(data as Record<string, unknown>));
 });
 
 activitiesRoutes.post(
-  "/:activityId/answer",
+  "/:actividad_id/responder",
   authMiddleware,
-  zValidator("json", answerActivitySchema),
+  zValidator("json", responderActividadSchema),
   async (c) => {
     const db = c.get("db");
     const user = c.get("user");
-    const activityId = c.req.param("activityId");
+    const actividadId = c.req.param("actividad_id");
     const body = c.req.valid("json");
 
-    const { data: activity, error: activityError } = await db
-      .from("activity")
-      .select("id, theme_id, xp_reward")
-      .eq("id", activityId)
+    const { data: actividad, error: actividadError } = await db
+      .from("actividad")
+      .select("id, tema_id, xp_recompensa")
+      .eq("id", actividadId)
       .single();
 
-    if (activityError || !activity) {
+    if (actividadError || !actividad) {
       throw new NotFoundError("Actividad no encontrada");
     }
 
-    let isCorrect = false;
+    let correcta = false;
 
-    if (body.selectedOptionId) {
-      const { data: option, error: optionError } = await db
-        .from("activity_option")
-        .select("id, is_correct")
-        .eq("id", body.selectedOptionId)
-        .eq("activity_id", activityId)
+    if (body.opcion_id_seleccionada) {
+      const { data: opcion, error: opcionError } = await db
+        .from("opcion_actividad")
+        .select("id, correcta")
+        .eq("id", body.opcion_id_seleccionada)
+        .eq("actividad_id", actividadId)
         .single();
 
-      if (optionError || !option) {
+      if (opcionError || !opcion) {
         throw new NotFoundError("Opción no encontrada");
       }
 
-      isCorrect = option.is_correct;
+      correcta = Boolean(opcion.correcta);
     }
 
-    const xpAwarded = isCorrect ? activity.xp_reward : 0;
+    const xpOtorgada = correcta ? Number(actividad.xp_recompensa ?? 0) : 0;
 
-    const { error: eventError } = await db.from("progress_event").insert({
-      user_id: user.id,
-      client_event_id: body.clientEventId,
-      event_type: "activity_answered",
-      theme_id: activity.theme_id,
-      activity_id: activityId,
-      is_correct: isCorrect,
-      score: isCorrect ? 100 : 0,
-      xp_awarded: xpAwarded,
-      payload: {
-        selectedOptionId: body.selectedOptionId ?? null,
-        answerText: body.answerText ?? null
+    const { error: eventoError } = await db.from("evento_progreso").insert({
+      usuario_id: user.id,
+      id_evento_cliente: body.evento_id_cliente,
+      tipo_evento: "actividad_respondida",
+      tema_id: actividad.tema_id,
+      actividad_id: actividadId,
+      correcta,
+      puntaje: correcta ? 100 : 0,
+      xp_otorgada: xpOtorgada,
+      datos: {
+        opcion_id_seleccionada: body.opcion_id_seleccionada ?? null,
+        texto_respuesta: body.texto_respuesta ?? null
       },
-      occurred_at_client: body.occurredAtClient ?? new Date().toISOString(),
-      device_id: body.deviceId ?? null
+      ocurrido_en_cliente: body.ocurrido_en_cliente ?? new Date().toISOString(),
+      dispositivo_id: body.dispositivo_id ?? null
     });
 
-    if (eventError) {
-      if (eventError.code === "23505") {
-        return c.json({
-          ok: true,
-          duplicated: true,
-          result: {
-            isCorrect,
-            xpAwarded: 0
-          }
-        });
+    if (eventoError) {
+      if (eventoError.code === "23505") {
+        return responderExito(
+          {
+            resultado: {
+              correcta,
+              xp_otorgada: 0
+            },
+            duplicado: true,
+            correcta,
+            xp_otorgada: 0
+          },
+          200
+        );
       }
 
-      throw eventError;
+      throw eventoError;
     }
 
-    await db.from("user_activity_progress").upsert({
-      user_id: user.id,
-      activity_id: activityId,
-      attempts: 1,
-      best_score: isCorrect ? 100 : 0,
-      is_completed: isCorrect,
-      completed_at: isCorrect ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString()
+    await db.from("progreso_actividad_usuario").upsert({
+      usuario_id: user.id,
+      actividad_id: actividadId,
+      intentos: 1,
+      mejor_puntaje: correcta ? 100 : 0,
+      completado: correcta,
+      completado_en: correcta ? new Date().toISOString() : null,
+      actualizado_en: new Date().toISOString()
     });
 
-    if (activity.theme_id && isCorrect) {
-      await db.from("user_theme_progress").upsert({
-        user_id: user.id,
-        theme_id: activity.theme_id,
-        status: "in_progress",
-        started_at: new Date().toISOString(),
-        percent: 0,
-        updated_at: new Date().toISOString()
-      });
-    }
-
-    if (activity.theme_id && isCorrect) {
-      const { data: themeActivities, error: listError } = await db
-        .from("activity")
-        .select("id")
-        .eq("theme_id", activity.theme_id);
-
-      if (!listError && themeActivities && themeActivities.length > 0) {
-        const activityIds = themeActivities.map((a: { id: string }) => a.id);
-
-        const { count: completedCount } = await db
-          .from("user_activity_progress")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .in("activity_id", activityIds)
-          .eq("is_completed", true);
-
-        const total = themeActivities.length;
-        const completed = completedCount ?? 0;
-        const percent = Math.round((completed / total) * 100);
-        const status = completed >= total ? "completed" : "in_progress";
-
-        await db.from("user_theme_progress").upsert({
-          user_id: user.id,
-          theme_id: activity.theme_id,
-          status,
-          percent,
-          completed_at: status === "completed" ? new Date().toISOString() : null,
-          updated_at: new Date().toISOString()
-        });
-      }
-    }
-
-    return c.json({
-      ok: true,
-      duplicated: false,
-      result: {
-        isCorrect,
-        xpAwarded
-      }
-    });
+    return responderExito(
+      {
+        resultado: {
+          correcta,
+          xp_otorgada: xpOtorgada
+        },
+        duplicado: false,
+        correcta,
+        xp_otorgada: xpOtorgada
+      },
+      201
+    );
   }
 );

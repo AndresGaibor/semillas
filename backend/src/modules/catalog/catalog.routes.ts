@@ -1,82 +1,71 @@
 import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
+import { responderExito } from "../../shared/http/respuesta";
 
 export const catalogRoutes = new Hono<AppBindings>();
 
-catalogRoutes.get("/age-groups", async (c) => {
+catalogRoutes.get("/grupos-etarios", async (c) => {
   const db = c.get("db");
 
   const { data, error } = await db
-    .from("age_group")
-    .select("id, code, name, min_age, max_age, description, sort_order")
-    .order("sort_order", { ascending: true });
+    .from("grupo_edad")
+    .select("codigo, nombre, edad_minima, edad_maxima, descripcion, orden, dominio_publico, es_juego")
+    .order("orden", { ascending: true });
 
   if (error) throw error;
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(data ?? []);
 });
 
-catalogRoutes.get("/activity-types", async (c) => {
+catalogRoutes.get("/tipos-actividad", async (c) => {
   const db = c.get("db");
 
   const { data, error } = await db
-    .from("activity_type")
-    .select("id, code, name, description, is_game")
-    .eq("is_active", true)
-    .order("name", { ascending: true });
+    .from("tipo_actividad")
+    .select("codigo, nombre, descripcion, es_juego")
+    .eq("activo", true)
+    .order("nombre", { ascending: true });
 
   if (error) throw error;
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(data ?? []);
 });
 
-catalogRoutes.get("/bible-books", async (c) => {
+catalogRoutes.get("/libros-biblicos", async (c) => {
   const db = c.get("db");
 
   const { data, error } = await db
-    .from("bible_book")
-    .select("id, name, sort_order, testament_id")
-    .order("sort_order", { ascending: true });
+    .from("libro_biblico")
+    .select("codigo, nombre, orden, testamento_id")
+    .order("orden", { ascending: true });
 
   if (error) throw error;
 
-  return c.json({ ok: true, data });
+  return responderExito(data ?? []);
 });
 
-catalogRoutes.get("/bible-versions", async (c) => {
+catalogRoutes.get("/versiones-biblicas", async (c) => {
   const db = c.get("db");
 
   const { data, error } = await db
-    .from("bible_version")
-    .select("id, code, name, is_public_domain")
-    .order("code", { ascending: true });
+    .from("version_biblica")
+    .select("codigo, nombre, dominio_publico")
+    .order("codigo", { ascending: true });
 
   if (error) throw error;
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(data ?? []);
 });
 
-catalogRoutes.get("/crecer-steps", async (c) => {
+catalogRoutes.get("/pasos-crecer", async (c) => {
   const db = c.get("db");
 
   const { data, error } = await db
-    .from("crecer_step_type")
-    .select("id, code, name, description, sort_order, color_hex")
-    .order("sort_order", { ascending: true });
+    .from("tipo_paso_crecer")
+    .select("codigo, nombre, descripcion, orden, color_hex")
+    .order("orden", { ascending: true });
 
   if (error) throw error;
 
-  return c.json({
-    ok: true,
-    data
-  });
+  return responderExito(data ?? []);
 });

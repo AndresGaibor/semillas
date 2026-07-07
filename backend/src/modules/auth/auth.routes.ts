@@ -2,22 +2,25 @@ import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { createGuestSchema } from "./auth.schemas";
+import { responderExito } from "../../shared/http/respuesta";
+import { serializarPerfil } from "../../shared/serializers/perfil.serializer";
+import { serializarUsuario } from "../../shared/serializers/usuario.serializer";
 
 export const authRoutes = new Hono<AppBindings>();
 
-authRoutes.post("/guest", zValidator("json", createGuestSchema), async (c) => {
+authRoutes.post("/invitado", zValidator("json", createGuestSchema), async (c) => {
   const db = c.get("db");
   const body = c.req.valid("json");
 
   const { data: user, error: userError } = await db
-    .from("app_user")
+    .from("usuario_app")
     .insert({
-      provider: "guest",
-      role: "guest",
-      display_name: body.nickname,
-      email: null
+      proveedor: "invitado",
+      rol: "invitado",
+      nombre_visible: body.apodo,
+      correo: null
     })
-    .select("id, role, provider, display_name, email")
+    .select("id, rol, proveedor, nombre_visible, correo")
     .single();
 
   if (userError || !user) {
@@ -25,12 +28,12 @@ authRoutes.post("/guest", zValidator("json", createGuestSchema), async (c) => {
   }
 
   const { data: profile, error: profileError } = await db
-    .from("profile")
+    .from("perfil")
     .insert({
-      user_id: user.id,
-      nickname: body.nickname,
-      age_group_id: body.ageGroupId ?? null,
-      avatar_url: body.avatarUrl ?? null
+      usuario_id: user.id,
+      apodo: body.apodo,
+      grupo_edad_id: body.grupo_edad_id ?? null,
+      url_avatar: body.url_avatar ?? null
     })
     .select("*")
     .single();
@@ -39,57 +42,55 @@ authRoutes.post("/guest", zValidator("json", createGuestSchema), async (c) => {
     throw profileError;
   }
 
-  return c.json(
+  return responderExito(
     {
-      ok: true,
-      data: {
-        user,
-        profile,
-        auth: {
-          type: "guest",
-          headerName: "X-Guest-User-Id",
-          headerValue: user.id
-        }
+      usuario: serializarUsuario(user),
+      perfil: serializarPerfil(profile),
+      autenticacion: {
+        tipo: "invitado",
+        encabezado: "x-guest-user-id",
+        valor: user.id
       }
     },
     201
   );
 });
 
-authRoutes.post("/setup-dev", async (c) => {
+authRoutes.post("/configuracion-dev", async (c) => {
+  if (c.env.APP_ENV !== "development") {
+    return c.json({ ok: false, error: "No disponible fuera de desarrollo" }, 403);
+  }
+
   const db = c.get("db");
 
   const { data: user, error: userError } = await db
-    .from("app_user")
+    .from("usuario_app")
     .insert({
-      provider: "guest",
-      role: "admin",
-      display_name: "Admin Dev",
-      email: null
+      proveedor: "invitado",
+      rol: "administrador",
+      nombre_visible: "Admin Dev",
+      correo: null
     })
-    .select("id, role, provider, display_name, email")
+    .select("id, rol, proveedor, nombre_visible, correo")
     .single();
 
   if (userError || !user) throw userError;
 
   const { data: profile, error: profileError } = await db
-    .from("profile")
+    .from("perfil")
     .insert({
-      user_id: user.id,
-      nickname: "Admin Dev"
+      usuario_id: user.id,
+      apodo: "Admin Dev"
     })
     .select("*")
     .single();
 
   if (profileError) throw profileError;
 
-  return c.json({
-    ok: true,
-    data: {
-      user,
-      profile,
-      message: "Admin creado. Copia este ID en localStorage:",
-      localStorage: `localStorage.setItem("semillas_guest_user_id", "${user.id}")`
-    }
+  return responderExito({
+    usuario: serializarUsuario(user),
+    perfil: serializarPerfil(profile),
+    mensaje: "Administrador creado. Copia este ID en localStorage:",
+    localStorage: `localStorage.setItem("semillas_guest_user_id", "${user.id}")`
   });
 });
