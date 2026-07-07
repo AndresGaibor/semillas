@@ -4,6 +4,10 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "bun test",
+    "test:e2e": "bun test \"src/**/*.e2e.test.ts\" --pass-with-no-tests",
     "typecheck": "tsc --noEmit",
     "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > src/db/database.types.ts"
   },

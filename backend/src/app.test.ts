@@ -6,8 +6,8 @@ const env: AppBindings["Bindings"] = {
   APP_ENV: "development",
   CORS_ORIGIN: "http://localhost:3000",
   SUPABASE_URL: "https://example.supabase.co",
-  SUPABASE_PUBLISHABLE_KEY: "test-publishable-key",
-  SUPABASE_SERVER_KEY: "test-server-key",
+  SUPABASE_ANON_KEY: "test-anon-key",
+  SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
   SUPABASE_PROJECT_REF: "test-project-ref"
 };
 
