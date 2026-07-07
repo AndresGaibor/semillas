@@ -12,19 +12,50 @@ export const Route = createFileRoute("/onboarding/customize")({
   component: CustomizePage,
 });
 
+const topbarStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "16px 24px",
+  background: "#ffffff",
+  borderBottom: "1px solid #e5e7eb",
+  position: "sticky",
+  top: 0,
+  zIndex: 50,
+};
+
+const brandStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  textDecoration: "none",
+};
+
+const helpBtnStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  background: "transparent",
+  border: "1.5px solid #e5e7eb",
+  borderRadius: "20px",
+  padding: "8px 16px",
+  fontFamily: "inherit",
+  fontSize: "14px",
+  fontWeight: 700,
+  color: "#1A1A1A",
+  cursor: "pointer",
+};
+
 function CustomizePage() {
   const navigate = useNavigate();
   const [grupoEdadId, setGrupoEdadId] = useState<string>("");
-  
   const [nickname, setNickname] = useState<string>("");
   const [selectedAvatar, setSelectedAvatar] = useState<number>(1);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
     const savedId = localStorage.getItem("onboarding_grupo_edad_id");
-    if (savedId) {
-      setGrupoEdadId(savedId);
-    }
+    if (savedId) setGrupoEdadId(savedId);
   }, []);
 
   const actualizarPerfilMutation = useMutation({
@@ -49,60 +80,206 @@ function CustomizePage() {
   const isButtonEnabled = nickname.trim().length > 0 && !actualizarPerfilMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] flex flex-col font-sans text-[#123B2C]">
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 sticky top-0 z-50 w-full">
-        <Link to="/" className="flex items-center gap-3 no-underline">
+    <div
+      style={{
+        fontFamily: "'Nunito', sans-serif",
+        background: "#f8f9fc",
+        color: "#1A1A1A",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        margin: 0,
+        padding: 0,
+        boxSizing: "border-box",
+      }}
+    >
+      {/* ── Topbar ── */}
+      <header style={topbarStyle}>
+        <Link to="/" style={brandStyle}>
           <img
             src={logoImg}
             alt="Logo de Semilla"
-            className="w-14 h-14 object-contain"
+            style={{ width: "56px", height: "56px", objectFit: "contain" }}
           />
-          <div className="flex flex-col text-left">
-            <span className="text-[1.95rem] font-extrabold text-[#512DA8] leading-none">
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: "1.95rem", fontWeight: 800, color: "#512DA8", lineHeight: 1.1 }}>
               Semillas
             </span>
-            <span className="text-[0.64rem] text-[#43A047] font-semibold max-[480px]:hidden">
+            <span style={{ fontSize: "0.64rem", color: "#43A047", fontWeight: 600 }}>
               Crecer en la Palabra, vivir Su verdad
             </span>
           </div>
         </Link>
-
-        <button onClick={() => setIsHelpOpen(true)} className="flex items-center gap-2 bg-transparent border border-slate-200 rounded-full px-4 py-2 font-bold text-sm text-[#1A1A1A] cursor-pointer hover:border-[#B39DDB] hover:bg-[#EDE7F6] transition-all">
+        <button onClick={() => setIsHelpOpen(true)} style={helpBtnStyle}>
           <HelpCircle size={16} />
           Ayuda
         </button>
       </header>
 
-      <main className="flex-grow flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 md:px-6 py-10 gap-10 items-start shrink-0">
-        <div className="flex-[3] w-full bg-white p-6 md:p-10 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col text-left shrink-0">
-          <div className="text-[32px] font-extrabold text-[#512DA8] mb-2 leading-tight">
+      {/* ── Main: .perfil-main ── */}
+      <main
+        style={{
+          flex: 1,
+          display: "flex",
+          maxWidth: "1200px",
+          margin: "40px auto",
+          width: "100%",
+          padding: "0 20px",
+          gap: "40px",
+          boxSizing: "border-box",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* ── Form Section ── */}
+        <div
+          style={{
+            flex: 3,
+            background: "#fff",
+            padding: "40px",
+            borderRadius: "24px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+            minWidth: 0,
+          }}
+        >
+          <h1 style={{ fontSize: "32px", color: "#512DA8", margin: "0 0 8px 0", fontWeight: 800 }}>
             Crea tu perfil
-          </div>
-          <p className="text-base text-[#5C5C5C] mb-8">
+          </h1>
+          <p style={{ color: "#5C5C5C", marginBottom: "32px", fontSize: "16px", margin: "0 0 32px 0" }}>
             Cuéntanos un poco sobre ti para personalizar tu experiencia en Semillas.
           </p>
 
-          <div className="flex bg-[#F4F5F7] rounded-xl p-1 mb-10 w-full shrink-0">
-            <button onClick={() => navigate({ to: "/onboarding" })} className="flex-1 text-center py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 border-0 cursor-pointer bg-transparent text-slate-400 hover:text-slate-600 transition-colors">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs text-white bg-[#7E57C2] font-bold">✓</span>
+          {/* Tabs */}
+          <div
+            style={{
+              display: "flex",
+              background: "#f4f5f7",
+              borderRadius: "12px",
+              padding: "4px",
+              marginBottom: "40px",
+            }}
+          >
+            {/* Tab 1: completed */}
+            <button
+              onClick={() => navigate({ to: "/onboarding" })}
+              style={{
+                flex: 1,
+                textAlign: "center",
+                padding: "12px",
+                borderRadius: "8px",
+                fontWeight: 700,
+                fontSize: "14px",
+                color: "#9E9E9E",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "#7E57C2",
+                  color: "#fff",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                }}
+              >
+                ✓
+              </span>
               Tu edad
             </button>
-            <div className="flex-1 text-center py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 bg-white text-[#7E57C2] shadow-sm">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs text-white bg-[#7E57C2] font-bold">2</span>
+            {/* Tab 2: active */}
+            <div
+              style={{
+                flex: 1,
+                textAlign: "center",
+                padding: "12px",
+                borderRadius: "8px",
+                fontWeight: 700,
+                fontSize: "14px",
+                color: "#7E57C2",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                background: "#fff",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "#7E57C2",
+                  color: "#fff",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                }}
+              >
+                2
+              </span>
               Tu información
             </div>
           </div>
 
-          <div className="mb-8 flex flex-col shrink-0">
-            <label className="flex items-center gap-3 text-lg font-bold text-[#1A1A1A] mb-3">
-              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#7E57C2] text-white text-sm font-bold shrink-0">1</span>
+          {/* Field 1: Nickname */}
+          <div style={{ marginBottom: "32px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#1A1A1A",
+                marginBottom: "12px",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  background: "#7E57C2",
+                  color: "#fff",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                1
+              </span>
               ¿Cómo quieres que te llamemos?
-            </label>
-            <p className="text-sm text-[#5C5C5C] mb-2">Apodo</p>
-            <div className="relative flex items-center w-full">
-              <svg className="absolute left-4 w-5 h-5 text-[#7E57C2] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
+            </div>
+            <p style={{ fontSize: "14px", color: "#5C5C5C", margin: "0 0 8px 0" }}>Apodo</p>
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <svg
+                style={{ position: "absolute", left: "16px", width: "20px", height: "20px", color: "#7E57C2", pointerEvents: "none", flexShrink: 0 }}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
               </svg>
               <input
                 type="text"
@@ -110,40 +287,122 @@ function CustomizePage() {
                 placeholder="Escribe tu apodo"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl text-base outline-none focus:border-[#7E57C2] transition-colors text-[#1A1A1A] bg-white font-sans pl-12 pr-4 py-4"
+                style={{
+                  width: "100%",
+                  border: "1.5px solid #e5e7eb",
+                  borderRadius: "12px",
+                  fontSize: "16px",
+                  outline: "none",
+                  color: "#1A1A1A",
+                  background: "#fff",
+                  fontFamily: "inherit",
+                  paddingLeft: "48px",
+                  paddingRight: "16px",
+                  paddingTop: "16px",
+                  paddingBottom: "16px",
+                  boxSizing: "border-box",
+                }}
               />
             </div>
-            <div className="text-right text-xs text-[#9E9E9E] mt-1 font-medium">
+            <div style={{ textAlign: "right", fontSize: "12px", color: "#9E9E9E", marginTop: "4px", fontWeight: 500 }}>
               Máx. 20 caracteres
             </div>
           </div>
 
-          <div className="mb-8 flex flex-col shrink-0">
-            <label className="flex items-center gap-3 text-lg font-bold text-[#1A1A1A] mb-3">
-              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#7E57C2] text-white text-sm font-bold shrink-0">2</span>
+          {/* Field 2: Avatar */}
+          <div style={{ marginBottom: "32px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#1A1A1A",
+                marginBottom: "12px",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  background: "#7E57C2",
+                  color: "#fff",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                2
+              </span>
               Elige un avatar que te represente
-            </label>
-            <div className="grid grid-cols-2 max-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4 w-full shrink-0">
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, 1fr)",
+                gap: "16px",
+                marginTop: "16px",
+              }}
+            >
               {Array.from({ length: 10 }).map((_, index) => {
                 const avatarNum = index + 1;
                 const isSelected = selectedAvatar === avatarNum;
                 return (
-                  <label key={avatarNum} className="cursor-pointer block relative">
+                  <label
+                    key={avatarNum}
+                    style={{ cursor: "pointer", display: "block", position: "relative" }}
+                  >
                     <input
                       type="radio"
                       name="avatar"
                       value={avatarNum}
                       checked={isSelected}
                       onChange={() => setSelectedAvatar(avatarNum)}
-                      className="absolute opacity-0 w-0 h-0"
+                      style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
                     />
-                    <div className={`border-2 rounded-2xl p-1 transition-all duration-200 relative hover:scale-105 ${
-                      isSelected ? "border-[#7E57C2] bg-[#EDE7F6]" : "border-transparent bg-transparent"
-                    }`}>
-                      <img src={MAPA_AVATARES[String(avatarNum)]} alt={`Avatar ${avatarNum}`} className="w-full h-auto rounded-xl block" />
-                      <div className={`absolute -top-2 -right-2 w-6 h-6 bg-[#7E57C2] text-white rounded-full flex items-center justify-center font-bold text-sm shadow z-10 transition-all duration-200 ${
-                        isSelected ? "opacity-100 scale-100" : "opacity-0 scale-0"
-                      }`}>✓</div>
+                    <div
+                      style={{
+                        border: `2px solid ${isSelected ? "#7E57C2" : "transparent"}`,
+                        borderRadius: "16px",
+                        padding: "4px",
+                        background: isSelected ? "#EDE7F6" : "transparent",
+                        position: "relative",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      <img
+                        src={MAPA_AVATARES[String(avatarNum)]}
+                        alt={`Avatar ${avatarNum}`}
+                        style={{ width: "100%", height: "auto", borderRadius: "12px", display: "block" }}
+                      />
+                      {isSelected && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "-8px",
+                            right: "-8px",
+                            width: "24px",
+                            height: "24px",
+                            background: "#7E57C2",
+                            color: "#fff",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 700,
+                            fontSize: "14px",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            zIndex: 10,
+                          }}
+                        >
+                          ✓
+                        </div>
+                      )}
                     </div>
                   </label>
                 );
@@ -151,85 +410,220 @@ function CustomizePage() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center border-t border-slate-200 pt-6 mt-10 w-full shrink-0">
+          {/* Footer buttons */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderTop: "1px solid #e5e7eb",
+              paddingTop: "24px",
+              marginTop: "40px",
+            }}
+          >
             <button
               onClick={() => navigate({ to: "/onboarding" })}
-              className="bg-transparent border border-[#9E9E9E] text-[#2E2E2E] px-6 py-3 rounded-lg font-bold text-base cursor-pointer transition-all hover:bg-[#F5F5F5] flex items-center justify-center gap-2"
+              style={{
+                background: "transparent",
+                border: "1.5px solid #9E9E9E",
+                color: "#2E2E2E",
+                padding: "12px 24px",
+                borderRadius: "8px",
+                fontWeight: 700,
+                fontSize: "16px",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
             >
-              &larr; Atrás
+              ← Atrás
             </button>
             <button
               onClick={handleFinish}
               disabled={!isButtonEnabled}
-              className="border-none px-8 py-3 rounded-lg font-bold text-base transition-all flex items-center justify-center gap-2 shadow-sm"
               style={{
-                background: isButtonEnabled ? '#7E57C2' : '#E0E0E0',
-                color: isButtonEnabled ? '#FFFFFF' : '#9E9E9E',
-                cursor: isButtonEnabled ? 'pointer' : 'not-allowed'
+                background: isButtonEnabled ? "#7E57C2" : "#E0E0E0",
+                color: isButtonEnabled ? "#fff" : "#9E9E9E",
+                border: "none",
+                padding: "12px 32px",
+                borderRadius: "8px",
+                fontWeight: 700,
+                fontSize: "16px",
+                cursor: isButtonEnabled ? "pointer" : "not-allowed",
+                fontFamily: "inherit",
+                transition: "background 0.2s ease",
               }}
             >
-              {actualizarPerfilMutation.isPending ? "Finalizando..." : "Finalizar \u2192"}
+              {actualizarPerfilMutation.isPending ? "Finalizando..." : "Finalizar →"}
             </button>
           </div>
         </div>
 
-        <div className="w-full lg:w-[350px] flex flex-col justify-start shrink-0 lg:sticky lg:top-[120px]">
-          <div className="flex items-center justify-center gap-2 text-lg font-bold text-[#4527A0] mb-6">
+        {/* ── Preview Section ── */}
+        <div
+          style={{
+            flex: 2,
+            display: "flex",
+            flexDirection: "column",
+            minWidth: "280px",
+            maxWidth: "380px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#4527A0",
+              marginBottom: "24px",
+            }}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1 3-6z"/>
+              <path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1 3-6z" />
             </svg>
             Así se verá tu perfil
           </div>
-          <div className="bg-white rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] overflow-hidden text-center pb-8 w-full">
-            <div className="w-full h-[180px] bg-[#e5f0f9] relative overflow-hidden">
-              <img src={fondoAvatarImg} alt="Fondo del avatar" className="w-full h-full object-cover" />
+
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "24px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+              overflow: "hidden",
+              textAlign: "center",
+              paddingBottom: "32px",
+            }}
+          >
+            {/* Cover image */}
+            <div style={{ width: "100%", height: "180px", background: "#e5f0f9", position: "relative", overflow: "hidden" }}>
+              <img src={fondoAvatarImg} alt="Fondo del avatar" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
-            <div className="w-[140px] h-[140px] mx-auto -mt-[70px] mb-4 rounded-full border-[6px] border-white bg-white relative z-10 overflow-hidden shadow-md">
-              <img src={MAPA_AVATARES[String(selectedAvatar)]} alt="Tu avatar" className="w-full h-full object-cover" />
+            {/* Avatar circle */}
+            <div
+              style={{
+                width: "140px",
+                height: "140px",
+                margin: "-70px auto 16px",
+                borderRadius: "50%",
+                border: "6px solid #fff",
+                background: "#fff",
+                position: "relative",
+                zIndex: 10,
+                overflow: "hidden",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              }}
+            >
+              <img
+                src={MAPA_AVATARES[String(selectedAvatar)]}
+                alt="Tu avatar"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
             </div>
-            <div className="text-2xl font-extrabold text-[#1A1A1A] mb-6 px-4 truncate max-w-full leading-none font-sans">{nickname.trim() || "Tú"}</div>
-            
-            <div className="bg-[#E8F5E9] mx-6 p-4 rounded-xl text-left flex flex-col gap-1">
-              <strong className="text-[#2E7D32] text-base font-bold flex items-center gap-2">
+            {/* Name */}
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: 800,
+                color: "#1A1A1A",
+                marginBottom: "24px",
+                padding: "0 16px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nickname.trim() || "Tú"}
+            </div>
+            {/* Welcome card */}
+            <div
+              style={{
+                background: "#E8F5E9",
+                margin: "0 24px",
+                padding: "16px",
+                borderRadius: "12px",
+                textAlign: "left",
+              }}
+            >
+              <strong style={{ color: "#2E7D32", fontSize: "16px", fontWeight: 700, display: "block", marginBottom: "4px" }}>
                 ¡Bienvenido a Semillas!
               </strong>
-              <p className="text-[#2E2E2E] text-xs leading-relaxed">Aquí aprenderás, explorarás y harás del mundo un lugar mejor.</p>
+              <p style={{ color: "#2E2E2E", fontSize: "14px", lineHeight: 1.5, margin: 0 }}>
+                Aquí aprenderás, explorarás y harás del mundo un lugar mejor.
+              </p>
             </div>
           </div>
         </div>
       </main>
 
-      <div
-        onClick={() => setIsHelpOpen(false)}
-        className={`fixed inset-0 bg-black/60 z-[1000] flex justify-center items-center backdrop-blur-[2px] transition-all duration-300 ${
-          isHelpOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-      >
+      {/* ── Help Modal ── */}
+      {isHelpOpen && (
         <div
-          onClick={(e) => e.stopPropagation()}
-          className={`bg-white rounded-2xl w-[90%] max-w-[450px] p-8 shadow-2xl transition-all duration-300 text-left ${
-            isHelpOpen ? "translate-y-0 scale-100" : "translate-y-5 scale-95"
-          }`}
+          onClick={() => setIsHelpOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+            backdropFilter: "blur(2px)",
+          }}
         >
-          <div className="flex justify-between items-start mb-5">
-            <div className="text-xl font-extrabold text-[#512DA8] leading-tight m-0">Preguntas Frecuentes</div>
-            <button
-              onClick={() => setIsHelpOpen(false)}
-              className="border-none text-2xl w-8 h-8 rounded-full flex justify-center items-center text-[#5C5C5C] hover:text-[#4527A0] transition-all duration-200"
-              style={{ background: '#F5F5F5', cursor: 'pointer' }}
-            >
-              &times;
-            </button>
-          </div>
-          <div className="text-left">
-            <strong className="font-bold text-[#512DA8] block mb-1">¿Qué es el apodo?</strong>
-            <p className="text-[15px] text-[#2E2E2E] leading-relaxed mb-4">Es un nombre corto o sobrenombre que usaremos para llamarte dentro de la aplicación de manera amigable. Te sugerimos no usar tu nombre real completo para proteger tu privacidad.</p>
-            
-            <strong className="font-bold text-[#512DA8] block mb-1">¿Para qué sirve el avatar?</strong>
-            <p className="text-[15px] text-[#2E2E2E] leading-relaxed">Tu avatar es el personaje que te representará en las actividades de Semillas. Elige el que más te guste o con el que más te identifiques. ¡No te preocupes, podrás cambiarlo más adelante!</p>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#ffffff",
+              borderRadius: "16px",
+              width: "90%",
+              maxWidth: "450px",
+              padding: "32px",
+              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+              <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#512DA8", margin: 0, lineHeight: 1.3 }}>
+                Preguntas Frecuentes
+              </h3>
+              <button
+                onClick={() => setIsHelpOpen(false)}
+                style={{
+                  background: "#F5F5F5",
+                  border: "none",
+                  fontSize: "24px",
+                  lineHeight: 1,
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: "#5C5C5C",
+                  cursor: "pointer",
+                }}
+                aria-label="Cerrar modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div>
+              <strong style={{ fontWeight: 700, color: "#512DA8", display: "block", marginBottom: "4px" }}>¿Qué es el apodo?</strong>
+              <p style={{ fontSize: "15px", color: "#2E2E2E", lineHeight: 1.65, marginBottom: "16px" }}>
+                Es un nombre corto o sobrenombre que usaremos para llamarte dentro de la aplicación de manera amigable. Te sugerimos no usar tu nombre real completo para proteger tu privacidad.
+              </p>
+              <strong style={{ fontWeight: 700, color: "#512DA8", display: "block", marginBottom: "4px" }}>¿Para qué sirve el avatar?</strong>
+              <p style={{ fontSize: "15px", color: "#2E2E2E", lineHeight: 1.65, margin: 0 }}>
+                Tu avatar es el personaje que te representará en las actividades de Semillas. Elige el que más te guste o con el que más te identifiques.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
