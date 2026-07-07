@@ -42,12 +42,12 @@ function SendasPage() {
                 style={{ background: `${senda.color_hex}15` }}
               >
                 <span style={{ color: senda.color_hex }}>
-                  {sendaIcons[senda.code] ?? <Crown size={28} />}
+                  {sendaIcons[senda.codigo.toLowerCase()] ?? <Crown size={28} />}
                 </span>
               </div>
               <div>
-                <h2 className="font-bold text-lg text-[#123b2c]">{senda.name}</h2>
-                <p className="text-sm text-[#123b2c]/50">{senda.description}</p>
+                <h2 className="font-bold text-lg text-[#123b2c]">{senda.nombre}</h2>
+                <p className="text-sm text-[#123b2c]/50">{senda.descripcion}</p>
               </div>
             </div>
           </Link>

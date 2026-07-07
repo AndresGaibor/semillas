@@ -26,16 +26,16 @@ function EditThemePage() {
 
   useEffect(() => {
     if (theme) {
-      setTitle(theme.title);
-      setObjective(theme.objective);
-      setSummary(theme.summary ?? "");
-      setXpReward(theme.xp_reward);
+      setTitle(theme.titulo);
+      setObjective(theme.objetivo);
+      setSummary(theme.resumen ?? "");
+      setXpReward(theme.xp_recompensa);
     }
   }, [theme]);
 
   const updateMutation = useMutation({
     mutationFn: () =>
-      updateTheme(themeId, { title, objective, summary, xpReward }),
+      updateTheme(themeId, { titulo: title, objetivo: objective, resumen: summary, xp_recompensa: xpReward }),
     onSuccess: () => navigate({ to: "/admin/temas" })
   });
 

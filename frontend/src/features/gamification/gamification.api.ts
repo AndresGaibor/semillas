@@ -1,15 +1,15 @@
 import { apiRequest } from "../../shared/api/http";
 
 export type GamificationMe = {
-  level: {
-    user_id: string;
+  nivel: {
+    usuario_id: string | null;
     xp_total: number;
-    level_number: number;
-    level_name: string;
+    numero_nivel: number;
+    nombre_nivel: string;
   } | null;
-  achievements: Array<unknown>;
+  logros: Array<unknown>;
 };
 
 export function getMyGamification() {
-  return apiRequest<GamificationMe>("/gamification/me");
+  return apiRequest<GamificationMe>("/gamificacion/mi");
 }

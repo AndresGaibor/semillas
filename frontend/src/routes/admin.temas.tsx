@@ -9,10 +9,10 @@ export const Route = createFileRoute("/admin/temas")({
 });
 
 const statusColors: Record<string, string> = {
-  draft: "#e5e7eb",
-  published: "#2e9e5b",
-  review: "#f4b740",
-  archived: "#999"
+  borrador: "#e5e7eb",
+  publicado: "#2e9e5b",
+  revision: "#f4b740",
+  archivado: "#999"
 };
 
 function AdminThemesPage() {
@@ -68,15 +68,15 @@ function AdminThemesPage() {
           <div key={theme.id} className="bg-white rounded-xl p-4 shadow-sm border border-[#e5e7eb]">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h2 className="font-bold text-[#123b2c] truncate">{theme.title}</h2>
+                <h2 className="font-bold text-[#123b2c] truncate">{theme.titulo}</h2>
                 <div className="flex items-center gap-3 mt-1">
                   <span
                     className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                    style={{ background: `${statusColors[theme.status] ?? "#eee"}20`, color: statusColors[theme.status] ?? "#666" }}
+                    style={{ background: `${statusColors[theme.estado] ?? "#eee"}20`, color: statusColors[theme.estado] ?? "#666" }}
                   >
-                    {theme.status}
+                    {theme.estado}
                   </span>
-                  <span className="text-xs text-[#123b2c]/40">{theme.xp_reward} XP</span>
+                  <span className="text-xs text-[#123b2c]/40">{theme.xp_recompensa} XP</span>
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@ function AdminThemesPage() {
                 <Eye size={13} /> Vista
               </Link>
 
-              {theme.status !== "published" ? (
+              {theme.estado !== "publicado" ? (
                 <button
                   onClick={() => publishMutation.mutate(theme.id)}
                   className="flex items-center gap-1 px-3 py-1.5 bg-[#2e9e5b] text-white rounded-lg text-xs font-medium hover:bg-[#267d4c] transition-colors"

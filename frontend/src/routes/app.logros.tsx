@@ -10,7 +10,7 @@ export const Route = createFileRoute("/app/logros")({
 function AchievementsPage() {
   const query = useQuery({ queryKey: ["gamification", "me"], queryFn: getMyGamification });
 
-  const level = query.data?.level;
+  const nivel = query.data?.nivel;
 
   return (
     <div>
@@ -28,15 +28,15 @@ function AchievementsPage() {
           <div className="w-12 h-12 bg-[#f4b740]/10 rounded-full flex items-center justify-center mx-auto mb-2">
             <Zap className="text-[#f4b740]" size={24} />
           </div>
-          <p className="text-3xl font-bold text-[#123b2c]">{level?.xp_total ?? 0}</p>
+          <p className="text-3xl font-bold text-[#123b2c]">{nivel?.xp_total ?? 0}</p>
           <p className="text-xs text-[#123b2c]/40">XP total</p>
         </div>
         <div className="bg-white rounded-2xl p-5 shadow-sm text-center">
           <div className="w-12 h-12 bg-[#2e9e5b]/10 rounded-full flex items-center justify-center mx-auto mb-2">
             <TrendingUp className="text-[#2e9e5b]" size={24} />
           </div>
-          <p className="text-3xl font-bold text-[#123b2c]">{level?.level_number ?? 1}</p>
-          <p className="text-xs text-[#123b2c]/40">{level?.level_name ?? "Brote"}</p>
+          <p className="text-3xl font-bold text-[#123b2c]">{nivel?.numero_nivel ?? 1}</p>
+          <p className="text-xs text-[#123b2c]/40">{nivel?.nombre_nivel ?? "Brote"}</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ function AchievementsPage() {
           <h2 className="font-bold text-[#123b2c]">Insignias</h2>
         </div>
 
-        {(!query.data?.achievements || query.data.achievements.length === 0) && (
+        {(!query.data?.logros || query.data.logros.length === 0) && (
           <p className="text-sm text-[#123b2c]/40 text-center py-4">
             Aún no tienes insignias. ¡Completa actividades para ganarlas!
           </p>

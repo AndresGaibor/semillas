@@ -27,14 +27,14 @@ function AdminThemeCrecerPage() {
   const crecerStepsQuery = useQuery({ queryKey: ["catalog", "crecer-steps"], queryFn: getCrecerSteps });
 
   const existingContent = stepsQuery.data
-    ?.find((s) => s.step_type.code === activeStepCode)
-    ?.contents?.find((c) => c.age_group_id === selectedAgeGroupId);
+    ?.find((s) => s.tipo_paso?.codigo === activeStepCode)
+    ?.contenidos?.find((c) => c.grupo_edad_id === selectedAgeGroupId);
 
   useEffect(() => {
     if (existingContent) {
-      setTitle(existingContent.title ?? "");
-      setBody(existingContent.body);
-      setShortInstruction(existingContent.short_instruction ?? "");
+      setTitle(existingContent.titulo ?? "");
+      setBody(existingContent.cuerpo);
+      setShortInstruction(existingContent.instruccion_corta ?? "");
     } else {
       setTitle("");
       setBody("");
@@ -44,21 +44,21 @@ function AdminThemeCrecerPage() {
 
   const saveMutation = useMutation({
     mutationFn: () => {
-      const stepType = crecerStepsQuery.data?.find((s) => s.code === activeStepCode);
+      const stepType = crecerStepsQuery.data?.find((s) => s.codigo === activeStepCode);
       if (!stepType || !selectedAgeGroupId) throw new Error("Faltan datos");
       return upsertThemeStep(themeId, {
-        stepTypeId: stepType.id,
-        ageGroupId: selectedAgeGroupId,
-        title: title || stepType.name,
-        body: body || "Contenido pendiente...",
-        shortInstruction: shortInstruction || undefined
+        tipo_paso_id: stepType.id,
+        grupo_edad_id: selectedAgeGroupId,
+        titulo: title || stepType.nombre,
+        cuerpo: body || "Contenido pendiente...",
+        instruccion_corta: shortInstruction || undefined
       });
     },
     onSuccess: () => stepsQuery.refetch()
   });
 
-  const activeStep = crecerStepsQuery.data?.find((s) => s.code === activeStepCode);
-  const hasContent = stepsQuery.data?.some((s) => s.step_type.code === activeStepCode);
+  const activeStep = crecerStepsQuery.data?.find((s) => s.codigo === activeStepCode);
+  const hasContent = stepsQuery.data?.some((s) => s.tipo_paso?.codigo === activeStepCode);
 
   return (
     <div>
@@ -77,7 +77,7 @@ function AdminThemeCrecerPage() {
         >
           <option value="">Seleccionar franja</option>
           {ageGroupsQuery.data?.map((ag) => (
-            <option key={ag.id} value={ag.id}>{ag.name}</option>
+            <option key={ag.id} value={ag.id}>{ag.nombre}</option>
           ))}
         </select>
       </div>
@@ -87,15 +87,15 @@ function AdminThemeCrecerPage() {
           <div className="flex gap-1.5 mb-5 flex-wrap">
             {crecerStepsQuery.data?.map((step) => (
               <button
-                key={step.code}
-                onClick={() => setActiveStepCode(step.code)}
+                key={step.codigo}
+                onClick={() => setActiveStepCode(step.codigo)}
                 className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
                 style={{
-                  background: activeStepCode === step.code ? (step.color_hex ?? "#2e9e5b") : "#e5e7eb",
-                  color: activeStepCode === step.code ? "white" : "#666"
+                  background: activeStepCode === step.codigo ? (step.color_hex ?? "#2e9e5b") : "#e5e7eb",
+                  color: activeStepCode === step.codigo ? "white" : "#666"
                 }}
               >
-                {step.name}
+                {step.nombre}
               </button>
             ))}
           </div>
@@ -103,7 +103,7 @@ function AdminThemeCrecerPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm grid gap-4 max-w-2xl">
             <div>
               <label className="text-sm font-medium text-[#123b2c] mb-1 block">Título</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm" placeholder={activeStep?.name ?? ""} />
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm" placeholder={activeStep?.nombre ?? ""} />
             </div>
 
             <div>
@@ -116,12 +116,12 @@ function AdminThemeCrecerPage() {
               <input value={shortInstruction} onChange={(e) => setShortInstruction(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm" placeholder="Breve instrucción para el niño" />
             </div>
 
-            <button
+              <button
               onClick={() => saveMutation.mutate()}
               className="bg-[#2e9e5b] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {saveMutation.isPending ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
-              {saveMutation.isPending ? "Guardando..." : `Guardar ${activeStep?.name ?? ""}`}
+              {saveMutation.isPending ? "Guardando..." : `Guardar ${activeStep?.nombre ?? ""}`}
             </button>
 
             {saveMutation.isSuccess && (

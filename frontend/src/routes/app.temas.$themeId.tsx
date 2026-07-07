@@ -17,13 +17,13 @@ function ThemeDetailPage() {
   const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
   const themeQuery = useQuery({ queryKey: ["theme", themeId], queryFn: () => getTheme(themeId) });
   const stepsQuery = useQuery({
-    queryKey: ["theme", themeId, "steps", meQuery.data?.profile?.age_group_id],
-    queryFn: () => getThemeSteps(themeId, meQuery.data?.profile?.age_group_id ?? undefined),
+    queryKey: ["theme", themeId, "steps", meQuery.data?.perfil?.grupo_edad_id],
+    queryFn: () => getThemeSteps(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: !!meQuery.data
   });
   const activitiesQuery = useQuery({
-    queryKey: ["theme", themeId, "activities", meQuery.data?.profile?.age_group_id],
-    queryFn: () => getThemeActivities(themeId, meQuery.data?.profile?.age_group_id ?? undefined),
+    queryKey: ["theme", themeId, "activities", meQuery.data?.perfil?.grupo_edad_id],
+    queryFn: () => getThemeActivities(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: !!meQuery.data
   });
 
@@ -32,8 +32,8 @@ function ThemeDetailPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#123b2c]">{themeQuery.data?.title ?? "Cargando..."}</h1>
-        <p className="text-sm text-[#123b2c]/50 mt-1">{themeQuery.data?.summary}</p>
+        <h1 className="text-2xl font-bold text-[#123b2c]">{themeQuery.data?.titulo ?? "Cargando..."}</h1>
+        <p className="text-sm text-[#123b2c]/50 mt-1">{themeQuery.data?.resumen}</p>
       </div>
 
       {stepsQuery.isLoading && (
@@ -49,19 +49,19 @@ function ThemeDetailPage() {
             <div
               key={step.id}
               className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm"
-              style={{ borderLeft: `3px solid ${hex(step.step_type.color_hex)}` }}
+              style={{ borderLeft: `3px solid ${hex(step.tipo_paso?.color_hex)}` }}
             >
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: `${hex(step.step_type.color_hex)}15` }}
+                style={{ background: `${hex(step.tipo_paso?.color_hex)}15` }}
               >
-                <span style={{ color: hexColor(step.step_type.color_hex) }} className="text-xs font-bold">
+                <span style={{ color: hexColor(step.tipo_paso?.color_hex) }} className="text-xs font-bold">
                   {["C", "R", "E", "C", "E", "R"][i] ?? i + 1}
                 </span>
               </div>
               <div>
-                <strong className="text-sm text-[#123b2c]">{step.step_type.name}</strong>
-                <p className="text-xs text-[#123b2c]/40">{step.contents?.[0]?.short_instruction}</p>
+                <strong className="text-sm text-[#123b2c]">{step.tipo_paso?.nombre}</strong>
+                <p className="text-xs text-[#123b2c]/40">{step.contenidos?.[0]?.instruccion_corta}</p>
               </div>
             </div>
           ))}
@@ -82,12 +82,12 @@ function ThemeDetailPage() {
                 <Play className="text-[#f4b740]" size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <strong className="text-sm text-[#123b2c]">{activity.title}</strong>
-                <p className="text-xs text-[#123b2c]/40 truncate">{activity.prompt}</p>
+                <strong className="text-sm text-[#123b2c]">{activity.titulo}</strong>
+                <p className="text-xs text-[#123b2c]/40 truncate">{activity.consigna}</p>
               </div>
               <span className="flex items-center gap-1 text-xs text-[#f4b740] shrink-0">
                 <Zap size={14} />
-                {activity.xp_reward}
+                {activity.xp_recompensa}
               </span>
             </Link>
           ))}
@@ -95,7 +95,7 @@ function ThemeDetailPage() {
       </div>
 
       {firstActivity && (
-        <Link
+          <Link
           to="/app/actividades/$activityId"
           params={{ activityId: firstActivity.id }}
           className="block w-full bg-[#2e9e5b] text-white py-3 rounded-xl font-semibold text-center hover:bg-[#267d4c] transition-colors"

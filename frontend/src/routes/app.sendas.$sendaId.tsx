@@ -15,8 +15,8 @@ function SendaDetailPage() {
   const senda = sendaQuery.data?.find((s) => s.id === sendaId);
 
   const themesQuery = useQuery({
-    queryKey: ["themes", { pathId: sendaId }],
-    queryFn: () => getThemes({ pathId: sendaId })
+    queryKey: ["themes", { senda_id: sendaId }],
+    queryFn: () => getThemes({ senda_id: sendaId })
   });
 
   return (
@@ -29,7 +29,7 @@ function SendaDetailPage() {
           <BookOpen size={20} style={{ color: senda?.color_hex }} />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-[#123b2c]">{senda?.name ?? "Cargando..."}</h1>
+          <h1 className="text-xl font-bold text-[#123b2c]">{senda?.nombre ?? "Cargando..."}</h1>
           <p className="text-xs text-[#123b2c]/40">{themesQuery.data?.length ?? 0} temas</p>
         </div>
       </div>
@@ -60,16 +60,16 @@ function SendaDetailPage() {
                 <span className="text-[#2e9e5b] font-bold text-sm">{i + 1}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="font-semibold text-[#123b2c] truncate">{theme.title}</h2>
-                <p className="text-xs text-[#123b2c]/50 line-clamp-2 mt-1">{theme.summary}</p>
+                <h2 className="font-semibold text-[#123b2c] truncate">{theme.titulo}</h2>
+                <p className="text-xs text-[#123b2c]/50 line-clamp-2 mt-1">{theme.resumen}</p>
                 <div className="flex items-center gap-3 mt-2">
                   <span className="flex items-center gap-1 text-xs text-[#f4b740]">
                     <Zap size={14} />
-                    {theme.xp_reward} XP
+                    {theme.xp_recompensa} XP
                   </span>
                   <span className="flex items-center gap-1 text-xs text-[#123b2c]/40">
                     <Clock size={14} />
-                    {theme.estimated_minutes} min
+                    {theme.minutos_estimados} min
                   </span>
                 </div>
               </div>

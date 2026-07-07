@@ -11,10 +11,10 @@ function AdminDashboardPage() {
   const query = useQuery({ queryKey: ["admin", "dashboard"], queryFn: getAdminDashboard });
 
   const stats = [
-    { label: "Temas", value: query.data?.themes ?? 0, icon: BookOpen, color: "#2e9e5b" },
-    { label: "Publicados", value: query.data?.published ?? 0, icon: CheckCircle, color: "#17a398" },
-    { label: "Usuarios", value: query.data?.users ?? 0, icon: Users, color: "#3d8bd4" },
-    { label: "Actividades", value: query.data?.activities ?? 0, icon: Gamepad2, color: "#f4b740" }
+    { label: "Temas", value: query.data?.temas ?? 0, icon: BookOpen, color: "#2e9e5b" },
+    { label: "Publicados", value: query.data?.publicados ?? 0, icon: CheckCircle, color: "#17a398" },
+    { label: "Usuarios", value: query.data?.usuarios ?? 0, icon: Users, color: "#3d8bd4" },
+    { label: "Actividades", value: query.data?.actividades ?? 0, icon: Gamepad2, color: "#f4b740" }
   ];
 
   return (

@@ -10,8 +10,8 @@ export const Route = createFileRoute("/app/perfil")({
 function ProfilePage() {
   const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
 
-  const profile = meQuery.data?.profile;
-  const user = meQuery.data?.user;
+  const perfil = meQuery.data?.perfil;
+  const usuario = meQuery.data?.usuario;
 
   if (meQuery.isLoading) {
     return (
@@ -31,27 +31,27 @@ function ProfilePage() {
             <User className="text-[#2e9e5b]" size={32} />
           </div>
           <div>
-            <h2 className="font-bold text-lg text-[#123b2c]">{profile?.nickname ?? "Semillero"}</h2>
-            <p className="text-sm text-[#123b2c]/40">{user?.role ?? "usuario"}</p>
+            <h2 className="font-bold text-lg text-[#123b2c]">{perfil?.apodo ?? "Semillero"}</h2>
+            <p className="text-sm text-[#123b2c]/40">{usuario?.rol ?? "usuario"}</p>
           </div>
         </div>
 
         <div className="grid gap-4">
           <div>
             <label className="text-xs text-[#123b2c]/40 uppercase tracking-wide font-medium">Apodo</label>
-            <p className="text-[#123b2c] font-medium">{profile?.nickname ?? "—"}</p>
+            <p className="text-[#123b2c] font-medium">{perfil?.apodo ?? "—"}</p>
           </div>
           <div>
             <label className="text-xs text-[#123b2c]/40 uppercase tracking-wide font-medium">Franja de edad</label>
-            <p className="text-[#123b2c] font-medium">{profile?.age_group_id ?? "Sin franja"}</p>
+            <p className="text-[#123b2c] font-medium">{perfil?.grupo_edad_id ?? "Sin franja"}</p>
           </div>
           <div>
             <label className="text-xs text-[#123b2c]/40 uppercase tracking-wide font-medium">Audio preferido</label>
-            <p className="text-[#123b2c] font-medium">{profile?.preferred_audio ? "Sí" : "No"}</p>
+            <p className="text-[#123b2c] font-medium">{perfil?.prefiere_audio ? "Sí" : "No"}</p>
           </div>
           <div>
             <label className="text-xs text-[#123b2c]/40 uppercase tracking-wide font-medium">Tamaño de texto</label>
-            <p className="text-[#123b2c] font-medium">{profile?.preferred_text_size ?? "medium"}</p>
+            <p className="text-[#123b2c] font-medium">{perfil?.tamano_texto_preferido ?? "medium"}</p>
           </div>
         </div>
       </div>

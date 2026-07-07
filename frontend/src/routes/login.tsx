@@ -14,7 +14,7 @@ function LoginPage() {
   const guestMutation = useMutation({
     mutationFn: createGuestSession,
     onSuccess(data) {
-      sessionStorageApi.setGuestUserId(data.auth.headerValue);
+      sessionStorageApi.setGuestUserId(data.autenticacion.valor);
       navigate({ to: "/onboarding" });
     }
   });
@@ -22,7 +22,7 @@ function LoginPage() {
   const devAdminMutation = useMutation({
     mutationFn: setupDevAdmin,
     onSuccess(data) {
-      sessionStorageApi.setGuestUserId(data.user.id);
+      sessionStorageApi.setGuestUserId(data.usuario.id);
       navigate({ to: "/admin" });
     }
   });
@@ -40,7 +40,7 @@ function LoginPage() {
         </p>
 
         <button
-          onClick={() => guestMutation.mutate({ nickname: "Semillero" })}
+          onClick={() => guestMutation.mutate({ apodo: "Semillero" })}
           disabled={guestMutation.isPending}
           className="w-full bg-[#2e9e5b] text-white py-3 rounded-xl font-semibold text-base hover:bg-[#267d4c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >

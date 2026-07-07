@@ -12,13 +12,13 @@ function AppHomePage() {
   const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
   const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: getMyGamification });
 
-  const level = gamificationQuery.data?.level;
+  const nivel = gamificationQuery.data?.nivel;
 
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#123b2c]">
-          Hola, {meQuery.data?.profile?.nickname ?? "Semillero"}
+          Hola, {meQuery.data?.perfil?.apodo ?? "Semillero"}
         </h1>
         <p className="text-[#123b2c]/50 text-sm mt-1">Continúa creciendo en la Palabra</p>
       </div>
@@ -28,15 +28,15 @@ function AppHomePage() {
           <div className="w-10 h-10 bg-[#f4b740]/10 rounded-xl flex items-center justify-center mb-2">
             <Zap className="text-[#f4b740]" size={20} />
           </div>
-          <p className="text-2xl font-bold text-[#123b2c]">{level?.xp_total ?? 0}</p>
+          <p className="text-2xl font-bold text-[#123b2c]">{nivel?.xp_total ?? 0}</p>
           <p className="text-xs text-[#123b2c]/40">XP total</p>
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="w-10 h-10 bg-[#2e9e5b]/10 rounded-xl flex items-center justify-center mb-2">
             <TrendingUp className="text-[#2e9e5b]" size={20} />
           </div>
-          <p className="text-2xl font-bold text-[#123b2c]">{level?.level_number ?? 1}</p>
-          <p className="text-xs text-[#123b2c]/40">{level?.level_name ?? "Brote"}</p>
+          <p className="text-2xl font-bold text-[#123b2c]">{nivel?.numero_nivel ?? 1}</p>
+          <p className="text-xs text-[#123b2c]/40">{nivel?.nombre_nivel ?? "Brote"}</p>
         </div>
       </div>
 

@@ -1,38 +1,18 @@
 import { apiRequest } from "../../shared/api/http";
+import { construirActualizacionPerfil, type ActualizacionPerfilInput, type PerfilApi, type UsuarioApi } from "../../shared/api/contrato";
 
 export type MeResponse = {
-  user: {
-    id: string;
-    role: string;
-    displayName: string;
-    email: string | null;
-  };
-  profile: {
-    id: string;
-    user_id: string;
-    nickname: string | null;
-    age_group_id: string | null;
-    avatar_url: string | null;
-    preferred_audio: boolean;
-    preferred_text_size: string;
-  };
-};
-
-export type UpdateProfileRequest = {
-  nickname?: string;
-  ageGroupId?: string | null;
-  avatarUrl?: string | null;
-  preferredAudio?: boolean;
-  preferredTextSize?: "small" | "medium" | "large";
+  usuario: UsuarioApi;
+  perfil: PerfilApi;
 };
 
 export function getMe() {
-  return apiRequest<MeResponse>("/me");
+  return apiRequest<MeResponse>("/perfil");
 }
 
-export function updateProfile(payload: UpdateProfileRequest) {
-  return apiRequest("/me/profile", {
+export function updateProfile(payload: ActualizacionPerfilInput) {
+  return apiRequest<PerfilApi>("/perfil/actualizar", {
     method: "PATCH",
-    body: payload
+    body: construirActualizacionPerfil(payload)
   });
 }

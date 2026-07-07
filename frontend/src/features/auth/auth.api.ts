@@ -1,44 +1,34 @@
 import { apiRequest } from "../../shared/api/http";
+import {
+  construirAltaInvitado,
+  type AltaInvitadoInput,
+  type AutenticacionApi,
+  type PerfilApi,
+  type UsuarioApi
+} from "../../shared/api/contrato";
 
-export type GuestLoginRequest = {
-  nickname: string;
-  ageGroupId?: string;
-  avatarUrl?: string;
+export type SesionInvitadoRespuesta = {
+  usuario: UsuarioApi;
+  perfil: PerfilApi;
+  autenticacion: AutenticacionApi;
 };
 
-export type GuestLoginResponse = {
-  user: {
-    id: string;
-    role: string;
-    provider: string;
-    display_name: string;
-    email: string | null;
-  };
-  profile: unknown;
-  auth: {
-    type: "guest";
-    headerName: "X-Guest-User-Id";
-    headerValue: string;
-  };
-};
-
-export function createGuestSession(payload: GuestLoginRequest) {
-  return apiRequest<GuestLoginResponse>("/auth/guest", {
+export function createGuestSession(payload: AltaInvitadoInput) {
+  return apiRequest<SesionInvitadoRespuesta>("/autenticacion/invitado", {
     method: "POST",
-    body: payload,
+    body: construirAltaInvitado(payload),
     auth: false
   });
 }
 
-export type SetupDevResponse = {
-  user: { id: string; role: string; provider: string; display_name: string; email: string | null };
-  profile: unknown;
-  message: string;
-  localStorage: string;
+export type ConfiguracionDevRespuesta = {
+  usuario: UsuarioApi;
+  perfil: PerfilApi;
+  mensaje: string;
 };
 
 export function setupDevAdmin() {
-  return apiRequest<SetupDevResponse>("/auth/setup-dev", {
+  return apiRequest<ConfiguracionDevRespuesta>("/autenticacion/configuracion-dev", {
     method: "POST",
     auth: false
   });

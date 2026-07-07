@@ -14,7 +14,7 @@ function NewThemePage() {
   const navigate = useNavigate();
 
   const { register, handleSubmit } = useForm<CreateThemeRequest>({
-    defaultValues: { estimatedMinutes: 15, xpReward: 50, ageGroupIds: [] }
+    defaultValues: { minutos_estimados: 15, xp_recompensa: 50, grupo_edad_ids: [] }
   });
 
   const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: getSendas });
@@ -34,19 +34,19 @@ function NewThemePage() {
 
       <h1 className="text-2xl font-bold text-[#123b2c] mb-6">Nuevo tema</h1>
 
-      <form
+        <form
         onSubmit={handleSubmit((values) =>
           createMutation.mutate({
             ...values,
-            estimatedMinutes: Number(values.estimatedMinutes),
-            xpReward: Number(values.xpReward)
+            minutos_estimados: Number(values.minutos_estimados),
+            xp_recompensa: Number(values.xp_recompensa)
           })
         )}
         className="grid gap-4 max-w-2xl"
       >
         <div>
           <label className="text-sm font-medium text-[#123b2c] mb-1 block">Título</label>
-          <input {...register("title", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" placeholder="El amor de Dios" />
+          <input {...register("titulo", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" placeholder="El amor de Dios" />
         </div>
 
         <div>
@@ -57,52 +57,52 @@ function NewThemePage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-[#123b2c] mb-1 block">Senda</label>
-            <select {...register("pathId", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm">
+            <select {...register("senda_id", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm">
               <option value="">Seleccionar</option>
-              {sendasQuery.data?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {sendasQuery.data?.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
             </select>
           </div>
           <div>
             <label className="text-sm font-medium text-[#123b2c] mb-1 block">Versión bíblica</label>
-            <select {...register("bibleVersionId", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm">
+            <select {...register("version_biblica_id", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm">
               <option value="">Seleccionar</option>
-              {bibleVersionsQuery.data?.map((v) => <option key={v.id} value={v.id}>{v.code}</option>)}
+              {bibleVersionsQuery.data?.map((v) => <option key={v.id} value={v.id}>{v.codigo}</option>)}
             </select>
           </div>
         </div>
 
         <div>
           <label className="text-sm font-medium text-[#123b2c] mb-1 block">Objetivo</label>
-          <textarea {...register("objective", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" rows={3} placeholder="Que el niño comprenda..." />
+          <textarea {...register("objetivo", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" rows={3} placeholder="Que el niño comprenda..." />
         </div>
 
         <div>
           <label className="text-sm font-medium text-[#123b2c] mb-1 block">Resumen</label>
-          <textarea {...register("summary", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" rows={2} placeholder="Breve descripción del tema..." />
+          <textarea {...register("resumen", { required: true })} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30" rows={2} placeholder="Breve descripción del tema..." />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-[#123b2c] mb-1 block">Duración (min)</label>
-            <input type="number" {...register("estimatedMinutes")} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
+            <input type="number" {...register("minutos_estimados")} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
           </div>
           <div>
             <label className="text-sm font-medium text-[#123b2c] mb-1 block">XP</label>
-            <input type="number" {...register("xpReward")} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
+            <input type="number" {...register("xp_recompensa")} className="w-full px-4 py-2.5 rounded-xl border border-[#e5e7eb] bg-white text-sm" />
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-[#123b2c] mb-2 block">Franjas de edad</label>
-          <div className="grid gap-2">
-            {ageGroupsQuery.data?.map((ag) => (
-              <label key={ag.id} className="flex items-center gap-2 text-sm text-[#123b2c]">
-                <input type="checkbox" value={ag.id} {...register("ageGroupIds")} className="rounded border-[#e5e7eb] text-[#2e9e5b] focus:ring-[#2e9e5b]" />
-                {ag.name} ({ag.min_age}-{ag.max_age} años)
-              </label>
-            ))}
+            <label className="text-sm font-medium text-[#123b2c] mb-2 block">Franjas de edad</label>
+            <div className="grid gap-2">
+              {ageGroupsQuery.data?.map((ag) => (
+                <label key={ag.id} className="flex items-center gap-2 text-sm text-[#123b2c]">
+                  <input type="checkbox" value={ag.id} {...register("grupo_edad_ids")} className="rounded border-[#e5e7eb] text-[#2e9e5b] focus:ring-[#2e9e5b]" />
+                  {ag.nombre} ({ag.edad_minima}-{ag.edad_maxima} años)
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
 
         <button
           type="submit"

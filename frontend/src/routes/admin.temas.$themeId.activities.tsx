@@ -24,16 +24,16 @@ function AdminThemeActivitiesPage() {
   const [selectedActivityTypeId, setSelectedActivityTypeId] = useState("");
   const [feedback, setFeedback] = useState("");
   const [options, setOptions] = useState([
-    { label: "A", text: "", isCorrect: false, sortOrder: 1 },
-    { label: "B", text: "", isCorrect: false, sortOrder: 2 },
-    { label: "C", text: "", isCorrect: false, sortOrder: 3 },
-    { label: "D", text: "", isCorrect: false, sortOrder: 4 }
+    { etiqueta: "A", texto: "", correcta: false, orden: 1 },
+    { etiqueta: "B", texto: "", correcta: false, orden: 2 },
+    { etiqueta: "C", texto: "", correcta: false, orden: 3 },
+    { etiqueta: "D", texto: "", correcta: false, orden: 4 }
   ]);
 
   const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () => getThemeActivities(themeId, meQuery.data?.profile?.age_group_id ?? undefined),
+    queryFn: () => getThemeActivities(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: !!meQuery.data
   });
   const stepsQuery = useQuery({
@@ -49,24 +49,32 @@ function AdminThemeActivitiesPage() {
     mutationFn: () => {
       if (!selectedStepId || !selectedActivityTypeId) throw new Error("Faltan campos");
       return createActivity({
-        themeId,
-        stepId: selectedStepId,
-        ageGroupId: meQuery.data?.profile?.age_group_id ?? "",
-        activityTypeId: selectedActivityTypeId,
-        title,
-        prompt,
-        feedback: feedback || undefined,
-        sortOrder: (activitiesQuery.data?.length ?? 0) + 1,
-        xpReward,
-        difficulty: "easy",
-        options
+        tema_id: themeId,
+        paso_id: selectedStepId,
+        grupo_edad_id: meQuery.data?.perfil?.grupo_edad_id ?? "",
+        tipo_actividad_id: selectedActivityTypeId,
+        titulo: title,
+        consigna: prompt,
+        retroalimentacion: feedback || undefined,
+        orden: (activitiesQuery.data?.length ?? 0) + 1,
+        xp_recompensa: xpReward,
+        difficulty: "facil",
+        obligatorio: true,
+        configuracion: {},
+        opciones: options.map((option, index) => ({
+          etiqueta: option.etiqueta,
+          texto: option.texto,
+          correcta: option.correcta,
+          orden: index + 1,
+          retroalimentacion: undefined
+        }))
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId, "activities"] });
       setShowForm(false);
       setTitle(""); setPrompt(""); setXpReward(10); setFeedback("");
-      setOptions([{ label: "A", text: "", isCorrect: false, sortOrder: 1 }, { label: "B", text: "", isCorrect: false, sortOrder: 2 }, { label: "C", text: "", isCorrect: false, sortOrder: 3 }, { label: "D", text: "", isCorrect: false, sortOrder: 4 }]);
+      setOptions([{ etiqueta: "A", texto: "", correcta: false, orden: 1 }, { etiqueta: "B", texto: "", correcta: false, orden: 2 }, { etiqueta: "C", texto: "", correcta: false, orden: 3 }, { etiqueta: "D", texto: "", correcta: false, orden: 4 }]);
     }
   });
 
@@ -95,11 +103,11 @@ function AdminThemeActivitiesPage() {
           <div className="grid grid-cols-2 gap-3">
             <select value={selectedStepId} onChange={(e) => setSelectedStepId(e.target.value)} className="px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm">
               <option value="">Paso CRECER</option>
-              {stepsQuery.data?.map((s) => <option key={s.id} value={s.id}>{s.step_type.name}</option>)}
+              {stepsQuery.data?.map((s) => <option key={s.id} value={s.id}>{s.tipo_paso?.nombre}</option>)}
             </select>
             <select value={selectedActivityTypeId} onChange={(e) => setSelectedActivityTypeId(e.target.value)} className="px-4 py-2.5 rounded-xl border border-[#e5e7eb] text-sm">
               <option value="">Tipo</option>
-              {activityTypesQuery.data?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              {activityTypesQuery.data?.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
             </select>
           </div>
 
@@ -115,10 +123,10 @@ function AdminThemeActivitiesPage() {
             <label className="text-sm font-medium text-[#123b2c] mb-2 block">Opciones</label>
             {options.map((opt, i) => (
               <div key={i} className="flex items-center gap-2 mb-2">
-                <span className="w-6 text-sm font-bold text-[#123b2c]">{opt.label}.</span>
-                <input placeholder={`Opción ${opt.label}`} value={opt.text} onChange={(e) => setOptions(options.map((o, j) => j === i ? { ...o, text: e.target.value } : o))} className="flex-1 px-3 py-2 rounded-xl border border-[#e5e7eb] text-sm" />
+                <span className="w-6 text-sm font-bold text-[#123b2c]">{opt.etiqueta}.</span>
+                <input placeholder={`Opción ${opt.etiqueta}`} value={opt.texto} onChange={(e) => setOptions(options.map((o, j) => j === i ? { ...o, texto: e.target.value } : o))} className="flex-1 px-3 py-2 rounded-xl border border-[#e5e7eb] text-sm" />
                 <label className="flex items-center gap-1 text-xs text-[#2e9e5b] whitespace-nowrap">
-                  <input type="radio" name="correctOption" checked={opt.isCorrect} onChange={() => setOptions(options.map((o, j) => ({ ...o, isCorrect: j === i })))} />
+                  <input type="radio" name="correctOption" checked={opt.correcta} onChange={() => setOptions(options.map((o, j) => ({ ...o, correcta: j === i })))} />
                   Correcta
                 </label>
               </div>
@@ -144,20 +152,20 @@ function AdminThemeActivitiesPage() {
           <div key={activity.id} className="bg-white rounded-xl p-4 shadow-sm border border-[#e5e7eb]">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-[#123b2c]">{activity.title}</h3>
-                <p className="text-sm text-[#123b2c]/60 mt-0.5 line-clamp-2">{activity.prompt}</p>
-                <span className="text-xs text-[#f4b740] font-medium mt-1 inline-block">{activity.xp_reward} XP</span>
+                <h3 className="font-semibold text-[#123b2c]">{activity.titulo}</h3>
+                <p className="text-sm text-[#123b2c]/60 mt-0.5 line-clamp-2">{activity.consigna}</p>
+                <span className="text-xs text-[#f4b740] font-medium mt-1 inline-block">{activity.xp_recompensa} XP</span>
               </div>
               <button onClick={() => deleteMutation.mutate(activity.id)} className="p-2 text-[#ee6c4d] hover:bg-[#ee6c4d]/10 rounded-lg transition-colors">
                 <Trash2 size={16} />
               </button>
             </div>
 
-            {activity.options.length > 0 && (
+            {activity.opciones.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {activity.options.map((opt) => (
-                  <span key={opt.id} className={`text-xs px-2 py-1 rounded-md ${opt.is_correct ? "bg-[#2e9e5b]/10 text-[#2e9e5b]" : "bg-[#f7f4ec] text-[#123b2c]/50"}`}>
-                    {opt.label}. {opt.text} {opt.is_correct ? "✓" : ""}
+                {activity.opciones.map((opt) => (
+                  <span key={opt.id} className={`text-xs px-2 py-1 rounded-md ${opt.correcta ? "bg-[#2e9e5b]/10 text-[#2e9e5b]" : "bg-[#f7f4ec] text-[#123b2c]/50"}`}>
+                    {opt.etiqueta}. {opt.texto} {opt.correcta ? "✓" : ""}
                   </span>
                 ))}
               </div>

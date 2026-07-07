@@ -1,54 +1,55 @@
 import { apiRequest } from "../../shared/api/http";
-import type { Theme, ThemeStep, Activity } from "../themes/themes.api";
+import type { Theme, ThemeStep } from "../themes/themes.api";
 
 export type CreateThemeRequest = {
-  pathId: string;
-  title: string;
+  senda_id: string;
+  titulo: string;
   slug: string;
-  objective: string;
-  summary: string;
-  bibleVersionId: string;
-  estimatedMinutes: number;
-  xpReward: number;
-  ageGroupIds: string[];
+  objetivo: string;
+  resumen: string;
+  version_biblica_id: string;
+  minutos_estimados: number;
+  xp_recompensa: number;
+  grupo_edad_ids: string[];
 };
 
 export type UpdateThemeRequest = {
-  title?: string;
-  objective?: string;
-  summary?: string;
-  estimatedMinutes?: number;
-  xpReward?: number;
-  bibleVersionId?: string;
-  ageGroupIds?: string[];
+  titulo?: string;
+  objetivo?: string;
+  resumen?: string;
+  minutos_estimados?: number;
+  xp_recompensa?: number;
+  version_biblica_id?: string;
+  grupo_edad_ids?: string[];
 };
 
 export type UpsertStepContentRequest = {
-  stepTypeId: string;
-  ageGroupId: string;
-  title: string;
-  body: string;
-  shortInstruction?: string;
+  tipo_paso_id: string;
+  grupo_edad_id: string;
+  titulo: string;
+  cuerpo: string;
+  instruccion_corta?: string;
 };
 
 export type CreateActivityRequest = {
-  themeId: string;
-  stepId: string;
-  ageGroupId: string;
-  activityTypeId: string;
-  title: string;
-  prompt: string;
-  feedback?: string;
-  sortOrder: number;
-  xpReward: number;
-  difficulty: "easy" | "normal" | "hard";
-  config?: Record<string, unknown>;
-  options: Array<{
-    label: string;
-    text: string;
-    isCorrect: boolean;
-    sortOrder: number;
-    feedback?: string;
+  tema_id: string;
+  paso_id?: string | null;
+  grupo_edad_id: string;
+  tipo_actividad_id: string;
+  titulo: string;
+  consigna: string;
+  retroalimentacion?: string;
+  orden: number;
+  xp_recompensa: number;
+  difficulty: "facil" | "normal" | "dificil";
+  obligatorio: boolean;
+  configuracion?: Record<string, unknown>;
+  opciones: Array<{
+    etiqueta: string;
+    texto: string;
+    correcta: boolean;
+    orden: number;
+    retroalimentacion?: string;
   }>;
 };
 
@@ -56,70 +57,70 @@ export type UpdateActivityRequest = Partial<CreateActivityRequest>;
 
 export function getAdminDashboard() {
   return apiRequest<{
-    themes: number;
-    published: number;
-    users: number;
-    activities: number;
-  }>("/admin/dashboard");
+    temas: number;
+    publicados: number;
+    usuarios: number;
+    actividades: number;
+  }>("/administracion/resumen");
 }
 
 export function getAdminTheme(themeId: string) {
-  return apiRequest<Theme>(`/admin/themes/${themeId}`);
+  return apiRequest<Theme>(`/administracion/temas/${themeId}`);
 }
 
 export function getAdminThemeSteps(themeId: string) {
-  return apiRequest<ThemeStep[]>(`/admin/themes/${themeId}/steps`);
+  return apiRequest<ThemeStep[]>(`/administracion/temas/${themeId}/pasos`);
 }
 
 export function createTheme(payload: CreateThemeRequest) {
-  return apiRequest<Theme>("/admin/themes", {
+  return apiRequest<Theme>("/administracion/temas", {
     method: "POST",
     body: payload
   });
 }
 
 export function updateTheme(themeId: string, payload: UpdateThemeRequest) {
-  return apiRequest<Theme>(`/admin/themes/${themeId}`, {
+  return apiRequest<Theme>(`/administracion/temas/${themeId}`, {
     method: "PATCH",
     body: payload
   });
 }
 
 export function upsertThemeStep(themeId: string, payload: UpsertStepContentRequest) {
-  return apiRequest(`/admin/themes/${themeId}/steps`, {
+  return apiRequest(`/administracion/temas/${themeId}/pasos`, {
     method: "POST",
     body: payload
   });
 }
 
 export function publishTheme(themeId: string) {
-  return apiRequest<Theme>(`/admin/themes/${themeId}/publish`, {
+  return apiRequest<Theme>(`/administracion/temas/${themeId}/publicar`, {
     method: "POST"
   });
 }
 
 export function unpublishTheme(themeId: string) {
-  return apiRequest<Theme>(`/admin/themes/${themeId}/draft`, {
+  return apiRequest<Theme>(`/administracion/temas/${themeId}/borrador`, {
     method: "POST"
   });
 }
 
 export function createActivity(payload: CreateActivityRequest) {
-  return apiRequest("/admin/activities", {
+  return apiRequest("/administracion/actividades", {
     method: "POST",
     body: payload
   });
 }
 
 export function updateActivity(activityId: string, payload: UpdateActivityRequest) {
-  return apiRequest(`/admin/activities/${activityId}`, {
+  return apiRequest(`/administracion/actividades/${activityId}`, {
     method: "PATCH",
     body: payload
   });
 }
 
 export function deleteActivity(activityId: string) {
-  return apiRequest(`/admin/activities/${activityId}`, {
+  return apiRequest(`/administracion/actividades/${activityId}`, {
     method: "DELETE"
   });
 }

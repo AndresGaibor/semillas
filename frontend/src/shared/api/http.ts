@@ -1,16 +1,7 @@
 import { env } from "../config/env";
 import { ApiError } from "./api-error";
 import { sessionStorageApi } from "./session";
-
-type ApiResponse<T> = {
-  ok: boolean;
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-  };
-  [key: string]: unknown;
-};
+import { desenvolverRespuesta, type RespuestaApi } from "./contrato";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -47,15 +38,15 @@ export async function apiRequest<T>(
     body: options.body ? JSON.stringify(options.body) : undefined
   });
 
-  const payload = (await response.json().catch(() => null)) as ApiResponse<T> | null;
+  const payload = (await response.json().catch(() => null)) as RespuestaApi<T> | null;
 
-  if (!response.ok || !payload?.ok) {
+  if (!response.ok || !payload) {
     throw new ApiError(
       response.status,
-      payload?.error?.message ?? "Error inesperado",
+      !payload || payload.exito ? "Error inesperado" : payload.error,
       payload
     );
   }
 
-  return payload.data as T;
+  return desenvolverRespuesta(payload);
 }

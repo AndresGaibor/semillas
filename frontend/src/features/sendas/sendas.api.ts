@@ -1,14 +1,7 @@
 import { apiRequest } from "../../shared/api/http";
+import type { SendaApi } from "../../shared/api/contrato";
 
-export type Senda = {
-  id: string;
-  code: string;
-  name: string;
-  description: string | null;
-  color_hex: string;
-  icon_name: string | null;
-  sort_order: number;
-};
+export type Senda = SendaApi;
 
 export function getSendas() {
   return apiRequest<Senda[]>("/sendas", {
