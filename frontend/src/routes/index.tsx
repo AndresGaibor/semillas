@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/componentes/ui/button";
 import "../estilos.css";
 import "../landing.css";
 

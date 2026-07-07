@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/componentes/ui/button";
 
 type AppAccountMenuProps = {
   nombreVisible: string;

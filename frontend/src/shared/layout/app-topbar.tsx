@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/componentes/ui/button";
 import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/profile/profile.api";
 

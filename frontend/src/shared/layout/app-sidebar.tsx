@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/componentes/ui/button";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 
 type AppSidebarProps = {
