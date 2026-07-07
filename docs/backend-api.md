@@ -8,10 +8,10 @@ Hono (Cloudflare Workers) → Supabase PostgreSQL
 
 - **Runtime**: Cloudflare Workers (Wrangler)
 - **Framework**: Hono v4
-- **ORM/Client**: Supabase JS (`supabase-js`)
+- **Cliente DB**: Supabase JS (`supabase-js`)
 - **Validación**: Zod + `@hono/zod-validator`
-- **Auth**: Supabase Auth + guest mode (`X-Guest-User-Id`)
-- **Tipos**: Tipos TypeScript generados desde Supabase (`database.types.ts`)
+- **Auth**: Supabase Auth + modo invitado (`X-Guest-User-Id`)
+- **Tipos**: TypeScript generados desde Supabase (`database.types.ts`)
 
 ---
 
@@ -31,25 +31,23 @@ Supabase PostgreSQL
 2. `cors()` — CORS configurado desde `CORS_ORIGIN`
 3. `db` — inyecta `createSupabaseAdmin(env)` en cada request
 4. `authMiddleware` — autenticación opcional (Bearer token o X-Guest-User-Id)
-5. `requireRole(...roles)` — protección por rol
+5. `requireRole(...)` — protección por rol
 6. `errorHandler` — captura `HttpError` y responde JSON consistente
 
-### Response format
+### Formato de respuesta
 
 ```json
 {
-  "ok": true,
-  "data": { ... }
+  "exito": true,
+  "datos": { }
 }
 ```
 
 ```json
 {
-  "ok": false,
-  "error": {
-    "code": "NOT_FOUND",
-    "message": "Tema no encontrado"
-  }
+  "exito": false,
+  "error": "Tema no encontrado",
+  "codigo": "NO_ENCONTRADO"
 }
 ```
 
@@ -60,33 +58,33 @@ Supabase PostgreSQL
 ### Health
 
 ```
-GET  /                     → { ok, name, version }
-GET  /health               → { ok, status, env }
+GET  /                     → { exito, nombre, version }
+GET  /health               → { exito, estado, entorno }
 ```
 
 ### Catálogo
 
 ```
-GET  /catalog/age-groups     → Franjas: Semillas (5-8), Exploradores (9-12), Embajadores (13-17)
-GET  /catalog/activity-types → Tipos: quiz, flashcards, completar, etc.
-GET  /catalog/crecer-steps   → Pasos CRECER con colores
-GET  /catalog/bible-versions → Versiones bíblicas (TLA, RVR, NVI)
+GET  /catalogo/grupos-etarios   → Franjas: Semillas (5-8), Exploradores (9-12), Embajadores (13-17)
+GET  /catalogo/tipos-actividad  → Tipos: quiz, flashcards, completar, etc.
+GET  /catalogo/pasos-crecer     → Pasos CRECER con colores
+GET  /catalogo/versiones-biblicas → Versiones bíblicas (TLA, RVR, NVI)
 ```
 
-### Auth
+### Autenticación
 
 ```
-POST /auth/guest            → Crea usuario invitado + perfil
-  Body: { nickname, ageGroupId?, avatarUrl? }
-  Response: { user, profile, auth: { headerName, headerValue } }
+POST /autenticacion/invitado            → Crea usuario invitado + perfil
+  Cuerpo: { apodo, grupo_edad_id?, url_avatar? }
+  Respuesta: { usuario, perfil, autenticacion: { nombre_cabecera, valor_cabecera } }
 ```
 
 ### Perfil
 
 ```
-GET  /me                    → Perfil del usuario autenticado
-PATCH /me/profile           → Actualizar perfil
-  Headers: X-Guest-User-Id | Authorization: Bearer <token>
+GET  /perfil                → Perfil del usuario autenticado
+PATCH /perfil/actualizar    → Actualizar perfil
+  Cabeceras: X-Guest-User-Id | Authorization: Bearer <token>
 ```
 
 ### Sendas
@@ -98,48 +96,48 @@ GET  /sendas                → Sendas activas (Padre, Hijo, Espíritu Santo)
 ### Temas
 
 ```
-GET  /themes                 → Temas publicados (usa vista v_theme_public)
-GET  /themes?pathId=ID       → Temas filtrados por senda
-GET  /themes/:id             → Detalle con path, cover, key_verse, bible_reference
-GET  /themes/:id/steps       → Pasos CRECER del tema
-GET  /themes/:id/steps?ageGroupId=ID  → Pasos filtrados por franja
-GET  /themes/:id/activities  → Actividades del tema
-GET  /themes/:id/activities?ageGroupId=ID  → Actividades filtradas
+GET  /temas                  → Temas publicados (usa vista v_temas_publicos)
+GET  /temas?senda_id=ID      → Temas filtrados por senda
+GET  /temas/:tema_id         → Detalle con senda, portada, versiculo_clave, referencia_biblica
+GET  /temas/:tema_id/pasos   → Pasos CRECER del tema
+GET  /temas/:tema_id/pasos?grupo_edad_id=ID   → Pasos filtrados por franja
+GET  /temas/:tema_id/actividades  → Actividades del tema
+GET  /temas/:tema_id/actividades?grupo_edad_id=ID  → Actividades filtradas
 ```
 
 ### Actividades
 
 ```
-GET  /activities/:id         → Detalle de actividad con opciones
-POST /activities/:id/answer  → Responder actividad (autenticado)
-  Headers: X-Guest-User-Id
-  Body: { clientEventId, selectedOptionId?, answerText? }
-  Response: { result: { isCorrect, xpAwarded } }
+GET  /actividades/:actividad_id        → Detalle de actividad con opciones
+POST /actividades/:actividad_id/responder  → Responder actividad (autenticado)
+  Cabeceras: X-Guest-User-Id
+  Cuerpo: { evento_id_cliente, opcion_id_seleccionada?, texto_respuesta?, ocurrido_en_cliente?, dispositivo_id? }
+  Respuesta: { resultado: { correcta, xp_otorgada } }
 ```
 
 ### Progreso
 
 ```
-GET  /progress/me            → Progreso del usuario (temas + actividades)
-POST /progress/events        → Enviar evento de progreso
-  Body: { clientEventId, eventType, themeId?, stepId?, activityId?, ... }
-  - Idempotente: si clientEventId ya existe, devuelve { duplicated: true }
+GET  /progreso/mi            → Progreso del usuario (temas + actividades)
+POST /progreso/eventos       → Enviar evento de progreso
+  Cuerpo: { evento_id_cliente, tipo_evento, tema_id?, paso_id?, actividad_id?, correcta?, puntaje?, xp_otorgada?, datos_payload?, ocurrido_en_cliente?, dispositivo_id? }
+  - Idempotente: si evento_id_cliente ya existe, devuelve { duplicado: true }
 ```
 
-### Admin / CMS (requiere rol admin)
+### Administración / CMS (requiere rol admin)
 
 ```
-GET  /admin/dashboard                  → Estadísticas: temas, usuarios, actividades
-POST /admin/themes                     → Crear tema en borrador
-POST /admin/themes/:id/steps           → Agregar paso CRECER con contenido por franja
-POST /admin/activities                 → Crear actividad con opciones (quiz)
-POST /admin/themes/:id/publish         → Publicar tema (borrador → publicado)
+GET  /administracion/resumen                 → Estadísticas: temas, usuarios, actividades
+POST /administracion/temas                   → Crear tema en borrador
+POST /administracion/temas/:tema_id/pasos    → Agregar paso CRECER con contenido por franja
+POST /administracion/actividades             → Crear actividad con opciones (quiz)
+POST /administracion/temas/:tema_id/publicar → Publicar tema (borrador → publicado)
 ```
 
 ### Gamificación
 
 ```
-GET  /gamification/me        → Nivel, XP total y logros del usuario
+GET  /gamificacion/mi        → Nivel, XP total y logros del usuario
 ```
 
 ---
@@ -149,9 +147,9 @@ GET  /gamification/me        → Nivel, XP total y logros del usuario
 ### Modo invitado (desarrollo/testing)
 
 ```
-POST /auth/guest  →  X-Guest-User-Id: <uuid>
+POST /autenticacion/invitado  →  X-Guest-User-Id: <uuid>
 
-GET /me
+GET /perfil
 X-Guest-User-Id: <uuid>
 ```
 
@@ -230,7 +228,7 @@ export const table = {
 | `CORS_ORIGIN`               | Origen permitido para CORS           |
 | `SUPABASE_URL`              | URL del proyecto Supabase            |
 | `SUPABASE_PUBLISHABLE_KEY`  | Anon key (pública)                   |
-| `SUPABASE_SERVER_KEY`       | Service role key (secreta)           |
+| `SUPABASE_SERVER_KEY`       | Clave de servicio (secreta)           |
 | `SUPABASE_PROJECT_REF`      | Referencia del proyecto              |
 
 Desarrollo: `.dev.vars`

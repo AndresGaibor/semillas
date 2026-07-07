@@ -256,7 +256,7 @@ apps/api/src/
 ├─ env.ts
 ├─ middleware/
 │  ├─ auth.middleware.ts
-│  ├─ role.middleware.ts
+│  ├─ autorizacion.middleware.ts
 │  ├─ error.middleware.ts
 │  └─ rate-limit.middleware.ts
 │
@@ -290,8 +290,8 @@ Las rutas Hono deben ser delgadas: validar con Zod, llamar caso de uso o servici
 Respuesta estándar:
 
 ```ts
-{ success: true, data: unknown, meta?: unknown }
-{ success: false, error: string, code?: string, details?: unknown }
+{ exito: true, datos: unknown, meta?: unknown }
+{ exito: false, error: string, codigo?: string, detalle?: unknown }
 ```
 
 Rutas principales:
@@ -299,37 +299,44 @@ Rutas principales:
 ```text
 GET    /health
 
-POST   /auth/session
-GET    /me
-PATCH  /me/profile
+POST   /autenticacion/invitado
+GET    /perfil
+PATCH  /perfil/actualizar
 
-GET    /public/config
-GET    /content/sendas
-GET    /content/temas
-GET    /content/temas/:id
-GET    /content/temas/:id/download
+GET    /catalogo/grupos-etarios
+GET    /sendas
+GET    /temas
+GET    /temas?senda_id=SENDA_ID
+GET    /temas/:tema_id
+GET    /temas/:tema_id/pasos
+GET    /temas/:tema_id/pasos?grupo_edad_id=GRUPO_EDAD_ID
+GET    /temas/:tema_id/actividades
+GET    /temas/:tema_id/actividades?grupo_edad_id=GRUPO_EDAD_ID
+GET    /actividades/:actividad_id
+POST   /actividades/:actividad_id/responder
 
-POST   /progress/events
-GET    /progress/me
-GET    /progress/me/summary
+POST   /progreso/eventos
+GET    /progreso/mi
 
 POST   /sync/push
 GET    /sync/pull?since=...
 
-POST   /cms/temas
-PATCH  /cms/temas/:id
-POST   /cms/temas/:id/submit-review
-POST   /cms/temas/:id/publish
-POST   /cms/media/upload-url
+POST   /administracion/temas
+PATCH  /administracion/temas/:tema_id
+POST   /administracion/temas/:tema_id/pasos
+PATCH  /administracion/temas/:tema_id/pasos/:paso_id
+POST   /administracion/temas/:tema_id/publicar
+POST   /administracion/actividades
 
-GET    /admin/users
-GET    /admin/reports/content
-GET    /admin/reports/progress
+GET    /administracion/resumen
+GET    /administracion/usuarios
+GET    /administracion/reportes/contenido
+GET    /administracion/reportes/progreso
 
-POST   /clubs
-POST   /clubs/join
-GET    /clubs/:id/ranking
-POST   /clubs/:id/challenges
+POST   /clubes
+POST   /clubes/unirse
+GET    /clubes/:id/clasificacion
+POST   /clubes/:id/retos
 ```
 
 ## Supabase
@@ -372,13 +379,13 @@ Ejemplo de evento idempotente:
 
 ```json
 {
-  "eventId": "uuid-local",
-  "type": "activity_completed",
-  "themeId": "...",
-  "activityId": "...",
-  "score": 80,
-  "xpEarned": 15,
-  "clientCreatedAt": "2026-07-04T00:00:00.000Z"
+  "evento_id_cliente": "uuid-local",
+  "tipo_evento": "activity_completed",
+  "tema_id": "...",
+  "actividad_id": "...",
+  "puntaje": 80,
+  "xp_otorgada": 15,
+  "creado_en_cliente": "2026-07-04T00:00:00.000Z"
 }
 ```
 
@@ -786,7 +793,7 @@ develop
 feature/auth
 feature/cms
 feature/offline-sync
-feature/gamification
+feature/gamificacion
 fix/...
 ```
 
@@ -905,7 +912,7 @@ Backend:
 - Hono
 - Zod
 - Supabase JS
-- Middleware de auth/roles
+- Middleware de autenticación y autorización
 - Sync service
 - Gamification service
 
