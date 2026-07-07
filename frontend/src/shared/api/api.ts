@@ -82,6 +82,7 @@ export interface GrupoEdad {
   edad_maxima: number;
   descripcion: string | null;
   orden: number;
+  imagen_url?: string | null;
 }
 
 export interface Tema {

@@ -29,24 +29,23 @@ type TemaUI = {
 };
 
 function usePortadasFirmadas(temas: Tema[]) {
-  const queries = useQueries({
+  return useQueries({
     queries: temas.map((t) => ({
       queryKey: ["tema-portada", t.id],
       queryFn: () => obtenerUrlPortadaTema(t.id),
       enabled: Boolean(t.portada_recurso?.id),
       retry: false,
       staleTime: 240_000
-    }))
+    })),
+    combine: (results) => {
+      const mapa = new Map<string, string | null>();
+      temas.forEach((t, index) => {
+        const resultado = results[index]?.data;
+        mapa.set(t.id, resultado?.url ?? null);
+      });
+      return mapa;
+    }
   });
-
-  return useMemo(() => {
-    const mapa = new Map<string, string | null>();
-    temas.forEach((t, index) => {
-      const resultado = queries[index]?.data;
-      mapa.set(t.id, resultado?.url ?? null);
-    });
-    return mapa;
-  }, [temas, queries]);
 }
 
 const PROGRESO_POR_TEMA: Record<string, number> = {
@@ -80,6 +79,8 @@ function PaginaTemas() {
   const [filtroTab, setFiltroTab] = useState<"todos" | "completados" | "progreso" | "favoritos">("todos");
   const [busqueda, setBusqueda] = useState("");
   const [favoritosLocales, setFavoritosLocales] = useState<Record<string, boolean>>({});
+  const [errorPortadaContinuar, setErrorPortadaContinuar] = useState(false);
+  const defaultTemaImg = "";
 
   const { data: temasApi, isLoading } = useQuery({
     queryKey: ["temas"],
@@ -264,15 +265,12 @@ function PaginaTemas() {
             <div className="flex flex-col gap-4">
               <div className="flex gap-3.5 items-center">
                 <div className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-slate-100">
-                  {temaParaContinuar.imagenUrl && !errorPortadaContinuar ? (
+                  {temaParaContinuar.imagenUrl ? (
                     <img
                       src={temaParaContinuar.imagenUrl}
                       alt={temaParaContinuar.titulo}
                       className="w-full h-full object-cover"
-                      onError={() => setErrorPortadaContinuar(true)}
                     />
-                  ) : temaParaContinuar.imagenUrl && errorPortadaContinuar ? (
-                    <img src={defaultTemaImg} alt={temaParaContinuar.titulo} className="w-full h-full object-cover" />
                   ) : (
                     <BookOpen className="size-6 text-primario" />
                   )}

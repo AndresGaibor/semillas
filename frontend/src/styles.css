@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -11,6 +12,13 @@
   --color-ambar: #e9a23b;
   --color-vida: #17a398;
   --color-admin-bg: #0f2a20;
+  
+  --color-primario: var(--color-primario, #2e9e5b);
+  --color-primario-palido: var(--color-primario-palido, #e8f5e9);
+  --color-primario-oscuro: var(--color-primario-oscuro, #2e7d32);
+  --color-neutro: var(--color-neutro, #5c5c5c);
+  --color-neutro-oscuro-max: var(--color-neutro-oscuro-max, #1a1a1a);
+  
   --font-family: Nunito, Inter, system-ui, sans-serif;
 }
 
