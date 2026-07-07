@@ -1,14 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import * as React from "react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Search, Filter, BookOpen, CheckCircle, Loader2, Flame, Play, Star, Route as RouteIcon, Compass, TrendingUp } from "lucide-react";
 import { obtenerTemas, obtenerUrlPortadaTema } from "@/features/themes/themes.api";
 import type { Tema } from "@/shared/api/api";
 import { CardLeccion } from "@/componentes/ui/card-leccion";
 import { Card } from "@/componentes/ui/card-base";
 import { Boton } from "@/componentes/ui/boton";
-import defaultTemaImg from "@/assets/images/temas/default-tema.png";
 
 export const Route = createFileRoute("/app/temas/")({
   component: PaginaTemas,
@@ -78,7 +77,6 @@ function mapearTema(t: Tema): TemaUI {
 }
 
 function PaginaTemas() {
-  const [errorPortadaContinuar, setErrorPortadaContinuar] = useState(false);
   const [filtroTab, setFiltroTab] = useState<"todos" | "completados" | "progreso" | "favoritos">("todos");
   const [busqueda, setBusqueda] = useState("");
   const [favoritosLocales, setFavoritosLocales] = useState<Record<string, boolean>>({});
