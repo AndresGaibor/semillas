@@ -102,7 +102,7 @@ adminRoutes.get("/temas", async (c) => {
 
   if (error) throw error;
 
-  return c.json({ ok: true, data: (data ?? []).map((theme) => mapTheme(theme as Record<string, unknown>)) });
+  return responderExito((data ?? []).map((theme) => mapTheme(theme as Record<string, unknown>)));
 });
 
 adminRoutes.get("/temas/:temaId", async (c) => {
@@ -117,7 +117,7 @@ adminRoutes.get("/temas/:temaId", async (c) => {
 
   if (error || !data) throw new NotFoundError("Tema no encontrado");
 
-  return c.json({ ok: true, data: mapTheme(data as Record<string, unknown>) });
+  return responderExito(mapTheme(data as Record<string, unknown>));
 });
 
 adminRoutes.post(
@@ -155,7 +155,7 @@ adminRoutes.post(
     const { error: ageError } = await db.from("tema_grupo_edad").insert(rows);
     if (ageError) throw ageError;
 
-    return c.json({ ok: true, data: mapTheme(theme as Record<string, unknown>) }, 201);
+    return responderExito(mapTheme(theme as Record<string, unknown>), 201);
   }
 );
 
@@ -193,7 +193,7 @@ adminRoutes.patch(
       await db.from("tema_grupo_edad").insert(rows);
     }
 
-    return c.json({ ok: true, data: mapTheme(theme as Record<string, unknown>) });
+    return responderExito(mapTheme(theme as Record<string, unknown>));
   }
 );
 
@@ -204,7 +204,7 @@ adminRoutes.delete("/temas/:temaId", async (c) => {
   const { error } = await db.from("tema").delete().eq("id", themeId);
   if (error) throw error;
 
-  return c.json({ ok: true, data: { deleted: true } });
+  return responderExito({ deleted: true });
 });
 
 adminRoutes.post(
@@ -256,18 +256,15 @@ adminRoutes.post(
 
     if (contentError) throw contentError;
 
-    return c.json({
-      ok: true,
-      data: {
-        step: mapStep(step as Record<string, unknown>),
-        content: {
-          id: String(content.id),
-          step_id: String(content.paso_id),
-          age_group_id: String(content.grupo_edad_id),
-          title: String(content.titulo),
-          body: String(content.cuerpo),
-          short_instruction: (content.instruccion_corta ?? null) as string | null
-        }
+    return responderExito({
+      step: mapStep(step as Record<string, unknown>),
+      content: {
+        id: String(content.id),
+        step_id: String(content.paso_id),
+        age_group_id: String(content.grupo_edad_id),
+        title: String(content.titulo),
+        body: String(content.cuerpo),
+        short_instruction: (content.instruccion_corta ?? null) as string | null
       }
     });
   }
@@ -289,7 +286,7 @@ adminRoutes.get("/temas/:temaId/pasos", async (c) => {
 
   if (error) throw error;
 
-    return c.json({ ok: true, data: (steps ?? []).map((step) => mapStep(step as Record<string, unknown>)) });
+    return responderExito((steps ?? []).map((step) => mapStep(step as Record<string, unknown>)));
 });
 
 adminRoutes.delete("/temas/:temaId/pasos/:tipoPasoId", async (c) => {
@@ -308,7 +305,7 @@ adminRoutes.delete("/temas/:temaId/pasos/:tipoPasoId", async (c) => {
   await db.from("contenido_paso_tema").delete().eq("paso_id", step.id);
   await db.from("paso_tema").delete().eq("id", step.id);
 
-  return c.json({ ok: true, data: { deleted: true } });
+  return responderExito({ deleted: true });
 });
 
 adminRoutes.post(
@@ -355,7 +352,7 @@ adminRoutes.post(
       if (optionsError) throw optionsError;
     }
 
-    return c.json({ ok: true, data: activity }, 201);
+    return responderExito(activity, 201);
   }
 );
 
@@ -405,7 +402,7 @@ adminRoutes.patch(
       if (insError) throw insError;
     }
 
-    return c.json({ ok: true, data: activity });
+    return responderExito(activity);
   }
 );
 
@@ -419,7 +416,7 @@ adminRoutes.delete("/actividades/:actividadId", async (c) => {
   const { error } = await db.from("actividad").delete().eq("id", activityId);
   if (error) throw error;
 
-  return c.json({ ok: true, data: { deleted: true } });
+  return responderExito({ deleted: true });
 });
 
 adminRoutes.post("/temas/:temaId/publicar", async (c) => {
@@ -454,7 +451,7 @@ adminRoutes.post("/temas/:temaId/publicar", async (c) => {
 
   if (error) throw error;
 
-    return c.json({ ok: true, data: mapTheme(data as Record<string, unknown>) });
+    return responderExito(mapTheme(data as Record<string, unknown>));
 });
 
 adminRoutes.post("/temas/:temaId/borrador", async (c) => {
@@ -473,5 +470,5 @@ adminRoutes.post("/temas/:temaId/borrador", async (c) => {
 
   if (error) throw error;
 
-    return c.json({ ok: true, data: mapTheme(data as Record<string, unknown>) });
+    return responderExito(mapTheme(data as Record<string, unknown>));
 });

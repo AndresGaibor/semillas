@@ -59,7 +59,7 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
 
   const { data: appUser, error: userError } = await db
     .from("usuario_app")
-    .select("id, rol, nombre_visible, correo")
+    .select("id, rol, proveedor, nombre_visible, correo")
     .eq("id_externo", user.id)
     .maybeSingle();
 
@@ -110,7 +110,7 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
     role: appUser.rol,
     displayName: appUser.nombre_visible,
     email: appUser.correo,
-    provider: "correo"
+    provider: appUser.proveedor
   });
 
   await next();

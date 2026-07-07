@@ -15,17 +15,21 @@ const ErrorResponse = z
 
 const HealthResponse = z
   .object({
-    ok: z.literal(true),
-    status: z.string().openapi({ description: "Estado del servidor", example: "healthy" }),
-    env: z.string().openapi({ description: "Entorno de ejecucion", example: "development" })
+    exito: z.literal(true),
+    datos: z.object({
+      estado: z.string().openapi({ description: "Estado del servidor", example: "healthy" }),
+      entorno: z.string().openapi({ description: "Entorno de ejecucion", example: "development" })
+    })
   })
   .openapi("HealthResponse");
 
 const RootResponse = z
   .object({
-    ok: z.literal(true),
-    name: z.string().openapi({ description: "Nombre de la API", example: "Semillas" }),
-    version: z.string().openapi({ description: "Version semantica", example: "0.1.0" })
+    exito: z.literal(true),
+    datos: z.object({
+      nombre: z.string().openapi({ description: "Nombre de la API", example: "Semillas" }),
+      version: z.string().openapi({ description: "Version semantica", example: "0.1.0" })
+    })
   })
   .openapi("RootResponse");
 
@@ -271,82 +275,82 @@ registry.registerPath({ method: "post", path: "/autenticacion/invitado", operati
 
 registry.registerPath({ method: "get", path: "/catalogo/grupos-etarios", operationId: "listAgeGroups", tags: ["catalogo"],
   summary: "Grupos etarios", description: "Semillas (5-8), Exploradores (9-12), Embajadores (13-17)",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(GrupoEdadSchema) }) } }, description: "Lista de grupos etarios" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(GrupoEdadSchema) }) } }, description: "Lista de grupos etarios" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/tipos-actividad", operationId: "listActivityTypes", tags: ["catalogo"],
   summary: "Tipos de actividad", description: "Quiz, flashcards, completar versiculo, etc.",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(TipoActividadSchema) }) } }, description: "Lista de tipos" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(TipoActividadSchema) }) } }, description: "Lista de tipos" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/libros-biblicos", operationId: "listBibleBooks", tags: ["catalogo"],
   summary: "Libros biblicos", description: "Listado completo de libros de la Biblia",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(z.object({ id: z.number(), name: z.string(), sort_order: z.number(), testament_id: z.number() })) }) } }, description: "Lista de libros" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ id: z.number(), name: z.string(), sort_order: z.number(), testament_id: z.number() })) }) } }, description: "Lista de libros" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/pasos-crecer", operationId: "listCrecerSteps", tags: ["catalogo"],
   summary: "Pasos CRECER", description: "Conectar, Relatar, Ensenar, Comprobar, Experimentar, Recompensar",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(CrecerStepType) }) } }, description: "Lista de pasos CRECER" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(CrecerStepType) }) } }, description: "Lista de pasos CRECER" } } });
 
 registry.registerPath({ method: "get", path: "/catalogo/versiones-biblicas", operationId: "listBibleVersions", tags: ["catalogo"],
   summary: "Versiones biblicas", description: "NVI, RVR60, PDT, etc.",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(z.object({ id: z.string().uuid(), code: z.string(), name: z.string(), is_public_domain: z.boolean() })) }) } }, description: "Lista de versiones" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(z.object({ id: z.string().uuid(), code: z.string(), name: z.string(), is_public_domain: z.boolean() })) }) } }, description: "Lista de versiones" } } });
 
 registry.registerPath({ method: "get", path: "/sendas", operationId: "listSendas", tags: ["sendas"],
   summary: "Listar sendas", description: "Padre (azul), Hijo (ambar) y Espiritu Santo (verde)",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(SendaSchema) }) } }, description: "Lista de sendas" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(SendaSchema) }) } }, description: "Lista de sendas" } } });
 
 registry.registerPath({ method: "get", path: "/temas", operationId: "listThemes", tags: ["temas"],
-  summary: "Listar temas publicos", description: "Filtrable por senda (?sendaId=uuid)",
-  request: { query: z.object({ sendaId: z.string().uuid().optional().openapi({ example: uuidExample }) }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(TemaResumido) }) } }, description: "Lista de temas" } } });
+  summary: "Listar temas publicos", description: "Filtrable por senda (?senda_id=uuid)",
+  request: { query: z.object({ senda_id: z.string().uuid().optional().openapi({ example: uuidExample }) }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(TemaResumido) }) } }, description: "Lista de temas" } } });
 
 registry.registerPath({ method: "get", path: "/temas/{temaId}", operationId: "getTheme", tags: ["temas"],
   summary: "Obtener tema completo", description: "Incluye senda, portada, versiculo clave y referencia biblica",
   request: { params: z.object({ temaId: z.string().uuid().openapi({ example: uuidExample }) }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: TemaDetallado }) } }, description: "Tema encontrado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Tema no encontrado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaDetallado }) } }, description: "Tema encontrado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Tema no encontrado" } } });
 
 registry.registerPath({ method: "get", path: "/temas/{temaId}/pasos", operationId: "getThemeSteps", tags: ["temas"],
-  summary: "Pasos CRECER de un tema", description: "Filtrar por grupo etario (?grupoEdadId=uuid)",
-  request: { params: z.object({ temaId: z.string().uuid() }), query: z.object({ grupoEdadId: z.string().uuid().optional() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(PasoCRECER) }) } }, description: "Pasos CRECER" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+  summary: "Pasos CRECER de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",
+  request: { params: z.object({ temaId: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(PasoCRECER) }) } }, description: "Pasos CRECER" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
 registry.registerPath({ method: "get", path: "/temas/{temaId}/actividades", operationId: "getThemeActivities", tags: ["temas"],
-  summary: "Actividades de un tema", description: "Filtrar por grupo etario (?grupoEdadId=uuid)",
-  request: { params: z.object({ temaId: z.string().uuid() }), query: z.object({ grupoEdadId: z.string().uuid().optional() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(ActividadSchema) }) } }, description: "Actividades del tema" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+  summary: "Actividades de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",
+  request: { params: z.object({ temaId: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ActividadSchema) }) } }, description: "Actividades del tema" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
 registry.registerPath({ method: "get", path: "/actividades/{actividadId}", operationId: "getActivity", tags: ["actividades"],
   summary: "Obtener actividad", description: "Actividad con opciones de respuesta y tipo",
   request: { params: z.object({ actividadId: z.string().uuid() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: ActividadSchema }) } }, description: "Actividad encontrada" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrada" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ActividadSchema }) } }, description: "Actividad encontrada" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrada" } } });
 
 registry.registerPath({ method: "get", path: "/perfil", operationId: "getMyProfile", tags: ["usuario"],
   summary: "Mi perfil", description: "Perfil completo del usuario autenticado",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.object({ user: z.object({ id: z.string().uuid(), role: z.string(), displayName: z.string(), email: z.string().nullable() }), profile: ProfileResponse }) }) } }, description: "Perfil del usuario" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ usuario: z.object({ id: z.string().uuid(), rol: z.string(), proveedor: z.string(), nombre_visible: z.string(), correo: z.string().nullable() }), perfil: ProfileResponse }) }) } }, description: "Perfil del usuario" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 registry.registerPath({ method: "patch", path: "/perfil/actualizar", operationId: "updateMyProfile", tags: ["usuario"],
   summary: "Actualizar perfil", description: "Actualiza apodo, avatar, grupo etario o preferencias",
   request: { body: { content: { "application/json": { schema: UpdateProfileBody } }, required: true } },
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: ProfileResponse }) } }, description: "Perfil actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ProfileResponse }) } }, description: "Perfil actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" } } });
 
 registry.registerPath({ method: "get", path: "/progreso/mi", operationId: "getMyProgress", tags: ["progreso"],
   summary: "Mi progreso", description: "Temas iniciados/completados y progreso de actividades",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.object({ themes: z.array(ProgresoTema), activities: z.array(ProgresoActividad) }) }) } }, description: "Progreso del usuario" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ progresos_tema: z.array(ProgresoTema), progresos_actividad: z.array(ProgresoActividad) }) }) } }, description: "Progreso del usuario" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 registry.registerPath({ method: "post", path: "/progreso/eventos", operationId: "postProgressEvent", tags: ["progreso"],
   summary: "Enviar evento de progreso", description: "Evento idempotente (clientEventId unico). No duplica XP si ya existe.",
   request: { body: { content: { "application/json": { schema: ProgressEventBody } }, required: true } },
-  responses: { 201: { content: { "application/json": { schema: z.object({ ok: z.literal(true), duplicated: z.literal(false), data: z.unknown() }) } }, description: "Evento nuevo registrado" }, 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), duplicated: z.literal(true), message: z.string() }) } }, description: "Evento duplicado (ya procesado)" } } });
+  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), duplicado: z.literal(false), datos: z.unknown() }) } }, description: "Evento nuevo registrado" }, 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), duplicado: z.literal(true), mensaje: z.string() }) } }, description: "Evento duplicado (ya procesado)" } } });
 
 registry.registerPath({ method: "get", path: "/clubes", operationId: "listClubs", tags: ["clubes"],
   summary: "Listar clubes", description: "Clubs publicos disponibles",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(ClubSchema) }) } }, description: "Lista de clubs" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubSchema) }) } }, description: "Lista de clubs" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 registry.registerPath({ method: "get", path: "/clubes/mios", operationId: "getMyClubs", tags: ["clubes"],
   summary: "Mis clubs", description: "Clubs del usuario autenticado",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.array(ClubSchema) }) } }, description: "Mis clubs" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubSchema) }) } }, description: "Mis clubs" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 registry.registerPath({ method: "get", path: "/gamificacion/mi", operationId: "getMyGamification", tags: ["gamificacion"],
   summary: "Mi estado de gamificacion", description: "Nivel, XP total, logros e insignias del usuario",
-  responses: { 200: { content: { "application/json": { schema: z.object({ ok: z.literal(true), data: z.object({ level: NivelUsuario, achievements: z.array(LogroUsuario) }) }) } }, description: "Estado de gamificacion" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ nivel: NivelUsuario, logros: z.array(LogroUsuario) }) }) } }, description: "Estado de gamificacion" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 

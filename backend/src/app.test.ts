@@ -27,6 +27,14 @@ const usuarioAdmin = {
   correo: null
 };
 
+const usuarioGoogle = {
+  id: "usuario-google-1",
+  rol: "usuario",
+  proveedor: "google",
+  nombre_visible: "Alma",
+  correo: "alma@example.com"
+};
+
 const perfilInvitado = {
   id: "perfil-1",
   usuario_id: usuarioInvitado.id,
@@ -58,8 +66,16 @@ function instalarMockSupabase() {
 
       if (metodo === "GET") {
         const idFiltro = url.searchParams.get("id") ?? "";
+        const idExternoFiltro = url.searchParams.get("id_externo") ?? "";
         if (idFiltro.includes(usuarioAdmin.id)) {
           return new Response(JSON.stringify(usuarioAdmin), {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          });
+        }
+
+        if (idFiltro.includes(usuarioGoogle.id) || idExternoFiltro.includes(usuarioGoogle.id)) {
+          return new Response(JSON.stringify(usuarioGoogle), {
             status: 200,
             headers: { "content-type": "application/json" }
           });
@@ -70,6 +86,23 @@ function instalarMockSupabase() {
           headers: { "content-type": "application/json" }
         });
       }
+    }
+
+    if (ruta.includes("/auth/v1/user")) {
+      return new Response(
+        JSON.stringify({
+          user: {
+            id: usuarioGoogle.id,
+            email: usuarioGoogle.correo,
+            app_metadata: { provider: usuarioGoogle.proveedor },
+            user_metadata: { full_name: usuarioGoogle.nombre_visible }
+          }
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        }
+      );
     }
 
     if (ruta.includes("/rest/v1/perfil")) {
@@ -415,15 +448,32 @@ describe("app routes", () => {
       }
     });
 
-    expect(await jsonResponse(responses[5])).toMatchObject({
-      exito: true,
-      datos: {
-        temas: expect.any(Number),
-        publicados: expect.any(Number),
-        usuarios: expect.any(Number),
-        actividades: expect.any(Number)
-      }
+    const adminBody = await jsonResponse(responses[5]);
+    expect(adminBody).toHaveProperty("exito", true);
+    expect(adminBody).toHaveProperty("datos");
+    expect(adminBody).not.toHaveProperty("ok");
+    expect(adminBody).not.toHaveProperty("data");
+    expect((adminBody as { datos: Record<string, unknown> }).datos).toMatchObject({
+      temas: expect.any(Number),
+      publicados: expect.any(Number),
+      usuarios: expect.any(Number),
+      actividades: expect.any(Number)
     });
+
+    const eliminarTema = await app.fetch(
+      new Request("http://localhost/administracion/temas/tema-1", {
+        method: "DELETE",
+        headers: { "x-guest-user-id": usuarioAdmin.id }
+      }),
+      env
+    );
+
+    expect(eliminarTema.status).toBe(200);
+    const eliminarTemaBody = await jsonResponse(eliminarTema);
+    expect(eliminarTemaBody).toHaveProperty("exito", true);
+    expect(eliminarTemaBody).toHaveProperty("datos", { deleted: true });
+    expect(eliminarTemaBody).not.toHaveProperty("ok");
+    expect(eliminarTemaBody).not.toHaveProperty("data");
 
     expect(await jsonResponse(responses[6])).toEqual({
       exito: true,
@@ -439,9 +489,45 @@ describe("app routes", () => {
     });
   });
 
+  it("preserva el proveedor real del usuario autenticado existente", async () => {
+    instalarMockSupabase();
+
+    const response = await app.fetch(
+      new Request("http://localhost/perfil", {
+        headers: { Authorization: "Bearer token-google" }
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+
+    const body = await jsonResponse(response);
+    expect(body).toEqual({
+      exito: true,
+      datos: {
+        usuario: {
+          id: usuarioGoogle.id,
+          rol: usuarioGoogle.rol,
+          proveedor: "google",
+          nombre_visible: usuarioGoogle.nombre_visible,
+          correo: usuarioGoogle.correo
+        },
+        perfil: perfilInvitado
+      }
+    });
+  });
+
   it("mantiene viva la ruta canónica /health", async () => {
     const response = await app.fetch(new Request("http://localhost/health"), env);
 
     expect(response.status).toBe(200);
+  });
+
+  it("rechaza aliases legacy con 404", async () => {
+    const rutasLegacy = ["/auth", "/me", "/themes", "/activities", "/progress", "/admin"];
+
+    const respuestas = await Promise.all(rutasLegacy.map((ruta) => app.fetch(new Request(`http://localhost${ruta}`), env)));
+
+    expect(respuestas.map((response) => response.status)).toEqual([404, 404, 404, 404, 404, 404]);
   });
 });
