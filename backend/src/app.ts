@@ -18,6 +18,8 @@ import { activitiesRoutes } from "./modules/activities/activities.routes";
 import { adminRoutes } from "./modules/admin/admin.routes";
 import { clubsRoutes } from "./modules/clubs/clubs.routes";
 import { gamificationRoutes } from "./modules/gamification/gamification.routes";
+import { mediaRoutes } from "./modules/media/media.routes";
+import { syncRoutes } from "./modules/sync/sync.routes";
 
 const app = new Hono<AppBindings>();
 
@@ -87,6 +89,8 @@ app.route("/actividades", activitiesRoutes);
 app.route("/administracion", adminRoutes);
 app.route("/clubes", clubsRoutes);
 app.route("/gamificacion", gamificationRoutes);
+app.route("/media", mediaRoutes);
+app.route("/sync", syncRoutes);
 
 app.onError(errorHandler);
 

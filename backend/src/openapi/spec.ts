@@ -323,6 +323,240 @@ const ProfileResponse = z.object({
   actualizado_en: z.string().datetime()
 }).openapi("ProfileResponse");
 
+// ─── Admin schemas ──────────────────────────────────────────────────────
+
+const AdminResumen = z.object({
+  temas: z.number().openapi({ description: "Total de temas", example: 10 }),
+  publicados: z.number().openapi({ description: "Temas publicados", example: 5 }),
+  usuarios: z.number().openapi({ description: "Total de usuarios", example: 100 }),
+  actividades: z.number().openapi({ description: "Total de actividades", example: 50 })
+}).openapi("AdminResumen");
+
+const AdminUserItem = z.object({
+  id: z.string().uuid().openapi({ description: "ID del usuario", example: uuidExample }),
+  rol: z.string().openapi({ description: "Rol del usuario", example: "usuario" }),
+  proveedor: z.string().openapi({ description: "Proveedor de autenticacion", example: "invitado" }),
+  nombre_visible: z.string().openapi({ description: "Nombre visible del usuario", example: "Aventurero123" }),
+  correo: z.string().nullable().openapi({ description: "Correo electronico", example: null }),
+  activo: z.boolean().openapi({ description: "Si el usuario esta activo", example: true }),
+  creado_en: z.string().datetime().openapi({ description: "Fecha de creacion", example: "2026-01-01T00:00:00.000Z" }),
+  actualizado_en: z.string().datetime().openapi({ description: "Fecha de actualizacion", example: "2026-01-01T00:00:00.000Z" }),
+  ultimo_login_en: z.string().datetime().nullable().openapi({ description: "Ultimo inicio de sesion", example: null }),
+  perfil: z.unknown().openapi({ description: "Perfil del usuario" })
+}).openapi("AdminUserItem");
+
+const AdminUpdateUserBody = z.object({
+  rol: z.enum(["administrador", "usuario", "invitado", "padre"]).optional().openapi({ description: "Nuevo rol del usuario", example: "usuario" }),
+  nombre_visible: z.string().min(2).max(60).optional().openapi({ description: "Nuevo nombre visible", example: "AventureroActualizado" })
+}).openapi("AdminUpdateUserBody");
+
+const AdminUserDeletedResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    eliminado: z.literal(true)
+  })
+}).openapi("AdminUserDeletedResponse");
+
+const AdminCreateThemeBody = z.object({
+  senda_id: z.string().uuid().openapi({ description: "ID de la senda", example: uuidExample }),
+  titulo: z.string().min(3).max(120).openapi({ description: "Titulo del tema", example: "La Creacion" }),
+  slug: z.string().min(3).max(140).openapi({ description: "Slug URL-friendly", example: "la-creacion" }),
+  objetivo: z.string().min(10).openapi({ description: "Objetivo de aprendizaje", example: "Que el nino entienda que Dios creo todo" }),
+  resumen: z.string().min(10).openapi({ description: "Resumen breve", example: "Dios creo el mundo en 7 dias" }),
+  version_biblica_id: z.string().uuid().openapi({ description: "ID de la version biblica", example: uuidExample }),
+  minutos_estimados: z.number().int().min(1).max(120).openapi({ description: "Duracion estimada en minutos", example: 15 }),
+  xp_recompensa: z.number().int().min(0).max(500).openapi({ description: "XP que otorga al completarlo", example: 50 }),
+  grupo_edad_ids: z.array(z.string().uuid()).min(1).openapi({ description: "IDs de grupos etarios", example: [uuidExample] })
+}).openapi("AdminCreateThemeBody");
+
+const AdminUpdateThemeBody = z.object({
+  titulo: z.string().min(3).max(120).optional().openapi({ description: "Titulo del tema", example: "La Creacion" }),
+  objetivo: z.string().min(10).optional().openapi({ description: "Objetivo de aprendizaje", example: "Que el nino entienda que Dios creo todo" }),
+  resumen: z.string().min(10).optional().openapi({ description: "Resumen breve", example: "Dios creo el mundo en 7 dias" }),
+  minutos_estimados: z.number().int().min(1).max(120).optional().openapi({ description: "Duracion estimada en minutos", example: 15 }),
+  xp_recompensa: z.number().int().min(0).max(500).optional().openapi({ description: "XP que otorga al completarlo", example: 50 }),
+  version_biblica_id: z.string().uuid().optional().openapi({ description: "ID de la version biblica", example: uuidExample }),
+  grupo_edad_ids: z.array(z.string().uuid()).min(1).optional().openapi({ description: "IDs de grupos etarios", example: [uuidExample] })
+}).openapi("AdminUpdateThemeBody");
+
+const AdminUpsertStepBody = z.object({
+  tipo_paso_id: z.string().uuid().openapi({ description: "ID del tipo de paso CRECER", example: uuidExample }),
+  grupo_edad_id: z.string().uuid().openapi({ description: "ID del grupo etario", example: uuidExample }),
+  titulo: z.string().min(2).max(120).openapi({ description: "Titulo del contenido", example: "Conectar" }),
+  cuerpo: z.string().min(5).openapi({ description: "Cuerpo del contenido en markdown", example: "Conecta con la historia biblica..." }),
+  instruccion_corta: z.string().optional().openapi({ description: "Instruccion corta", example: "Mira y escucha" })
+}).openapi("AdminUpsertStepBody");
+
+const AdminCreateActivityBody = z.object({
+  tema_id: z.string().uuid().openapi({ description: "ID del tema", example: uuidExample }),
+  paso_id: z.string().uuid().nullable().optional().openapi({ description: "ID del paso CRECER", example: uuidExample }),
+  grupo_edad_id: z.string().uuid().openapi({ description: "ID del grupo etario", example: uuidExample }),
+  tipo_actividad_id: z.string().uuid().openapi({ description: "ID del tipo de actividad", example: uuidExample }),
+  titulo: z.string().min(3).openapi({ description: "Titulo de la actividad", example: "Quien creo el mundo?" }),
+  consigna: z.string().min(3).openapi({ description: "Consigna o instruccion", example: "Selecciona la respuesta correcta" }),
+  retroalimentacion: z.string().optional().openapi({ description: "Retroalimentacion", example: "Muy bien!" }),
+  orden: z.number().int().min(1).openapi({ description: "Orden de visualizacion", example: 1 }),
+  xp_recompensa: z.number().int().min(0).openapi({ description: "XP que otorga", example: 15 }),
+  limite_tiempo_seg: z.number().int().positive().nullable().optional().openapi({ description: "Limite de tiempo en segundos", example: 30 }),
+  dificultad: z.enum(["facil", "normal", "dificil"]).openapi({ description: "Dificultad", example: "facil" }),
+  obligatorio: z.boolean().openapi({ description: "Si es obligatoria", example: true }),
+  configuracion: z.record(z.string(), z.unknown()).openapi({ description: "Configuracion adicional", example: {} }),
+  opciones: z.array(z.object({
+    etiqueta: z.string().max(5).openapi({ description: "Etiqueta de la opcion", example: "A" }),
+    texto: z.string().min(1).openapi({ description: "Texto de la opcion", example: "Dios" }),
+    correcta: z.boolean().openapi({ description: "Si es la respuesta correcta", example: true }),
+    orden: z.number().int().min(1).openapi({ description: "Orden de la opcion", example: 1 }),
+    retroalimentacion: z.string().optional().openapi({ description: "Retroalimentacion", example: "Correcto!" })
+  })).openapi({ description: "Opciones de respuesta" })
+}).openapi("AdminCreateActivityBody");
+
+const AdminUpdateActivityBody = z.object({
+  tema_id: z.string().uuid().optional().openapi({ description: "ID del tema", example: uuidExample }),
+  paso_id: z.string().uuid().nullable().optional().openapi({ description: "ID del paso CRECER", example: uuidExample }),
+  grupo_edad_id: z.string().uuid().optional().openapi({ description: "ID del grupo etario", example: uuidExample }),
+  tipo_actividad_id: z.string().uuid().optional().openapi({ description: "ID del tipo de actividad", example: uuidExample }),
+  titulo: z.string().min(3).optional().openapi({ description: "Titulo de la actividad", example: "Quien creo el mundo?" }),
+  consigna: z.string().min(3).optional().openapi({ description: "Consigna o instruccion", example: "Selecciona la respuesta correcta" }),
+  retroalimentacion: z.string().optional().openapi({ description: "Retroalimentacion", example: "Muy bien!" }),
+  orden: z.number().int().min(1).optional().openapi({ description: "Orden de visualizacion", example: 1 }),
+  xp_recompensa: z.number().int().min(0).optional().openapi({ description: "XP que otorga", example: 15 }),
+  limite_tiempo_seg: z.number().int().positive().nullable().optional().openapi({ description: "Limite de tiempo en segundos", example: 30 }),
+  dificultad: z.enum(["facil", "normal", "dificil"]).optional().openapi({ description: "Dificultad", example: "facil" }),
+  obligatorio: z.boolean().optional().openapi({ description: "Si es obligatoria", example: true }),
+  configuracion: z.record(z.string(), z.unknown()).optional().openapi({ description: "Configuracion adicional", example: {} }),
+  opciones: z.array(z.object({
+    etiqueta: z.string().max(5).openapi({ description: "Etiqueta de la opcion", example: "A" }),
+    texto: z.string().min(1).openapi({ description: "Texto de la opcion", example: "Dios" }),
+    correcta: z.boolean().openapi({ description: "Si es la respuesta correcta", example: true }),
+    orden: z.number().int().min(1).openapi({ description: "Orden de la opcion", example: 1 }),
+    retroalimentacion: z.string().optional().openapi({ description: "Retroalimentacion", example: "Correcto!" })
+  })).optional().openapi({ description: "Opciones de respuesta" })
+}).openapi("AdminUpdateActivityBody");
+
+const AdminStepWithContentResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    paso: PasoTemaCrecerSchema,
+    contenido: z.object({
+      id: z.string().uuid().openapi({ example: uuidExample }),
+      paso_id: z.string().uuid().openapi({ example: uuidExample }),
+      grupo_edad_id: z.string().uuid().openapi({ example: uuidExample }),
+      titulo: z.string().openapi({ example: "Conectar" }),
+      cuerpo: z.string().openapi({ example: "Contenido del paso..." }),
+      instruccion_corta: z.string().nullable().openapi({ example: "Mira y escucha" })
+    })
+  })
+}).openapi("AdminStepWithContentResponse");
+
+const DeletedResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    deleted: z.literal(true)
+  })
+}).openapi("DeletedResponse");
+
+// ─── Auth dev schema ──────────────────────────────────────────────────
+
+const AuthDevResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    usuario: z.object({
+      id: z.string().uuid().openapi({ example: uuidExample }),
+      rol: z.string().openapi({ example: "administrador" }),
+      proveedor: z.string().openapi({ example: "invitado" }),
+      nombre_visible: z.string().openapi({ example: "Admin Dev" }),
+      correo: z.string().nullable().openapi({ example: null })
+    }),
+    perfil: ProfileResponse,
+    mensaje: z.string().openapi({ description: "Mensaje informativo", example: "Administrador creado. Usa este ID para autenticar solicitudes durante desarrollo." })
+  })
+}).openapi("AuthDevResponse");
+
+// ─── Actividades schemas ──────────────────────────────────────────────
+
+const ResponderActividadBody = z.object({
+  evento_id_cliente: z.string().uuid().openapi({ description: "ID unico del evento (idempotencia)", example: uuidExample }),
+  opcion_id_seleccionada: z.string().uuid().optional().openapi({ description: "ID de la opcion seleccionada", example: uuidExample }),
+  texto_respuesta: z.string().optional().openapi({ description: "Texto de respuesta libre", example: "Dios" }),
+  ocurrido_en_cliente: z.string().datetime().optional().openapi({ description: "Fecha del evento en el cliente", example: "2026-01-01T00:00:00.000Z" }),
+  dispositivo_id: z.string().optional().openapi({ description: "ID del dispositivo", example: "device-123" })
+}).openapi("ResponderActividadBody");
+
+const ResponderActividadResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    resultado: z.object({
+      correcta: z.boolean().openapi({ example: true }),
+      xp_otorgada: z.number().openapi({ example: 15 })
+    }),
+    duplicado: z.boolean().openapi({ example: false })
+  })
+}).openapi("ResponderActividadResponse");
+
+// ─── Clubes schemas ────────────────────────────────────────────────────
+
+const ClubDetallado = z.object({
+  id: z.string().uuid().openapi({ example: uuidExample }),
+  nombre: z.string().openapi({ example: "Exploradores de la Fe" }),
+  descripcion: z.string().nullable().openapi({ example: "Club para aprender juntos" }),
+  codigo_invitacion: z.string().openapi({ example: "ABC12345" }),
+  activo: z.boolean().openapi({ example: true }),
+  creado_por: z.string().uuid().openapi({ example: uuidExample }),
+  creado_en: z.string().datetime().openapi({ example: "2026-01-01T00:00:00.000Z" }),
+  created_by: z.object({
+    id: z.string().uuid(),
+    nombre_visible: z.string()
+  }).nullable().openapi({ description: "Creador del club" }),
+  members: z.array(z.object({
+    id: z.string().uuid(),
+    club_id: z.string().uuid(),
+    usuario_id: z.string().uuid(),
+    rol_miembro: z.string().openapi({ example: "lider" }),
+    unido_en: z.string().datetime()
+  })).openapi({ description: "Miembros del club" })
+}).openapi("ClubDetallado");
+
+const CreateClubBody = z.object({
+  name: z.string().min(3).max(80).openapi({ description: "Nombre del club", example: "Exploradores de la Fe" }),
+  description: z.string().max(300).optional().openapi({ description: "Descripcion del club", example: "Club para aprender juntos" })
+}).openapi("CreateClubBody");
+
+const JoinClubBody = z.object({
+  inviteCode: z.string().min(4).max(20).openapi({ description: "Codigo de invitacion", example: "ABC12345" })
+}).openapi("JoinClubBody");
+
+const ClubRankingEntry = z.object({
+  club_id: z.string().uuid().openapi({ example: uuidExample }),
+  usuario_id: z.string().uuid().openapi({ example: uuidExample }),
+  nombre_visible: z.string().openapi({ example: "Aventurero123" }),
+  xp_total: z.number().openapi({ example: 1500 }),
+  numero_ranking: z.number().openapi({ description: "Posicion en el ranking", example: 1 })
+}).openapi("ClubRankingEntry");
+
+const RetoClub = z.object({
+  id: z.string().uuid().openapi({ example: uuidExample }),
+  club_id: z.string().uuid().openapi({ example: uuidExample }),
+  nombre: z.string().openapi({ example: "Leer 10 temas" }),
+  descripcion: z.string().nullable().openapi({ example: "Completa 10 temas esta semana" }),
+  codigo_metrica: z.string().openapi({ example: "TEMAS_COMPLETADOS" }),
+  valor_objetivo: z.number().openapi({ example: 10 }),
+  xp_reto: z.number().openapi({ example: 200 }),
+  fecha_inicio: z.string().datetime().openapi({ example: "2026-01-01T00:00:00.000Z" }),
+  fecha_fin: z.string().datetime().openapi({ example: "2026-01-07T00:00:00.000Z" }),
+  creado_por: z.string().uuid().openapi({ example: uuidExample }),
+  creado_en: z.string().datetime().openapi({ example: "2026-01-01T00:00:00.000Z" })
+}).openapi("RetoClub");
+
+const CreateRetoBody = z.object({
+  name: z.string().min(3).max(120).openapi({ description: "Nombre del reto", example: "Leer 10 temas" }),
+  description: z.string().max(300).optional().openapi({ description: "Descripcion del reto", example: "Completa 10 temas esta semana" }),
+  metricCode: z.string().min(2).openapi({ description: "Codigo de metrica", example: "TEMAS_COMPLETADOS" }),
+  targetValue: z.number().int().min(1).openapi({ description: "Valor objetivo", example: 10 }),
+  rewardXp: z.number().int().min(0).openapi({ description: "XP de recompensa", example: 200 }),
+  startsOn: z.string().datetime().openapi({ description: "Fecha de inicio", example: "2026-01-01T00:00:00.000Z" }),
+  endsOn: z.string().datetime().openapi({ description: "Fecha de fin", example: "2026-01-07T00:00:00.000Z" })
+}).openapi("CreateRetoBody");
+
 const registry = new OpenAPIRegistry();
 registry.register("ErrorResponse", ErrorResponse);
 registry.register("HealthResponse", HealthResponse);
@@ -351,6 +585,27 @@ registry.register("LogroUsuario", LogroUsuario);
 registry.register("Logro", LogroSchema);
 registry.register("UpdateProfileBody", UpdateProfileBody);
 registry.register("ProfileResponse", ProfileResponse);
+
+registry.register("AdminResumen", AdminResumen);
+registry.register("AdminCreateThemeBody", AdminCreateThemeBody);
+registry.register("AdminUpdateThemeBody", AdminUpdateThemeBody);
+registry.register("AdminUpsertStepBody", AdminUpsertStepBody);
+registry.register("AdminCreateActivityBody", AdminCreateActivityBody);
+registry.register("AdminUpdateActivityBody", AdminUpdateActivityBody);
+registry.register("AdminStepWithContentResponse", AdminStepWithContentResponse);
+registry.register("DeletedResponse", DeletedResponse);
+registry.register("AdminUserItem", AdminUserItem);
+registry.register("AdminUpdateUserBody", AdminUpdateUserBody);
+registry.register("AdminUserDeletedResponse", AdminUserDeletedResponse);
+registry.register("AuthDevResponse", AuthDevResponse);
+registry.register("ResponderActividadBody", ResponderActividadBody);
+registry.register("ResponderActividadResponse", ResponderActividadResponse);
+registry.register("ClubDetallado", ClubDetallado);
+registry.register("CreateClubBody", CreateClubBody);
+registry.register("JoinClubBody", JoinClubBody);
+registry.register("ClubRankingEntry", ClubRankingEntry);
+registry.register("RetoClub", RetoClub);
+registry.register("CreateRetoBody", CreateRetoBody);
 
 registry.registerPath({ method: "get", path: "/", operationId: "getRoot", tags: ["system"], summary: "Raiz de la API",
   description: "Endpoint principal de Semillas", responses: { 200: { content: { "application/json": { schema: RootResponse } }, description: "Informacion de la API" } } });
@@ -442,6 +697,249 @@ registry.registerPath({ method: "get", path: "/gamificacion/mi", operationId: "g
   summary: "Mi estado de gamificacion", description: "Nivel, XP total, logros e insignias del usuario",
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ nivel: NivelUsuario, logros: z.array(LogroUsuario) }) }) } }, description: "Estado de gamificacion" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
+// ─── Auth paths ──────────────────────────────────────────────────────
+
+registry.registerPath({ method: "post", path: "/autenticacion/configuracion-dev", operationId: "authDevSetup", tags: ["auth"],
+  summary: "Crear admin de desarrollo", description: "Crea un usuario administrador. Solo disponible en entorno development.",
+  responses: { 201: { content: { "application/json": { schema: AuthDevResponse } }, description: "Admin de desarrollo creado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No disponible fuera de desarrollo" } } });
+
+// ─── Actividades paths ───────────────────────────────────────────────
+
+registry.registerPath({ method: "get", path: "/actividades", operationId: "listActivities", tags: ["actividades"],
+  summary: "Listar todas las actividades", description: "Todas las actividades disponibles, sin filtro",
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ActividadSchema) }) } }, description: "Lista de actividades" } } });
+
+registry.registerPath({ method: "post", path: "/actividades/{actividad_id}/responder", operationId: "respondActivity", tags: ["actividades"],
+  summary: "Responder actividad", description: "Registra la respuesta del usuario a una actividad. Es idempotente via evento_id_cliente.",
+  request: { params: z.object({ actividad_id: z.string().uuid() }), body: { content: { "application/json": { schema: ResponderActividadBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: ResponderActividadResponse } }, description: "Respuesta registrada" }, 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ resultado: z.object({ correcta: z.boolean(), xp_otorgada: z.literal(0) }), duplicado: z.literal(true) }) }) } }, description: "Evento duplicado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Actividad u opcion no encontrada" } } });
+
+// ─── Administracion paths ────────────────────────────────────────────
+
+registry.registerPath({ method: "get", path: "/administracion/resumen", operationId: "adminResumen", tags: ["administracion"],
+  summary: "Resumen de administracion", description: "Conteo de temas, publicados, usuarios y actividades",
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: AdminResumen }) } }, description: "Resumen" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "get", path: "/administracion/temas", operationId: "adminListThemes", tags: ["administracion"],
+  summary: "Listar temas (admin)", description: "Lista todos los temas. Filtrable por estado (?status=borrador|publicado|archivado)",
+  request: { query: z.object({ status: z.string().optional().openapi({ description: "Filtrar por estado", example: "publicado" }) }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(TemaResumido) }) } }, description: "Lista de temas" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "get", path: "/administracion/temas/{tema_id}", operationId: "adminGetTheme", tags: ["administracion"],
+  summary: "Obtener tema (admin)", description: "Obtiene un tema por ID con datos administrativos",
+  request: { params: z.object({ tema_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaResumido }) } }, description: "Tema encontrado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/administracion/temas", operationId: "adminCreateTheme", tags: ["administracion"],
+  summary: "Crear tema", description: "Crea un nuevo tema en estado borrador",
+  request: { body: { content: { "application/json": { schema: AdminCreateThemeBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaResumido }) } }, description: "Tema creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "patch", path: "/administracion/temas/{tema_id}", operationId: "adminUpdateTheme", tags: ["administracion"],
+  summary: "Actualizar tema", description: "Actualiza los campos de un tema existente",
+  request: { params: z.object({ tema_id: z.string().uuid() }), body: { content: { "application/json": { schema: AdminUpdateThemeBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaResumido }) } }, description: "Tema actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "delete", path: "/administracion/temas/{tema_id}", operationId: "adminDeleteTheme", tags: ["administracion"],
+  summary: "Eliminar tema", description: "Elimina un tema permanentemente",
+  request: { params: z.object({ tema_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: DeletedResponse } }, description: "Tema eliminado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/administracion/temas/{tema_id}/pasos", operationId: "adminUpsertStep", tags: ["administracion"],
+  summary: "Crear o actualizar paso CRECER", description: "Crea o actualiza un paso del tema y su contenido. Usa upsert por tema_id + tipo_paso_id.",
+  request: { params: z.object({ tema_id: z.string().uuid() }), body: { content: { "application/json": { schema: AdminUpsertStepBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: AdminStepWithContentResponse } }, description: "Paso creado o actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "get", path: "/administracion/temas/{tema_id}/pasos", operationId: "adminListSteps", tags: ["administracion"],
+  summary: "Listar pasos CRECER de un tema", description: "Todos los pasos del tema con sus contenidos",
+  request: { params: z.object({ tema_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(PasoTemaCrecerSchema) }) } }, description: "Pasos del tema" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "delete", path: "/administracion/temas/{tema_id}/pasos/{tipo_paso_id}", operationId: "adminDeleteStep", tags: ["administracion"],
+  summary: "Eliminar paso CRECER", description: "Elimina un paso del tema y su contenido asociado",
+  request: { params: z.object({ tema_id: z.string().uuid(), tipo_paso_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: DeletedResponse } }, description: "Paso eliminado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/administracion/temas/{tema_id}/publicar", operationId: "adminPublishTheme", tags: ["administracion"],
+  summary: "Publicar tema", description: "Cambia el estado a publicado, incrementa version de contenido",
+  request: { params: z.object({ tema_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaResumido }) } }, description: "Tema publicado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/administracion/temas/{tema_id}/borrador", operationId: "adminDraftTheme", tags: ["administracion"],
+  summary: "Volver a borrador", description: "Cambia el estado del tema a borrador",
+  request: { params: z.object({ tema_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaResumido }) } }, description: "Tema en borrador" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/administracion/actividades", operationId: "adminCreateActivity", tags: ["administracion"],
+  summary: "Crear actividad", description: "Crea una nueva actividad con opciones de respuesta",
+  request: { body: { content: { "application/json": { schema: AdminCreateActivityBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ActividadSchema }) } }, description: "Actividad creada" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "patch", path: "/administracion/actividades/{actividad_id}", operationId: "adminUpdateActivity", tags: ["administracion"],
+  summary: "Actualizar actividad", description: "Actualiza campos de una actividad existente",
+  request: { params: z.object({ actividad_id: z.string().uuid() }), body: { content: { "application/json": { schema: AdminUpdateActivityBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ActividadSchema }) } }, description: "Actividad actualizada" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrada" } } });
+
+registry.registerPath({ method: "delete", path: "/administracion/actividades/{actividad_id}", operationId: "adminDeleteActivity", tags: ["administracion"],
+  summary: "Eliminar actividad", description: "Elimina una actividad, sus opciones y progreso asociado",
+  request: { params: z.object({ actividad_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: DeletedResponse } }, description: "Actividad eliminada" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrada" } } });
+
+// ─── Admin usuarios paths ──────────────────────────────────────────────
+
+registry.registerPath({ method: "get", path: "/administracion/usuarios", operationId: "adminListUsers", tags: ["administracion"],
+  summary: "Listar usuarios", description: "Lista todos los usuarios. Paginable y filtrable por busqueda (?q=) y rol (?rol=).",
+  request: { query: z.object({ q: z.string().optional().openapi({ description: "Buscar por nombre o correo", example: "Aventurero" }), rol: z.string().optional().openapi({ description: "Filtrar por rol", example: "usuario" }), limit: z.number().int().min(1).max(100).optional().openapi({ description: "Maximo de resultados", example: 20 }), offset: z.number().int().min(0).optional().openapi({ description: "Desplazamiento", example: 0 }) }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ usuarios: z.array(AdminUserItem), total: z.number().openapi({ description: "Total de usuarios sin paginacion" }) }) }) } }, description: "Lista de usuarios" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "get", path: "/administracion/usuarios/{usuario_id}", operationId: "adminGetUser", tags: ["administracion"],
+  summary: "Obtener usuario", description: "Detalle completo de un usuario con su perfil anidado",
+  request: { params: z.object({ usuario_id: z.string().uuid().openapi({ description: "ID del usuario", example: uuidExample }) }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.unknown() }) } }, description: "Usuario encontrado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "patch", path: "/administracion/usuarios/{usuario_id}", operationId: "adminUpdateUser", tags: ["administracion"],
+  summary: "Actualizar usuario", description: "Actualiza el rol o nombre visible de un usuario",
+  request: { params: z.object({ usuario_id: z.string().uuid().openapi({ description: "ID del usuario", example: uuidExample }) }), body: { content: { "application/json": { schema: AdminUpdateUserBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.unknown() }) } }, description: "Usuario actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "delete", path: "/administracion/usuarios/{usuario_id}", operationId: "adminDeleteUser", tags: ["administracion"],
+  summary: "Desactivar usuario", description: "Desactiva un usuario (borrado logico, campo activo=false)",
+  request: { params: z.object({ usuario_id: z.string().uuid().openapi({ description: "ID del usuario", example: uuidExample }) }) },
+  responses: { 200: { content: { "application/json": { schema: AdminUserDeletedResponse } }, description: "Usuario desactivado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+// ─── Clubes paths ─────────────────────────────────────────────────────
+
+registry.registerPath({ method: "get", path: "/clubes/{clubId}", operationId: "getClub", tags: ["clubes"],
+  summary: "Obtener club", description: "Detalle del club con miembros e info del creador",
+  request: { params: z.object({ clubId: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ClubDetallado }) } }, description: "Club encontrado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/clubes", operationId: "createClub", tags: ["clubes"],
+  summary: "Crear club", description: "Crea un nuevo club. El creador se convierte en lider automaticamente.",
+  request: { body: { content: { "application/json": { schema: CreateClubBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ClubSchema }) } }, description: "Club creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+
+registry.registerPath({ method: "post", path: "/clubes/{clubId}/unirse", operationId: "joinClub", tags: ["clubes"],
+  summary: "Unirse a club", description: "Unete a un club usando el codigo de invitacion",
+  request: { params: z.object({ clubId: z.string().uuid() }), body: { content: { "application/json": { schema: JoinClubBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ joined: z.literal(true) }) }) } }, description: "Unido al club" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Ya eres miembro o datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Codigo incorrecto o club inactivo" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Club no encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/clubes/{clubId}/salir", operationId: "leaveClub", tags: ["clubes"],
+  summary: "Salir de club", description: "Abandona un club. Si eres lider, debes transferir liderazgo antes.",
+  request: { params: z.object({ clubId: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ left: z.literal(true) }) }) } }, description: "Saliste del club" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Transfiere liderazgo antes de salir" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No eres miembro o club no encontrado" } } });
+
+registry.registerPath({ method: "get", path: "/clubes/{clubId}/ranking", operationId: "getClubRanking", tags: ["clubes"],
+  summary: "Ranking del club", description: "Clasificacion de miembros del club por XP",
+  request: { params: z.object({ clubId: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubRankingEntry) }) } }, description: "Ranking del club" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+
+registry.registerPath({ method: "get", path: "/clubes/{clubId}/retos", operationId: "listClubChallenges", tags: ["clubes"],
+  summary: "Retos del club", description: "Retos cooperativos del club",
+  request: { params: z.object({ clubId: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(RetoClub) }) } }, description: "Retos del club" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+
+registry.registerPath({ method: "post", path: "/clubes/{clubId}/retos", operationId: "createClubChallenge", tags: ["clubes"],
+  summary: "Crear reto", description: "Crea un reto cooperativo. Solo el lider del club puede crear retos.",
+  request: { params: z.object({ clubId: z.string().uuid() }), body: { content: { "application/json": { schema: CreateRetoBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: RetoClub }) } }, description: "Reto creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Solo el lider puede crear retos" } } });
+
+// ─── Media schemas ────────────────────────────────────────────────────
+
+const MediaUploadBody = z.object({
+  tipo: z.enum(["imagen", "audio", "video", "documento"]).openapi({ description: "Tipo de recurso multimedia", example: "imagen" }),
+  texto_alternativo: z.string().max(300).optional().openapi({ description: "Texto alternativo para accesibilidad", example: "Ilustracion de la creacion" })
+}).openapi("MediaUploadBody");
+
+const MediaUploadResponse = z.object({
+  exito: z.literal(true),
+  datos: RecursoMultimediaSchema
+}).openapi("MediaUploadResponse");
+
+registry.register("MediaUploadBody", MediaUploadBody);
+registry.register("MediaUploadResponse", MediaUploadResponse);
+
+registry.registerPath({ method: "post", path: "/media/subir", operationId: "uploadMedia", tags: ["media"],
+  summary: "Subir archivo multimedia", description: "Sube una imagen, audio o video a Supabase Storage y crea un registro en recurso_multimedia.",
+  request: { body: { content: { "multipart/form-data": { schema: MediaUploadBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: MediaUploadResponse } }, description: "Recurso creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos o archivo muy grande" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 500: { content: { "application/json": { schema: ErrorResponse } }, description: "Error interno" } } });
+
+registry.registerPath({ method: "get", path: "/media/{id}", operationId: "getMedia", tags: ["media"],
+  summary: "Obtener recurso multimedia", description: "Obtiene los metadatos de un recurso multimedia por ID.",
+  request: { params: z.object({ id: z.string().uuid().openapi({ description: "ID del recurso", example: uuidExample }) }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: RecursoMultimediaSchema }) } }, description: "Recurso encontrado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "delete", path: "/media/{id}", operationId: "deleteMedia", tags: ["media"],
+  summary: "Eliminar recurso multimedia", description: "Eliminacion logica (activo=false) de un recurso multimedia.",
+  request: { params: z.object({ id: z.string().uuid().openapi({ description: "ID del recurso", example: uuidExample }) }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ deleted: z.literal(true) }) }) } }, description: "Recurso eliminado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+// ─── Sync schemas ──────────────────────────────────────────────────────
+
+const SyncPullQuery = z.object({
+  since: z.string().datetime().optional().openapi({ description: "Solo eventos desde esta fecha (ISO8601)", example: "2026-01-01T00:00:00.000Z" })
+}).openapi("SyncPullQuery");
+
+const SyncPushEventSchema = z.object({
+  evento_id_cliente: z.string().uuid().openapi({ description: "ID unico del cliente (idempotencia)", example: uuidExample }),
+  tipo_evento: z.enum(["tema_iniciado","tema_completado","bloque_iniciado","bloque_completado","actividad_iniciada","actividad_respondida","actividad_completada","recompensa_reclamada","tema_descargado","marcador_sincronizacion"])
+    .openapi({ description: "Tipo de evento", example: "actividad_respondida" }),
+  tema_id: z.string().uuid().optional(),
+  paso_id: z.string().uuid().optional(),
+  actividad_id: z.string().uuid().optional(),
+  correcta: z.boolean().optional(),
+  puntaje: z.number().min(0).max(100).optional(),
+  xp_otorgada: z.number().int().min(0).optional().default(0).openapi({ example: 15 }),
+  datos: z.object({}).passthrough().optional(),
+  creado_en_cliente: z.string().datetime().optional().openapi({ example: "2026-01-01T00:00:00.000Z" }),
+  dispositivo_id: z.string().optional()
+}).openapi("SyncPushEvent");
+
+const SyncPushBody = z.object({
+  eventos: z.array(SyncPushEventSchema).min(1).max(100).openapi({ description: "Eventos offline a sincronizar" })
+}).openapi("SyncPushBody");
+
+const SyncPullResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    eventos: z.array(z.unknown()).openapi({ description: "Eventos de progreso del usuario" }),
+    progreso: z.object({
+      temas: z.array(z.unknown()).openapi({ description: "Progreso por tema" }),
+      actividades: z.array(z.unknown()).openapi({ description: "Progreso por actividad" })
+    })
+  })
+}).openapi("SyncPullResponse");
+
+const SyncPushResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    procesados: z.number().openapi({ description: "Eventos procesados exitosamente", example: 5 }),
+    omitidos: z.number().openapi({ description: "Eventos omitidos (duplicados)", example: 2 }),
+    errores: z.array(z.object({
+      evento_id_cliente: z.string().openapi({ example: uuidExample }),
+      error: z.string().openapi({ example: "Error de base de datos" })
+    })).openapi({ description: "Errores por evento" })
+  })
+}).openapi("SyncPushResponse");
+
+registry.register("SyncPullQuery", SyncPullQuery);
+registry.register("SyncPushEvent", SyncPushEventSchema);
+registry.register("SyncPushBody", SyncPushBody);
+registry.register("SyncPullResponse", SyncPullResponse);
+registry.register("SyncPushResponse", SyncPushResponse);
+
+registry.registerPath({ method: "get", path: "/sync/pull", operationId: "syncPull", tags: ["sync"],
+  summary: "Sincronizar pull", description: "Trae eventos de progreso y estado actual desde una fecha. Usado para actualizar el estado local despues de reconexion.",
+  request: { query: SyncPullQuery },
+  responses: { 200: { content: { "application/json": { schema: SyncPullResponse } }, description: "Datos de sincronizacion" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+
+registry.registerPath({ method: "post", path: "/sync/push", operationId: "syncPush", tags: ["sync"],
+  summary: "Sincronizar push", description: "Envia eventos offline acumulados. Cada evento es idempotente por evento_id_cliente. Procesa y actualiza progreso.",
+  request: { body: { content: { "application/json": { schema: SyncPushBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: SyncPushResponse } }, description: "Resultado de sincronizacion" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+
+// ─── Generator ─────────────────────────────────────────────────────────
+
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
 export const openApiSpec = generator.generateDocument({
@@ -463,6 +961,9 @@ export const openApiSpec = generator.generateDocument({
     { name: "actividades", description: "Actividades y ejercicios" },
     { name: "usuario", description: "Perfil y datos del usuario" },
     { name: "clubes", description: "Clubes y retos cooperativos" },
-    { name: "gamificacion", description: "XP, niveles, insignias y rachas" }
+    { name: "gamificacion", description: "XP, niveles, insignias y rachas" },
+    { name: "administracion", description: "Administracion de contenido y CMS" },
+    { name: "media", description: "Recursos multimedia (imagenes, audio, video)" },
+    { name: "sync", description: "Sincronizacion offline de eventos de progreso" }
   ]
 });
