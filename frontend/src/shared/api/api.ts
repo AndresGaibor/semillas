@@ -1,25 +1,51 @@
-import { ApiError } from "./api-error";
+import { env } from "../config/env";
+import { sessionStorageApi } from "./session";
 
-export type RespuestaApi<T> =
-  | {
-      exito: true;
-      datos: T;
-    }
-  | {
-      exito: false;
-      error: string;
-      codigo?: string;
-    };
+export async function peticion<T>(
+  ruta: string,
+  opciones?: {
+    metodo?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+    cuerpo?: unknown;
+    autenticar?: boolean;
+  }
+): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
-export type UsuarioApi = {
+  if (opciones?.autenticar !== false) {
+    const idInvitado = sessionStorageApi.getGuestUserId();
+    const token = sessionStorageApi.getAccessToken();
+    if (idInvitado) headers["X-Guest-User-Id"] = idInvitado;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${env.apiUrl}${ruta}`, {
+    method: opciones?.metodo ?? "GET",
+    headers,
+    body: opciones?.cuerpo ? JSON.stringify(opciones.cuerpo) : undefined,
+  });
+
+  const resultado = await res.json().catch(() => null);
+
+  if (!res.ok || !resultado?.exito) {
+    throw new Error(resultado?.error ?? "Error de conexión");
+  }
+
+  return resultado.datos as T;
+}
+
+// --- Tipos de la API (todos en español, como el backend) ---
+
+export interface Usuario {
   id: string;
   rol: string;
   proveedor: string;
   nombre_visible: string;
   correo: string | null;
-};
+}
 
-export type PerfilApi = {
+export interface Perfil {
   id: string;
   usuario_id: string;
   apodo: string;
@@ -30,29 +56,15 @@ export type PerfilApi = {
   tamano_texto_preferido: string;
   creado_en?: string;
   actualizado_en?: string;
-};
+}
 
-export type AutenticacionApi = {
+export interface Autenticacion {
   tipo: "invitado";
   encabezado: string;
   valor: string;
-};
+}
 
-export type AltaInvitadoInput = {
-  apodo: string;
-  grupo_edad_id?: string;
-  url_avatar?: string;
-};
-
-export type ActualizacionPerfilInput = {
-  apodo?: string;
-  grupo_edad_id?: string | null;
-  url_avatar?: string | null;
-  prefiere_audio?: boolean;
-  tamano_texto_preferido?: "small" | "medium" | "large";
-};
-
-export type SendaApi = {
+export interface Senda {
   id: string;
   codigo: string;
   nombre: string;
@@ -60,9 +72,9 @@ export type SendaApi = {
   color_hex: string;
   nombre_icono: string | null;
   orden: number;
-};
+}
 
-export type GrupoEdadApi = {
+export interface GrupoEdad {
   id: string;
   codigo: string;
   nombre: string;
@@ -70,33 +82,9 @@ export type GrupoEdadApi = {
   edad_maxima: number;
   descripcion: string | null;
   orden: number;
-};
+}
 
-export type VersionBiblicaApi = {
-  id: string;
-  codigo: string;
-  nombre: string;
-  dominio_publico: boolean;
-};
-
-export type PasoCrecerCatalogoApi = {
-  id: string;
-  codigo: string;
-  nombre: string;
-  descripcion: string | null;
-  orden: number;
-  color_hex: string | null;
-};
-
-export type TipoActividadCatalogoApi = {
-  id: string;
-  codigo: string;
-  nombre: string;
-  descripcion: string | null;
-  es_juego: boolean;
-};
-
-export type TemaApi = {
+export interface Tema {
   id: string;
   senda_id: string;
   titulo: string;
@@ -110,7 +98,7 @@ export type TemaApi = {
   minutos_estimados: number;
   version_contenido: number;
   publicado_en: string | null;
-  senda?: SendaApi | null;
+  senda?: Senda | null;
   portada_recurso?: {
     id: string;
     tipo: string;
@@ -140,9 +128,9 @@ export type TemaApi = {
     versiculo_fin: number;
     principal: boolean;
   } | null;
-};
+}
 
-export type TemaPasoApi = {
+export interface Paso {
   id: string;
   tema_id: string;
   orden: number;
@@ -160,9 +148,9 @@ export type TemaPasoApi = {
     cuerpo: string;
     instruccion_corta: string | null;
   }>;
-};
+}
 
-export type ActividadApi = {
+export interface Actividad {
   id: string;
   tema_id: string;
   paso_id: string | null;
@@ -197,9 +185,9 @@ export type ActividadApi = {
     orden: number;
     retroalimentacion: string | null;
   }>;
-};
+}
 
-export type EventoProgresoApi = {
+export interface EventoProgreso {
   evento_id_cliente: string;
   tipo_evento:
     | "tema_iniciado"
@@ -221,38 +209,4 @@ export type EventoProgresoApi = {
   datos?: Record<string, unknown>;
   ocurrido_en_cliente?: string;
   dispositivo_id?: string;
-};
-
-export function desenvolverRespuesta<T>(respuesta: RespuestaApi<T>): T {
-  if (!respuesta.exito) {
-    throw new ApiError(400, respuesta.error, respuesta);
-  }
-
-  return respuesta.datos;
-}
-
-export function construirAltaInvitado(input: AltaInvitadoInput): AltaInvitadoInput {
-  return {
-    apodo: input.apodo,
-    grupo_edad_id: input.grupo_edad_id,
-    url_avatar: input.url_avatar
-  };
-}
-
-export function construirActualizacionPerfil(input: ActualizacionPerfilInput): ActualizacionPerfilInput {
-  return {
-    apodo: input.apodo,
-    grupo_edad_id: input.grupo_edad_id,
-    url_avatar: input.url_avatar,
-    prefiere_audio: input.prefiere_audio,
-    tamano_texto_preferido: input.tamano_texto_preferido
-  };
-}
-
-export function normalizarUsuario(usuario: UsuarioApi): UsuarioApi {
-  return { ...usuario };
-}
-
-export function normalizarPerfil(perfil: PerfilApi): PerfilApi {
-  return { ...perfil };
 }

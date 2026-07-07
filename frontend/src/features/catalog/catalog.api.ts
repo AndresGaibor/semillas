@@ -1,36 +1,39 @@
-import { apiRequest } from "../../shared/api/http";
-import type {
-  GrupoEdadApi,
-  PasoCrecerCatalogoApi,
-  TipoActividadCatalogoApi,
-  VersionBiblicaApi
-} from "../../shared/api/contrato";
+import { peticion } from "../../shared/api/api";
+import type { GrupoEdad } from "../../shared/api/api";
 
-export type GrupoEdad = GrupoEdadApi;
-export type VersionBiblica = VersionBiblicaApi;
-export type PasoCrecerCatalogo = PasoCrecerCatalogoApi;
-export type TipoActividadCatalogo = TipoActividadCatalogoApi;
-
-export function getAgeGroups() {
-  return apiRequest<GrupoEdad[]>('/catalogo/grupos-etarios', {
-    auth: false
+export function obtenerGruposEdad() {
+  return peticion<GrupoEdad[]>("/catalogo/grupos-etarios", {
+    autenticar: false,
   });
 }
 
-export function getBibleVersions() {
-  return apiRequest<VersionBiblica[]>('/catalogo/versiones-biblicas', {
-    auth: false
-  });
+export function obtenerVersionesBiblicas() {
+  return peticion<
+    Array<{ id: string; codigo: string; nombre: string; dominio_publico: boolean }>
+  >("/catalogo/versiones-biblicas", { autenticar: false });
 }
 
-export function getCrecerSteps() {
-  return apiRequest<PasoCrecerCatalogo[]>('/catalogo/pasos-crecer', {
-    auth: false
-  });
+export function obtenerPasosCrecer() {
+  return peticion<
+    Array<{
+      id: string;
+      codigo: string;
+      nombre: string;
+      descripcion: string | null;
+      orden: number;
+      color_hex: string | null;
+    }>
+  >("/catalogo/pasos-crecer", { autenticar: false });
 }
 
-export function getActivityTypes() {
-  return apiRequest<TipoActividadCatalogo[]>('/catalogo/tipos-actividad', {
-    auth: false
-  });
+export function obtenerTiposActividad() {
+  return peticion<
+    Array<{
+      id: string;
+      codigo: string;
+      nombre: string;
+      descripcion: string | null;
+      es_juego: boolean;
+    }>
+  >("/catalogo/tipos-actividad", { autenticar: false });
 }

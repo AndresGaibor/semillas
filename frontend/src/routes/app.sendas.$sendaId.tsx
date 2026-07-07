@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getThemes } from "../features/themes/themes.api";
-import { getSendas } from "../features/sendas/sendas.api";
+import { obtenerTemas } from "../features/themes/themes.api";
+import { obtenerSendas } from "../features/sendas/sendas.api";
 import { Zap, Clock, Loader, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/app/sendas/$sendaId")({
@@ -11,12 +11,12 @@ export const Route = createFileRoute("/app/sendas/$sendaId")({
 function SendaDetailPage() {
   const { sendaId } = Route.useParams();
 
-  const sendaQuery = useQuery({ queryKey: ["sendas"], queryFn: getSendas });
+  const sendaQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
   const senda = sendaQuery.data?.find((s) => s.id === sendaId);
 
   const themesQuery = useQuery({
     queryKey: ["themes", { senda_id: sendaId }],
-    queryFn: () => getThemes({ senda_id: sendaId })
+    queryFn: () => obtenerTemas({ senda_id: sendaId })
   });
 
   return (

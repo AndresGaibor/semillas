@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Users, Sparkles, BookOpen } from "lucide-react";
-import { getAgeGroups } from "../features/catalog/catalog.api";
-import { updateProfile } from "../features/profile/profile.api";
+import { obtenerGruposEdad } from "../features/catalog/catalog.api";
+import { actualizarPerfil } from "../features/profile/profile.api";
 
 export const Route = createFileRoute("/onboarding")({
   component: OnboardingPage
@@ -19,11 +19,11 @@ function OnboardingPage() {
 
   const ageGroupsQuery = useQuery({
     queryKey: ["catalog", "age-groups"],
-    queryFn: getAgeGroups
+    queryFn: obtenerGruposEdad
   });
 
-  const updateProfileMutation = useMutation({
-    mutationFn: updateProfile,
+  const actualizarPerfilMutation = useMutation({
+    mutationFn: actualizarPerfil,
     onSuccess() {
       navigate({ to: "/app" });
     }
@@ -44,8 +44,8 @@ function OnboardingPage() {
         {ageGroupsQuery.data?.map((ageGroup) => (
           <button
             key={ageGroup.id}
-            onClick={() => updateProfileMutation.mutate({ grupo_edad_id: ageGroup.id })}
-            disabled={updateProfileMutation.isPending}
+            onClick={() => actualizarPerfilMutation.mutate({ grupo_edad_id: ageGroup.id })}
+            disabled={actualizarPerfilMutation.isPending}
             className="w-full bg-white rounded-2xl p-5 text-left flex items-center gap-4 shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-[#2e9e5b]/20 disabled:opacity-50"
           >
             <div className="w-14 h-14 bg-[#2e9e5b]/10 rounded-full flex items-center justify-center shrink-0">

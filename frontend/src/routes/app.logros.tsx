@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getMyGamification } from "../features/gamification/gamification.api";
+import { obtenerGamificacionPropia } from "../features/gamification/gamification.api";
 import { Award, Zap, TrendingUp, Loader } from "lucide-react";
 
 export const Route = createFileRoute("/app/logros")({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/app/logros")({
 });
 
 function AchievementsPage() {
-  const query = useQuery({ queryKey: ["gamification", "me"], queryFn: getMyGamification });
+  const query = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia });
 
   const nivel = query.data?.nivel;
 

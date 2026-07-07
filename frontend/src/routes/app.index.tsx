@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getMe } from "../features/profile/profile.api";
-import { getMyGamification } from "../features/gamification/gamification.api";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { obtenerGamificacionPropia } from "../features/gamification/gamification.api";
 import { Compass, Zap, TrendingUp, Award } from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
@@ -9,8 +9,8 @@ export const Route = createFileRoute("/app/")({
 });
 
 function AppHomePage() {
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
-  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: getMyGamification });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
+  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia });
 
   const nivel = gamificationQuery.data?.nivel;
 

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getSendas } from "../features/sendas/sendas.api";
+import { obtenerSendas } from "../features/sendas/sendas.api";
 import { Crown, Heart, Flame, Loader } from "lucide-react";
 
 const sendaIcons: Record<string, React.ReactNode> = {
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/app/sendas")({
 });
 
 function SendasPage() {
-  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: getSendas });
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
 
   return (
     <div>

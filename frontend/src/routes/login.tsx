@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { Leaf, Shield } from "lucide-react";
-import { createGuestSession, setupDevAdmin } from "../features/auth/auth.api";
+import { crearSesionInvitado, configurarDevAdmin } from "../features/auth/auth.api";
 import { sessionStorageApi } from "../shared/api/session";
 
 export const Route = createFileRoute("/login")({
@@ -12,7 +12,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const guestMutation = useMutation({
-    mutationFn: createGuestSession,
+    mutationFn: crearSesionInvitado,
     onSuccess(data) {
       sessionStorageApi.setGuestUserId(data.autenticacion.valor);
       navigate({ to: "/onboarding" });
@@ -20,7 +20,7 @@ function LoginPage() {
   });
 
   const devAdminMutation = useMutation({
-    mutationFn: setupDevAdmin,
+    mutationFn: configurarDevAdmin,
     onSuccess(data) {
       sessionStorageApi.setGuestUserId(data.usuario.id);
       navigate({ to: "/admin" });

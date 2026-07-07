@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getAdminDashboard } from "../features/admin/admin.api";
+import { obtenerResumenAdmin } from "../features/admin/admin.api";
 import { BookOpen, Users, Gamepad2, CheckCircle, Loader } from "lucide-react";
 
 export const Route = createFileRoute("/admin/")({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminDashboardPage() {
-  const query = useQuery({ queryKey: ["admin", "dashboard"], queryFn: getAdminDashboard });
+  const query = useQuery({ queryKey: ["admin", "dashboard"], queryFn: obtenerResumenAdmin });
 
   const stats = [
     { label: "Temas", value: query.data?.temas ?? 0, icon: BookOpen, color: "#2e9e5b" },

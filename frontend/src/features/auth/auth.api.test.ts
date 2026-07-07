@@ -1,33 +1,33 @@
 import { describe, expect, it, mock } from "bun:test";
 
-const apiRequestMock = mock(async () => ({
+const peticionMock = mock(async () => ({
   usuario: { id: "usuario-1" },
   perfil: { id: "perfil-1" },
-  autenticacion: { tipo: "invitado", encabezado: "x-guest-user-id", valor: "abc" }
+  autenticacion: { tipo: "invitado", encabezado: "x-guest-user-id", valor: "abc" },
 }));
 
-mock.module("../../shared/api/http", () => ({
-  apiRequest: apiRequestMock
+mock.module("../../shared/api/api", () => ({
+  peticion: peticionMock,
 }));
 
 describe("auth.api", () => {
-  it("createGuestSession envía apodo y lee usuario/perfil/autenticacion", async () => {
-    const { createGuestSession } = await import("./auth.api");
+  it("crearSesionInvitado envía apodo y lee usuario/perfil/autenticacion", async () => {
+    const { crearSesionInvitado } = await import("./auth.api");
 
-    const respuesta = await createGuestSession({
+    const respuesta = await crearSesionInvitado({
       apodo: "Semillero",
       grupo_edad_id: "grupo-1",
-      url_avatar: "https://ejemplo.com/avatar.png"
+      url_avatar: "https://ejemplo.com/avatar.png",
     });
 
-    expect(apiRequestMock).toHaveBeenCalledWith("/autenticacion/invitado", {
-      method: "POST",
-      body: {
+    expect(peticionMock).toHaveBeenCalledWith("/autenticacion/invitado", {
+      metodo: "POST",
+      cuerpo: {
         apodo: "Semillero",
         grupo_edad_id: "grupo-1",
-        url_avatar: "https://ejemplo.com/avatar.png"
+        url_avatar: "https://ejemplo.com/avatar.png",
       },
-      auth: false
+      autenticar: false,
     });
     expect(respuesta.usuario.id).toBe("usuario-1");
     expect(respuesta.perfil.id).toBe("perfil-1");

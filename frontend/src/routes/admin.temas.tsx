@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { publishTheme, unpublishTheme } from "../features/admin/admin.api";
-import { getThemes } from "../features/themes/themes.api";
+import { publicarTema, despublicarTema } from "../features/admin/admin.api";
+import { obtenerTemas } from "../features/themes/themes.api";
 import { BookOpen, Loader, Plus, CheckCircle, RotateCcw, Edit3, Layout, Gamepad2, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas")({
@@ -18,10 +18,10 @@ const statusColors: Record<string, string> = {
 function AdminThemesPage() {
   const queryClient = useQueryClient();
 
-  const query = useQuery({ queryKey: ["admin", "themes"], queryFn: () => getThemes() });
+  const query = useQuery({ queryKey: ["admin", "themes"], queryFn: () => obtenerTemas() });
 
   const publishMutation = useMutation({
-    mutationFn: publishTheme,
+    mutationFn: publicarTema,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
       queryClient.invalidateQueries({ queryKey: ["themes"] });
@@ -29,7 +29,7 @@ function AdminThemesPage() {
   });
 
   const unpublishMutation = useMutation({
-    mutationFn: unpublishTheme,
+    mutationFn: despublicarTema,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
     }

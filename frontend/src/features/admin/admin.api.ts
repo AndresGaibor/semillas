@@ -1,7 +1,7 @@
-import { apiRequest } from "../../shared/api/http";
-import type { Theme, ThemeStep } from "../themes/themes.api";
+import { peticion } from "../../shared/api/api";
+import type { Actividad, Paso, Tema } from "../../shared/api/api";
 
-export type CreateThemeRequest = {
+export type CrearTemaSolicitud = {
   senda_id: string;
   titulo: string;
   slug: string;
@@ -13,7 +13,7 @@ export type CreateThemeRequest = {
   grupo_edad_ids: string[];
 };
 
-export type UpdateThemeRequest = {
+export type ActualizarTemaSolicitud = {
   titulo?: string;
   objetivo?: string;
   resumen?: string;
@@ -23,7 +23,7 @@ export type UpdateThemeRequest = {
   grupo_edad_ids?: string[];
 };
 
-export type UpsertStepContentRequest = {
+export type GuardarParlanteSolicitud = {
   tipo_paso_id: string;
   grupo_edad_id: string;
   titulo: string;
@@ -31,7 +31,7 @@ export type UpsertStepContentRequest = {
   instruccion_corta?: string;
 };
 
-export type CreateActivityRequest = {
+export type CrearActividadSolicitud = {
   tema_id: string;
   paso_id?: string | null;
   grupo_edad_id: string;
@@ -53,10 +53,8 @@ export type CreateActivityRequest = {
   }>;
 };
 
-export type UpdateActivityRequest = Partial<CreateActivityRequest>;
-
-export function getAdminDashboard() {
-  return apiRequest<{
+export function obtenerResumenAdmin() {
+  return peticion<{
     temas: number;
     publicados: number;
     usuarios: number;
@@ -64,63 +62,72 @@ export function getAdminDashboard() {
   }>("/administracion/resumen");
 }
 
-export function getAdminTheme(themeId: string) {
-  return apiRequest<Theme>(`/administracion/temas/${themeId}`);
+export function obtenerTemaAdmin(idTema: string) {
+  return peticion<Tema>(`/administracion/temas/${idTema}`);
 }
 
-export function getAdminThemeSteps(themeId: string) {
-  return apiRequest<ThemeStep[]>(`/administracion/temas/${themeId}/pasos`);
+export function obtenerPasosAdmin(idTema: string) {
+  return peticion<Paso[]>(`/administracion/temas/${idTema}/pasos`);
 }
 
-export function createTheme(payload: CreateThemeRequest) {
-  return apiRequest<Theme>("/administracion/temas", {
-    method: "POST",
-    body: payload
+export function crearTema(datos: CrearTemaSolicitud) {
+  return peticion<Tema>("/administracion/temas", {
+    metodo: "POST",
+    cuerpo: datos,
   });
 }
 
-export function updateTheme(themeId: string, payload: UpdateThemeRequest) {
-  return apiRequest<Theme>(`/administracion/temas/${themeId}`, {
-    method: "PATCH",
-    body: payload
+export function actualizarTema(
+  idTema: string,
+  datos: ActualizarTemaSolicitud
+) {
+  return peticion<Tema>(`/administracion/temas/${idTema}`, {
+    metodo: "PATCH",
+    cuerpo: datos,
   });
 }
 
-export function upsertThemeStep(themeId: string, payload: UpsertStepContentRequest) {
-  return apiRequest(`/administracion/temas/${themeId}/pasos`, {
-    method: "POST",
-    body: payload
+export function guardarParlante(
+  idTema: string,
+  datos: GuardarParlanteSolicitud
+) {
+  return peticion(`/administracion/temas/${idTema}/pasos`, {
+    metodo: "POST",
+    cuerpo: datos,
   });
 }
 
-export function publishTheme(themeId: string) {
-  return apiRequest<Theme>(`/administracion/temas/${themeId}/publicar`, {
-    method: "POST"
+export function publicarTema(idTema: string) {
+  return peticion<Tema>(`/administracion/temas/${idTema}/publicar`, {
+    metodo: "POST",
   });
 }
 
-export function unpublishTheme(themeId: string) {
-  return apiRequest<Theme>(`/administracion/temas/${themeId}/borrador`, {
-    method: "POST"
+export function despublicarTema(idTema: string) {
+  return peticion<Tema>(`/administracion/temas/${idTema}/borrador`, {
+    metodo: "POST",
   });
 }
 
-export function createActivity(payload: CreateActivityRequest) {
-  return apiRequest("/administracion/actividades", {
-    method: "POST",
-    body: payload
+export function crearActividad(datos: CrearActividadSolicitud) {
+  return peticion("/administracion/actividades", {
+    metodo: "POST",
+    cuerpo: datos,
   });
 }
 
-export function updateActivity(activityId: string, payload: UpdateActivityRequest) {
-  return apiRequest(`/administracion/actividades/${activityId}`, {
-    method: "PATCH",
-    body: payload
+export function actualizarActividad(
+  idActividad: string,
+  datos: Partial<CrearActividadSolicitud>
+) {
+  return peticion(`/administracion/actividades/${idActividad}`, {
+    metodo: "PATCH",
+    cuerpo: datos,
   });
 }
 
-export function deleteActivity(activityId: string) {
-  return apiRequest(`/administracion/actividades/${activityId}`, {
-    method: "DELETE"
+export function eliminarActividad(idActividad: string) {
+  return peticion(`/administracion/actividades/${idActividad}`, {
+    metodo: "DELETE",
   });
 }

@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { getAdminThemeSteps, upsertThemeStep } from "../features/admin/admin.api";
-import { getAgeGroups, getCrecerSteps } from "../features/catalog/catalog.api";
+import { obtenerPasosAdmin, guardarParlante } from "../features/admin/admin.api";
+import { obtenerGruposEdad, obtenerPasosCrecer } from "../features/catalog/catalog.api";
 import { ArrowLeft, Loader, Save, Check } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/crecer")({
@@ -20,11 +20,11 @@ function AdminThemeCrecerPage() {
 
   const stepsQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "steps"],
-    queryFn: () => getAdminThemeSteps(themeId)
+    queryFn: () => obtenerPasosAdmin(themeId)
   });
 
-  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: getAgeGroups });
-  const crecerStepsQuery = useQuery({ queryKey: ["catalog", "crecer-steps"], queryFn: getCrecerSteps });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
+  const crecerStepsQuery = useQuery({ queryKey: ["catalog", "crecer-steps"], queryFn: obtenerPasosCrecer });
 
   const existingContent = stepsQuery.data
     ?.find((s) => s.tipo_paso?.codigo === activeStepCode)
@@ -46,7 +46,7 @@ function AdminThemeCrecerPage() {
     mutationFn: () => {
       const stepType = crecerStepsQuery.data?.find((s) => s.codigo === activeStepCode);
       if (!stepType || !selectedAgeGroupId) throw new Error("Faltan datos");
-      return upsertThemeStep(themeId, {
+      return guardarParlante(themeId, {
         tipo_paso_id: stepType.id,
         grupo_edad_id: selectedAgeGroupId,
         titulo: title || stepType.nombre,

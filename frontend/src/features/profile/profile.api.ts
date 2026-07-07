@@ -1,18 +1,19 @@
-import { apiRequest } from "../../shared/api/http";
-import { construirActualizacionPerfil, type ActualizacionPerfilInput, type PerfilApi, type UsuarioApi } from "../../shared/api/contrato";
+import { peticion } from "../../shared/api/api";
+import type { Perfil, Usuario } from "../../shared/api/api";
 
-export type MeResponse = {
-  usuario: UsuarioApi;
-  perfil: PerfilApi;
-};
-
-export function getMe() {
-  return apiRequest<MeResponse>("/perfil");
+export function obtenerMiPerfil() {
+  return peticion<{ usuario: Usuario; perfil: Perfil }>("/perfil");
 }
 
-export function updateProfile(payload: ActualizacionPerfilInput) {
-  return apiRequest<PerfilApi>("/perfil/actualizar", {
-    method: "PATCH",
-    body: construirActualizacionPerfil(payload)
+export function actualizarPerfil(datos: {
+  apodo?: string;
+  grupo_edad_id?: string | null;
+  url_avatar?: string | null;
+  prefiere_audio?: boolean;
+  tamano_texto_preferido?: string;
+}) {
+  return peticion<Perfil>("/perfil/actualizar", {
+    metodo: "PATCH",
+    cuerpo: datos,
   });
 }

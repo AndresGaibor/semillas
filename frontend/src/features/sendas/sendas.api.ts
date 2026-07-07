@@ -1,10 +1,6 @@
-import { apiRequest } from "../../shared/api/http";
-import type { SendaApi } from "../../shared/api/contrato";
+import { peticion } from "../../shared/api/api";
+import type { Senda } from "../../shared/api/api";
 
-export type Senda = SendaApi;
-
-export function getSendas() {
-  return apiRequest<Senda[]>("/sendas", {
-    auth: false
-  });
+export function obtenerSendas() {
+  return peticion<Senda[]>("/sendas", { autenticar: false });
 }

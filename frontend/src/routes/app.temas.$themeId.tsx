@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getTheme, getThemeSteps, getThemeActivities } from "../features/themes/themes.api";
-import { getMe } from "../features/profile/profile.api";
+import { obtenerTema, obtenerPasos, obtenerActividades } from "../features/themes/themes.api";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { Zap, Loader, Play, CheckCircle, Circle } from "lucide-react";
 
 const hex = (s: string | null | undefined): string => s ?? "#ccc";
@@ -14,16 +14,16 @@ export const Route = createFileRoute("/app/temas/$themeId")({
 function ThemeDetailPage() {
   const { themeId } = Route.useParams();
 
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
-  const themeQuery = useQuery({ queryKey: ["theme", themeId], queryFn: () => getTheme(themeId) });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
+  const themeQuery = useQuery({ queryKey: ["theme", themeId], queryFn: () => obtenerTema(themeId) });
   const stepsQuery = useQuery({
     queryKey: ["theme", themeId, "steps", meQuery.data?.perfil?.grupo_edad_id],
-    queryFn: () => getThemeSteps(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
+    queryFn: () => obtenerPasos(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: !!meQuery.data
   });
   const activitiesQuery = useQuery({
     queryKey: ["theme", themeId, "activities", meQuery.data?.perfil?.grupo_edad_id],
-    queryFn: () => getThemeActivities(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
+    queryFn: () => obtenerActividades(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: !!meQuery.data
   });
 

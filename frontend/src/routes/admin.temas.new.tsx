@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { createTheme, type CreateThemeRequest } from "../features/admin/admin.api";
-import { getAgeGroups, getBibleVersions } from "../features/catalog/catalog.api";
-import { getSendas } from "../features/sendas/sendas.api";
+import { crearTema, type CrearTemaSolicitud } from "../features/admin/admin.api";
+import { obtenerGruposEdad, obtenerVersionesBiblicas } from "../features/catalog/catalog.api";
+import { obtenerSendas } from "../features/sendas/sendas.api";
 import { ArrowLeft, Loader } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/new")({
@@ -13,16 +13,16 @@ export const Route = createFileRoute("/admin/temas/new")({
 function NewThemePage() {
   const navigate = useNavigate();
 
-  const { register, handleSubmit } = useForm<CreateThemeRequest>({
+  const { register, handleSubmit } = useForm<CrearTemaSolicitud>({
     defaultValues: { minutos_estimados: 15, xp_recompensa: 50, grupo_edad_ids: [] }
   });
 
-  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: getSendas });
-  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: getAgeGroups });
-  const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: getBibleVersions });
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
+  const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
 
   const createMutation = useMutation({
-    mutationFn: createTheme,
+    mutationFn: crearTema,
     onSuccess: () => navigate({ to: "/admin/temas" })
   });
 

@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { createActivity, deleteActivity, getAdminThemeSteps } from "../features/admin/admin.api";
-import { getActivityTypes } from "../features/catalog/catalog.api";
-import { getThemeActivities } from "../features/themes/themes.api";
-import { getMe } from "../features/profile/profile.api";
+import { crearActividad, eliminarActividad, obtenerPasosAdmin } from "../features/admin/admin.api";
+import { obtenerTiposActividad } from "../features/catalog/catalog.api";
+import { obtenerActividades } from "../features/themes/themes.api";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { ArrowLeft, Loader, Plus, Trash2, Gamepad2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
@@ -30,25 +30,25 @@ function AdminThemeActivitiesPage() {
     { etiqueta: "D", texto: "", correcta: false, orden: 4 }
   ]);
 
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () => getThemeActivities(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
+    queryFn: () => obtenerActividades(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: !!meQuery.data
   });
   const stepsQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "steps"],
-    queryFn: () => getAdminThemeSteps(themeId)
+    queryFn: () => obtenerPasosAdmin(themeId)
   });
   const activityTypesQuery = useQuery({
     queryKey: ["catalog", "activity-types"],
-    queryFn: getActivityTypes
+    queryFn: obtenerTiposActividad
   });
 
   const createMutation = useMutation({
     mutationFn: () => {
       if (!selectedStepId || !selectedActivityTypeId) throw new Error("Faltan campos");
-      return createActivity({
+      return crearActividad({
         tema_id: themeId,
         paso_id: selectedStepId,
         grupo_edad_id: meQuery.data?.perfil?.grupo_edad_id ?? "",
@@ -79,7 +79,7 @@ function AdminThemeActivitiesPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteActivity,
+    mutationFn: eliminarActividad,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId, "activities"] })
   });
 

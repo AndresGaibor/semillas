@@ -1,35 +1,33 @@
-import { apiRequest } from "../../shared/api/http";
-import {
-  construirAltaInvitado,
-  type AltaInvitadoInput,
-  type AutenticacionApi,
-  type PerfilApi,
-  type UsuarioApi
-} from "../../shared/api/contrato";
+import { peticion } from "../../shared/api/api";
+import type { Autenticacion, Perfil, Usuario } from "../../shared/api/api";
 
 export type SesionInvitadoRespuesta = {
-  usuario: UsuarioApi;
-  perfil: PerfilApi;
-  autenticacion: AutenticacionApi;
+  usuario: Usuario;
+  perfil: Perfil;
+  autenticacion: Autenticacion;
 };
 
-export function createGuestSession(payload: AltaInvitadoInput) {
-  return apiRequest<SesionInvitadoRespuesta>("/autenticacion/invitado", {
-    method: "POST",
-    body: construirAltaInvitado(payload),
-    auth: false
+export function crearSesionInvitado(datos: {
+  apodo: string;
+  grupo_edad_id?: string;
+  url_avatar?: string;
+}) {
+  return peticion<SesionInvitadoRespuesta>("/autenticacion/invitado", {
+    metodo: "POST",
+    cuerpo: datos,
+    autenticar: false,
   });
 }
 
 export type ConfiguracionDevRespuesta = {
-  usuario: UsuarioApi;
-  perfil: PerfilApi;
+  usuario: Usuario;
+  perfil: Perfil;
   mensaje: string;
 };
 
-export function setupDevAdmin() {
-  return apiRequest<ConfiguracionDevRespuesta>("/autenticacion/configuracion-dev", {
-    method: "POST",
-    auth: false
-  });
+export function configurarDevAdmin() {
+  return peticion<ConfiguracionDevRespuesta>(
+    "/autenticacion/configuracion-dev",
+    { metodo: "POST", autenticar: false }
+  );
 }

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { randomUUID } from "../shared/utils/uuid";
-import { answerActivity, getActivity } from "../features/activities/activities.api";
+import { responderActividad, obtenerActividad } from "../features/activities/activities.api";
 import { queryClient } from "../app/query-client";
 import { Loader, Check, X, ArrowLeft, Zap } from "lucide-react";
 
@@ -17,12 +17,12 @@ function ActivityPage() {
 
   const activityQuery = useQuery({
     queryKey: ["activity", activityId],
-    queryFn: () => getActivity(activityId)
+    queryFn: () => obtenerActividad(activityId)
   });
 
   const answerMutation = useMutation({
     mutationFn: (selectedOptionId: string) =>
-      answerActivity(activityId, {
+      responderActividad(activityId, {
         evento_id_cliente: randomUUID(),
         opcion_id_seleccionada: selectedOptionId,
         ocurrido_en_cliente: new Date().toISOString(),

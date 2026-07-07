@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { getAdminTheme, updateTheme } from "../features/admin/admin.api";
+import { obtenerTemaAdmin, actualizarTema } from "../features/admin/admin.api";
 import { ArrowLeft, Loader, Save } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/edit")({
@@ -19,7 +19,7 @@ function EditThemePage() {
 
   const themeQuery = useQuery({
     queryKey: ["admin", "theme", themeId],
-    queryFn: () => getAdminTheme(themeId)
+    queryFn: () => obtenerTemaAdmin(themeId)
   });
 
   const theme = themeQuery.data;
@@ -35,7 +35,7 @@ function EditThemePage() {
 
   const updateMutation = useMutation({
     mutationFn: () =>
-      updateTheme(themeId, { titulo: title, objetivo: objective, resumen: summary, xp_recompensa: xpReward }),
+      actualizarTema(themeId, { titulo: title, objetivo: objective, resumen: summary, xp_recompensa: xpReward }),
     onSuccess: () => navigate({ to: "/admin/temas" })
   });
 

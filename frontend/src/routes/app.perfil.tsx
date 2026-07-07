@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getMe } from "../features/profile/profile.api";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { User, Mail, Loader } from "lucide-react";
 
 export const Route = createFileRoute("/app/perfil")({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/app/perfil")({
 });
 
 function ProfilePage() {
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: getMe });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
 
   const perfil = meQuery.data?.perfil;
   const usuario = meQuery.data?.usuario;

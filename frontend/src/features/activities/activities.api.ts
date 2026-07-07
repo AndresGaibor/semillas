@@ -1,33 +1,27 @@
-import { apiRequest } from "../../shared/api/http";
-import type { Activity } from "../themes/themes.api";
+import { peticion } from "../../shared/api/api";
+import type { Actividad } from "../../shared/api/api";
 
-export function getActivity(activityId: string) {
-  return apiRequest<Activity>(`/actividades/${activityId}`, {
-    auth: false
+export function obtenerActividad(idActividad: string) {
+  return peticion<Actividad>(`/actividades/${idActividad}`, {
+    autenticar: false,
   });
 }
 
-export type ResponderActividadPayload = {
-  evento_id_cliente: string;
-  opcion_id_seleccionada?: string;
-  texto_respuesta?: string;
-  ocurrido_en_cliente?: string;
-  dispositivo_id?: string;
-};
-
-export type ResponderActividadRespuesta = {
-  resultado: {
-    correcta: boolean;
-    xp_otorgada: number;
-  };
-  duplicado: boolean;
-  correcta: boolean;
-  xp_otorgada: number;
-};
-
-export function answerActivity(activityId: string, payload: ResponderActividadPayload) {
-  return apiRequest<ResponderActividadRespuesta>(`/actividades/${activityId}/responder`, {
-    method: "POST",
-    body: payload
+export function responderActividad(
+  idActividad: string,
+  datos: {
+    evento_id_cliente: string;
+    opcion_id_seleccionada?: string;
+    texto_respuesta?: string;
+    ocurrido_en_cliente?: string;
+    dispositivo_id?: string;
+  }
+) {
+  return peticion<{
+    resultado: { correcta: boolean; xp_otorgada: number };
+    duplicado: boolean;
+  }>(`/actividades/${idActividad}/responder`, {
+    metodo: "POST",
+    cuerpo: datos,
   });
 }

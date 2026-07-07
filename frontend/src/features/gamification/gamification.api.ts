@@ -1,6 +1,6 @@
-import { apiRequest } from "../../shared/api/http";
+import { peticion } from "../../shared/api/api";
 
-export type GamificationMe = {
+export type GamificacionPropia = {
   nivel: {
     usuario_id: string | null;
     xp_total: number;
@@ -10,6 +10,6 @@ export type GamificationMe = {
   logros: Array<unknown>;
 };
 
-export function getMyGamification() {
-  return apiRequest<GamificationMe>("/gamificacion/mi");
+export function obtenerGamificacionPropia() {
+  return peticion<GamificacionPropia>("/gamificacion/mi");
 }

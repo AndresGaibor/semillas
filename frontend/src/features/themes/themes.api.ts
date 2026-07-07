@@ -1,60 +1,35 @@
-import { apiRequest } from "../../shared/api/http";
-import type { ActividadApi, TemaApi, TemaPasoApi } from "../../shared/api/contrato";
+import { peticion } from "../../shared/api/api";
+import type { Actividad, Paso, Tema } from "../../shared/api/api";
 
-export type Theme = TemaApi;
-export type ThemeStep = TemaPasoApi;
-export type Activity = ActividadApi;
-
-export function getThemes(params?: { senda_id?: string }) {
-  const search = new URLSearchParams();
-
-  if (params?.senda_id) {
-    search.set("senda_id", params.senda_id);
-  }
-
-  const query = search.toString();
-
-  return apiRequest<Theme[]>(`/temas${query ? `?${query}` : ""}`, {
-    auth: false
+export function obtenerTemas(params?: { senda_id?: string }) {
+  const busqueda = new URLSearchParams();
+  if (params?.senda_id) busqueda.set("senda_id", params.senda_id);
+  const query = busqueda.toString();
+  return peticion<Tema[]>(`/temas${query ? `?${query}` : ""}`, {
+    autenticar: false,
   });
 }
 
-export function getTheme(themeId: string) {
-  return apiRequest<Theme>(`/temas/${themeId}`, {
-    auth: false
-  });
+export function obtenerTema(idTema: string) {
+  return peticion<Tema>(`/temas/${idTema}`, { autenticar: false });
 }
 
-export function getThemeSteps(themeId: string, grupo_edad_id?: string) {
-  const search = new URLSearchParams();
-
-  if (grupo_edad_id) {
-    search.set("grupo_edad_id", grupo_edad_id);
-  }
-
-  const query = search.toString();
-
-  return apiRequest<ThemeStep[]>(
-    `/temas/${themeId}/pasos${query ? `?${query}` : ""}`,
-    {
-      auth: false
-    }
+export function obtenerPasos(idTema: string, idGrupoEdad?: string) {
+  const busqueda = new URLSearchParams();
+  if (idGrupoEdad) busqueda.set("grupo_edad_id", idGrupoEdad);
+  const query = busqueda.toString();
+  return peticion<Paso[]>(
+    `/temas/${idTema}/pasos${query ? `?${query}` : ""}`,
+    { autenticar: false }
   );
 }
 
-export function getThemeActivities(themeId: string, grupo_edad_id?: string) {
-  const search = new URLSearchParams();
-
-  if (grupo_edad_id) {
-    search.set("grupo_edad_id", grupo_edad_id);
-  }
-
-  const query = search.toString();
-
-  return apiRequest<Activity[]>(
-    `/temas/${themeId}/actividades${query ? `?${query}` : ""}`,
-    {
-      auth: false
-    }
+export function obtenerActividades(idTema: string, idGrupoEdad?: string) {
+  const busqueda = new URLSearchParams();
+  if (idGrupoEdad) busqueda.set("grupo_edad_id", idGrupoEdad);
+  const query = busqueda.toString();
+  return peticion<Actividad[]>(
+    `/temas/${idTema}/actividades${query ? `?${query}` : ""}`,
+    { autenticar: false }
   );
 }
