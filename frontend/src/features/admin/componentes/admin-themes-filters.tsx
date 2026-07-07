@@ -76,7 +76,9 @@ export function AdminThemesFilters({
 
       {/* Más filtros Button */}
       <button
+        type="button"
         onClick={onMasFiltros}
+        disabled={!onMasFiltros}
         className="rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-[13px] font-semibold text-slate-600 h-[42px] px-5 flex items-center justify-center gap-2 transition-colors outline-none cursor-pointer"
       >
         <i className="fa-solid fa-filter text-slate-400 text-xs" />

@@ -46,6 +46,7 @@ export interface OpcionTab {
   label: string;
   count?: number;
   badgeClassName?: string;
+  mostrarBadge?: boolean;
 }
 
 export interface PropiedadesTabsOpciones {
@@ -56,7 +57,6 @@ export interface PropiedadesTabsOpciones {
   variante?: "linea" | "pildora";
   claseActiva?: string;
   claseInactiva?: string;
-  mostrarBadgeEnTodos?: boolean;
 }
 
 export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
@@ -67,7 +67,6 @@ export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
   variante = "linea",
   claseActiva,
   claseInactiva,
-  mostrarBadgeEnTodos = false,
 }) => {
   const esVariantePildora = variante === "pildora";
 
@@ -103,7 +102,7 @@ export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
             )}
           >
             <span>{opcion.label}</span>
-            {opcion.count !== undefined && opcion.count > 0 && (mostrarBadgeEnTodos || opcion.id !== "todos") && (
+            {opcion.count !== undefined && opcion.count > 0 && (opcion.mostrarBadge ?? true) && (
               <span
                 className={unirClases(
                   "inline-flex px-2 py-0.5 rounded-full text-[10px]",
@@ -267,6 +266,7 @@ export interface PropiedadesCampoBusqueda
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> {
   valor: string;
   onChange: (valor: string) => void;
+  ariaLabel?: string;
   contenedorClassName?: string;
   inputClassName?: string;
   icono?: React.ReactNode;
@@ -277,6 +277,7 @@ export const CampoBusqueda = React.forwardRef<HTMLInputElement, PropiedadesCampo
     {
       valor,
       onChange,
+      ariaLabel,
       contenedorClassName,
       inputClassName,
       icono = <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutro size-4" />,
@@ -292,6 +293,7 @@ export const CampoBusqueda = React.forwardRef<HTMLInputElement, PropiedadesCampo
           ref={referencia}
           value={valor}
           onChange={(event) => onChange(event.target.value)}
+          aria-label={ariaLabel ?? props.placeholder ?? "Campo de busqueda"}
           className={unirClases(
             "w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-neutro-oscuro-max outline-none transition-colors focus:border-primario focus:ring-1 focus:ring-primario",
             inputClassName,
