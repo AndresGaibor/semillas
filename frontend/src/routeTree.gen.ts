@@ -14,12 +14,17 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as OnboardingCustomizeRouteImport } from './routes/onboarding.customize'
 import { Route as AppSendasRouteImport } from './routes/app.sendas'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppLogrosRouteImport } from './routes/app.logros'
+import { Route as AppDescargasRouteImport } from './routes/app.descargas'
+import { Route as AppClubesRouteImport } from './routes/app.clubes'
 import { Route as AdminTemasRouteImport } from './routes/admin.temas'
+import { Route as AppTemasIndexRouteImport } from './routes/app.temas.index'
 import { Route as AppTemasThemeIdRouteImport } from './routes/app.temas.$themeId'
 import { Route as AppSendasSendaIdRouteImport } from './routes/app.sendas.$sendaId'
 import { Route as AppActividadesActivityIdRouteImport } from './routes/app.actividades.$activityId'
@@ -54,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OnboardingRoute,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -63,6 +73,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const OnboardingCustomizeRoute = OnboardingCustomizeRouteImport.update({
+  id: '/customize',
+  path: '/customize',
+  getParentRoute: () => OnboardingRoute,
 } as any)
 const AppSendasRoute = AppSendasRouteImport.update({
   id: '/sendas',
@@ -79,10 +94,25 @@ const AppLogrosRoute = AppLogrosRouteImport.update({
   path: '/logros',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDescargasRoute = AppDescargasRouteImport.update({
+  id: '/descargas',
+  path: '/descargas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClubesRoute = AppClubesRouteImport.update({
+  id: '/clubes',
+  path: '/clubes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AdminTemasRoute = AdminTemasRouteImport.update({
   id: '/temas',
   path: '/temas',
   getParentRoute: () => AdminRoute,
+} as any)
+const AppTemasIndexRoute = AppTemasIndexRouteImport.update({
+  id: '/temas/',
+  path: '/temas/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppTemasThemeIdRoute = AppTemasThemeIdRouteImport.update({
   id: '/temas/$themeId',
@@ -133,17 +163,22 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/admin/temas': typeof AdminTemasRouteWithChildren
+  '/app/clubes': typeof AppClubesRoute
+  '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/sendas': typeof AppSendasRouteWithChildren
+  '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
   '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
+  '/app/temas/': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
   '/admin/temas/$themeId/crecer': typeof AdminTemasThemeIdCrecerRoute
   '/admin/temas/$themeId/edit': typeof AdminTemasThemeIdEditRoute
@@ -152,17 +187,21 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
+  '/app/clubes': typeof AppClubesRoute
+  '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/sendas': typeof AppSendasRouteWithChildren
+  '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
+  '/onboarding': typeof OnboardingIndexRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
   '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
+  '/app/temas': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
   '/admin/temas/$themeId/crecer': typeof AdminTemasThemeIdCrecerRoute
   '/admin/temas/$themeId/edit': typeof AdminTemasThemeIdEditRoute
@@ -174,17 +213,22 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/admin/temas': typeof AdminTemasRouteWithChildren
+  '/app/clubes': typeof AppClubesRoute
+  '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/sendas': typeof AppSendasRouteWithChildren
+  '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
   '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
+  '/app/temas/': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
   '/admin/temas/$themeId/crecer': typeof AdminTemasThemeIdCrecerRoute
   '/admin/temas/$themeId/edit': typeof AdminTemasThemeIdEditRoute
@@ -199,15 +243,20 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/admin/temas'
+    | '/app/clubes'
+    | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
     | '/app/sendas'
+    | '/onboarding/customize'
     | '/admin/'
     | '/app/'
+    | '/onboarding/'
     | '/admin/temas/new'
     | '/app/actividades/$activityId'
     | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
+    | '/app/temas/'
     | '/admin/temas/$themeId/activities'
     | '/admin/temas/$themeId/crecer'
     | '/admin/temas/$themeId/edit'
@@ -216,17 +265,21 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
-    | '/onboarding'
     | '/admin/temas'
+    | '/app/clubes'
+    | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
     | '/app/sendas'
+    | '/onboarding/customize'
     | '/admin'
     | '/app'
+    | '/onboarding'
     | '/admin/temas/new'
     | '/app/actividades/$activityId'
     | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
+    | '/app/temas'
     | '/admin/temas/$themeId/activities'
     | '/admin/temas/$themeId/crecer'
     | '/admin/temas/$themeId/edit'
@@ -239,15 +292,20 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/admin/temas'
+    | '/app/clubes'
+    | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
     | '/app/sendas'
+    | '/onboarding/customize'
     | '/admin/'
     | '/app/'
+    | '/onboarding/'
     | '/admin/temas/new'
     | '/app/actividades/$activityId'
     | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
+    | '/app/temas/'
     | '/admin/temas/$themeId/activities'
     | '/admin/temas/$themeId/crecer'
     | '/admin/temas/$themeId/edit'
@@ -259,7 +317,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRoute
+  OnboardingRoute: typeof OnboardingRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -299,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
@@ -312,6 +377,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/onboarding/customize': {
+      id: '/onboarding/customize'
+      path: '/customize'
+      fullPath: '/onboarding/customize'
+      preLoaderRoute: typeof OnboardingCustomizeRouteImport
+      parentRoute: typeof OnboardingRoute
     }
     '/app/sendas': {
       id: '/app/sendas'
@@ -334,12 +406,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLogrosRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/descargas': {
+      id: '/app/descargas'
+      path: '/descargas'
+      fullPath: '/app/descargas'
+      preLoaderRoute: typeof AppDescargasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/clubes': {
+      id: '/app/clubes'
+      path: '/clubes'
+      fullPath: '/app/clubes'
+      preLoaderRoute: typeof AppClubesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/admin/temas': {
       id: '/admin/temas'
       path: '/temas'
       fullPath: '/admin/temas'
       preLoaderRoute: typeof AdminTemasRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/app/temas/': {
+      id: '/app/temas/'
+      path: '/temas'
+      fullPath: '/app/temas/'
+      preLoaderRoute: typeof AppTemasIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/temas/$themeId': {
       id: '/app/temas/$themeId'
@@ -445,31 +538,51 @@ const AppSendasRouteWithChildren = AppSendasRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppClubesRoute: typeof AppClubesRoute
+  AppDescargasRoute: typeof AppDescargasRoute
   AppLogrosRoute: typeof AppLogrosRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppSendasRoute: typeof AppSendasRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppActividadesActivityIdRoute: typeof AppActividadesActivityIdRoute
   AppTemasThemeIdRoute: typeof AppTemasThemeIdRoute
+  AppTemasIndexRoute: typeof AppTemasIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppClubesRoute: AppClubesRoute,
+  AppDescargasRoute: AppDescargasRoute,
   AppLogrosRoute: AppLogrosRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppSendasRoute: AppSendasRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppActividadesActivityIdRoute: AppActividadesActivityIdRoute,
   AppTemasThemeIdRoute: AppTemasThemeIdRoute,
+  AppTemasIndexRoute: AppTemasIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface OnboardingRouteChildren {
+  OnboardingCustomizeRoute: typeof OnboardingCustomizeRoute
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
+}
+
+const OnboardingRouteChildren: OnboardingRouteChildren = {
+  OnboardingCustomizeRoute: OnboardingCustomizeRoute,
+  OnboardingIndexRoute: OnboardingIndexRoute,
+}
+
+const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
+  OnboardingRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
-  OnboardingRoute: OnboardingRoute,
+  OnboardingRoute: OnboardingRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
