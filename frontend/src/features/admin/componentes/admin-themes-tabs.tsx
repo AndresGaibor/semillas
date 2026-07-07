@@ -25,6 +25,7 @@ export function AdminThemesTabs({ activeTab, onTabChange, counts }: AdminThemesT
         { id: "publicado", label: "Publicados", count: counts.publicados, badgeClassName: "bg-[#2e9e5b]/10 text-[#2e9e5b] font-bold" },
       ]}
       clase="mb-6"
+      mostrarBadgeEnTodos
     />
   );
 }

@@ -35,6 +35,8 @@ export const DescargasTabsFilter: React.FC<DescargasTabsFilterProps> = ({
           { id: "Canciones", label: "Canciones" },
         ]}
         clase="mb-6"
+        claseActiva="border-[#7E57C2] text-[#7E57C2]"
+        claseInactiva="border-transparent text-slate-400 hover:text-slate-600"
       />
 
       {/* Filtros y Búsqueda */}
