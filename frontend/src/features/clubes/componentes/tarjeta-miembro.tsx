@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
-import { MAPA_AVATARES } from "@/shared/constants/avatares";
+import { AvatarTexto } from "@/componentes/ui/avatar-texto";
+import { resolverAvatar } from "@/shared/constants/avatares";
 
 type PropsTarjetaMiembro = {
   posicion: number;
@@ -28,6 +29,8 @@ export function TarjetaMiembro({
   contribuciones,
   avatarIndex,
 }: PropsTarjetaMiembro) {
+  const avatarUrl = resolverAvatar(avatarIndex);
+
   return (
     <div className="grid grid-cols-12 items-center py-1">
       <div className="col-span-2 flex justify-center">
@@ -35,14 +38,17 @@ export function TarjetaMiembro({
           {posicion}
         </span>
       </div>
-      <div className="col-span-4 flex items-center gap-2.5 min-w-0 text-left">
-        <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 bg-orange-100 flex-shrink-0">
-          <img src={MAPA_AVATARES[avatarIndex]} alt={nombre} className="w-full h-full object-cover" />
-        </div>
-        <div className="flex flex-col min-w-0">
-          <span className="text-xs font-extrabold text-slate-800 truncate">{nombre}</span>
-          <span className="text-[9px] font-semibold text-slate-400 truncate">{nivel}</span>
-        </div>
+      <div className="col-span-4 min-w-0 text-left">
+        <AvatarTexto
+          src={avatarUrl}
+          alt={nombre}
+          titulo={nombre}
+          subtitulo={nivel}
+          className="gap-2.5"
+          avatarClassName="h-8 w-8 rounded-full border border-slate-100 bg-orange-100"
+          tituloClassName="text-xs font-extrabold truncate text-slate-800"
+          subtituloClassName="text-[9px] font-semibold truncate text-slate-400"
+        />
       </div>
       <div className="col-span-3 flex items-center justify-center gap-1">
         <Zap size={11} className="text-amber-500 fill-amber-500" />
