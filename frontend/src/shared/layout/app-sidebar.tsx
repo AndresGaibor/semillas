@@ -36,16 +36,16 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout }:
       />
 
       <aside
-        className={`fixed left-0 top-0 z-[110] flex h-screen w-[250px] flex-col border-r border-[#e5e7eb] bg-slate-50 p-6 shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:translate-x-0 md:opacity-100 ${
+        className={`fixed left-0 top-0 z-[110] flex h-screen w-[300px] max-w-[85vw] flex-col border-r border-[#e5e7eb] bg-slate-50 p-5 shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:translate-x-0 md:opacity-100 sm:p-6 ${
           isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 md:translate-x-0 md:opacity-100"
         }`}
       >
         <div className="flex items-center gap-3 py-2.5">
-          <img src={logoImg} alt="Semillas Logo" className="h-12" />
-          <span className="text-2xl font-black text-primario">Semillas</span>
+          <img src={logoImg} alt="Semillas Logo" className="h-11 sm:h-12" />
+          <span className="text-xl font-black text-primario sm:text-2xl">Semillas</span>
         </div>
 
-        <div className="mb-8 ml-[60px] text-[13.6px] font-medium text-neutro">Crecer en la Palabra, vivir su verdad</div>
+        <div className="mb-7 ml-[56px] text-[11px] font-medium text-neutro sm:mb-8 sm:ml-[60px] sm:text-[13.6px]">Crecer en la Palabra, vivir su verdad</div>
 
         <nav className="flex flex-1 flex-col gap-2">
           {items.map((item) => (
@@ -53,7 +53,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout }:
               key={item.to}
               to={item.to as any}
               onClick={onClose}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-neutro transition-all hover:bg-black/5 hover:text-neutro-oscuro-max ${
+            className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-neutro transition-all hover:bg-black/5 hover:text-neutro-oscuro-max ${
                 item.match(activePage) ? "bg-primario-palido text-primario hover:bg-primario-palido hover:text-primario" : ""
               }`}
             >
@@ -79,7 +79,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout }:
           <Button
             type="button"
             onClick={onLogout}
-            className="h-11 w-full justify-center gap-2 rounded-2xl bg-[#8b5cf6] px-4 text-sm font-semibold text-white shadow-none hover:bg-[#7c3aed]"
+            className="h-10 w-full justify-center gap-2 rounded-2xl bg-[#8b5cf6] px-4 text-sm font-semibold text-white shadow-none hover:bg-[#7c3aed] sm:h-11"
           >
             <i className="fa-solid fa-right-from-bracket"></i>
             Cerrar sesión

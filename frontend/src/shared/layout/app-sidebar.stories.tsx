@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
+  createMemoryHistory,
   RouterProvider,
   createRouter,
   createRootRoute,
@@ -43,15 +44,7 @@ const crearRouter = (activePage: string) => {
   return createRouter({
     routeTree,
     defaultNotFoundComponent: () => null,
-    history: {
-      push: () => {},
-      replace: () => {},
-      back: () => {},
-      forward: () => {},
-      destroy: () => {},
-      listen: () => () => {},
-      location: { pathname: activePage, search: "", hash: "" },
-    } as any,
+    history: createMemoryHistory({ initialEntries: [activePage] }),
   });
 };
 

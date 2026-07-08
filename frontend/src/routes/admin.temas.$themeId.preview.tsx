@@ -26,14 +26,9 @@ function AdminThemePreviewPage() {
 
   return (
     <div>
-      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-6">
         <ArrowLeft size={16} /> Volver
       </button>
-
-      <div className="flex items-center gap-2 mb-6">
-        <Eye className="text-[#3d8bd4]" size={22} />
-        <h1 className="text-2xl font-bold text-[#123b2c]">Vista previa</h1>
-      </div>
 
       {themeQuery.isLoading && (
         <div className="flex justify-center py-12"><Loader className="animate-spin text-[#2e9e5b]" size={24} /></div>

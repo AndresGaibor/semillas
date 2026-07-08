@@ -73,8 +73,10 @@ const variantesBoton = cva(
         grande: "h-14 px-7 text-base rounded-2xl",
         mediano: "h-11 px-5 text-sm rounded-xl",
         pequeno: "h-9 px-4 text-xs rounded-lg",
+        adaptativo: "h-10 px-4 text-sm rounded-xl sm:h-11 sm:px-5 sm:text-sm",
         icono: "h-11 w-11 p-0 rounded-xl",
         iconoPequeno: "h-9 w-9 p-0 rounded-lg",
+        iconoAdaptativo: "h-10 w-10 p-0 rounded-xl sm:h-11 sm:w-11",
       },
       forma: {
         normal: "",
@@ -108,8 +110,10 @@ export type TamanoBoton =
   | "grande"
   | "mediano"
   | "pequeno"
+  | "adaptativo"
   | "icono"
-  | "iconoPequeno";
+  | "iconoPequeno"
+  | "iconoAdaptativo";
 
 export type FormaBoton = "normal" | "pildora" | "cuadrado";
 

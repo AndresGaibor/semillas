@@ -85,12 +85,11 @@ function AdminThemeActivitiesPage() {
 
   return (
     <div>
-      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-6">
         <ArrowLeft size={16} /> Volver
       </button>
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[#123b2c]">Actividades</h1>
+      <div className="flex justify-end mb-6">
         <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 bg-[#2e9e5b] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#267d4c] transition-colors">
           <Plus size={16} /> {showForm ? "Cancelar" : "Nueva"}
         </button>

@@ -95,7 +95,7 @@ function validarUuid(id: string) {
   return UUID_REGEX.test(id);
 }
 
-mediaRoutes.post("/subir", authMiddleware, requireRole("administrador"), async (c) => {
+mediaRoutes.post("/subir", authMiddleware, async (c) => {
   const db = c.get("db");
   const user = c.get("user");
 
@@ -190,7 +190,7 @@ mediaRoutes.post("/subir", authMiddleware, requireRole("administrador"), async (
   return responderExito(recurso, 201);
 });
 
-mediaRoutes.get("/:id/url", authMiddleware, requireRole("administrador"), async (c) => {
+mediaRoutes.get("/:id/url", authMiddleware, async (c) => {
   const db = c.get("db");
   const id = c.req.param("id");
 
@@ -226,6 +226,18 @@ mediaRoutes.get("/:id/url", authMiddleware, requireRole("administrador"), async 
   return responderExito({ url: data.signedUrl, expira_en_segundos: SIGNED_URL_EXPIRES_IN_SECONDS });
 });
 
+mediaRoutes.get("/", authMiddleware, async (c) => {
+  const db = c.get("db");
+  const { data: recursos, error } = await db
+    .from("recurso_multimedia")
+    .select("*")
+    .eq("activo", true)
+    .order("creado_en", { ascending: false });
+
+  if (error) throw error;
+  return responderExito(recursos);
+});
+
 mediaRoutes.get("/:id", async (c) => {
   const db = c.get("db");
   const id = c.req.param("id");
@@ -252,7 +264,7 @@ mediaRoutes.get("/:id", async (c) => {
   return responderExito(recurso);
 });
 
-mediaRoutes.delete("/:id", authMiddleware, requireRole("administrador"), async (c) => {
+mediaRoutes.delete("/:id", authMiddleware, async (c) => {
   const db = c.get("db");
   const id = c.req.param("id");
 

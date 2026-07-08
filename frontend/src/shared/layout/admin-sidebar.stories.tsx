@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
+  createMemoryHistory,
   RouterProvider,
   createRouter,
   createRootRoute,
@@ -7,16 +8,19 @@ import {
 } from "@tanstack/react-router";
 import { AdminSidebar } from "./admin-sidebar";
 
-const crearRouter = (pathname: string) => {
+const crearRouter = (activePage: string) => {
   const rootRoute = createRootRoute();
 
   const rutaAdmin = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin",
     component: () => (
-      <AdminSidebar pathname={pathname}>
-        <div className="p-4 text-sm text-gray-500">Contenido del panel</div>
-      </AdminSidebar>
+      <AdminSidebar
+        activePage={activePage}
+        isOpen={true}
+        onClose={() => {}}
+        onLogout={() => {}}
+      />
     ),
   });
 
@@ -24,9 +28,12 @@ const crearRouter = (pathname: string) => {
     getParentRoute: () => rootRoute,
     path: "/admin/temas",
     component: () => (
-      <AdminSidebar pathname={pathname}>
-        <div className="p-4 text-sm text-gray-500">Lista de temas</div>
-      </AdminSidebar>
+      <AdminSidebar
+        activePage={activePage}
+        isOpen={true}
+        onClose={() => {}}
+        onLogout={() => {}}
+      />
     ),
   });
 
@@ -34,16 +41,8 @@ const crearRouter = (pathname: string) => {
 
   return createRouter({
     routeTree,
-    defaultNotFoundComponent: () => <div className="p-4">Not Found</div>,
-    history: {
-      push: () => {},
-      replace: () => {},
-      back: () => {},
-      forward: () => {},
-      destroy: () => {},
-      listen: () => () => {},
-      location: { pathname, search: "", hash: "" },
-    } as any,
+    defaultNotFoundComponent: () => null,
+    history: createMemoryHistory({ initialEntries: [activePage] }),
   });
 };
 
@@ -58,16 +57,31 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const DashboardActivo: Story = {
-  args: { pathname: "/admin", children: undefined },
+  args: {
+    activePage: "/admin",
+    isOpen: true,
+    onClose: () => {},
+    onLogout: () => {},
+  },
   render: () => <RouterProvider router={crearRouter("/admin")} />,
 };
 
 export const TemasActivo: Story = {
-  args: { pathname: "/admin/temas", children: undefined },
+  args: {
+    activePage: "/admin/temas",
+    isOpen: true,
+    onClose: () => {},
+    onLogout: () => {},
+  },
   render: () => <RouterProvider router={crearRouter("/admin/temas")} />,
 };
 
 export const NuevoTemaActivo: Story = {
-  args: { pathname: "/admin/temas/new", children: undefined },
+  args: {
+    activePage: "/admin/temas/new",
+    isOpen: true,
+    onClose: () => {},
+    onLogout: () => {},
+  },
   render: () => <RouterProvider router={crearRouter("/admin/temas/new")} />,
 };

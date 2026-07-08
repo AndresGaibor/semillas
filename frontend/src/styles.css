@@ -59,10 +59,15 @@
 }
 
 @layer base {
+  html {
+    font-size: clamp(14px, 1.2vw + 10px, 16px);
+  }
+
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: var(--font-sans);
+    line-height: 1.5;
     background: white;
     color: var(--color-verde-profundo);
     -webkit-font-smoothing: antialiased;

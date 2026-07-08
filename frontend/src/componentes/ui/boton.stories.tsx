@@ -123,27 +123,10 @@ export const DocumentacionCompleta: Story = {
     layout: "fullscreen",
   },
   render: () => (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#FFFFFF",
-        fontFamily: "Nunito, Inter, system-ui, sans-serif",
-      }}
-    >
+    <div className="min-h-screen bg-white font-sans lg:flex">
       {/* ── Sidebar ─────────────────────────────────────────────────── */}
-      <aside
-        style={{
-          width: "224px",
-          minWidth: "224px",
-          borderRight: "1px solid #F1F5F9",
-          padding: "24px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-          backgroundColor: "#FFFFFF",
-        }}
-      >
+      <aside className="w-full border-b border-slate-100 bg-white p-4 sm:p-6 lg:w-[224px] lg:min-w-[224px] lg:border-b-0 lg:border-r lg:p-6">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-0">
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div
@@ -161,12 +144,10 @@ export const DocumentacionCompleta: Story = {
             🌱
           </div>
           <div>
-            <div
-              style={{ fontWeight: 800, fontSize: "16px", color: "#16A34A", lineHeight: 1 }}
-            >
+            <div className="text-sm font-extrabold leading-none text-[#16A34A] sm:text-base">
               Semillas
             </div>
-            <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>
+            <div className="text-[10px] leading-snug text-slate-400">
               Crece en la fe cada día
             </div>
           </div>
@@ -174,18 +155,10 @@ export const DocumentacionCompleta: Story = {
 
         {/* Title */}
         <div>
-          <h1
-            style={{
-              fontSize: "28px",
-              fontWeight: 800,
-              color: "#0F172A",
-              margin: "0 0 8px",
-              lineHeight: 1.2,
-            }}
-          >
+          <h1 className="mb-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl">
             Botones
           </h1>
-          <p style={{ fontSize: "12px", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+          <p className="m-0 text-sm leading-6 text-slate-500">
             Nuestros botones son amigables, claros y accesibles. Tienen bordes redondeados,
             colores consistentes y estados definidos para cada interacción.
           </p>
@@ -193,14 +166,7 @@ export const DocumentacionCompleta: Story = {
 
         {/* Principios */}
         <div>
-          <h2
-            style={{
-              fontSize: "13px",
-              fontWeight: 700,
-              color: "#6C3AED",
-              margin: "0 0 12px",
-            }}
-          >
+          <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-violet-700 sm:text-[13px]">
             Principios
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -281,30 +247,18 @@ export const DocumentacionCompleta: Story = {
             ))}
           </div>
         </div>
+        </div>
       </aside>
 
       {/* ── Contenido principal ──────────────────────────────────────── */}
-      <main style={{ flex: 1, padding: "24px 28px", overflowX: "auto" }}>
+      <main className="flex-1 overflow-x-auto p-4 sm:p-6 lg:p-8">
         {/* ── Tipos de botones ──────────────────────────── */}
         <section style={{ marginBottom: "36px" }}>
-          <h2
-            style={{
-              fontSize: "15px",
-              fontWeight: 700,
-              color: "#6C3AED",
-              margin: "0 0 16px",
-            }}
-          >
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-violet-700 sm:text-[15px]">
             Tipos de botones
           </h2>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(6, 1fr)",
-              gap: "12px 16px",
-            }}
-          >
+          <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-6">
             {/* Headers */}
             {[
               "Primario (Morado)",
@@ -464,7 +418,7 @@ export const DocumentacionCompleta: Story = {
         </section>
 
         {/* ── Tamaños + Botones con íconos ──────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 48px" }}>
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-x-12">
           {/* Tamaños */}
           <section>
             <h2
@@ -477,14 +431,7 @@ export const DocumentacionCompleta: Story = {
             >
               Tamaños
             </h2>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gap: "12px 16px",
-                alignItems: "end",
-              }}
-            >
+            <div className="grid grid-cols-1 items-end gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
                 { key: "Grande", tamano: "grande" as const, iconSize: "size-5", px: "56px" },
                 { key: "Mediano", tamano: "mediano" as const, iconSize: "size-4", px: "44px" },

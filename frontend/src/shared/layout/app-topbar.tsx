@@ -7,7 +7,7 @@ import { MAPA_AVATARES } from "@/shared/constants/avatares";
 
 type AppTopbarProps = {
   title: string;
-  subtitle: string;
+  subtitle: string; // Keep for compatibility, though not used in new design
   onOpenSidebar: () => void;
   onLogout: () => void;
 };
@@ -19,46 +19,58 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
   });
 
   const perfil = meQuery.data?.perfil;
-  const apodo = perfil?.apodo || "Semillero";
+  const apodo = perfil?.apodo || "Administrador";
   const avatarIndex = perfil?.url_avatar || "1";
   const resolvedAvatarUrl = MAPA_AVATARES[avatarIndex] || MAPA_AVATARES["1"] || "";
 
   return (
-    <header className="mb-6 flex items-center justify-between max-sm:gap-4">
+    <header className="mb-4 flex items-center justify-between gap-3 max-sm:flex-wrap sm:mb-6 sm:gap-4">
       <Button
         type="button"
         variant="ghost"
-        size="icon"
-        className="hidden text-xl text-neutro hover:text-neutro-oscuro-max max-md:flex"
+        size="icon-responsive"
+        className="hidden text-lg text-neutro hover:text-neutro-oscuro-max md:hidden max-md:flex shrink-0"
         aria-label="Abrir menú"
         onClick={onOpenSidebar}
       >
         <i className="fa-solid fa-bars"></i>
       </Button>
 
-      <div className="flex flex-col text-left max-md:hidden">
-        <h1 className="mb-1 text-2xl font-black text-blue-900">{title}</h1>
-        <p className="text-sm text-neutro">{subtitle}</p>
+      <div className="flex items-center gap-2 text-left max-md:hidden sm:gap-3">
+        <span className="text-xl sm:text-2xl">🌱</span>
+        <h1 className="text-lg font-black tracking-tight text-slate-800 sm:text-2xl">{title}</h1>
       </div>
 
-      <div className="ml-auto flex items-center gap-5 sm:ml-0">
-        <Button type="button" variant="ghost" size="icon" className="text-xl text-neutro hover:text-neutro-oscuro-max" aria-label="Descargas">
-          <i className="fa-solid fa-download"></i>
-        </Button>
+      <div className="hidden flex-1 max-w-[500px] mx-0 sm:mx-8 sm:block max-md:order-3 max-md:w-full">
+        <div className="relative flex items-center w-full">
+          <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-xs"></i>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-9 pr-10 text-xs font-semibold text-slate-700 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 focus:border-[#2E9E5B] focus:ring-2 focus:ring-[#2E9E5B]/20 sm:pr-12"
+          />
+          <div className="absolute right-3 hidden h-6 items-center justify-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 px-2 text-[10px] font-bold text-slate-400 select-none sm:flex">
+            <span className="text-[11px] font-medium font-sans">⌘</span>K
+          </div>
+        </div>
+      </div>
 
-        <Button type="button" variant="ghost" size="icon" className="relative text-xl text-neutro hover:text-neutro-oscuro-max" aria-label="Notificaciones">
+      <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-0 sm:gap-5">
+        <Button type="button" variant="ghost" size="icon-responsive" className="relative text-lg text-slate-600 hover:text-slate-900 cursor-pointer sm:text-xl" aria-label="Notificaciones">
           <i className="fa-regular fa-bell"></i>
-          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[9.6px] font-bold text-white">
+          <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-slate-50 bg-red-500 text-[9px] font-bold text-white">
             3
           </span>
         </Button>
 
-        <AppAccountMenu
-          nombreVisible={apodo}
-          nivelTexto="Explorador • Nivel 7"
-          avatarUrl={resolvedAvatarUrl}
-          onLogout={onLogout}
-        />
+        <div className="flex items-center gap-3 cursor-pointer rounded-xl p-1.5 transition-colors hover:bg-slate-100">
+          <img src={resolvedAvatarUrl} alt="Avatar" className="h-9 w-9 rounded-full border border-slate-200 bg-white sm:h-10 sm:w-10" />
+          <div className="hidden flex-col md:flex">
+            <span className="text-sm font-black leading-tight text-slate-800">{apodo}</span>
+            <span className="text-xs font-bold text-slate-500">admin@semillas.org</span>
+          </div>
+          <i className="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 hidden md:block"></i>
+        </div>
       </div>
     </header>
   );

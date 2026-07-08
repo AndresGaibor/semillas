@@ -80,39 +80,23 @@ function TarjetaRadio({ label, sublabel, radio }: { label: string; sublabel: str
 export const DocumentacionCompleta: Story = {
   name: "📄 Documentación Completa",
   render: () => (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#FFFFFF",
-        fontFamily: "Nunito, Inter, system-ui, sans-serif",
-      }}
-    >
+    <div className="min-h-screen bg-white font-sans lg:flex">
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside
-        style={{
-          width: "224px",
-          minWidth: "224px",
-          borderRight: "1px solid #F1F5F9",
-          padding: "24px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
+      <aside className="w-full border-b border-slate-100 p-4 sm:p-6 lg:w-[224px] lg:min-w-[224px] lg:border-b-0 lg:border-r lg:p-6">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-0">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #16A34A, #2E9E5B)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>🌱</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "16px", color: "#16A34A", lineHeight: 1 }}>Semillas</div>
-            <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>Crece en la fe cada día</div>
+            <div className="text-sm font-extrabold leading-none text-[#16A34A] sm:text-base">Semillas</div>
+            <div className="text-[10px] leading-snug text-slate-400">Crece en la fe cada día</div>
           </div>
         </div>
 
         <div>
-          <h1 style={{ fontSize: "24px", fontWeight: 800, color: "#0F172A", margin: "0 0 8px", lineHeight: 1.2 }}>
+          <h1 className="mb-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-[1.75rem]">
             Sombras, bordes<br />y radios
           </h1>
-          <p style={{ fontSize: "12px", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+          <p className="m-0 text-sm leading-6 text-slate-500">
             Estos estilos aportan profundidad, jerarquía visual y consistencia a toda la interfaz.
           </p>
         </div>
@@ -159,15 +143,16 @@ export const DocumentacionCompleta: Story = {
             💡 Menos es más: usa sombras sutiles y bordes suaves para mantener una interfaz limpia y accesible.
           </p>
         </div>
+        </div>
       </aside>
 
       {/* ── Contenido principal ───────────────────────────────── */}
-      <main style={{ flex: 1, padding: "24px 28px", overflowX: "auto" }}>
+      <main className="flex-1 overflow-x-auto p-4 sm:p-6 lg:p-8">
 
         {/* 01. Sombras */}
         <section style={{ marginBottom: "32px" }}>
           <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>01. Sombras (elevación)</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr) auto auto auto", gap: "16px", alignItems: "start" }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xl:items-start">
             {/* Escala principal */}
             <TarjetaSombra label="Sin sombra" sublabel="—" sombra="none" />
             <TarjetaSombra label="Sombra XS" sublabel={"0px 1px 2px\nrgba(15, 23, 42, 0.05)"} sombra="0px 1px 2px rgba(15,23,42,0.05)" />
@@ -189,7 +174,7 @@ export const DocumentacionCompleta: Story = {
         </section>
 
         {/* 02 + 03 fila */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 48px", marginBottom: "32px" }}>
+          <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-x-12">
 
           {/* 02. Bordes */}
           <section>
@@ -223,7 +208,7 @@ export const DocumentacionCompleta: Story = {
           {/* 03. Radios */}
           <section>
             <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>03. Radios (redondeados)</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <TarjetaRadio label="Radio 0" sublabel="0px" radio="0px" />
               <TarjetaRadio label="Radio XS" sublabel="4px" radio="4px" />
               <TarjetaRadio label="Radio SM" sublabel="8px" radio="8px" />

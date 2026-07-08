@@ -60,38 +60,22 @@ function MainSwatch({ hex, label }: { hex: string; label: string }) {
 export const DocumentacionCompleta: Story = {
   name: "📄 Documentación Completa",
   render: () => (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#FFFFFF",
-        fontFamily: "Nunito, Inter, system-ui, sans-serif",
-      }}
-    >
+    <div className="min-h-screen bg-white font-sans lg:flex">
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside
-        style={{
-          width: "224px",
-          minWidth: "224px",
-          borderRight: "1px solid #F1F5F9",
-          padding: "24px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
+      <aside className="w-full border-b border-slate-100 p-4 sm:p-6 lg:w-[224px] lg:min-w-[224px] lg:border-b-0 lg:border-r lg:p-6">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-0">
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #16A34A, #2E9E5B)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>🌱</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "16px", color: "#16A34A", lineHeight: 1 }}>Semillas</div>
-            <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>Crece en la fe cada día</div>
+            <div className="text-sm font-extrabold leading-none text-[#16A34A] sm:text-base">Semillas</div>
+            <div className="text-[10px] leading-snug text-slate-400">Crece en la fe cada día</div>
           </div>
         </div>
 
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#0F172A", margin: "0 0 8px", lineHeight: 1.2 }}>Colores</h1>
-          <p style={{ fontSize: "12px", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+          <h1 className="mb-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl">Colores</h1>
+          <p className="m-0 text-sm leading-6 text-slate-500">
             Nuestra paleta de colores comunica tranquilidad, esperanza y claridad. Diseñada para ser accesible, consistente y adaptable a todos los componentes.
           </p>
         </div>
@@ -137,15 +121,16 @@ export const DocumentacionCompleta: Story = {
             💡 Usa los colores de acuerdo al contexto y significado, evitando el uso excesivo de colores llamativos.
           </p>
         </div>
+        </div>
       </aside>
 
       {/* ── Contenido principal ───────────────────────────────── */}
-      <main style={{ flex: 1, padding: "24px 28px", overflowX: "auto" }}>
+      <main className="flex-1 overflow-x-auto p-4 sm:p-6 lg:p-8">
 
         {/* 01. Paleta principal */}
         <section style={{ marginBottom: "32px" }}>
           <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>01. Paleta principal</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
                 title: "Primario", subtitle: "Confianza, sabiduría, propósito.", hex: "#6C3AED",
@@ -182,7 +167,7 @@ export const DocumentacionCompleta: Story = {
         {/* 02. Estados semánticos */}
         <section style={{ marginBottom: "32px" }}>
           <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>02. Estados semánticos</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {[
               { title: "Éxito", desc: "Confirmaciones, logros, acciones exitosas.", hex: "#22C55E", label: "600",
                 colores: ["#F0FDF4","#DCFCE7","#BBF7D0","#86EFAC","#4ADE80","#22C55E","#16A34A","#15803D","#166534","#14532D"] },
@@ -207,7 +192,7 @@ export const DocumentacionCompleta: Story = {
         {/* 03. Neutros */}
         <section style={{ marginBottom: "32px" }}>
           <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>03. Neutros</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
                 title: "Gris", desc: "Textos secundarios, deshabilitados, íconos.",
@@ -254,12 +239,12 @@ export const DocumentacionCompleta: Story = {
         </section>
 
         {/* 04 + 05 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 32px" }}>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-x-8">
 
           {/* 04. Gradientes */}
           <section>
             <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>04. Gradientes</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
                 { title: "Primario", desc: "Usado en botones, encabezados y elementos destacados.", from: "#8B5CF6", to: "#6C3AED" },
                 { title: "Secundario", desc: "Usado en elementos de éxito y crecimiento.", from: "#22C55E", to: "#16A34A" },
@@ -278,7 +263,7 @@ export const DocumentacionCompleta: Story = {
           {/* 05. Uso en componentes */}
           <section>
             <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 16px" }}>05. Uso en componentes</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px 16px" }}>
+            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
                 { label: "Botón primario" },
                 { label: "Botón secundario" },

@@ -7,6 +7,10 @@ export function obtenerActividad(idActividad: string) {
   });
 }
 
+export function obtenerActividades() {
+  return peticion<Actividad[]>("/actividades");
+}
+
 export function responderActividad(
   idActividad: string,
   datos: {

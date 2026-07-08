@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  createMemoryHistory,
   RouterProvider,
   createRouter,
   createRootRoute,
@@ -33,15 +34,7 @@ const crearRouter = () => {
   return createRouter({
     routeTree,
     defaultNotFoundComponent: () => null,
-    history: {
-      push: () => {},
-      replace: () => {},
-      back: () => {},
-      forward: () => {},
-      destroy: () => {},
-      listen: () => () => {},
-      location: { pathname: "/app", search: "", hash: "" },
-    } as any,
+    history: createMemoryHistory({ initialEntries: ["/app"] }),
   });
 };
 

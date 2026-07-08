@@ -85,7 +85,7 @@ export function AdminThemesTable({
         const estadoNormalizado = tema.estado.trim().toLowerCase();
 
         return (
-          <FilaTabla key={tema.id} className="hover:bg-slate-50/30">
+          <FilaTabla key={tema.id} onActivate={() => onPreview(tema.id)} className="hover:bg-slate-50/30">
             <td className="py-4 pl-6">
               <input type="checkbox" className="rounded border-slate-300 text-primario focus:ring-primario" />
             </td>
@@ -140,6 +140,7 @@ export function AdminThemesTable({
             <td className="relative py-4 pr-6 whitespace-nowrap text-right">
               <div className="flex items-center justify-end gap-1.5">
                 <button
+                  type="button"
                   onClick={() => onPreview(tema.id)}
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                   title="Vista previa"
@@ -148,6 +149,7 @@ export function AdminThemesTable({
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => onEditar(tema.id)}
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                   title="Editar tema"
@@ -157,6 +159,7 @@ export function AdminThemesTable({
 
                 <div className="relative">
                   <button
+                    type="button"
                     onClick={() => setActiveMenuId(activeMenuId === tema.id ? null : tema.id)}
                     className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                   >
@@ -167,21 +170,23 @@ export function AdminThemesTable({
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
                       <div className="absolute right-0 z-20 mt-1.5 w-40 rounded-xl border border-slate-100 bg-white py-1.5 text-left shadow-lg">
-                        <button
-                          onClick={() => {
-                            onCRECER(tema.id);
-                            setActiveMenuId(null);
-                          }}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onCRECER(tema.id);
+                              setActiveMenuId(null);
+                            }}
                           className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-neutro-oscuro-max transition-colors hover:bg-slate-50"
                         >
                           <i className="fa-solid fa-bookmark w-4 text-center text-slate-400" />
                           Editor CRECER
                         </button>
-                        <button
-                          onClick={() => {
-                            onActivities(tema.id);
-                            setActiveMenuId(null);
-                          }}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onActivities(tema.id);
+                              setActiveMenuId(null);
+                            }}
                           className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-neutro-oscuro-max transition-colors hover:bg-slate-50"
                         >
                           <i className="fa-solid fa-gamepad w-4 text-center text-slate-400" />
@@ -189,6 +194,7 @@ export function AdminThemesTable({
                         </button>
                         {estadoNormalizado !== "publicado" ? (
                           <button
+                            type="button"
                             onClick={() => {
                               onPublicar?.(tema.id);
                               setActiveMenuId(null);
@@ -200,6 +206,7 @@ export function AdminThemesTable({
                           </button>
                         ) : (
                           <button
+                            type="button"
                             onClick={() => {
                               onDespublicar?.(tema.id);
                               setActiveMenuId(null);

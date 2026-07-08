@@ -23,7 +23,10 @@ import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppLogrosRouteImport } from './routes/app.logros'
 import { Route as AppDescargasRouteImport } from './routes/app.descargas'
 import { Route as AppClubesRouteImport } from './routes/app.clubes'
+import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminTemasRouteImport } from './routes/admin.temas'
+import { Route as AdminMediosRouteImport } from './routes/admin.medios'
+import { Route as AdminActividadesRouteImport } from './routes/admin.actividades'
 import { Route as AppTemasIndexRouteImport } from './routes/app.temas.index'
 import { Route as AppTemasThemeIdRouteImport } from './routes/app.temas.$themeId'
 import { Route as AppSendasSendaIdRouteImport } from './routes/app.sendas.$sendaId'
@@ -104,9 +107,24 @@ const AppClubesRoute = AppClubesRouteImport.update({
   path: '/clubes',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminTemasRoute = AdminTemasRouteImport.update({
   id: '/temas',
   path: '/temas',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMediosRoute = AdminMediosRouteImport.update({
+  id: '/medios',
+  path: '/medios',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminActividadesRoute = AdminActividadesRouteImport.update({
+  id: '/actividades',
+  path: '/actividades',
   getParentRoute: () => AdminRoute,
 } as any)
 const AppTemasIndexRoute = AppTemasIndexRouteImport.update({
@@ -164,7 +182,10 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/admin/actividades': typeof AdminActividadesRoute
+  '/admin/medios': typeof AdminMediosRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/clubes': typeof AppClubesRoute
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
@@ -187,7 +208,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin/actividades': typeof AdminActividadesRoute
+  '/admin/medios': typeof AdminMediosRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/clubes': typeof AppClubesRoute
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
@@ -214,7 +238,10 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/admin/actividades': typeof AdminActividadesRoute
+  '/admin/medios': typeof AdminMediosRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/clubes': typeof AppClubesRoute
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
@@ -242,7 +269,10 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/admin/actividades'
+    | '/admin/medios'
     | '/admin/temas'
+    | '/admin/usuarios'
     | '/app/clubes'
     | '/app/descargas'
     | '/app/logros'
@@ -265,7 +295,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/admin/actividades'
+    | '/admin/medios'
     | '/admin/temas'
+    | '/admin/usuarios'
     | '/app/clubes'
     | '/app/descargas'
     | '/app/logros'
@@ -291,7 +324,10 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/admin/actividades'
+    | '/admin/medios'
     | '/admin/temas'
+    | '/admin/usuarios'
     | '/app/clubes'
     | '/app/descargas'
     | '/app/logros'
@@ -420,11 +456,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClubesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/admin/usuarios': {
+      id: '/admin/usuarios'
+      path: '/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AdminUsuariosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/temas': {
       id: '/admin/temas'
       path: '/temas'
       fullPath: '/admin/temas'
       preLoaderRoute: typeof AdminTemasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/medios': {
+      id: '/admin/medios'
+      path: '/medios'
+      fullPath: '/admin/medios'
+      preLoaderRoute: typeof AdminMediosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/actividades': {
+      id: '/admin/actividades'
+      path: '/actividades'
+      fullPath: '/admin/actividades'
+      preLoaderRoute: typeof AdminActividadesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/app/temas/': {
@@ -514,12 +571,18 @@ const AdminTemasRouteWithChildren = AdminTemasRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminActividadesRoute: typeof AdminActividadesRoute
+  AdminMediosRoute: typeof AdminMediosRoute
   AdminTemasRoute: typeof AdminTemasRouteWithChildren
+  AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminActividadesRoute: AdminActividadesRoute,
+  AdminMediosRoute: AdminMediosRoute,
   AdminTemasRoute: AdminTemasRouteWithChildren,
+  AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

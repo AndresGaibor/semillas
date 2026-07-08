@@ -1,6 +1,11 @@
-import { Link, Outlet, createFileRoute, redirect, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Plus, ArrowLeft, Leaf } from "lucide-react";
+import { Outlet, createFileRoute, redirect, useLocation, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { hasSession } from "../shared/api/auth-guard";
+import { AdminSidebar } from "../shared/layout/admin-sidebar";
+import { AppTopbar } from "../shared/layout/app-topbar";
+import { sessionStorageApi } from "../shared/api/session";
+
+import "./app.css"; // Reutilizar estilos globales de layout
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: () => {
@@ -9,87 +14,83 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout
 });
 
-const navItems = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/admin/temas", label: "Temas", icon: BookOpen },
-  { to: "/admin/temas/new", label: "Nuevo tema", icon: Plus }
-];
-
 function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const activePage = location.pathname;
+  
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const closeSidebar = () => setSidebarOpen(false);
+
+  // Prevenir scroll en body cuando el menú móvil está abierto
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [sidebarOpen]);
+
+  const handleLogout = () => {
+    sessionStorageApi.clearGuestUserId();
+    sessionStorageApi.clearAccessToken();
+    navigate({ to: "/login" });
+  };
+
+  let tituloHeader = "Panel de Control";
+  let subtituloHeader = "Estadísticas y resumen de la plataforma.";
+
+  if (activePage.includes("/admin/temas/new")) {
+    tituloHeader = "Crear nuevo tema";
+    subtituloHeader = "Crea un tema que inspire y guíe a los niños en su crecimiento espiritual.";
+  } else if (activePage.includes("/crecer")) {
+    tituloHeader = "Editor CRECER";
+    subtituloHeader = "Edita los seis momentos de la metodología CRECER.";
+  } else if (activePage.includes("/edit")) {
+    tituloHeader = "";
+    subtituloHeader = "";
+  } else if (activePage.includes("/activities")) {
+    tituloHeader = "Actividades";
+    subtituloHeader = "Gestiona las actividades interactivas del tema.";
+  } else if (activePage.includes("/preview")) {
+    tituloHeader = "Vista previa";
+    subtituloHeader = "Previsualiza cómo verá la lección el alumno.";
+  } else if (activePage.includes("/admin/medios")) {
+    tituloHeader = "Panel de administración";
+    subtituloHeader = "Gestiona los recursos multimedia de la plataforma.";
+  } else if (activePage.includes("/admin/usuarios")) {
+    tituloHeader = "Panel de administración";
+    subtituloHeader = "Administra cuentas, roles y participación dentro de la plataforma.";
+  } else if (activePage.includes("/admin/actividades")) {
+    tituloHeader = "Panel de administración";
+    subtituloHeader = "Gestiona, edita y publica las actividades de Semillas.";
+  } else if (activePage.includes("/admin/temas")) {
+    tituloHeader = "Panel de administración";
+    subtituloHeader = "Gestiona, edita y publica las lecciones de Semillas.";
+  }
 
   return (
-    <div className="min-h-screen bg-[#f7f4ec] flex">
-      <aside className="w-60 bg-[#0f2a20] text-white shrink-0 hidden md:flex flex-col">
-        <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <Leaf size={20} />
-            <span className="font-bold">Semillas Admin</span>
-          </div>
-        </div>
-        <nav className="flex-1 p-3 grid gap-1">
-          {navItems.map((item) => {
-            const isActive = item.to === "/admin"
-              ? location.pathname === "/admin"
-              : location.pathname.startsWith(item.to);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to as "/admin" | "/admin/temas" | "/admin/temas/new"}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  isActive ? "bg-white/10 font-semibold" : "hover:bg-white/5"
-                }`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-3 border-t border-white/10">
-          <Link to="/app" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors">
-            <ArrowLeft size={16} />
-            Volver a la app
-          </Link>
-        </div>
-      </aside>
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
+      <AdminSidebar
+        activePage={activePage}
+        isOpen={sidebarOpen}
+        onClose={closeSidebar}
+        onLogout={handleLogout}
+      />
 
-      <div className="flex-1 flex flex-col min-h-screen">
-        <header className="bg-white px-5 py-3 flex items-center gap-3 shadow-sm md:hidden">
-          <Link to="/admin" className="text-[#2e9e5b]">
-            <Leaf size={20} />
-          </Link>
-          <span className="font-bold text-[#123b2c]">Admin</span>
-          <div className="flex-1" />
-          <Link to="/app" className="text-xs text-[#123b2c]/40">App</Link>
-        </header>
+      <main className="flex flex-1 flex-col overflow-y-auto p-6 md:p-8 lg:p-10">
+        <AppTopbar
+          title={tituloHeader}
+          subtitle={subtituloHeader}
+          onOpenSidebar={() => setSidebarOpen(true)}
+          onLogout={handleLogout}
+        />
 
-        <div className="md:hidden flex gap-1 px-2 py-2 bg-white border-b border-[#e5e7eb] overflow-x-auto">
-          {navItems.map((item) => {
-            const isActive = item.to === "/admin"
-              ? location.pathname === "/admin"
-              : location.pathname.startsWith(item.to);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to as "/admin" | "/admin/temas" | "/admin/temas/new"}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
-                  isActive ? "bg-[#2e9e5b] text-white" : "text-[#123b2c]/60 hover:bg-[#f7f4ec]"
-                }`}
-              >
-                <Icon size={14} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
-
-        <main className="flex-1 p-4 md:p-8 max-w-4xl w-full mx-auto">
+        <div className="flex flex-col gap-6 md:gap-8">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

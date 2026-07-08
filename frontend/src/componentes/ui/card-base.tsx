@@ -45,35 +45,35 @@ export const Card = React.forwardRef<HTMLDivElement, PropiedadesCard>(
 Card.displayName = "Card";
 
 export const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={unirClases("flex flex-col space-y-1.5 p-5", className)} {...props}>
+  <div className={unirClases("flex flex-col space-y-1.5 p-4 sm:p-5", className)} {...props}>
     {children}
   </div>
 );
 CardHeader.displayName = "CardHeader";
 
 export const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={unirClases("text-sm font-extrabold text-slate-800 leading-none", className)} {...props}>
+  <h3 className={unirClases("text-sm font-extrabold text-slate-800 leading-none sm:text-base", className)} {...props}>
     {children}
   </h3>
 );
 CardTitle.displayName = "CardTitle";
 
 export const CardDescription = ({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-  <p className={unirClases("text-[11px] text-slate-400 font-semibold", className)} {...props}>
+  <p className={unirClases("text-[11px] text-slate-400 font-semibold sm:text-xs", className)} {...props}>
     {children}
   </p>
 );
 CardDescription.displayName = "CardDescription";
 
 export const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={unirClases("p-5 pt-0 text-xs", className)} {...props}>
+  <div className={unirClases("p-4 pt-0 text-xs sm:p-5", className)} {...props}>
     {children}
   </div>
 );
 CardContent.displayName = "CardContent";
 
 export const CardFooter = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={unirClases("flex items-center p-5 pt-0", className)} {...props}>
+  <div className={unirClases("flex items-center p-4 pt-0 sm:p-5", className)} {...props}>
     {children}
   </div>
 );

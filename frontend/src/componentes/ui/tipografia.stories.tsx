@@ -56,37 +56,21 @@ function FilaEscala({
 export const DocumentacionCompleta: Story = {
   name: "📄 Documentación Completa",
   render: () => (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#FFFFFF",
-        fontFamily: "Nunito, Inter, system-ui, sans-serif",
-      }}
-    >
+    <div className="min-h-screen bg-white font-sans lg:flex">
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside
-        style={{
-          width: "224px",
-          minWidth: "224px",
-          borderRight: "1px solid #F1F5F9",
-          padding: "24px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
+      <aside className="w-full border-b border-slate-100 p-4 sm:p-6 lg:w-[224px] lg:min-w-[224px] lg:border-b-0 lg:border-r lg:p-6">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-0">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #16A34A, #2E9E5B)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>🌱</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "16px", color: "#16A34A", lineHeight: 1 }}>Semillas</div>
-            <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>Crece en la fe cada día</div>
+            <div className="text-sm font-extrabold leading-none text-[#16A34A] sm:text-base">Semillas</div>
+            <div className="text-[10px] leading-snug text-slate-400">Crece en la fe cada día</div>
           </div>
         </div>
 
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#0F172A", margin: "0 0 8px", lineHeight: 1.2 }}>Tipografía</h1>
-          <p style={{ fontSize: "12px", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+          <h1 className="mb-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl">Tipografía</h1>
+          <p className="m-0 text-sm leading-6 text-slate-500">
             Nuestra tipografía comunica calidez, claridad y cercanía. Usamos fuentes redondeadas y amigables para niños, y una tipografía moderna y legible para la administración.
           </p>
         </div>
@@ -101,7 +85,7 @@ export const DocumentacionCompleta: Story = {
           ].map(({ nombre, uso, family }) => (
             <div key={nombre} style={{ marginBottom: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontSize: "36px", fontFamily: family, fontWeight: 700, color: "#6C3AED", lineHeight: 1 }}>Aa</span>
+                <span style={{ fontSize: "clamp(2rem, 5vw, 2.25rem)", fontFamily: family, fontWeight: 700, color: "#6C3AED", lineHeight: 1 }}>Aa</span>
                 <div>
                   <p style={{ fontSize: "12px", fontWeight: 700, color: "#0F172A", margin: "0 0 2px" }}>{nombre}</p>
                   <p style={{ fontSize: "10px", color: "#64748B", lineHeight: 1.4, margin: 0 }}>{uso}</p>
@@ -128,23 +112,47 @@ export const DocumentacionCompleta: Story = {
             </div>
           ))}
         </div>
+        </div>
       </aside>
 
       {/* ── Contenido principal ───────────────────────────────── */}
-      <main style={{ flex: 1, padding: "24px 28px", overflowX: "auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 40px" }}>
+      <main className="flex-1 overflow-x-auto p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 
           {/* Col izquierda: escalas tipográficas */}
           <div>
             {/* Escala Móvil */}
-            <section style={{ marginBottom: "28px" }}>
+            <section className="mb-7">
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                 <Smartphone size={14} color="#6C3AED" />
                 <h2 style={{ fontSize: "13px", fontWeight: 700, color: "#6C3AED", margin: 0 }}>
                   Escala tipográfica — Móvil (320px a 480px)
                 </h2>
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="space-y-3 md:hidden">
+                {[
+                  { estilo: "Display Móvil", ejemplo: "¡Dios te ama!", tamano: "40–44px / 120%", peso: "800 (ExtraBold)", fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: "36px", lineHeight: 1.2 },
+                  { estilo: "H1 Móvil", ejemplo: "¡Sigue aprendiendo!", tamano: "32–36px / 120%", peso: "800 (ExtraBold)", fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: "28px", lineHeight: 1.2 },
+                  { estilo: "H2 Móvil", ejemplo: "El arca de Noé", tamano: "26–30px / 120%", peso: "800 (Bold)", fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: "22px", lineHeight: 1.2 },
+                  { estilo: "H3 Móvil", ejemplo: "Versículo del día", tamano: "22–24px / 120%", peso: "700 (Bold)", fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: "18px", lineHeight: 1.2 },
+                  { estilo: "Body Grande", ejemplo: "Aprendemos sobre el amor de Dios y cómo podemos vivir cada día con alegría.", tamano: "18–20px / 150%", peso: "500 (Medium)", fontFamily: "Nunito, sans-serif", fontWeight: 500, fontSize: "14px", lineHeight: 1.5 },
+                  { estilo: "Body Normal", ejemplo: "Dios cuida de ti siempre y te da fuerzas para hacer lo correcto.", tamano: "16px / 150%", peso: "400–500 (Regular/Medium)", fontFamily: "Nunito, sans-serif", fontWeight: 400, fontSize: "13px", lineHeight: 1.5 },
+                  { estilo: "Caption", ejemplo: "Juan 3:16", tamano: "13–14px / 140%", peso: "400 (Regular)", fontFamily: "Nunito, sans-serif", fontWeight: 400, fontSize: "12px", lineHeight: 1.4 },
+                  { estilo: "Label", ejemplo: "Nivel 7", tamano: "12–14px / 140%", peso: "600 (SemiBold)", fontFamily: "Nunito, sans-serif", fontWeight: 600, fontSize: "11px", lineHeight: 1.4 },
+                ].map((fila) => (
+                  <div key={fila.estilo} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{fila.estilo}</p>
+                      <span style={{ fontFamily: fila.fontFamily, fontWeight: fila.fontWeight, fontSize: fila.fontSize, lineHeight: fila.lineHeight, color: "#0F172A", display: "block" }}>{fila.ejemplo}</span>
+                      <div className="flex items-center justify-between gap-3 text-[10px] text-slate-500">
+                        <span>{fila.tamano}</span>
+                        <span className="font-semibold">{fila.peso}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <table className="hidden md:table" style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #F1F5F9" }}>
                     {["Estilo", "Ejemplo", "Tamaño / Alto línea", "Peso"].map((h) => (

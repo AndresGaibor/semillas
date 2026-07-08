@@ -12,9 +12,10 @@ export const RachaWidget: React.FC<RachaWidgetProps> = ({ diasRacha }) => {
       className="widget-card" 
       style={{ 
         display: 'flex', 
-        flexDirection: 'row', 
-        alignItems: 'center', 
+        flexDirection: 'column', 
+        alignItems: 'stretch', 
         justifyContent: 'space-between',
+        gap: '16px',
         padding: '20px',
         borderRadius: '16px',
         background: 'var(--color-blanco)',
@@ -22,10 +23,10 @@ export const RachaWidget: React.FC<RachaWidgetProps> = ({ diasRacha }) => {
       }}
     >
       <div style={{ flex: 1, textAlign: 'left' }}>
-        <h2 className="section-title" style={{ marginBottom: '8px', fontSize: '1.1rem', fontWeight: 'bold' }}>
+        <h2 className="section-title" style={{ marginBottom: '8px', fontSize: '1rem', fontWeight: 'bold' }}>
           {tieneRacha ? "Racha actual" : "Racha actual"}
         </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.5 }}>
           {tieneRacha 
             ? `¡Increíble! Has estudiado ${diasRacha} días seguidos.` 
             : "Completa una lección para iniciar tu racha."
@@ -35,7 +36,8 @@ export const RachaWidget: React.FC<RachaWidgetProps> = ({ diasRacha }) => {
       <div 
         className={tieneRacha ? "" : "empty-state-widget"} 
         style={{ 
-          margin: 0, 
+          margin: 0,
+          alignSelf: 'center', 
           padding: '16px', 
           minHeight: 'auto', 
           width: 'auto', 
@@ -49,9 +51,9 @@ export const RachaWidget: React.FC<RachaWidgetProps> = ({ diasRacha }) => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <i className="fa-solid fa-fire" style={{ fontSize: '2rem' }}></i>
+          <i className="fa-solid fa-fire" style={{ fontSize: '1.75rem' }}></i>
           {tieneRacha && (
-            <span style={{ fontSize: '1.5rem', fontWeight: 'bold', marginLeft: '4px' }}>{diasRacha}</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', marginLeft: '4px' }}>{diasRacha}</span>
           )}
         </div>
       </div>

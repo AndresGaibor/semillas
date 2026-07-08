@@ -28,7 +28,7 @@ export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
       }`}
     >
       {/* Contenedor de Imagen */}
-      <div className="relative w-[130px] h-[130px] mt-6 rounded-full border-4 border-white bg-slate-100 shadow-sm flex items-center justify-center overflow-hidden flex-shrink-0">
+      <div className="relative mt-6 flex h-[112px] w-[112px] flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-sm sm:h-[130px] sm:w-[130px]">
         {obtenido ? (
           <img
             src={imagen}
@@ -44,7 +44,7 @@ export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
 
       {/* Contenido */}
       <div className="p-5 flex-1 flex flex-col items-center">
-        <h3 className="text-lg font-extrabold text-slate-800 mb-1 leading-tight">
+        <h3 className="mb-1 text-base font-extrabold leading-tight text-slate-800 sm:text-lg">
           {nombre}
         </h3>
         <p className="text-xs font-semibold text-[#7E57C2] mb-3">

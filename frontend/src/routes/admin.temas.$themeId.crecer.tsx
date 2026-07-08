@@ -62,11 +62,9 @@ function AdminThemeCrecerPage() {
 
   return (
     <div>
-      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-6">
         <ArrowLeft size={16} /> Volver
       </button>
-
-      <h1 className="text-2xl font-bold text-[#123b2c] mb-4">Editor CRECER</h1>
 
       <div className="mb-4">
         <label className="text-sm font-medium text-[#123b2c] mb-1 block">Franja de edad</label>

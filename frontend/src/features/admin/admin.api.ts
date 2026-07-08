@@ -131,3 +131,7 @@ export function eliminarActividad(idActividad: string) {
     metodo: "DELETE",
   });
 }
+
+export function obtenerUsuariosAdmin() {
+  return peticion<{ usuarios: any[] }>("/administracion/usuarios");
+}

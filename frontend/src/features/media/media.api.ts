@@ -85,3 +85,7 @@ export function eliminarRecursoMultimedia(id: string) {
     metodo: "DELETE",
   });
 }
+
+export function obtenerRecursosMultimedia() {
+  return peticion<RecursoMultimedia[]>("/media");
+}

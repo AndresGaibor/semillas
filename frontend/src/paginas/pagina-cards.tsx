@@ -22,13 +22,11 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
-import {
-  Card,
-  CardLeccion,
-  CardMetrica,
-  CardInsignia,
-  CardPerfil,
-} from "../componentes/ui/card";
+import { Card } from "../componentes/ui/card-base";
+import { CardLeccion } from "../componentes/ui/card-leccion";
+import { CardMetrica } from "../componentes/ui/card-metrica";
+import { CardInsignia } from "../componentes/ui/card-insignia";
+import { CardPerfil } from "../componentes/ui/card-perfil";
 import { Chip } from "../componentes/ui/chip";
 import { BarraProgreso } from "../componentes/ui/indicadores-progreso";
 

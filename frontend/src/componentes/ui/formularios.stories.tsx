@@ -60,27 +60,10 @@ export const DocumentacionCompleta: Story = {
     layout: "fullscreen",
   },
   render: () => (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#FFFFFF",
-        fontFamily: "Nunito, Inter, system-ui, sans-serif",
-      }}
-    >
+    <div className="min-h-screen bg-white font-sans lg:flex">
       {/* ── Sidebar ─────────────────────────────────────────────────── */}
-      <aside
-        style={{
-          width: "224px",
-          minWidth: "224px",
-          borderRight: "1px solid #F1F5F9",
-          padding: "24px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-          backgroundColor: "#FFFFFF",
-        }}
-      >
+      <aside className="w-full border-b border-slate-100 bg-white p-4 sm:p-6 lg:w-[224px] lg:min-w-[224px] lg:border-b-0 lg:border-r lg:p-6">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-0">
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div
@@ -98,10 +81,10 @@ export const DocumentacionCompleta: Story = {
             🌱
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "16px", color: "#16A34A", lineHeight: 1 }}>
+            <div className="text-sm font-extrabold leading-none text-[#16A34A] sm:text-base">
               Semillas
             </div>
-            <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>
+            <div className="text-[10px] leading-snug text-slate-400">
               Crece en la fe cada día
             </div>
           </div>
@@ -109,10 +92,10 @@ export const DocumentacionCompleta: Story = {
 
         {/* Title */}
         <div>
-          <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#0F172A", margin: "0 0 8px", lineHeight: 1.2 }}>
+          <h1 className="mb-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl">
             Inputs
           </h1>
-          <p style={{ fontSize: "12px", color: "#64748B", lineHeight: 1.6, margin: 0 }}>
+          <p className="m-0 text-sm leading-6 text-slate-500">
             Nuestros campos de entrada son claros, amigables y accesibles. Tienen bordes
             redondeados y feedback visual según su estado.
           </p>
@@ -171,17 +154,19 @@ export const DocumentacionCompleta: Story = {
             ))}
           </div>
         </div>
+        </div>
       </aside>
 
       {/* ── Contenido principal ──────────────────────────────────────── */}
-      <main style={{ flex: 1, padding: "24px 28px", overflowX: "auto" }}>
+      <main className="flex-1 overflow-x-auto p-4 sm:p-6 lg:p-8">
 
         {/* 01. Input de texto */}
         <section style={{ marginBottom: "32px" }}>
           <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 14px" }}>
             01. Input de texto
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "16px", marginBottom: "16px" }}>
+          <div className="rounded-3xl border border-slate-100 bg-slate-50 p-4 shadow-sm">
+            <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
             {[
               { label: "Default" },
               { label: "Focus" },
@@ -193,37 +178,38 @@ export const DocumentacionCompleta: Story = {
               <div key={label} style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600, textAlign: "center" }}>{label}</div>
             ))}
 
-            <Input placeholder="Escribe algo..." />
-            <Input placeholder="Escribe algo..." className="border-[#6C3AED] ring-2 ring-[#6C3AED]/15" />
-            <Input defaultValue="Juan Pérez" placeholder="Escribe algo..." />
-            <Input defaultValue="juan@email" estado="error" mensajeError="Correo inválido" />
-            <Input defaultValue="juan@email.com" estado="exito" mensajeExito="Correo válido" />
-            <Input disabled placeholder="No disponible" />
-          </div>
+              <Input placeholder="Escribe algo..." />
+              <Input placeholder="Escribe algo..." className="border-[#6C3AED] ring-2 ring-[#6C3AED]/15" />
+              <Input defaultValue="Juan Pérez" placeholder="Escribe algo..." />
+              <Input defaultValue="juan@email" estado="error" mensajeError="Correo inválido" />
+              <Input defaultValue="juan@email.com" estado="exito" mensajeExito="Correo válido" />
+              <Input disabled placeholder="No disponible" />
+            </div>
 
-          {/* Con icono */}
-          <div style={{ marginTop: "12px" }}>
-            <p style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600, marginBottom: "10px" }}>
-              Con icono
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
-              <Input placeholder="Nombre completo" iconoIzquierdo={<User className="size-4 text-gray-400" />} />
-              <Input placeholder="Correo electrónico" iconoIzquierdo={<Mail className="size-4 text-gray-400" />} />
-              <InputContraseña placeholder="Contraseña" iconoIzquierdo={<Lock className="size-4 text-gray-400" />} />
-              <InputBusqueda placeholder="Buscar..." iconoBusqueda={<Search className="size-4 text-gray-400" />} />
+            {/* Con icono */}
+            <div className="mt-3">
+              <p style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600, marginBottom: "10px" }}>
+                Con icono
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <Input placeholder="Nombre completo" iconoIzquierdo={<User className="size-4 text-gray-400" />} />
+                <Input placeholder="Correo electrónico" iconoIzquierdo={<Mail className="size-4 text-gray-400" />} />
+                <InputContraseña placeholder="Contraseña" iconoIzquierdo={<Lock className="size-4 text-gray-400" />} />
+                <InputBusqueda placeholder="Buscar..." iconoBusqueda={<Search className="size-4 text-gray-400" />} />
+              </div>
             </div>
           </div>
         </section>
 
         {/* 02 + 03 fila */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 32px", marginBottom: "32px" }}>
+        <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-x-8">
 
           {/* 02. Select / Dropdown */}
           <section>
             <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 14px" }}>
               02. Select / Dropdown
             </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {["Default", "Seleccionado", "Deshabilitado"].map((l) => (
                 <div key={l} style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600, textAlign: "center" }}>{l}</div>
               ))}
@@ -250,7 +236,7 @@ export const DocumentacionCompleta: Story = {
             <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 14px" }}>
               03. Textarea
             </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {["Default", "Lleno", "Error"].map((l) => (
                 <div key={l} style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600, textAlign: "center" }}>{l}</div>
               ))}
@@ -272,14 +258,14 @@ export const DocumentacionCompleta: Story = {
         </div>
 
         {/* Fila: 04–06 lado derecho + 07 */}
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "0 32px", marginBottom: "32px" }}>
+        <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
 
           {/* 07. Input de contraseña */}
           <section>
             <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#6C3AED", margin: "0 0 14px" }}>
               07. Input de contraseña
             </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {["Default", "Con contenido", "Error", "Éxito"].map((l) => (
                 <div key={l} style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600, textAlign: "center" }}>{l}</div>
               ))}
