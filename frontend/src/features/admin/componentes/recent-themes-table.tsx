@@ -2,6 +2,7 @@ import { Button } from "@/componentes/ui/button";
 import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { FilaTabla, TablaBase } from "@/componentes/ui/tabla-base";
+import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
 export type RecentThemeItem = {
   id: string;
@@ -28,23 +29,30 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h3 className="text-[17px] font-black text-neutro-oscuro-max">Temas recientes</h3>
-          <p className="text-xs text-neutro mt-0.5">Últimos temas modificados o creados.</p>
-        </div>
+    <PanelSeccionAdmin
+      titulo="Temas recientes"
+      descripcion="Últimos temas modificados o creados."
+      accion={
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={onVerTodos}
-          className="rounded-xl border-slate-200 text-xs font-bold text-slate-600 h-9 px-4"
+          className="h-9 rounded-xl border-slate-200 px-4 text-xs font-bold text-slate-600"
         >
           Ver todos
         </Button>
-      </div>
-
+      }
+      footer={
+        <button
+          type="button"
+          onClick={onVerTodos}
+          className="inline-block select-none py-1 text-center text-xs font-extrabold text-primario transition-colors hover:text-primario-oscuro"
+        >
+          Ver todos los temas
+        </button>
+      }
+    >
       <TablaBase
         encabezados={encabezados}
         contenedorClassName="max-h-[350px] pr-1"
@@ -58,13 +66,13 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
             onActivate={onEditarTema ? () => onEditarTema(tema.id) : undefined}
             className="group border-b border-slate-50 text-sm text-neutro-oscuro-max hover:bg-slate-50/50"
           >
-            <td className="py-3.5 pl-2 font-bold max-w-[240px] truncate">
-              <div className="flex items-center gap-2 max-w-[240px] truncate">
+            <td className="max-w-[240px] truncate py-3.5 pl-2 font-bold">
+              <div className="flex max-w-[240px] items-center gap-2 truncate">
                 <span className="text-base text-[#2e9e5b]">🌱</span>
                 <span className="truncate transition-colors group-hover:text-primario">{tema.titulo}</span>
               </div>
             </td>
-            <td className="py-3.5 font-medium max-w-[140px] truncate text-neutro">{tema.senda}</td>
+            <td className="max-w-[140px] truncate py-3.5 font-medium text-neutro">{tema.senda}</td>
             <td className="py-3.5">
               <BadgeEstado estado={tema.estado} />
             </td>
@@ -83,14 +91,6 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
           </FilaTabla>
         ))}
       </TablaBase>
-
-      <button
-        type="button"
-        onClick={onVerTodos}
-        className="mt-4 inline-block select-none py-1 text-center text-xs font-extrabold text-primario transition-colors hover:text-primario-oscuro"
-      >
-        Ver todos los temas
-      </button>
-    </div>
+    </PanelSeccionAdmin>
   );
 }

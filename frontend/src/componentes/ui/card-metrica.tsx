@@ -44,33 +44,58 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
   return (
     <Card
       sombra="sm"
+      hoverEffect="none"
       clase={unirClases(
         "w-full bg-white",
-        esCentrada ? "p-4 sm:p-5" : "p-4 sm:p-5 flex items-center gap-4",
+        esCentrada ? "p-5 sm:p-6" : "min-h-[168px] p-5 sm:p-6",
         className,
         clase,
       )}
       {...propiedades}
     >
-      <div
-        className={unirClases(
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white font-extrabold text-sm shadow-inner",
-          esCentrada ? "mx-auto" : "flex-shrink-0",
-        )}
-        style={tono?.fondoIcono ? { background: tono.fondoIcono } : undefined}
-      >
-        {etiquetaIcono ?? icono}
-      </div>
+      {esCentrada ? (
+        <div className="flex h-full flex-col items-center justify-center text-center">
+          <div
+            className="flex h-14 w-14 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner sm:h-16 sm:w-16 sm:text-lg"
+            style={tono?.fondoIcono ? { background: tono.fondoIcono } : undefined}
+          >
+            {etiquetaIcono ?? icono}
+          </div>
+          <div className="mt-3 min-w-0">
+            <span className="mb-1 block text-[10px] font-extrabold uppercase leading-none tracking-wide text-slate-400">
+              {titulo}
+            </span>
+            <h3 className="text-[clamp(1.65rem,2.1vw,2.3rem)] font-black leading-none text-slate-900">{valor}</h3>
+            <p className={unirClases("mt-2 text-[11px] font-semibold leading-snug", tono?.colorSubtexto ?? "text-slate-400")}>
+              {subtexto}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex h-full flex-col justify-between gap-3">
+          <div className="text-center">
+            <span className="mb-1 block text-[10px] font-extrabold uppercase leading-none tracking-wide text-slate-400">
+              {titulo}
+            </span>
+          </div>
 
-      <div className={unirClases("min-w-0", esCentrada ? "mt-3 text-center" : "text-left")}>
-        <span className="text-[10px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none mb-1">
-          {titulo}
-        </span>
-        <h3 className="text-xl font-black text-slate-800 leading-none sm:text-lg">{valor}</h3>
-        <p className={unirClases("text-[10px] font-bold mt-1", tono?.colorSubtexto ?? "text-slate-400")}>
-          {subtexto}
-        </p>
-      </div>
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner sm:h-14 sm:w-14 sm:text-base"
+              style={tono?.fondoIcono ? { background: tono.fondoIcono } : undefined}
+            >
+              {etiquetaIcono ?? icono}
+            </div>
+
+            <div className="min-w-0">
+              <h3 className="text-[clamp(1.7rem,2.2vw,2.4rem)] font-black leading-none text-slate-900">{valor}</h3>
+              <p className={unirClases("mt-1.5 max-w-[10ch] text-[10px] font-semibold leading-tight", tono?.colorSubtexto ?? "text-slate-400")}>
+                {subtexto}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

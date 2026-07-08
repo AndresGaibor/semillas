@@ -1,8 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
+import { createFileRoute, useNavigate, Outlet, useLocation } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { publicarTema, despublicarTema } from "../features/admin/admin.api";
-import { obtenerTemas, obtenerUrlPortadaTema } from "../features/themes/themes.api";
+import { obtenerTemasAdmin, publicarTema, despublicarTema } from "../features/admin/admin.api";
+import { obtenerUrlPortadaTema } from "../features/themes/themes.api";
 import { obtenerSendas } from "../features/sendas/sendas.api";
 import { obtenerGruposEdad } from "../features/catalog/catalog.api";
 import { Loader } from "lucide-react";
@@ -14,14 +14,6 @@ import { AdminThemesTable, type TemaTableRow } from "../features/admin/component
 import { AdminThemesSummary } from "../features/admin/componentes/admin-themes-summary";
 
 import type { Tema } from "../shared/api/api";
-
-import coverTema1 from "@/assets/images/Ilustraciones/Tema1.png";
-import coverTema2 from "@/assets/images/Ilustraciones/Tema2.png";
-import coverTema3 from "@/assets/images/Ilustraciones/Tema3.png";
-import coverTema4 from "@/assets/images/Ilustraciones/Tema4.png";
-import coverExploradores from "@/assets/images/Ilustraciones/Exploradores.png";
-import coverVersiculo from "@/assets/images/Ilustraciones/Versiculo del dia.png";
-import coverSendaHijo from "@/assets/images/Ilustraciones/Senda del hijo.png";
 
 export const Route = createFileRoute("/admin/temas")({
   component: AdminThemesPage
@@ -50,24 +42,29 @@ function usePortadasFirmadas(temas: Tema[]) {
 }
 
 function AdminThemesPage() {
+  const location = useLocation();
+  const isExactListRoute = location.pathname === "/admin/temas" || location.pathname === "/admin/temas/";
+  if (!isExactListRoute) return <Outlet />;
+
+  return <AdminThemesListView />;
+}
+
+function AdminThemesListView() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Filters State
   const [searchValue, setSearchValue] = useState("");
   const [selectedSendaId, setSelectedSendaId] = useState("");
   const [selectedAgeGroupId, setSelectedAgeGroupId] = useState("");
   const [activeTab, setActiveTab] = useState("todos");
 
-  // Fetch Data
-  const temasQuery = useQuery({ queryKey: ["admin", "themes"], queryFn: () => obtenerTemas() });
+  const temasQuery = useQuery({ queryKey: ["admin", "themes"], queryFn: () => obtenerTemasAdmin() });
   const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
   const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
 
   const temasBase = temasQuery.data ?? [];
   const portadas = usePortadasFirmadas(temasBase);
 
-  // Mutations
   const publishMutation = useMutation({
     mutationFn: publicarTema,
     onSuccess: () => {
@@ -84,75 +81,89 @@ function AdminThemesPage() {
     }
   });
 
-  // Autores y fechas mock para simular un CMS realista del diseño
-  const mockAuthors = [
-    { name: "María López", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Maria" },
-    { name: "Juan Pérez", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Juan" },
-    { name: "Ana Torres", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Ana" },
-  ];
-
-  const getFranjaEdadText = (temaSlug: string) => {
-    if (temaSlug.includes("creacion") || temaSlug.includes("crear")) return "5–8 años";
-    if (temaSlug.includes("oracion") || temaSlug.includes("padre")) return "9–12 años";
-    return "13–17 años";
+  const getFranjaEdadText = (gruposEdad: Tema["grupos_edad"]) => {
+    if (!gruposEdad || gruposEdad.length === 0) return "";
+    const nombres = gruposEdad.map((g) => {
+      if (g.codigo === "semillas") return "5–8 años";
+      if (g.codigo === "exploradores") return "9–12 años";
+      if (g.codigo === "embajadores") return "13–17 años";
+      return g.nombre;
+    });
+    return nombres.join(", ");
   };
 
-  const getMockAuthor = (themeId: string) => {
-    // Deterministic mock author based on theme id string length
-    const idx = themeId.length % mockAuthors.length;
-    return mockAuthors[idx] || mockAuthors[0];
+  const getSendaInfo = (theme: Tema) => {
+    if (theme.senda) {
+      return {
+        nombre: theme.senda.nombre,
+        colorHex: theme.senda.color_hex,
+        codigo: theme.senda.codigo,
+      };
+    }
+    const sendaFromList = sendasQuery.data?.find((s) => s.id === theme.senda_id);
+    if (sendaFromList) {
+      return {
+        nombre: sendaFromList.nombre,
+        colorHex: sendaFromList.color_hex,
+        codigo: sendaFromList.codigo,
+      };
+    }
+    return { nombre: "Sin senda", colorHex: "#94a3b8", codigo: "" };
   };
 
-  // Convert Tema to TemaTableRow format with database data
+  const getSendaIcon = (codigo: string) => {
+    if (codigo === "padre") return "fa-crown";
+    if (codigo === "hijo") return "fa-heart";
+    if (codigo === "espiritu") return "fa-flame";
+    return "fa-star";
+  };
+
   const mappedThemes = useMemo<TemaTableRow[]>(() => {
     return temasBase.map((t) => {
-      const author = getMockAuthor(t.id) || { name: "María López", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Maria" };
-      const franja = getFranjaEdadText(t.slug);
-      const portada = portadas.get(t.id) || undefined;
-      const sendaNombre = t.senda?.nombre || "Sin senda";
-      const dateObj = t.publicado_en ? new Date(t.publicado_en) : new Date("2024-05-15T10:30:00");
+      const sendaInfo = getSendaInfo(t);
+      const franja = getFranjaEdadText(t.grupos_edad);
+      const portada = portadas.get(t.id) || t.portada_recurso?.url_publica || undefined;
+      const autorNombre = t.creado_por?.nombre_visible ?? "Usuario Semilla";
+      const avatarSeed = t.creado_por?.id ?? t.id;
+      const dateObj = t.publicado_en ? new Date(t.publicado_en) : (t.actualizado_en ? new Date(t.actualizado_en) : new Date());
       const fecha = dateObj.toLocaleDateString("es-EC", { day: "numeric", month: "short", year: "numeric" });
       const hora = dateObj.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" });
 
       return {
         id: t.id,
         titulo: t.titulo ?? "Sin título",
-        resumen: t.resumen ?? "Explora este gran tema bíblico y aprende más sobre Dios.",
+        resumen: t.resumen ?? "",
         portadaUrl: portada,
-        sendaNombre,
+        sendaNombre: sendaInfo.nombre,
+        sendaColorHex: sendaInfo.colorHex,
+        sendaIcono: getSendaIcon(sendaInfo.codigo),
         franjaEdad: franja,
         estado: t.estado,
         fechaEdicion: fecha,
         horaEdicion: hora,
-        autorNombre: author.name,
-        autorAvatar: author.avatar,
+        autorNombre,
+        autorAvatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}`,
       };
     });
-  }, [temasBase, portadas]);
+  }, [temasBase, portadas, sendasQuery.data]);
 
-  // Filter Themes by Tab, Search and Select Inputs
   const filteredThemes = useMemo(() => {
     return mappedThemes.filter((t) => {
-      // Tab filter
       if (activeTab !== "todos" && t.estado.toLowerCase() !== activeTab.toLowerCase()) {
         return false;
       }
-      // Search text filter
       if (searchValue && !t.titulo.toLowerCase().includes(searchValue.toLowerCase()) && !t.resumen.toLowerCase().includes(searchValue.toLowerCase())) {
         return false;
       }
-      // Senda filter
       if (selectedSendaId) {
         const matchingSenda = sendasQuery.data?.find((s) => s.id === selectedSendaId);
         if (matchingSenda && t.sendaNombre !== matchingSenda.nombre) {
           return false;
         }
       }
-      // Age Group filter
       if (selectedAgeGroupId) {
         const matchingAgeGroup = ageGroupsQuery.data?.find((g) => g.id === selectedAgeGroupId);
         if (matchingAgeGroup) {
-          // Convert franjaEdad ("5–8 años") to match filter name ("Semillas")
           const cleanName = matchingAgeGroup.nombre.toLowerCase();
           if (cleanName.includes("semilla") && !t.franjaEdad.includes("5–8")) return false;
           if (cleanName.includes("explora") && !t.franjaEdad.includes("9–12")) return false;
@@ -163,7 +174,6 @@ function AdminThemesPage() {
     });
   }, [mappedThemes, activeTab, searchValue, selectedSendaId, selectedAgeGroupId, sendasQuery.data, ageGroupsQuery.data]);
 
-  // Tab count stats
   const tabCounts = useMemo(() => {
     const stats = { todos: mappedThemes.length, borradores: 0, revision: 0, publicados: 0, archivados: 0 };
     mappedThemes.forEach((t) => {
@@ -176,7 +186,6 @@ function AdminThemesPage() {
     return stats;
   }, [mappedThemes]);
 
-  // Senda and Age Group items formatted for filter select options
   const filterSendas = useMemo(() => {
     return (sendasQuery.data ?? []).map((s) => ({ id: s.id, nombre: s.nombre }));
   }, [sendasQuery.data]);
@@ -190,17 +199,14 @@ function AdminThemesPage() {
       {temasQuery.isLoading && (
         <div className="flex items-center justify-center py-6">
           <Loader className="animate-spin text-primario" size={24} />
-          <span className="text-sm text-neutro ml-2">Cargando temas del catálogo...</span>
+          <span className="text-sm text-neutro ml-2">Cargando temas...</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        {/* Left main block (3/4 width) */}
         <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
-          {/* Header */}
           <AdminThemesHeader onCrearTema={() => navigate({ to: "/admin/temas/new" })} />
 
-          {/* Search and Filters */}
           <AdminThemesFilters
             searchValue={searchValue}
             onSearchChange={setSearchValue}
@@ -213,9 +219,7 @@ function AdminThemesPage() {
             onMasFiltros={() => console.log("Mas filtros clicked")}
           />
 
-          {/* Table Container Card */}
           <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col">
-            {/* Tabs */}
             <AdminThemesTabs
               activeTab={activeTab}
               onTabChange={setActiveTab}
@@ -227,58 +231,25 @@ function AdminThemesPage() {
               }}
             />
 
-            {/* Table */}
             <AdminThemesTable
               temas={filteredThemes}
               onEditar={(id) => navigate({ to: "/admin/temas/$themeId/edit", params: { themeId: id } })}
               onCRECER={(id) => navigate({ to: "/admin/temas/$themeId/crecer", params: { themeId: id } })}
               onActivities={(id) => navigate({ to: "/admin/temas/$themeId/activities", params: { themeId: id } })}
               onPreview={(id) => navigate({ to: "/admin/temas/$themeId/preview", params: { themeId: id } })}
+              onDetalle={(id) => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId: id } })}
               onPublicar={(id) => publishMutation.mutate(id)}
               onDespublicar={(id) => unpublishMutation.mutate(id)}
             />
 
-            {/* Table Footer / Pagination */}
             <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-slate-100 gap-4 text-xs font-semibold text-[#5c5c5c] select-none">
               <span>
                 Mostrando {filteredThemes.length > 0 ? "1" : "0"} a {filteredThemes.length} de {filteredThemes.length} temas
               </span>
-              <div className="flex items-center gap-1">
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer" disabled>
-                  <i className="fa-solid fa-chevron-left text-[10px]" />
-                </button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#2e9e5b] text-white transition-colors font-bold cursor-pointer">
-                  1
-                </button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 transition-colors font-bold cursor-pointer">
-                  2
-                </button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 transition-colors font-bold cursor-pointer">
-                  3
-                </button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 transition-colors font-bold cursor-pointer">
-                  4
-                </button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 transition-colors font-bold cursor-pointer">
-                  5
-                </button>
-                <span className="px-1 text-slate-450">...</span>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-205 bg-white hover:bg-slate-50 transition-colors font-bold cursor-pointer">
-                  14
-                </button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 transition-colors cursor-pointer">
-                  <i className="fa-solid fa-chevron-right text-[10px]" />
-                </button>
-              </div>
-              <select className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-600 focus:outline-none cursor-pointer">
-                <option>10 por página</option>
-                <option>20 por página</option>
-              </select>
             </div>
           </div>
         </div>
 
-        {/* Right side summary panel (1/4 width) */}
         <div className="flex flex-col gap-6">
           <AdminThemesSummary
             counts={{

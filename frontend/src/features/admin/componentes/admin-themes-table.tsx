@@ -26,6 +26,7 @@ type AdminThemesTableProps = {
   onCRECER: (id: string) => void;
   onActivities: (id: string) => void;
   onPreview: (id: string) => void;
+  onDetalle?: (id: string) => void;
   onPublicar?: (id: string) => void;
   onDespublicar?: (id: string) => void;
 };
@@ -36,6 +37,7 @@ export function AdminThemesTable({
   onCRECER,
   onActivities,
   onPreview,
+  onDetalle,
   onPublicar,
   onDespublicar,
 }: AdminThemesTableProps) {
@@ -58,50 +60,47 @@ export function AdminThemesTable({
     { contenido: "Acciones", className: "pr-6 text-right font-semibold" },
   ];
 
-  const getSendaIcon = (senda: string) => {
-    const s = senda.toLowerCase();
-    if (s.includes("amor al prójimo") || s.includes("proji")) {
-      return { icon: "fa-heart", color: "text-[#EE6C4D] bg-[#EE6C4D]/10" };
-    }
-    if (s.includes("dios y su amor")) {
-      return { icon: "fa-heart", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
-    }
-    if (s.includes("vida con jesús") || s.includes("salvador") || s.includes("jesús")) {
-      return { icon: "fa-cross", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
-    }
-    if (s.includes("relaciones sanas") || s.includes("sanas")) {
-      return { icon: "fa-people-group", color: "text-[#2E9E5B] bg-[#2E9E5B]/10" };
-    }
-    if (s.includes("valentía") || s.includes("fe y")) {
-      return { icon: "fa-shield-halved", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
-    }
+  const getSendaIcon = (sendaNombre: string, sendaIcono?: string) => {
+    if (sendaIcono === "fa-crown") return { icon: "fa-crown", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
+    if (sendaIcono === "fa-heart") return { icon: "fa-heart", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
+    if (sendaIcono === "fa-flame") return { icon: "fa-flame", color: "text-[#F97316] bg-[#F97316]/10" };
+    const s = sendaNombre.toLowerCase();
+    if (s.includes("padre")) return { icon: "fa-crown", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
+    if (s.includes("hijo")) return { icon: "fa-heart", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
+    if (s.includes("espíritu") || s.includes("espiritu")) return { icon: "fa-flame", color: "text-[#F97316] bg-[#F97316]/10" };
     return { icon: "fa-star", color: "text-[#17A398] bg-[#17A398]/10" };
   };
 
   return (
     <TablaBase encabezados={encabezados} contenedorClassName="max-h-[560px] select-none" tablaClassName="text-sm">
       {temas.map((tema) => {
-        const sendaIconConfig = getSendaIcon(tema.sendaNombre);
+        const sendaIconConfig = getSendaIcon(tema.sendaNombre, tema.sendaIcono);
         const estadoNormalizado = tema.estado.trim().toLowerCase();
 
         return (
-          <FilaTabla key={tema.id} onActivate={() => onPreview(tema.id)} className="hover:bg-slate-50/30">
+          <FilaTabla key={tema.id} onActivate={() => onDetalle?.(tema.id)} className="hover:bg-slate-50/30">
             <td className="py-4 pl-6">
               <input type="checkbox" className="rounded border-slate-300 text-primario focus:ring-primario" />
             </td>
 
             <td className="py-4 px-4">
-              <AvatarTexto
-                src={tema.portadaUrl || "https://api.dicebear.com/7.x/identicon/svg?seed=Tema"}
-                alt={tema.titulo}
-                titulo={tema.titulo}
-                subtitulo={tema.resumen || "Sin descripción..."}
-                className="max-w-[220px]"
-                avatarClassName="h-12 w-12 rounded-xl border border-slate-100 shadow-xs"
-                contenidoClassName="max-w-[160px]"
-                tituloClassName="font-extrabold leading-tight text-neutro-oscuro-max"
-                subtituloClassName="mt-1 text-[11px] leading-snug text-neutro"
-              />
+              <button
+                type="button"
+                onClick={() => onDetalle?.(tema.id)}
+                className="text-left w-full"
+              >
+                <AvatarTexto
+                  src={tema.portadaUrl || "https://api.dicebear.com/7.x/identicon/svg?seed=Tema"}
+                  alt={tema.titulo}
+                  titulo={tema.titulo}
+                  subtitulo={tema.resumen || "Sin descripción..."}
+                  className="max-w-[220px]"
+                  avatarClassName="h-12 w-12 rounded-xl border border-slate-100 shadow-xs"
+                  contenidoClassName="max-w-[160px]"
+                  tituloClassName="font-extrabold leading-tight text-neutro-oscuro-max hover:text-primario transition-colors"
+                  subtituloClassName="mt-1 text-[11px] leading-snug text-neutro"
+                />
+              </button>
             </td>
 
             <td className="py-4 px-4 whitespace-nowrap">
@@ -146,6 +145,15 @@ export function AdminThemesTable({
                   title="Vista previa"
                 >
                   <i className="fa-solid fa-eye text-sm" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onDetalle?.(tema.id)}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-primario"
+                  title="Ver detalle"
+                >
+                  <i className="fa-solid fa-file-lines text-sm" />
                 </button>
 
                 <button

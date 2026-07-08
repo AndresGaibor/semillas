@@ -41,7 +41,7 @@ export type CrearActividadSolicitud = {
   retroalimentacion?: string;
   orden: number;
   xp_recompensa: number;
-  difficulty: "facil" | "normal" | "dificil";
+  dificultad: "facil" | "normal" | "dificil";
   obligatorio: boolean;
   configuracion?: Record<string, unknown>;
   opciones: Array<{
@@ -52,6 +52,13 @@ export type CrearActividadSolicitud = {
     retroalimentacion?: string;
   }>;
 };
+
+export function obtenerTemasAdmin(params?: { status?: string }) {
+  const busqueda = new URLSearchParams();
+  if (params?.status) busqueda.set("status", params.status);
+  const query = busqueda.toString();
+  return peticion<Tema[]>(`/administracion/temas${query ? `?${query}` : ""}`);
+}
 
 export function obtenerResumenAdmin() {
   return peticion<{

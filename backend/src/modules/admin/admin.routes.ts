@@ -16,6 +16,11 @@ import {
 import { NotFoundError } from "../../shared/errors/http-error";
 
 function mapTheme(theme: Record<string, unknown>) {
+  const sendaRaw = theme.path as Record<string, unknown> | undefined;
+  const createdByRaw = theme.created_by as Record<string, unknown> | undefined;
+  const portadaRaw = theme.portada_recurso as Record<string, unknown> | undefined;
+  const ageGroupsRaw = theme.grupos_edad as Array<Record<string, unknown>> | undefined;
+
   return {
     id: String(theme.id),
     senda_id: String(theme.senda_id ?? ""),
@@ -29,7 +34,38 @@ function mapTheme(theme: Record<string, unknown>) {
     xp_recompensa: Number(theme.xp_recompensa ?? 0),
     minutos_estimados: Number(theme.minutos_estimados ?? 0),
     version_contenido: Number(theme.version_contenido ?? 0),
-    publicado_en: (theme.publicado_en ?? null) as string | null
+    publicado_en: (theme.publicado_en ?? null) as string | null,
+    creado_en: (theme.creado_en ?? null) as string | null,
+    actualizado_en: (theme.actualizado_en ?? null) as string | null,
+    creado_por: createdByRaw
+      ? {
+          id: String(createdByRaw.id ?? ""),
+          nombre_visible: String(createdByRaw.nombre_visible ?? ""),
+        }
+      : null,
+    senda: sendaRaw
+      ? {
+          id: String(sendaRaw.id ?? ""),
+          codigo: String(sendaRaw.codigo ?? ""),
+          nombre: String(sendaRaw.nombre ?? ""),
+          color_hex: String(sendaRaw.color_hex ?? ""),
+        }
+      : null,
+    portada_recurso: portadaRaw
+      ? {
+          id: String(portadaRaw.id ?? ""),
+          url_publica: String(portadaRaw.url_publica ?? ""),
+          texto_alternativo: (portadaRaw.texto_alternativo ?? null) as string | null,
+          titulo: (portadaRaw.titulo ?? null) as string | null,
+        }
+      : null,
+    grupos_edad: Array.isArray(ageGroupsRaw)
+      ? ageGroupsRaw.map((ag) => ({
+          id: String(ag.id ?? ""),
+          codigo: String(ag.codigo ?? ""),
+          nombre: String(ag.nombre ?? ""),
+        }))
+      : [],
   };
 }
 
@@ -94,7 +130,7 @@ adminRoutes.get("/temas", async (c) => {
 
   let query = db
     .from("tema")
-    .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible)")
+    .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))")
     .order("actualizado_en", { ascending: false });
 
   if (status) {
@@ -114,7 +150,7 @@ adminRoutes.get("/temas/:tema_id", async (c) => {
 
   const { data, error } = await db
     .from("tema")
-    .select("*, path:senda_id(*), theme_age_group:tema_grupo_edad(grupo_edad_id)")
+    .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))")
     .eq("id", themeId)
     .single();
 

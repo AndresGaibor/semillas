@@ -1,93 +1,21 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useMemo } from "react";
-import { HelpCircle } from "lucide-react";
-import { obtenerGruposEdad } from "../features/catalog/catalog.api";
 import type { GrupoEdad } from "../shared/api/api";
-
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import { obtenerGruposEdad } from "../features/catalog/catalog.api";
+import { OnboardingTopbar } from "../features/onboarding/componentes/OnboardingTopbar";
+import { GrupoEdadGrid } from "../features/onboarding/componentes/GrupoEdadGrid";
+import { OnboardingFooter } from "../features/onboarding/componentes/OnboardingFooter";
 
 export const Route = createFileRoute("/onboarding/")({
   component: OnboardingPage,
 });
 
 const fallbacksGrupoEdad: GrupoEdad[] = [
-  {
-    id: "semillas",
-    codigo: "semillas",
-    nombre: "Semillas",
-    edad_minima: 5,
-    edad_maxima: 8,
-    descripcion: "Descubre a Dios a través de historias y actividades sencillas.",
-    imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/semillas.png",
-    orden: 1,
-  },
-  {
-    id: "exploradores",
-    codigo: "exploradores",
-    nombre: "Exploradores",
-    edad_minima: 9,
-    edad_maxima: 12,
-    descripcion: "Aprende más de Dios y entiende su Palabra.",
-    imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/exploradores.png",
-    orden: 2,
-  },
-  {
-    id: "embajadores",
-    codigo: "embajadores",
-    nombre: "Embajadores",
-    edad_minima: 13,
-    edad_maxima: 17,
-    descripcion: "Profundiza en tu fe y vive con más propósito.",
-    imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/embajadores.png",
-    orden: 3,
-  },
+  { id: "semillas", codigo: "semillas", nombre: "Semillas", edad_minima: 5, edad_maxima: 8, descripcion: "Descubre a Dios a través de historias y actividades sencillas.", imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/semillas.png", orden: 1 },
+  { id: "exploradores", codigo: "exploradores", nombre: "Exploradores", edad_minima: 9, edad_maxima: 12, descripcion: "Aprende más de Dios y entiende su Palabra.", imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/exploradores.png", orden: 2 },
+  { id: "embajadores", codigo: "embajadores", nombre: "Embajadores", edad_minima: 13, edad_maxima: 17, descripcion: "Profundiza en tu fe y vive con más propósito.", imagen_url: "https://dmddyzftrkktzctrurmo.supabase.co/storage/v1/object/public/imagenes/onboarding/embajadores.png", orden: 3 },
 ];
-
-const topbarStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "16px 24px",
-  background: "#ffffff",
-  borderBottom: "1px solid #e5e7eb",
-  position: "sticky",
-  top: 0,
-  zIndex: 50,
-};
-
-const brandStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  textDecoration: "none",
-};
-
-const helpBtnStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  background: "transparent",
-  border: "1.5px solid #e5e7eb",
-  borderRadius: "20px",
-  padding: "8px 16px",
-  fontFamily: "inherit",
-  fontSize: "14px",
-  fontWeight: 700,
-  color: "#1A1A1A",
-  cursor: "pointer",
-};
-
-const mainStyle: React.CSSProperties = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "24px 20px",
-  maxWidth: "1200px",
-  margin: "0 auto",
-  width: "100%",
-};
 
 function OnboardingPage() {
   const navigate = useNavigate();
@@ -116,7 +44,7 @@ function OnboardingPage() {
   const handleContinue = () => {
     if (selectedGroupId) {
       localStorage.setItem("onboarding_grupo_edad_id", selectedGroupId);
-      navigate({ to: "/onboarding/customize" as any });
+      navigate({ to: "/onboarding/customize" as never });
     }
   };
 
@@ -134,60 +62,22 @@ function OnboardingPage() {
         boxSizing: "border-box",
       }}
     >
-      {/* ── Topbar ── */}
-      <header style={topbarStyle}>
-        <Link to="/" style={brandStyle}>
-          <img
-            src={logoImg}
-            alt="Logo de Semilla"
-            style={{ width: "56px", height: "56px", objectFit: "contain" }}
-          />
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span
-              style={{
-                fontSize: "1.95rem",
-                fontWeight: 800,
-                color: "#512DA8",
-                lineHeight: 1.1,
-              }}
-            >
-              Semillas
-            </span>
-            <span
-              style={{
-                fontSize: "0.64rem",
-                color: "#43A047",
-                fontWeight: 600,
-              }}
-            >
-              Crecer en la Palabra, vivir Su verdad
-            </span>
-          </div>
-        </Link>
+      <OnboardingTopbar onHelpClick={() => setIsHelpOpen(true)} />
 
-        <button
-          onClick={() => setIsHelpOpen(true)}
-          style={helpBtnStyle}
-        >
-          <HelpCircle size={16} />
-          Ayuda
-        </button>
-      </header>
-
-      {/* ── Main Content ── */}
-      <main style={mainStyle}>
-
-        {/* Header text */}
+      <main
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "24px 20px",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          width: "100%",
+        }}
+      >
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <h1
-            style={{
-              fontSize: "32px",
-              fontWeight: 800,
-              color: "#311B92",
-              lineHeight: 1.2,
-              margin: "0 0 12px 0",
-            }}
-          >
+          <h1 style={{ fontSize: "32px", fontWeight: 800, color: "#311B92", lineHeight: 1.2, margin: "0 0 12px 0" }}>
             Elige tu franja de edad
           </h1>
           <p style={{ fontSize: "16px", color: "#5C5C5C", margin: 0 }}>
@@ -195,7 +85,6 @@ function OnboardingPage() {
           </p>
         </div>
 
-        {/* Step indicator */}
         <div
           style={{
             display: "flex",
@@ -277,187 +166,16 @@ function OnboardingPage() {
           </div>
         </div>
 
-        {/* Cards */}
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            justifyContent: "center",
-            marginBottom: "32px",
-            width: "100%",
-            flexWrap: "wrap",
-          }}
-        >
-          {ageGroupsQuery.isLoading && (
-            <p
-              style={{
-                textAlign: "center",
-                color: "rgba(18,59,44,0.4)",
-                fontWeight: 600,
-                padding: "48px 0",
-                width: "100%",
-              }}
-            >
-              Cargando franjas...
-            </p>
-          )}
+        <GrupoEdadGrid
+          grupos={data}
+          seleccionadoId={selectedGroupId}
+          onSelect={setSelectedGroupId}
+          cargando={ageGroupsQuery.isLoading}
+        />
 
-          {data?.map((ageGroup) => {
-            const isSelected = selectedGroupId === ageGroup.id;
-            return (
-              <label
-                key={ageGroup.id}
-                style={{
-                  background: isSelected ? "#EDE7F6" : "#ffffff",
-                  border: `2px solid ${isSelected ? "#7E57C2" : "#e5e7eb"}`,
-                  borderRadius: "16px",
-                  width: "280px",
-                  cursor: "pointer",
-                  position: "relative",
-                  display: "flex",
-                  flexDirection: "column",
-                  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
-                  overflow: "hidden",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <input
-                  type="radio"
-                  name="age_group"
-                  value={ageGroup.id}
-                  checked={isSelected}
-                  onChange={() => setSelectedGroupId(ageGroup.id)}
-                  style={{
-                    position: "absolute",
-                    opacity: 0,
-                    width: 0,
-                    height: 0,
-                  }}
-                />
-
-                {/* Card image */}
-                <div
-                  style={{
-                    width: "100%",
-                    height: "160px",
-                    position: "relative",
-                    background: "#e5f0f9",
-                    flexShrink: 0,
-                  }}
-                >
-                  <img
-                    src={ageGroup.imagen_url ?? undefined}
-                    alt={ageGroup.nombre}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
-                  {/* Checkmark */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "16px",
-                      right: "16px",
-                      width: "32px",
-                      height: "32px",
-                      background: "#7E57C2",
-                      color: "white",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: "bold",
-                      fontSize: "18px",
-                      opacity: isSelected ? 1 : 0,
-                      transform: isSelected ? "scale(1)" : "scale(0.8)",
-                      transition: "all 0.2s ease",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    ✓
-                  </div>
-                </div>
-
-                {/* Card content */}
-                <div
-                  style={{
-                    padding: "16px",
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <h2
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: 700,
-                      color: "#1A1A1A",
-                      margin: "0 0 4px 0",
-                    }}
-                  >
-                    {ageGroup.nombre}
-                  </h2>
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "#7E57C2",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    {ageGroup.edad_minima} - {ageGroup.edad_maxima} años
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      color: "#5C5C5C",
-                      lineHeight: 1.5,
-                      margin: 0,
-                    }}
-                  >
-                    {ageGroup.descripcion}
-                  </p>
-                </div>
-              </label>
-            );
-          })}
-        </div>
-
-        {/* Continue button */}
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <button
-            onClick={handleContinue}
-            disabled={!selectedGroupId}
-            style={{
-              width: "100%",
-              backgroundColor: selectedGroupId ? "#7E57C2" : "#E0E0E0",
-              color: selectedGroupId ? "#ffffff" : "#9E9E9E",
-              border: "none",
-              borderRadius: "8px",
-              padding: "16px 24px",
-              fontSize: "16px",
-              fontWeight: 600,
-              cursor: selectedGroupId ? "pointer" : "not-allowed",
-              fontFamily: "inherit",
-              transition: "background-color 0.2s ease",
-            }}
-          >
-            Continuar
-          </button>
-        </div>
+        <OnboardingFooter deshabilitado={!selectedGroupId} onContinuar={handleContinue} />
       </main>
 
-      {/* ── Help Modal ── */}
       {isHelpOpen && (
         <div
           onClick={() => setIsHelpOpen(false)}
@@ -486,23 +204,8 @@ function OnboardingPage() {
               boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                marginBottom: "20px",
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 800,
-                  color: "#512DA8",
-                  margin: 0,
-                  lineHeight: 1.3,
-                }}
-              >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+              <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#512DA8", margin: 0, lineHeight: 1.3 }}>
                 ¿Por qué elegir tu edad?
               </h3>
               <button
@@ -527,30 +230,14 @@ function OnboardingPage() {
               </button>
             </div>
             <div>
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: "#2E2E2E",
-                  lineHeight: 1.65,
-                  marginBottom: "16px",
-                }}
-              >
+              <p style={{ fontSize: "15px", color: "#2E2E2E", lineHeight: 1.65, marginBottom: "16px" }}>
                 Queremos que tu experiencia en{" "}
-                <strong style={{ fontWeight: 700, color: "#512DA8" }}>
-                  Semillas
-                </strong>{" "}
+                <strong style={{ fontWeight: 700, color: "#512DA8" }}>Semillas</strong>{" "}
                 sea la mejor posible. Al elegir tu franja de edad, adaptaremos
                 el contenido, las historias y las actividades para que sean más
                 afines a tus intereses y nivel de comprensión.
               </p>
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: "#2E2E2E",
-                  lineHeight: 1.65,
-                  margin: 0,
-                }}
-              >
+              <p style={{ fontSize: "15px", color: "#2E2E2E", lineHeight: 1.65, margin: 0 }}>
                 ¡No te preocupes! Siempre podrás cambiar esta configuración más
                 adelante desde tu perfil.
               </p>

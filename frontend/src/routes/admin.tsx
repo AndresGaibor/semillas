@@ -41,9 +41,17 @@ function AdminLayout() {
   let tituloHeader = "Panel de Control";
   let subtituloHeader = "Estadísticas y resumen de la plataforma.";
 
+  if (activePage.replace(/\/$/, "") === "/admin") {
+    tituloHeader = "Panel de administración";
+    subtituloHeader = "Resumen general del contenido, actividad y revisión.";
+  }
+
   if (activePage.includes("/admin/temas/new")) {
     tituloHeader = "Crear nuevo tema";
     subtituloHeader = "Crea un tema que inspire y guíe a los niños en su crecimiento espiritual.";
+  } else if (activePage.includes("/detalle")) {
+    tituloHeader = "";
+    subtituloHeader = "";
   } else if (activePage.includes("/crecer")) {
     tituloHeader = "Editor CRECER";
     subtituloHeader = "Edita los seis momentos de la metodología CRECER.";
@@ -71,7 +79,7 @@ function AdminLayout() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#fbf7ed]">
       <AdminSidebar
         activePage={activePage}
         isOpen={sidebarOpen}
@@ -79,7 +87,7 @@ function AdminLayout() {
         onLogout={handleLogout}
       />
 
-      <main className="flex flex-1 flex-col overflow-y-auto p-6 md:p-8 lg:p-10">
+      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-6 py-5 md:px-7 lg:px-8">
         <AppTopbar
           title={tituloHeader}
           subtitle={subtituloHeader}
@@ -87,7 +95,7 @@ function AdminLayout() {
           onLogout={handleLogout}
         />
 
-        <div className="flex flex-col gap-6 md:gap-8">
+        <div className="flex min-w-0 flex-col gap-6 md:gap-8">
           <Outlet />
         </div>
       </main>

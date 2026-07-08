@@ -1,5 +1,6 @@
 import { Button } from "@/componentes/ui/button";
 import { TarjetaMetricaCompacta } from "@/componentes/ui/card-metrica";
+import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
 type ContentStatusGridProps = {
   borradores: number;
@@ -50,22 +51,20 @@ export function ContentStatusGrid({
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h3 className="text-[17px] font-black text-neutro-oscuro-max">Estado del contenido</h3>
-          <p className="text-xs text-neutro mt-0.5">Resumen general del estado de todo el contenido.</p>
-        </div>
+    <PanelSeccionAdmin
+      titulo="Estado del contenido"
+      descripcion="Resumen general del estado de todo el contenido."
+      accion={
         <Button
           variant="outline"
           size="sm"
           onClick={onVerTodo}
-          className="rounded-xl border-slate-200 text-xs font-bold text-slate-600 h-9 px-4"
+          className="h-9 rounded-xl border-slate-200 px-4 text-xs font-bold text-slate-600"
         >
           Ver todo
         </Button>
-      </div>
-
+      }
+    >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {statusItems.map((item) => (
           <TarjetaMetricaCompacta
@@ -78,6 +77,6 @@ export function ContentStatusGrid({
           />
         ))}
       </div>
-    </div>
+    </PanelSeccionAdmin>
   );
 }

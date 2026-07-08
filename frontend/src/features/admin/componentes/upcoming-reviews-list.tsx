@@ -1,5 +1,6 @@
 import { Button } from "@/componentes/ui/button";
 import { FilaListaCompacta } from "@/componentes/ui/fila-lista-compacta";
+import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
 export type UpcomingReviewItem = {
   id: string;
@@ -35,19 +36,19 @@ export function UpcomingReviewsList({
   };
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[17px] font-black text-neutro-oscuro-max">Próximas revisiones</h3>
+    <PanelSeccionAdmin
+      titulo="Próximas revisiones"
+      accion={
         <Button
           variant="ghost"
           size="sm"
           onClick={onVerTodas}
-          className="text-xs font-bold text-primario hover:text-primario-oscuro p-0 h-auto hover:bg-transparent"
+          className="h-auto p-0 text-xs font-bold text-primario hover:bg-transparent hover:text-primario-oscuro"
         >
           Ver todas
         </Button>
-      </div>
-
+      }
+    >
       <div className="flex flex-col gap-3">
         {revisiones.map((rev) => (
           <FilaListaCompacta
@@ -55,25 +56,25 @@ export function UpcomingReviewsList({
             onClick={onSelectReview ? () => onSelectReview(rev.id) : undefined}
             className="select-none"
             izquierda={
-              <div className="flex flex-col items-center justify-center shrink-0 w-11 h-12 bg-white border border-slate-100 rounded-xl shadow-xs">
-                <span className="text-base font-black text-neutro-oscuro-max leading-none">{rev.dia}</span>
-                <span className="text-[9px] font-extrabold text-neutro uppercase tracking-wider mt-0.5">{rev.mes}</span>
+              <div className="flex h-12 w-11 shrink-0 flex-col items-center justify-center rounded-xl border border-slate-100 bg-white shadow-xs">
+                <span className="text-base font-black leading-none text-neutro-oscuro-max">{rev.dia}</span>
+                <span className="mt-0.5 text-[9px] font-extrabold uppercase tracking-wider text-neutro">{rev.mes}</span>
               </div>
             }
             titulo={rev.titulo}
             subtitulo={`Senda: ${rev.senda}`}
             derecha={
-              <div className="flex flex-col items-end gap-1.5 shrink-0">
-                <span className={`inline-flex px-2 py-0.5 rounded-lg text-[9px] font-bold ${getBadgeStyle(rev.estado)}`}>
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <span className={`inline-flex rounded-lg px-2 py-0.5 text-[9px] font-bold ${getBadgeStyle(rev.estado)}`}>
                   {rev.estado}
                 </span>
                 <div className="flex items-center gap-1">
                   <img
                     src={rev.reviewerAvatar}
                     alt={rev.reviewerNombre}
-                    className="w-4 h-4 rounded-full object-cover border border-slate-200"
+                    className="h-4 w-4 rounded-full border border-slate-200 object-cover"
                   />
-                  <span className="text-[10px] font-bold text-neutro-oscuro leading-none">
+                  <span className="text-[10px] font-bold leading-none text-neutro-oscuro">
                     {rev.reviewerNombre}
                   </span>
                 </div>
@@ -84,6 +85,6 @@ export function UpcomingReviewsList({
           />
         ))}
       </div>
-    </div>
+    </PanelSeccionAdmin>
   );
 }

@@ -2,9 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { crearActividad, eliminarActividad, obtenerPasosAdmin } from "../features/admin/admin.api";
-import { obtenerTiposActividad } from "../features/catalog/catalog.api";
+import { obtenerTiposActividad, obtenerGruposEdad } from "../features/catalog/catalog.api";
 import { obtenerActividades } from "../features/themes/themes.api";
-import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { ArrowLeft, Loader, Plus, Trash2, Gamepad2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
@@ -30,11 +29,17 @@ function AdminThemeActivitiesPage() {
     { etiqueta: "D", texto: "", correcta: false, orden: 4 }
   ]);
 
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
+  const ageGroupsQuery = useQuery({
+    queryKey: ["catalog", "age-groups"],
+    queryFn: () => obtenerGruposEdad()
+      .then(data => { setSelectedAgeGroupId(data[0]?.id ?? ""); return data; })
+  });
+  const [selectedAgeGroupId, setSelectedAgeGroupId] = useState("");
+
   const activitiesQuery = useQuery({
-    queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () => obtenerActividades(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
-    enabled: !!meQuery.data
+    queryKey: ["admin", "theme", themeId, "activities", selectedAgeGroupId],
+    queryFn: () => obtenerActividades(themeId, selectedAgeGroupId || undefined),
+    enabled: !!selectedAgeGroupId
   });
   const stepsQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "steps"],
@@ -51,14 +56,14 @@ function AdminThemeActivitiesPage() {
       return crearActividad({
         tema_id: themeId,
         paso_id: selectedStepId,
-        grupo_edad_id: meQuery.data?.perfil?.grupo_edad_id ?? "",
+        grupo_edad_id: selectedAgeGroupId,
         tipo_actividad_id: selectedActivityTypeId,
         titulo: title,
         consigna: prompt,
         retroalimentacion: feedback || undefined,
         orden: (activitiesQuery.data?.length ?? 0) + 1,
         xp_recompensa: xpReward,
-        difficulty: "facil",
+        dificultad: "facil",
         obligatorio: true,
         configuracion: {},
         opciones: options.map((option, index) => ({
@@ -89,7 +94,20 @@ function AdminThemeActivitiesPage() {
         <ArrowLeft size={16} /> Volver
       </button>
 
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-[#123b2c]">Franja:</label>
+          <select
+            value={selectedAgeGroupId}
+            onChange={(e) => setSelectedAgeGroupId(e.target.value)}
+            className="px-3 py-2 rounded-xl border border-[#e5e7eb] text-sm bg-white"
+          >
+            <option value="">Todas</option>
+            {ageGroupsQuery.data?.map((ag) => (
+              <option key={ag.id} value={ag.id}>{ag.nombre}</option>
+            ))}
+          </select>
+        </div>
         <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 bg-[#2e9e5b] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#267d4c] transition-colors">
           <Plus size={16} /> {showForm ? "Cancelar" : "Nueva"}
         </button>

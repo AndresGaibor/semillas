@@ -24,7 +24,7 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
   const resolvedAvatarUrl = MAPA_AVATARES[avatarIndex] || MAPA_AVATARES["1"] || "";
 
   return (
-    <header className="mb-4 flex items-center justify-between gap-3 max-sm:flex-wrap sm:mb-6 sm:gap-4">
+    <header className="mb-5 flex items-center justify-between gap-4 max-sm:flex-wrap">
       <Button
         type="button"
         variant="ghost"
@@ -36,12 +36,12 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
         <i className="fa-solid fa-bars"></i>
       </Button>
 
-      <div className="flex items-center gap-2 text-left max-md:hidden sm:gap-3">
-        <span className="text-xl sm:text-2xl">🌱</span>
-        <h1 className="text-lg font-black tracking-tight text-slate-800 sm:text-2xl">{title}</h1>
+      <div className="flex items-center gap-3 text-left max-md:hidden">
+        <span className="text-3xl leading-none">🌱</span>
+        <h1 className="text-[28px] font-black leading-tight tracking-tight text-slate-800">{title}</h1>
       </div>
 
-      <div className="hidden flex-1 max-w-[500px] mx-0 sm:mx-8 sm:block max-md:order-3 max-md:w-full">
+      <div className="mx-0 hidden max-w-[460px] flex-1 sm:mx-6 sm:block max-md:order-3 max-md:w-full">
         <div className="relative flex items-center w-full">
           <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-xs"></i>
           <input
@@ -55,7 +55,7 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
         </div>
       </div>
 
-      <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-0 sm:gap-5">
+      <div className="ml-auto flex shrink-0 items-center gap-3 md:ml-0 sm:gap-4">
         <Button type="button" variant="ghost" size="icon-responsive" className="relative text-lg text-slate-600 hover:text-slate-900 cursor-pointer sm:text-xl" aria-label="Notificaciones">
           <i className="fa-regular fa-bell"></i>
           <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-slate-50 bg-red-500 text-[9px] font-bold text-white">

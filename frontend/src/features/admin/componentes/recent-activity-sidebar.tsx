@@ -1,4 +1,4 @@
-import { BloqueIconoTexto } from "@/componentes/ui/bloque-icono-texto";
+import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
 export type ActivityLogItem = {
   id: string;
@@ -53,34 +53,38 @@ export function RecentActivitySidebar({
   };
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left">
-      <h3 className="text-[17px] font-black text-neutro-oscuro-max mb-4">Actividad reciente</h3>
-
+    <PanelSeccionAdmin
+      titulo="Actividad reciente"
+      footer={
+        <button
+          type="button"
+          onClick={onVerTodaLaActividad}
+          className="inline-block select-none py-1 text-center text-xs font-extrabold text-primario transition-colors hover:text-primario-oscuro"
+        >
+          Ver toda la actividad
+        </button>
+      }
+    >
       <div className="flex flex-col gap-4">
         {actividades.map((act) => {
           const config = getIconConfig(act.tipo);
           return (
-            <BloqueIconoTexto
-              key={act.id}
-              icono={<i className={`fa-solid ${config.icon} text-xs ${config.color}`} />}
-              titulo={act.texto}
-              descripcion={act.haceCuanto}
-              iconoCajaClassName={`${config.bg} h-8 w-8 rounded-xl`}
-              tituloClassName="text-[12.8px] leading-snug text-neutro-oscuro-max font-semibold normal-case"
-              descripcionClassName="text-[10px] text-neutro mt-1 leading-none"
-              className="items-start select-none"
-            />
+            <div key={act.id} className="flex items-start gap-3 select-none">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${config.bg}`}>
+                <i className={`fa-solid ${config.icon} text-xs ${config.color}`} />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <p className="text-[12.8px] font-semibold leading-snug text-neutro-oscuro-max">
+                  {act.texto}
+                </p>
+                <span className="mt-1 text-[10px] leading-none text-neutro">
+                  {act.haceCuanto}
+                </span>
+              </div>
+            </div>
           );
         })}
       </div>
-
-      <button
-        type="button"
-        onClick={onVerTodaLaActividad}
-        className="mt-5 text-center text-xs font-extrabold text-primario hover:text-primario-oscuro transition-colors py-1 inline-block select-none"
-      >
-        Ver toda la actividad
-      </button>
-    </div>
+    </PanelSeccionAdmin>
   );
 }

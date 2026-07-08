@@ -25,7 +25,12 @@ import { Route as AppDescargasRouteImport } from './routes/app.descargas'
 import { Route as AppClubesRouteImport } from './routes/app.clubes'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminTemasRouteImport } from './routes/admin.temas'
+import { Route as AdminSendasRouteImport } from './routes/admin.sendas'
+import { Route as AdminRevisionRouteImport } from './routes/admin.revision'
+import { Route as AdminReportesRouteImport } from './routes/admin.reportes'
 import { Route as AdminMediosRouteImport } from './routes/admin.medios'
+import { Route as AdminClubesRouteImport } from './routes/admin.clubes'
+import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminActividadesRouteImport } from './routes/admin.actividades'
 import { Route as AppTemasIndexRouteImport } from './routes/app.temas.index'
 import { Route as AppTemasThemeIdRouteImport } from './routes/app.temas.$themeId'
@@ -34,6 +39,7 @@ import { Route as AppActividadesActivityIdRouteImport } from './routes/app.activ
 import { Route as AdminTemasNewRouteImport } from './routes/admin.temas.new'
 import { Route as AdminTemasThemeIdPreviewRouteImport } from './routes/admin.temas.$themeId.preview'
 import { Route as AdminTemasThemeIdEditRouteImport } from './routes/admin.temas.$themeId.edit'
+import { Route as AdminTemasThemeIdDetalleRouteImport } from './routes/admin.temas.$themeId.detalle'
 import { Route as AdminTemasThemeIdCrecerRouteImport } from './routes/admin.temas.$themeId.crecer'
 import { Route as AdminTemasThemeIdActivitiesRouteImport } from './routes/admin.temas.$themeId.activities'
 
@@ -117,9 +123,34 @@ const AdminTemasRoute = AdminTemasRouteImport.update({
   path: '/temas',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSendasRoute = AdminSendasRouteImport.update({
+  id: '/sendas',
+  path: '/sendas',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRevisionRoute = AdminRevisionRouteImport.update({
+  id: '/revision',
+  path: '/revision',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportesRoute = AdminReportesRouteImport.update({
+  id: '/reportes',
+  path: '/reportes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMediosRoute = AdminMediosRouteImport.update({
   id: '/medios',
   path: '/medios',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClubesRoute = AdminClubesRouteImport.update({
+  id: '/clubes',
+  path: '/clubes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAjustesRoute = AdminAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminActividadesRoute = AdminActividadesRouteImport.update({
@@ -164,6 +195,12 @@ const AdminTemasThemeIdEditRoute = AdminTemasThemeIdEditRouteImport.update({
   path: '/$themeId/edit',
   getParentRoute: () => AdminTemasRoute,
 } as any)
+const AdminTemasThemeIdDetalleRoute =
+  AdminTemasThemeIdDetalleRouteImport.update({
+    id: '/$themeId/detalle',
+    path: '/$themeId/detalle',
+    getParentRoute: () => AdminTemasRoute,
+  } as any)
 const AdminTemasThemeIdCrecerRoute = AdminTemasThemeIdCrecerRouteImport.update({
   id: '/$themeId/crecer',
   path: '/$themeId/crecer',
@@ -183,7 +220,12 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/admin/actividades': typeof AdminActividadesRoute
+  '/admin/ajustes': typeof AdminAjustesRoute
+  '/admin/clubes': typeof AdminClubesRoute
   '/admin/medios': typeof AdminMediosRoute
+  '/admin/reportes': typeof AdminReportesRoute
+  '/admin/revision': typeof AdminRevisionRoute
+  '/admin/sendas': typeof AdminSendasRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/clubes': typeof AppClubesRoute
@@ -202,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/app/temas/': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
   '/admin/temas/$themeId/crecer': typeof AdminTemasThemeIdCrecerRoute
+  '/admin/temas/$themeId/detalle': typeof AdminTemasThemeIdDetalleRoute
   '/admin/temas/$themeId/edit': typeof AdminTemasThemeIdEditRoute
   '/admin/temas/$themeId/preview': typeof AdminTemasThemeIdPreviewRoute
 }
@@ -209,7 +252,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/admin/actividades': typeof AdminActividadesRoute
+  '/admin/ajustes': typeof AdminAjustesRoute
+  '/admin/clubes': typeof AdminClubesRoute
   '/admin/medios': typeof AdminMediosRoute
+  '/admin/reportes': typeof AdminReportesRoute
+  '/admin/revision': typeof AdminRevisionRoute
+  '/admin/sendas': typeof AdminSendasRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/clubes': typeof AppClubesRoute
@@ -228,6 +276,7 @@ export interface FileRoutesByTo {
   '/app/temas': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
   '/admin/temas/$themeId/crecer': typeof AdminTemasThemeIdCrecerRoute
+  '/admin/temas/$themeId/detalle': typeof AdminTemasThemeIdDetalleRoute
   '/admin/temas/$themeId/edit': typeof AdminTemasThemeIdEditRoute
   '/admin/temas/$themeId/preview': typeof AdminTemasThemeIdPreviewRoute
 }
@@ -239,7 +288,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/admin/actividades': typeof AdminActividadesRoute
+  '/admin/ajustes': typeof AdminAjustesRoute
+  '/admin/clubes': typeof AdminClubesRoute
   '/admin/medios': typeof AdminMediosRoute
+  '/admin/reportes': typeof AdminReportesRoute
+  '/admin/revision': typeof AdminRevisionRoute
+  '/admin/sendas': typeof AdminSendasRoute
   '/admin/temas': typeof AdminTemasRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/clubes': typeof AppClubesRoute
@@ -258,6 +312,7 @@ export interface FileRoutesById {
   '/app/temas/': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
   '/admin/temas/$themeId/crecer': typeof AdminTemasThemeIdCrecerRoute
+  '/admin/temas/$themeId/detalle': typeof AdminTemasThemeIdDetalleRoute
   '/admin/temas/$themeId/edit': typeof AdminTemasThemeIdEditRoute
   '/admin/temas/$themeId/preview': typeof AdminTemasThemeIdPreviewRoute
 }
@@ -270,7 +325,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/admin/actividades'
+    | '/admin/ajustes'
+    | '/admin/clubes'
     | '/admin/medios'
+    | '/admin/reportes'
+    | '/admin/revision'
+    | '/admin/sendas'
     | '/admin/temas'
     | '/admin/usuarios'
     | '/app/clubes'
@@ -289,6 +349,7 @@ export interface FileRouteTypes {
     | '/app/temas/'
     | '/admin/temas/$themeId/activities'
     | '/admin/temas/$themeId/crecer'
+    | '/admin/temas/$themeId/detalle'
     | '/admin/temas/$themeId/edit'
     | '/admin/temas/$themeId/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -296,7 +357,12 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/admin/actividades'
+    | '/admin/ajustes'
+    | '/admin/clubes'
     | '/admin/medios'
+    | '/admin/reportes'
+    | '/admin/revision'
+    | '/admin/sendas'
     | '/admin/temas'
     | '/admin/usuarios'
     | '/app/clubes'
@@ -315,6 +381,7 @@ export interface FileRouteTypes {
     | '/app/temas'
     | '/admin/temas/$themeId/activities'
     | '/admin/temas/$themeId/crecer'
+    | '/admin/temas/$themeId/detalle'
     | '/admin/temas/$themeId/edit'
     | '/admin/temas/$themeId/preview'
   id:
@@ -325,7 +392,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/admin/actividades'
+    | '/admin/ajustes'
+    | '/admin/clubes'
     | '/admin/medios'
+    | '/admin/reportes'
+    | '/admin/revision'
+    | '/admin/sendas'
     | '/admin/temas'
     | '/admin/usuarios'
     | '/app/clubes'
@@ -344,6 +416,7 @@ export interface FileRouteTypes {
     | '/app/temas/'
     | '/admin/temas/$themeId/activities'
     | '/admin/temas/$themeId/crecer'
+    | '/admin/temas/$themeId/detalle'
     | '/admin/temas/$themeId/edit'
     | '/admin/temas/$themeId/preview'
   fileRoutesById: FileRoutesById
@@ -470,11 +543,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTemasRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/sendas': {
+      id: '/admin/sendas'
+      path: '/sendas'
+      fullPath: '/admin/sendas'
+      preLoaderRoute: typeof AdminSendasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/revision': {
+      id: '/admin/revision'
+      path: '/revision'
+      fullPath: '/admin/revision'
+      preLoaderRoute: typeof AdminRevisionRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reportes': {
+      id: '/admin/reportes'
+      path: '/reportes'
+      fullPath: '/admin/reportes'
+      preLoaderRoute: typeof AdminReportesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/medios': {
       id: '/admin/medios'
       path: '/medios'
       fullPath: '/admin/medios'
       preLoaderRoute: typeof AdminMediosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/clubes': {
+      id: '/admin/clubes'
+      path: '/clubes'
+      fullPath: '/admin/clubes'
+      preLoaderRoute: typeof AdminClubesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ajustes': {
+      id: '/admin/ajustes'
+      path: '/ajustes'
+      fullPath: '/admin/ajustes'
+      preLoaderRoute: typeof AdminAjustesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/actividades': {
@@ -533,6 +641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTemasThemeIdEditRouteImport
       parentRoute: typeof AdminTemasRoute
     }
+    '/admin/temas/$themeId/detalle': {
+      id: '/admin/temas/$themeId/detalle'
+      path: '/$themeId/detalle'
+      fullPath: '/admin/temas/$themeId/detalle'
+      preLoaderRoute: typeof AdminTemasThemeIdDetalleRouteImport
+      parentRoute: typeof AdminTemasRoute
+    }
     '/admin/temas/$themeId/crecer': {
       id: '/admin/temas/$themeId/crecer'
       path: '/$themeId/crecer'
@@ -554,6 +669,7 @@ interface AdminTemasRouteChildren {
   AdminTemasNewRoute: typeof AdminTemasNewRoute
   AdminTemasThemeIdActivitiesRoute: typeof AdminTemasThemeIdActivitiesRoute
   AdminTemasThemeIdCrecerRoute: typeof AdminTemasThemeIdCrecerRoute
+  AdminTemasThemeIdDetalleRoute: typeof AdminTemasThemeIdDetalleRoute
   AdminTemasThemeIdEditRoute: typeof AdminTemasThemeIdEditRoute
   AdminTemasThemeIdPreviewRoute: typeof AdminTemasThemeIdPreviewRoute
 }
@@ -562,6 +678,7 @@ const AdminTemasRouteChildren: AdminTemasRouteChildren = {
   AdminTemasNewRoute: AdminTemasNewRoute,
   AdminTemasThemeIdActivitiesRoute: AdminTemasThemeIdActivitiesRoute,
   AdminTemasThemeIdCrecerRoute: AdminTemasThemeIdCrecerRoute,
+  AdminTemasThemeIdDetalleRoute: AdminTemasThemeIdDetalleRoute,
   AdminTemasThemeIdEditRoute: AdminTemasThemeIdEditRoute,
   AdminTemasThemeIdPreviewRoute: AdminTemasThemeIdPreviewRoute,
 }
@@ -572,7 +689,12 @@ const AdminTemasRouteWithChildren = AdminTemasRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminActividadesRoute: typeof AdminActividadesRoute
+  AdminAjustesRoute: typeof AdminAjustesRoute
+  AdminClubesRoute: typeof AdminClubesRoute
   AdminMediosRoute: typeof AdminMediosRoute
+  AdminReportesRoute: typeof AdminReportesRoute
+  AdminRevisionRoute: typeof AdminRevisionRoute
+  AdminSendasRoute: typeof AdminSendasRoute
   AdminTemasRoute: typeof AdminTemasRouteWithChildren
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -580,7 +702,12 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminActividadesRoute: AdminActividadesRoute,
+  AdminAjustesRoute: AdminAjustesRoute,
+  AdminClubesRoute: AdminClubesRoute,
   AdminMediosRoute: AdminMediosRoute,
+  AdminReportesRoute: AdminReportesRoute,
+  AdminRevisionRoute: AdminRevisionRoute,
+  AdminSendasRoute: AdminSendasRoute,
   AdminTemasRoute: AdminTemasRouteWithChildren,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,

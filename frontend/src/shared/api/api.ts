@@ -99,18 +99,29 @@ export interface Tema {
   minutos_estimados: number;
   version_contenido: number;
   publicado_en: string | null;
+  creado_en?: string | null;
+  actualizado_en?: string | null;
   senda?: Senda | null;
+  creado_por?: {
+    id: string;
+    nombre_visible: string;
+  } | null;
+  grupos_edad?: Array<{
+    id: string;
+    codigo: string;
+    nombre: string;
+  }>;
   portada_recurso?: {
     id: string;
-    tipo: string;
+    tipo?: string;
     url_publica: string;
     texto_alternativo: string | null;
     titulo: string | null;
-    tipo_mime: string | null;
-    tamano_bytes: number | null;
-    duracion_seg: number | null;
-    ancho_px: number | null;
-    alto_px: number | null;
+    tipo_mime?: string | null;
+    tamano_bytes?: number | null;
+    duracion_seg?: number | null;
+    ancho_px?: number | null;
+    alto_px?: number | null;
   } | null;
   versiculo_clave?: {
     id: string;

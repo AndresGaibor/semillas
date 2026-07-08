@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { obtenerPasosAdmin, guardarParlante } from "../features/admin/admin.api";
 import { obtenerGruposEdad, obtenerPasosCrecer } from "../features/catalog/catalog.api";
-import { ArrowLeft, Loader, Save, Check } from "lucide-react";
+import { ArrowLeft, Loader, Save, Check, Circle } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/crecer")({
   component: AdminThemeCrecerPage
@@ -58,7 +58,13 @@ function AdminThemeCrecerPage() {
   });
 
   const activeStep = crecerStepsQuery.data?.find((s) => s.codigo === activeStepCode);
-  const hasContent = stepsQuery.data?.some((s) => s.tipo_paso?.codigo === activeStepCode);
+  const hasContentForStep = (codigo: string) =>
+    selectedAgeGroupId
+      ? stepsQuery.data?.some((s) =>
+          s.tipo_paso?.codigo === codigo &&
+          s.contenidos?.some((c) => c.grupo_edad_id === selectedAgeGroupId && c.cuerpo && c.cuerpo !== "Contenido pendiente...")
+        )
+      : false;
 
   return (
     <div>
@@ -93,7 +99,13 @@ function AdminThemeCrecerPage() {
                   color: activeStepCode === step.codigo ? "white" : "#666"
                 }}
               >
-                {step.nombre}
+                <span className="flex items-center gap-1.5">
+                  {hasContentForStep(step.codigo)
+                    ? <Check size={14} className="shrink-0" />
+                    : <Circle size={14} className="shrink-0 opacity-40" />
+                  }
+                  {step.nombre}
+                </span>
               </button>
             ))}
           </div>

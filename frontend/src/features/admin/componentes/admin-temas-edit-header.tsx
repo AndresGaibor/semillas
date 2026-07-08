@@ -1,0 +1,32 @@
+import imgBoySheep from "@/assets/images/Ilustraciones/in2.png";
+
+type AdminTemasEditHeaderProps = {
+  title: string;
+  onNavigate: (to: string) => void;
+};
+
+export function AdminTemasEditHeader({ title, onNavigate }: AdminTemasEditHeaderProps) {
+  return (
+    <>
+      <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 select-none">
+        <span className="hover:text-slate-650 cursor-pointer" onClick={() => onNavigate("/admin")}>Inicio</span>
+        <i className="fa-solid fa-chevron-right text-[8px]" />
+        <span className="hover:text-slate-650 cursor-pointer" onClick={() => onNavigate("/admin/temas")}>Temas</span>
+        <i className="fa-solid fa-chevron-right text-[8px]" />
+        <span className="text-slate-600 truncate max-w-[120px]">{title || "Dios me cuida"}</span>
+        <i className="fa-solid fa-chevron-right text-[8px]" />
+        <span className="text-[#2e9e5b]">Editar</span>
+      </div>
+
+      <div className="flex items-center gap-4 bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 shrink-0">
+          <img src={imgBoySheep} alt="Boy with sheep avatar" className="w-full h-full object-cover" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-black text-slate-800">Editar tema</h2>
+          <p className="text-[13px] text-slate-500 mt-1">Actualiza la información y el contenido de tu tema.</p>
+        </div>
+      </div>
+    </>
+  );
+}

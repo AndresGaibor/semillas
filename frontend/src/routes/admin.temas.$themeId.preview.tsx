@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { obtenerTemaAdmin, obtenerPasosAdmin } from "../features/admin/admin.api";
 import { obtenerActividades } from "../features/themes/themes.api";
-import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { ArrowLeft, Loader, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/admin/temas/$themeId/preview")({
@@ -13,13 +12,11 @@ function AdminThemePreviewPage() {
   const { themeId } = Route.useParams();
   const navigate = useNavigate();
 
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
   const themeQuery = useQuery({ queryKey: ["admin", "theme", themeId], queryFn: () => obtenerTemaAdmin(themeId) });
   const stepsQuery = useQuery({ queryKey: ["admin", "theme", themeId, "steps"], queryFn: () => obtenerPasosAdmin(themeId) });
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () => obtenerActividades(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
-    enabled: !!meQuery.data
+    queryFn: () => obtenerActividades(themeId)
   });
 
   const theme = themeQuery.data;

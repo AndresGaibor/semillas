@@ -1,4 +1,5 @@
 import { BloqueIconoTexto } from "@/componentes/ui/bloque-icono-texto";
+import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
 type ActionItem = {
   title: string;
@@ -63,19 +64,17 @@ export function QuickActionsGrid({
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left">
-      <div className="mb-5">
-        <h3 className="text-[17px] font-black text-neutro-oscuro-max">Acciones rápidas</h3>
-        <p className="text-xs text-neutro mt-0.5">Crea, administra y revisa contenido fácilmente.</p>
-      </div>
-
+    <PanelSeccionAdmin
+      titulo="Acciones rápidas"
+      descripcion="Crea, administra y revisa contenido fácilmente."
+    >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((act) => (
           <button
             key={act.title}
             type="button"
             onClick={act.onClick}
-            className={`rounded-2xl border border-slate-100 bg-white p-4 transition-all duration-200 text-left outline-none ${act.cardBg}`}
+            className={`rounded-2xl border border-slate-100 bg-white p-4 text-left outline-none transition-all duration-200 ${act.cardBg}`}
           >
             <BloqueIconoTexto
               icono={<i className={`fa-solid ${act.icon} ${act.iconColor}`} />}
@@ -89,6 +88,6 @@ export function QuickActionsGrid({
           </button>
         ))}
       </div>
-    </div>
+    </PanelSeccionAdmin>
   );
 }
