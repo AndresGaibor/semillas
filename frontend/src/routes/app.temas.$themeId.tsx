@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { obtenerTema, obtenerPasos, obtenerActividades } from "../features/themes/themes.api";
+import { obtenerTema, obtenerPasos, obtenerActividades, obtenerUrlPortadaTema } from "../features/themes/themes.api";
 import { obtenerMiPerfil } from "../features/profile/profile.api";
-import { Zap, Loader, Play, CheckCircle, Circle } from "lucide-react";
+import { obtenerMiProgreso } from "../features/progress/progress.api";
+import { Zap, Loader, Play, CheckCircle, Clock } from "lucide-react";
 
 const hex = (s: string | null | undefined): string => s ?? "#ccc";
 const hexColor = (s: string | null | undefined): React.CSSProperties["color"] => s ?? "#ccc";
@@ -16,6 +17,12 @@ function ThemeDetailPage() {
 
   const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
   const themeQuery = useQuery({ queryKey: ["theme", themeId], queryFn: () => obtenerTema(themeId) });
+  const portadaQuery = useQuery({
+    queryKey: ["theme-portada", themeId],
+    queryFn: () => obtenerUrlPortadaTema(themeId),
+    enabled: !!themeQuery.data?.portada_recurso?.id,
+    staleTime: 3 * 60 * 1000,
+  });
   const stepsQuery = useQuery({
     queryKey: ["theme", themeId, "steps", meQuery.data?.perfil?.grupo_edad_id],
     queryFn: () => obtenerPasos(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
@@ -29,80 +36,126 @@ function ThemeDetailPage() {
 
   const firstActivity = activitiesQuery.data?.[0];
 
+  const theme = themeQuery.data;
+
+  const progressQuery = useQuery({
+    queryKey: ["progress", themeId],
+    queryFn: obtenerMiProgreso
+  });
+
+  const temaDbId = theme?.id;
+
+  // Usa progreso real en lugar de mock
+  const progresoActual = progressQuery.data?.progresos_tema?.find(p => p.tema_id === temaDbId);
+  const progresoReal = progresoActual ? progresoActual.porcentaje : 0;
+
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#123b2c]">{themeQuery.data?.titulo ?? "Cargando..."}</h1>
-        <p className="text-sm text-[#123b2c]/50 mt-1">{themeQuery.data?.resumen}</p>
+    <div className="max-w-6xl mx-auto px-4 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* Título Principal */}
+      <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-800 tracking-tight leading-tight">
+          {theme?.titulo ?? "Cargando..."}
+        </h1>
+        {theme?.senda && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white shadow-sm" style={{ color: theme.senda.color_hex }}>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.senda.color_hex }}></span>
+            <span className="font-bold text-sm tracking-wide uppercase">{theme.senda.nombre}</span>
+          </div>
+        )}
       </div>
 
-      {stepsQuery.isLoading && (
-        <div className="flex justify-center py-8">
-          <Loader className="animate-spin text-[#2e9e5b]" size={20} />
-        </div>
-      )}
-
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-[#123b2c] mb-3">Recorrido CRECER</h2>
-        <div className="grid gap-2">
-          {stepsQuery.data?.map((step, i) => (
-            <div
-              key={step.id}
-              className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm"
-              style={{ borderLeft: `3px solid ${hex(step.tipo_paso?.color_hex)}` }}
-            >
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: `${hex(step.tipo_paso?.color_hex)}15` }}
-              >
-                <span style={{ color: hexColor(step.tipo_paso?.color_hex) }} className="text-xs font-bold">
-                  {["C", "R", "E", "C", "E", "R"][i] ?? i + 1}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        {/* COLUMNA IZQUIERDA: Tarjeta de Resumen y Botón */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          
+          {/* Tarjeta principal (Card bonita) */}
+          <div className="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 text-slate-50 opacity-50 pointer-events-none">
+              <Zap size={200} fill="currentColor" />
+            </div>
+            
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
+                <span className="w-10 h-10 rounded-full bg-[#43a047]/10 flex items-center justify-center text-[#43a047]">
+                  <CheckCircle size={20} />
                 </span>
-              </div>
-              <div>
-                <strong className="text-sm text-[#123b2c]">{step.tipo_paso?.nombre}</strong>
-                <p className="text-xs text-[#123b2c]/40">{step.contenidos?.[0]?.instruccion_corta}</p>
+                Acerca de esta lección
+              </h3>
+              
+              {theme?.resumen ? (
+                <p className="text-lg sm:text-xl text-slate-600 leading-relaxed font-medium mb-6">
+                  {theme.resumen}
+                </p>
+              ) : (
+                <p className="text-lg text-slate-400 italic mb-6">No hay descripción disponible.</p>
+              )}
+
+              {/* Badges de stats dentro de la card */}
+              <div className="flex flex-wrap gap-4">
+                <div className="bg-amber-50 text-amber-600 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 border border-amber-100/50">
+                  <Zap size={22} fill="currentColor" />
+                  {theme?.xp_recompensa ?? 0} XP
+                </div>
+                <div className="bg-blue-50 text-blue-600 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 border border-blue-100/50">
+                  <Clock size={22} />
+                  {theme?.minutos_estimados ?? 10} min
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-[#123b2c] mb-3">Actividades</h2>
-        <div className="grid gap-2">
-          {activitiesQuery.data?.map((activity) => (
+          {/* Progreso en una Card Pequeña */}
+          <div className="bg-white rounded-2xl py-3 px-5 shadow-xl shadow-slate-200/40 border border-slate-100">
+            <div className="flex justify-between items-center mb-1.5 px-1">
+              <span className="font-bold text-slate-700 text-sm">Tu progreso</span>
+              <span className="font-black text-[#43a047]">{progresoReal}%</span>
+            </div>
+            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner">
+              <div className="bg-[#43a047] h-full rounded-full transition-all duration-1000" style={{ width: `${progresoReal}%` }}></div>
+            </div>
+          </div>
+
+          {/* Botón de Iniciar / Reanudar */}
+          <div className="mt-auto shrink-0">
             <Link
-              key={activity.id}
-              to="/app/actividades/$activityId"
-              params={{ activityId: activity.id }}
-              className="flex items-center gap-3 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
+              to="/app/C_conectar/$themeId"
+              params={{ themeId }}
+              className="flex items-center justify-center gap-3 w-full py-4 rounded-[1.5rem] font-black text-lg shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
+              style={{ backgroundColor: '#43a047', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(67, 160, 71, 0.3), 0 8px 10px -6px rgba(67, 160, 71, 0.1)' }}
             >
-              <div className="w-10 h-10 bg-[#f4b740]/10 rounded-xl flex items-center justify-center shrink-0">
-                <Play className="text-[#f4b740]" size={18} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <strong className="text-sm text-[#123b2c]">{activity.titulo}</strong>
-                <p className="text-xs text-[#123b2c]/40 truncate">{activity.consigna}</p>
-              </div>
-              <span className="flex items-center gap-1 text-xs text-[#f4b740] shrink-0">
-                <Zap size={14} />
-                {activity.xp_recompensa}
-              </span>
+              <Play fill="currentColor" size={22} />
+              {progresoReal === 0 ? "Iniciar Actividad" : "Reanudar Actividad"}
             </Link>
-          ))}
+          </div>
+          
         </div>
-      </div>
 
-      {firstActivity && (
-          <Link
-          to="/app/actividades/$activityId"
-          params={{ activityId: firstActivity.id }}
-          className="block w-full bg-[#2e9e5b] text-white py-3 rounded-xl font-semibold text-center hover:bg-[#267d4c] transition-colors"
-        >
-          Iniciar actividad
-        </Link>
-      )}
+        {/* COLUMNA DERECHA: Imagen en una Card */}
+        <div className="lg:col-span-5 flex items-start h-full">
+          <div className="bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-slate-200/50 border border-slate-100 w-full">
+            {portadaQuery.data?.url ? (
+              <div className="w-full rounded-[2rem] overflow-hidden bg-slate-50 flex items-center justify-center">
+                <img 
+                  src={portadaQuery.data.url} 
+                  alt={theme?.titulo ?? "Portada del tema"} 
+                  className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
+                />
+              </div>
+            ) : themeQuery.isLoading ? (
+              <div className="w-full aspect-square rounded-[2rem] bg-slate-50 flex items-center justify-center animate-pulse">
+                <Loader className="animate-spin text-slate-300" size={40} />
+              </div>
+            ) : (
+              <div className="w-full aspect-square rounded-[2rem] bg-slate-50 flex items-center justify-center border-2 border-slate-200 border-dashed">
+                <span className="text-slate-400 font-bold">Sin portada</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

@@ -19,6 +19,15 @@ function mapearPaso(paso: Record<string, unknown>) {
       }))
     : [];
 
+  const preguntas = Array.isArray(paso.preguntas)
+    ? paso.preguntas.map((pregunta) => ({
+        id: String((pregunta as Record<string, unknown>).id),
+        grupo_edad_id: String((pregunta as Record<string, unknown>).grupo_edad_id ?? ""),
+        pregunta: String((pregunta as Record<string, unknown>).pregunta ?? ""),
+        orden: Number((pregunta as Record<string, unknown>).orden ?? 0)
+      }))
+    : [];
+
   return {
     id: String(paso.id),
     tema_id: String(paso.tema_id ?? ""),
@@ -32,7 +41,8 @@ function mapearPaso(paso: Record<string, unknown>) {
           color_hex: ((paso.tipo_paso as Record<string, unknown>).color_hex ?? null) as string | null
         }
       : null,
-    contenidos
+    contenidos,
+    preguntas
   };
 }
 
@@ -127,7 +137,7 @@ themesRoutes.get("/:tema_id/pasos", async (c) => {
 
   const { data, error } = await db
     .from("paso_tema")
-    .select("*, tipo_paso:tipo_paso_id(*), contenidos:contenido_paso_tema(*)")
+    .select("*, tipo_paso:tipo_paso_id(*), contenidos:contenido_paso_tema(*), preguntas:pregunta_reflexion(*)")
     .eq("tema_id", temaId)
     .order("orden", { ascending: true });
 
@@ -144,7 +154,8 @@ themesRoutes.get("/:tema_id/pasos", async (c) => {
 
     return {
       ...mapeado,
-      contenidos: mapeado.contenidos.filter((contenido) => contenido.grupo_edad_id === grupoEdadId)
+      contenidos: mapeado.contenidos.filter((contenido) => contenido.grupo_edad_id === grupoEdadId),
+      preguntas: mapeado.preguntas.filter((pregunta) => pregunta.grupo_edad_id === grupoEdadId)
     };
   });
 

@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import * as React from "react";
 import { useState, useMemo } from "react";
 import { Compass, Loader2 } from "lucide-react";
 import { obtenerTemas, obtenerUrlPortadaTema } from "@/features/themes/themes.api";
+import { obtenerMiProgreso } from "@/features/progress/progress.api";
 import type { Tema } from "@/shared/api/api";
 import { CardLeccion } from "@/componentes/ui/card-leccion";
 
@@ -43,16 +44,13 @@ function usePortadasFirmadas(temas: Tema[]) {
   });
 }
 
-const PROGRESO_POR_TEMA: Record<string, number> = {
-  "la-creacion-del-mundo": 100,
-  "parabolas-de-jesus": 50
-};
+// Removido PROGRESO_POR_TEMA mock
 
 const FAVORITOS_INICIALES = new Set<string>(["la-creacion-del-mundo", "parabolas-de-jesus"]);
 
-function mapearTema(t: Tema): TemaUI {
+function mapearTema(t: Tema, porcentajeReal: number): TemaUI {
   const slug = t.slug;
-  const progreso = PROGRESO_POR_TEMA[slug] ?? 0;
+  const progreso = porcentajeReal;
   const estado: EstadoTema =
     progreso >= 100 ? "completada" : progreso > 0 ? "enProgreso" : "porDefecto";
 
@@ -71,6 +69,7 @@ function mapearTema(t: Tema): TemaUI {
 }
 
 function PaginaTemas() {
+  const navigate = useNavigate();
   const [filtroTab, setFiltroTab] = useState<FiltroTab>("todos");
   const [busqueda, setBusqueda] = useState("");
   const [favoritosLocales, setFavoritosLocales] = useState<Record<string, boolean>>({});
@@ -80,16 +79,23 @@ function PaginaTemas() {
     queryFn: () => obtenerTemas()
   });
 
+  const { data: progressApi } = useQuery({
+    queryKey: ["progress"],
+    queryFn: obtenerMiProgreso
+  });
+
   const temasBase = useMemo<TemaUI[]>(() => {
     if (!temasApi) return [];
     return temasApi.map((t) => {
-      const mapeado = mapearTema(t);
+      const progresoActual = progressApi?.progresos_tema?.find(p => p.tema_id === t.id);
+      const porcentaje = progresoActual ? progresoActual.porcentaje : 0;
+      const mapeado = mapearTema(t, porcentaje);
       return {
         ...mapeado,
         favorito: favoritosLocales[t.slug] ?? mapeado.favorito
       };
     });
-  }, [temasApi, favoritosLocales]);
+  }, [temasApi, favoritosLocales, progressApi]);
 
   const portadas = usePortadasFirmadas(temasApi ?? []);
 
@@ -167,7 +173,7 @@ function PaginaTemas() {
                 imagenUrl={tema.imagenUrl ?? undefined}
                 estado={tema.estado}
                 onFavorito={() => toggleFavorito(temasApi?.find((t) => t.id === tema.id)?.slug ?? tema.id)}
-                onAccion={() => alert(`Iniciando lección de: ${tema.titulo}`)}
+                onAccion={() => navigate({ to: "/app/temas/$themeId", params: { themeId: tema.id } })}
               />
             ))}
           </div>
@@ -184,7 +190,7 @@ function PaginaTemas() {
           tema={temaParaContinuar ?? null} 
           onContinuar={() => {
             if (temaParaContinuar) {
-              alert(`Continuando lección de: ${temaParaContinuar.titulo}`);
+              navigate({ to: "/app/temas/$themeId", params: { themeId: temaParaContinuar.id } });
             }
           }}
         />

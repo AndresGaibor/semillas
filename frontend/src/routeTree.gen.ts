@@ -28,6 +28,12 @@ import { Route as AppTemasIndexRouteImport } from './routes/app.temas.index'
 import { Route as AppTemasThemeIdRouteImport } from './routes/app.temas.$themeId'
 import { Route as AppSendasSendaIdRouteImport } from './routes/app.sendas.$sendaId'
 import { Route as AppActividadesActivityIdRouteImport } from './routes/app.actividades.$activityId'
+import { Route as AppR_relatarThemeIdRouteImport } from './routes/app.R_relatar.$themeId'
+import { Route as AppR_recompensarThemeIdRouteImport } from './routes/app.R_recompensar.$themeId'
+import { Route as AppE_experimentarThemeIdRouteImport } from './routes/app.E_experimentar.$themeId'
+import { Route as AppE_ensenarThemeIdRouteImport } from './routes/app.E_ensenar.$themeId'
+import { Route as AppC_conectarThemeIdRouteImport } from './routes/app.C_conectar.$themeId'
+import { Route as AppC_comprobarThemeIdRouteImport } from './routes/app.C_comprobar.$themeId'
 import { Route as AdminTemasNewRouteImport } from './routes/admin.temas.new'
 import { Route as AdminTemasThemeIdPreviewRouteImport } from './routes/admin.temas.$themeId.preview'
 import { Route as AdminTemasThemeIdEditRouteImport } from './routes/admin.temas.$themeId.edit'
@@ -130,6 +136,37 @@ const AppActividadesActivityIdRoute =
     path: '/actividades/$activityId',
     getParentRoute: () => AppRoute,
   } as any)
+const AppR_relatarThemeIdRoute = AppR_relatarThemeIdRouteImport.update({
+  id: '/R_relatar/$themeId',
+  path: '/R_relatar/$themeId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppR_recompensarThemeIdRoute = AppR_recompensarThemeIdRouteImport.update({
+  id: '/R_recompensar/$themeId',
+  path: '/R_recompensar/$themeId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppE_experimentarThemeIdRoute =
+  AppE_experimentarThemeIdRouteImport.update({
+    id: '/E_experimentar/$themeId',
+    path: '/E_experimentar/$themeId',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppE_ensenarThemeIdRoute = AppE_ensenarThemeIdRouteImport.update({
+  id: '/E_ensenar/$themeId',
+  path: '/E_ensenar/$themeId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppC_conectarThemeIdRoute = AppC_conectarThemeIdRouteImport.update({
+  id: '/C_conectar/$themeId',
+  path: '/C_conectar/$themeId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppC_comprobarThemeIdRoute = AppC_comprobarThemeIdRouteImport.update({
+  id: '/C_comprobar/$themeId',
+  path: '/C_comprobar/$themeId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AdminTemasNewRoute = AdminTemasNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -175,6 +212,12 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
+  '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
+  '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
+  '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
+  '/app/E_experimentar/$themeId': typeof AppE_experimentarThemeIdRoute
+  '/app/R_recompensar/$themeId': typeof AppR_recompensarThemeIdRoute
+  '/app/R_relatar/$themeId': typeof AppR_relatarThemeIdRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
   '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
@@ -198,6 +241,12 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
+  '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
+  '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
+  '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
+  '/app/E_experimentar/$themeId': typeof AppE_experimentarThemeIdRoute
+  '/app/R_recompensar/$themeId': typeof AppR_recompensarThemeIdRoute
+  '/app/R_relatar/$themeId': typeof AppR_relatarThemeIdRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
   '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
@@ -225,6 +274,12 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
+  '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
+  '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
+  '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
+  '/app/E_experimentar/$themeId': typeof AppE_experimentarThemeIdRoute
+  '/app/R_recompensar/$themeId': typeof AppR_recompensarThemeIdRoute
+  '/app/R_relatar/$themeId': typeof AppR_relatarThemeIdRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
   '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
@@ -253,6 +308,12 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/admin/temas/new'
+    | '/app/C_comprobar/$themeId'
+    | '/app/C_conectar/$themeId'
+    | '/app/E_ensenar/$themeId'
+    | '/app/E_experimentar/$themeId'
+    | '/app/R_recompensar/$themeId'
+    | '/app/R_relatar/$themeId'
     | '/app/actividades/$activityId'
     | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
@@ -276,6 +337,12 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/admin/temas/new'
+    | '/app/C_comprobar/$themeId'
+    | '/app/C_conectar/$themeId'
+    | '/app/E_ensenar/$themeId'
+    | '/app/E_experimentar/$themeId'
+    | '/app/R_recompensar/$themeId'
+    | '/app/R_relatar/$themeId'
     | '/app/actividades/$activityId'
     | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
@@ -302,6 +369,12 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/admin/temas/new'
+    | '/app/C_comprobar/$themeId'
+    | '/app/C_conectar/$themeId'
+    | '/app/E_ensenar/$themeId'
+    | '/app/E_experimentar/$themeId'
+    | '/app/R_recompensar/$themeId'
+    | '/app/R_relatar/$themeId'
     | '/app/actividades/$activityId'
     | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
@@ -455,6 +528,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppActividadesActivityIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/R_relatar/$themeId': {
+      id: '/app/R_relatar/$themeId'
+      path: '/R_relatar/$themeId'
+      fullPath: '/app/R_relatar/$themeId'
+      preLoaderRoute: typeof AppR_relatarThemeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/R_recompensar/$themeId': {
+      id: '/app/R_recompensar/$themeId'
+      path: '/R_recompensar/$themeId'
+      fullPath: '/app/R_recompensar/$themeId'
+      preLoaderRoute: typeof AppR_recompensarThemeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/E_experimentar/$themeId': {
+      id: '/app/E_experimentar/$themeId'
+      path: '/E_experimentar/$themeId'
+      fullPath: '/app/E_experimentar/$themeId'
+      preLoaderRoute: typeof AppE_experimentarThemeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/E_ensenar/$themeId': {
+      id: '/app/E_ensenar/$themeId'
+      path: '/E_ensenar/$themeId'
+      fullPath: '/app/E_ensenar/$themeId'
+      preLoaderRoute: typeof AppE_ensenarThemeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/C_conectar/$themeId': {
+      id: '/app/C_conectar/$themeId'
+      path: '/C_conectar/$themeId'
+      fullPath: '/app/C_conectar/$themeId'
+      preLoaderRoute: typeof AppC_conectarThemeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/C_comprobar/$themeId': {
+      id: '/app/C_comprobar/$themeId'
+      path: '/C_comprobar/$themeId'
+      fullPath: '/app/C_comprobar/$themeId'
+      preLoaderRoute: typeof AppC_comprobarThemeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/admin/temas/new': {
       id: '/admin/temas/new'
       path: '/new'
@@ -544,6 +659,12 @@ interface AppRouteChildren {
   AppPerfilRoute: typeof AppPerfilRoute
   AppSendasRoute: typeof AppSendasRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppC_comprobarThemeIdRoute: typeof AppC_comprobarThemeIdRoute
+  AppC_conectarThemeIdRoute: typeof AppC_conectarThemeIdRoute
+  AppE_ensenarThemeIdRoute: typeof AppE_ensenarThemeIdRoute
+  AppE_experimentarThemeIdRoute: typeof AppE_experimentarThemeIdRoute
+  AppR_recompensarThemeIdRoute: typeof AppR_recompensarThemeIdRoute
+  AppR_relatarThemeIdRoute: typeof AppR_relatarThemeIdRoute
   AppActividadesActivityIdRoute: typeof AppActividadesActivityIdRoute
   AppTemasThemeIdRoute: typeof AppTemasThemeIdRoute
   AppTemasIndexRoute: typeof AppTemasIndexRoute
@@ -556,6 +677,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppPerfilRoute: AppPerfilRoute,
   AppSendasRoute: AppSendasRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppC_comprobarThemeIdRoute: AppC_comprobarThemeIdRoute,
+  AppC_conectarThemeIdRoute: AppC_conectarThemeIdRoute,
+  AppE_ensenarThemeIdRoute: AppE_ensenarThemeIdRoute,
+  AppE_experimentarThemeIdRoute: AppE_experimentarThemeIdRoute,
+  AppR_recompensarThemeIdRoute: AppR_recompensarThemeIdRoute,
+  AppR_relatarThemeIdRoute: AppR_relatarThemeIdRoute,
   AppActividadesActivityIdRoute: AppActividadesActivityIdRoute,
   AppTemasThemeIdRoute: AppTemasThemeIdRoute,
   AppTemasIndexRoute: AppTemasIndexRoute,
