@@ -160,6 +160,12 @@ export interface Paso {
     cuerpo: string;
     instruccion_corta: string | null;
   }>;
+  preguntas?: Array<{
+    id: string;
+    grupo_edad_id: string;
+    pregunta: string;
+    orden: number;
+  }>;
 }
 
 export interface Actividad {

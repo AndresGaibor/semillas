@@ -175,10 +175,14 @@ async function actualizarProgresoTema(
     }
 
     if (
-      (evento.tipo_evento === "actividad_completada" || evento.tipo_evento === "actividad_respondida") &&
+      (evento.tipo_evento === "actividad_completada" || 
+       evento.tipo_evento === "actividad_respondida" || 
+       evento.tipo_evento === "bloque_iniciado" || 
+       evento.tipo_evento === "tema_iniciado") &&
       existing.porcentaje < 100
     ) {
-      const nuevoPorcentaje = Math.min(existing.porcentaje + 10, 99);
+      // Incrementar aproximadamente 16% por fase visitada/iniciada
+      const nuevoPorcentaje = Math.min(existing.porcentaje + 16, 99);
       await db
         .from("progreso_tema_usuario")
         .update({ porcentaje: nuevoPorcentaje, actualizado_en: now })
@@ -192,7 +196,7 @@ async function actualizarProgresoTema(
         usuario_id: usuarioId,
         tema_id: evento.tema_id!,
         estado: evento.tipo_evento === "tema_completado" ? "completado" : "en_progreso",
-        porcentaje: evento.tipo_evento === "tema_completado" ? 100 : 0,
+        porcentaje: evento.tipo_evento === "tema_completado" ? 100 : (evento.tipo_evento === "tema_iniciado" || evento.tipo_evento === "bloque_iniciado" ? 16 : 0),
         iniciado_en: evento.creado_en_cliente ?? now,
         completado_en: evento.tipo_evento === "tema_completado" ? (evento.creado_en_cliente ?? now) : null,
         actualizado_en: now
