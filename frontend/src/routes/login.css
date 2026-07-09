@@ -199,6 +199,38 @@
 .login-social__btn:hover { border-color: var(--color-neutro-claro-min); background: #fafafa; }
 .login-social__icon { width: 22px; height: 22px; object-fit: contain; }
 
+.login-social__btn--google {
+  background: var(--color-blanco);
+  color: var(--color-neutro-oscuro-max);
+  border-color: var(--color-neutro-claro-max);
+  box-shadow: var(--sombra-xs);
+}
+.login-social__btn--google:hover {
+  background: #fafafa;
+  border-color: var(--color-neutro-claro);
+  box-shadow: var(--sombra-sm);
+}
+.login-social__btn--google .login-social__icon,
+.login-social__btn--google span {
+  color: var(--color-neutro-oscuro-max);
+}
+.login-social__btn--google.is-pending {
+  background: #fbfbfb;
+  border-color: var(--color-neutro-claro-max);
+}
+.login-social__btn--google.is-pending:hover {
+  background: #f7f7f7;
+}
+
+.login-social__btn--facebook {
+  background: var(--color-blanco);
+  color: var(--color-neutro-oscuro-max);
+  border-color: var(--color-neutro-claro-max);
+}
+.login-social__btn--facebook:hover {
+  background: #fafafa;
+}
+
 .login-divider {
   display: flex;
   align-items: center;

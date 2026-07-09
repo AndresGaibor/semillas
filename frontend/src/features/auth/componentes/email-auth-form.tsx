@@ -9,13 +9,13 @@ type Modo = "iniciar-sesion" | "registrarse";
 
 const loginSchema = z.object({
   email: z.string().email("Correo electrónico inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
 const registerSchema = z
   .object({
     email: z.string().email("Correo electrónico inválido"),
-    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+    password: z.string().min(1, "La contraseña es obligatoria"),
     confirmarPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmarPassword, {
@@ -162,7 +162,7 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
       <button
         type="submit"
         disabled={pending}
-        className="w-full py-2.5 rounded-xl bg-[#2e9e5b] text-white text-sm font-bold hover:bg-[#258a4d] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        className="btn btn-primario btn-full"
       >
         {pending && <LoaderCircle size={16} className="animate-spin" />}
         {isLogin ? "Iniciar sesión" : "Crear cuenta"}
@@ -174,7 +174,7 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
           setModo(isLogin ? "registrarse" : "iniciar-sesion");
           setError(null);
         }}
-        className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        className="text-sm font-semibold text-[#2e9e5b] hover:text-[#258a4d] transition-colors"
       >
         {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
       </button>

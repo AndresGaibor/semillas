@@ -62,14 +62,71 @@ authRoutes.post("/configuracion-dev", async (c) => {
   }
 
   const db = c.get("db");
+  const adminEmail = "admin@correo.com";
+  const adminPassword = "admin";
+
+  const { data: existente } = await db
+    .from("usuario_app")
+    .select("id, rol, proveedor, nombre_visible, correo")
+    .eq("correo", adminEmail)
+    .maybeSingle();
+
+  if (existente) {
+    let usuarioAdmin = existente;
+
+    if (existente.rol !== "administrador") {
+      const { data: actualizado, error: updateError } = await db
+        .from("usuario_app")
+        .update({ rol: "administrador" })
+        .eq("id", existente.id)
+        .select("id, rol, proveedor, nombre_visible, correo")
+        .single();
+
+      if (updateError || !actualizado) throw updateError;
+      usuarioAdmin = actualizado;
+    }
+
+    const { data: profile } = await db
+      .from("perfil")
+      .select("*")
+      .eq("usuario_id", usuarioAdmin.id)
+      .maybeSingle();
+
+    return responderExito({
+      usuario: serializarUsuario(usuarioAdmin),
+      ...(profile ? { perfil: serializarPerfil(profile) } : {}),
+      credenciales: {
+        correo: adminEmail,
+        password: adminPassword
+      },
+      mensaje: "Administrador de desarrollo disponible para iniciar sesión con correo."
+    });
+  }
+
+  const { data: authUser, error: authError } = await db.auth.admin.createUser({
+    email: adminEmail,
+    password: adminPassword,
+    email_confirm: true,
+    user_metadata: {
+      full_name: "Admin Dev"
+    },
+    app_metadata: {
+      role: "administrador"
+    }
+  });
+
+  if (authError || !authUser.user) {
+    throw authError;
+  }
 
   const { data: user, error: userError } = await db
     .from("usuario_app")
     .insert({
-      proveedor: "invitado",
+      proveedor: "correo",
       rol: "administrador",
       nombre_visible: "Admin Dev",
-      correo: null
+      correo: adminEmail,
+      id_externo: authUser.user.id
     })
     .select("id, rol, proveedor, nombre_visible, correo")
     .single();
@@ -89,7 +146,11 @@ authRoutes.post("/configuracion-dev", async (c) => {
 
   return responderExito({
     usuario: serializarUsuario(user),
+    credenciales: {
+      correo: adminEmail,
+      password: adminPassword
+    },
     perfil: serializarPerfil(profile),
-    mensaje: "Administrador creado. Usa este ID para autenticar solicitudes durante desarrollo."
+    mensaje: "Administrador creado. Usa este correo y contraseña para iniciar sesión."
   });
 });

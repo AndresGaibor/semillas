@@ -4,6 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 import { crearSesionInvitado, iniciarSesionGoogle } from "../features/auth/auth.api";
 import { sessionStorageApi } from "../shared/api/session";
 import { sincronizarSesionAutenticada } from "../shared/auth/supabase";
+import { obtenerMiPerfil, reclamarCuentaInvitada } from "../features/profile/profile.api";
+import { obtenerRedirectGoogle } from "../features/auth/google-redirect";
+import { obtenerRutaPostLogin } from "../shared/auth/post-login";
 
 import "../estilos.css";
 import "./login.css";
@@ -34,12 +37,18 @@ function LoginPage() {
   });
 
   const googleMutation = useMutation({
-    mutationFn: () => iniciarSesionGoogle(`${window.location.origin}/app`),
+    mutationFn: () => iniciarSesionGoogle(obtenerRedirectGoogle(window.location.origin)),
   });
 
   const handleEmailSuccess = async () => {
     await sincronizarSesionAutenticada();
-    navigate({ to: search.redirect });
+    if (sessionStorageApi.getGuestUserId()) {
+      await reclamarCuentaInvitada().catch(() => undefined);
+      sessionStorageApi.clearGuestUserId();
+    }
+    const perfilRespuesta = await obtenerMiPerfil();
+    const rutaPostLogin = obtenerRutaPostLogin(perfilRespuesta.perfil, perfilRespuesta.usuario);
+    navigate({ to: search.redirect === "/onboarding" ? rutaPostLogin : search.redirect });
   };
 
   return (

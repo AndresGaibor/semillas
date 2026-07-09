@@ -23,9 +23,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   const getButtonClass = () => {
     switch (tipo) {
       case "google":
-        return isPending
-          ? "login-social__btn--google bg-gradient-to-r from-[#2E9E5B] via-[#38b56a] to-[#123B2C] text-white shadow-[0_12px_30px_rgba(46,158,91,0.28)] ring-1 ring-white/20"
-          : "login-social__btn--google";
+        return isPending ? "login-social__btn--google is-pending" : "login-social__btn--google";
       case "facebook":
         return "login-social__btn--facebook";
       case "guest":
@@ -60,7 +58,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
       disabled={disabled || isPending}
     >
       {isPending ? (
-        <LoaderCircle className="login-social__icon animate-spin text-white" size={22} />
+        <LoaderCircle className="login-social__icon animate-spin text-[#2e9e5b]" size={22} />
       ) : (
         <img src={logo} alt="" className="login-social__icon" width="22" height="22" />
       )}

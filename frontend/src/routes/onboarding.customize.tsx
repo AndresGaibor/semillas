@@ -9,6 +9,7 @@ import { AvatarSelector } from "../features/onboarding/componentes/AvatarSelecto
 import { FormNavigation } from "../features/onboarding/componentes/FormNavigation";
 import { ProfilePreview } from "../features/onboarding/componentes/ProfilePreview";
 import { HelpModal } from "../features/onboarding/componentes/HelpModal";
+import { limpiarNombreSugeridoDeGoogle, leerNombreSugeridoDeGoogle } from "../shared/auth/google-profile";
 
 export const Route = createFileRoute("/onboarding/customize")({
   component: CustomizePage,
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/onboarding/customize")({
 function CustomizePage() {
   const navigate = useNavigate();
   const [grupoEdadId, setGrupoEdadId] = useState<string>("");
-  const [nickname, setNickname] = useState<string>("");
+  const [nickname, setNickname] = useState<string>(() => leerNombreSugeridoDeGoogle());
   const [selectedAvatar, setSelectedAvatar] = useState<number>(1);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
@@ -29,6 +30,7 @@ function CustomizePage() {
   const actualizarPerfilMutation = useMutation({
     mutationFn: actualizarPerfil,
     onSuccess() {
+      limpiarNombreSugeridoDeGoogle();
       localStorage.removeItem("onboarding_grupo_edad_id");
       navigate({ to: "/app" });
     },
