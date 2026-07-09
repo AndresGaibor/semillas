@@ -9,29 +9,29 @@
   Service-Worker-Allowed: /
   Cache-Control: no-cache, must-revalidate
 
-*.css
+/assets/*.css
   Cache-Control: public, max-age=31536000, immutable
 
-*.js
+/assets/*.js
   Cache-Control: public, max-age=31536000, immutable
 
-*.png
+/assets/*.png
   Cache-Control: public, max-age=31536000, immutable
 
-*.jpg
+/assets/*.jpg
   Cache-Control: public, max-age=31536000, immutable
 
-*.jpeg
+/assets/*.jpeg
   Cache-Control: public, max-age=31536000, immutable
 
-*.svg
+/assets/*.svg
   Cache-Control: public, max-age=31536000, immutable
 
-*.webp
+/assets/*.webp
   Cache-Control: public, max-age=31536000, immutable
 
-*.woff2
+/assets/*.woff2
   Cache-Control: public, max-age=31536000, immutable
 
-*.webmanifest
+/*.webmanifest
   Cache-Control: public, max-age=3600
