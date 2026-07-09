@@ -1,0 +1,3 @@
+# Deploy manejado por integración nativa de Cloudflare (dashboard)
+# Frontend → Cloudflare Pages (conectado directo desde el dashboard)
+# Backend → Cloudflare Workers (conectado directo desde el dashboard)
