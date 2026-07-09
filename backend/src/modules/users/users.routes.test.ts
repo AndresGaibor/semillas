@@ -61,15 +61,13 @@ describe("users.routes", () => {
         path: "/rest/v1/usuario_app",
         responder: () =>
           new Response(
-            JSON.stringify([
-              {
-                id: "usuario-invitado",
-                rol: "invitado",
-                proveedor: "invitado",
-                nombre_visible: "Visitante",
-                correo: null,
-              },
-            ]),
+            JSON.stringify({
+              id: "usuario-invitado",
+              rol: "invitado",
+              proveedor: "invitado",
+              nombre_visible: "Visitante",
+              correo: null,
+            }),
             { status: 200, headers: { "content-type": "application/json" } },
           ),
       },

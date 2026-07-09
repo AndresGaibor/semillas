@@ -1,5 +1,5 @@
 import { createMiddleware } from "hono/factory";
-import type { AppBindings } from "../../config/env";
+import type { AppBindings, AuthSessionUser } from "../../config/env";
 import { createSupabaseAdmin, createSupabaseAuthClient } from "../../db/client";
 import { UnauthorizedError } from "../errors/http-error";
 
@@ -12,7 +12,7 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
   c.set("guestUserId", guestUserId ?? null);
 
   if (guestUserId) {
-    const authUser = authHeader?.startsWith("Bearer ")
+    const authUser: AuthSessionUser | null = authHeader?.startsWith("Bearer ")
       ? await (async () => {
           const token = authHeader.replace("Bearer ", "").trim();
           const authClient = createSupabaseAuthClient(c.env, token);

@@ -38,7 +38,7 @@ function LandingPage() {
         <div className="navbar__actions">
           {/* Links to login and APK as requested */}
           <Button asChild className="btn btn-secundario rounded-full px-5 py-2 h-auto text-sm bg-transparent text-[#2e9e5b] border-2 border-[#2e9e5b] hover:bg-[#e6f4ea] hover:text-[#2e9e5b]">
-            <Link to="/login"><i className="fa-solid fa-desktop mr-2"></i> Entrar Web</Link>
+            <Link to="/login" search={{ redirect: "/onboarding" }}><i className="fa-solid fa-desktop mr-2"></i> Entrar Web</Link>
           </Button>
           <Button asChild className="btn btn-primario rounded-full px-5 py-2 h-auto text-sm bg-[#2e9e5b] text-white hover:bg-[#218349]">
             <a href="#"><i className="fa-solid fa-download mr-2"></i> Descargar APK</a>
@@ -55,7 +55,7 @@ function LandingPage() {
             
             <div className="hero__buttons">
               <Button asChild className="btn btn-primario btn-lg rounded-full px-6 py-3 h-auto text-base bg-[#2e9e5b] text-white hover:bg-[#218349]">
-                <Link to="/login"><i className="fa-solid fa-play mr-2"></i> Comenzar ahora</Link>
+                <Link to="/login" search={{ redirect: "/onboarding" }}><i className="fa-solid fa-play mr-2"></i> Comenzar ahora</Link>
               </Button>
             </div>
 
@@ -143,7 +143,7 @@ function LandingPage() {
             <h2>Únete a los <span className="text-green">Clubes</span></h2>
             <p>Comparte lo que aprendes en grupo,en compañia de amigos¡Pertenece a una comunidad genial!</p>
             <Button asChild className="btn btn-primario btn-lg rounded-full px-6 py-3 h-auto text-base bg-[#2e9e5b] text-white hover:bg-[#218349]">
-              <Link to="/login"><i className="fa-solid fa-users mr-2"></i> Ver Clubes</Link>
+              <Link to="/login" search={{ redirect: "/onboarding" }}><i className="fa-solid fa-users mr-2"></i> Ver Clubes</Link>
             </Button>
           </div>
           <div className="clubes__image">
