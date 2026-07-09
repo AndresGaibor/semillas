@@ -1,6 +1,5 @@
-import { CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
-import type { TipoRol } from "@/componentes/ui/badge-rol";
-import type { EstadoUsuario } from "@/componentes/ui/badge-estado-usuario";
+import { Boton } from "@/componentes/ui/boton";
+import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
 
 export type AdminUsersFiltersProps = {
   searchValue: string;
@@ -77,13 +76,15 @@ export function AdminUsersFilters({
         <SelectFiltro value={selectedEstado} onChange={onEstadoChange} placeholder="Estado" opciones={OPCIONES_ESTADO} />
         <SelectFiltro value={selectedClub} onChange={onClubChange} placeholder="Club" opciones={OPCIONES_CLUB} />
 
-        {tieneFiltros && (
-          <button
+          {tieneFiltros && (
+          <Boton
+            variante="contorno"
+            tamano="pequeno"
+            forma="pildora"
             onClick={onClear}
-            className="px-4 py-2 rounded-full border border-slate-200 text-[13px] font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Limpiar filtros
-          </button>
+          </Boton>
         )}
       </div>
     </div>

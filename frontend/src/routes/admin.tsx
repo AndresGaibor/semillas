@@ -1,6 +1,5 @@
-import { Outlet, createFileRoute, redirect, useLocation, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { hasSession } from "../shared/api/auth-guard";
 import { AdminSidebar } from "../shared/layout/admin-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { sessionStorageApi } from "../shared/api/session";
@@ -8,9 +7,6 @@ import { sessionStorageApi } from "../shared/api/session";
 import "./app.css"; // Reutilizar estilos globales de layout
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: () => {
-    if (!hasSession()) throw redirect({ to: "/login" });
-  },
   component: AdminLayout
 });
 

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as React from "react";
-import { BarraProgreso, ProgresoCircular, StepperCRECER } from "./indicadores-progreso";
+import { BarraProgreso } from "./barra-progreso";
+import { ProgresoCircular } from "./progreso-circular";
+import { StepperCRECER } from "./stepper-crecer";
 
 const meta = {
   title: "Componentes/Indicadores de Progreso",

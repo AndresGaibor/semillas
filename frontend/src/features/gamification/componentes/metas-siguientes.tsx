@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Trophy } from "lucide-react";
-import { BarraProgreso } from "@/componentes/ui/indicadores-progreso";
+import { CabeceraSeccion } from "@/componentes/ui/cabecera-seccion";
+import { Card } from "@/componentes/ui/card-base";
+import { BarraProgreso } from "@/componentes/ui/barra-progreso";
 
 interface Meta {
   titulo: string;
@@ -18,11 +20,8 @@ const metas: Meta[] = [
 
 export const MetasSiguientes: React.FC = () => {
   return (
-    <section className="bg-white border border-[#E2E8F0] p-5 rounded-2xl shadow-sm flex flex-col gap-4">
-      <div className="flex justify-between items-center border-b border-[#F1F5F9] pb-3">
-        <h3 className="text-sm font-extrabold text-[#123B2C]">Metas siguientes</h3>
-        <button type="button" className="text-xs text-[#6C3AED] font-bold hover:underline">Ver todas</button>
-      </div>
+    <Card sombra="sm" className="p-5 flex flex-col gap-4">
+      <CabeceraSeccion titulo="Metas siguientes" textoBoton="Ver todas" />
       <div className="grid grid-cols-3 gap-4">
         {metas.map((meta) => (
           <div key={meta.titulo} className="border border-[#F1F5F9] p-4 rounded-2xl flex items-center gap-3.5 shadow-sm">
@@ -40,6 +39,6 @@ export const MetasSiguientes: React.FC = () => {
           </div>
         ))}
       </div>
-    </section>
+    </Card>
   );
 };

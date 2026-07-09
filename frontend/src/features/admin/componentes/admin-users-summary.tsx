@@ -1,4 +1,6 @@
 import { DonutChart, LeyendaDonut } from "@/componentes/ui/donut-chart";
+import { Boton } from "@/componentes/ui/boton";
+import { Card } from "@/componentes/ui/card-base";
 
 export type UserStats = {
   total: number;
@@ -58,7 +60,7 @@ export function AdminUsersSummary({ stats }: AdminUsersSummaryProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Summary Card */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col text-left">
+      <Card sombra="sm" className="p-6 flex flex-col text-left">
         <h3 className="font-extrabold text-slate-800 text-sm">Resumen de usuarios</h3>
         <span className="text-[10px] text-slate-400 mt-1 font-semibold uppercase tracking-wider select-none">
           Total usuarios
@@ -96,27 +98,27 @@ export function AdminUsersSummary({ stats }: AdminUsersSummaryProps) {
           />
         </div>
 
-        <button className="mt-5 w-full bg-[#eefcf4] hover:bg-[#e2f7ea] text-[#2e9e5b] font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-between transition-colors select-none cursor-pointer">
+        <Boton variante="secundario" tamano="pequeno" forma="cuadrado" className="mt-5 w-full justify-between px-4 py-3 text-xs">
           <span>Ver reporte completo</span>
           <i className="fa-solid fa-chevron-right text-[9px]" />
-        </button>
-      </div>
+        </Boton>
+      </Card>
 
       {/* Donut Chart Card */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col text-left">
+      <Card sombra="sm" className="p-6 flex flex-col text-left">
         <h3 className="font-extrabold text-slate-800 text-sm">Distribución por rol</h3>
 
         <DonutChart sectores={sectoresDonut} etiquetaTotal="Usuarios" className="mt-4 mb-5" />
         <LeyendaDonut sectores={leyendaDonut} />
 
-        <button className="mt-5 w-full bg-[#eefcf4] hover:bg-[#e2f7ea] text-[#2e9e5b] font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-between transition-colors select-none cursor-pointer">
+        <Boton variante="secundario" tamano="pequeno" forma="cuadrado" className="mt-5 w-full justify-between px-4 py-3 text-xs">
           <div className="flex items-center gap-2">
             <i className="fa-solid fa-user-group text-[10px]" />
             <span>Ver detalles por rol</span>
           </div>
           <i className="fa-solid fa-chevron-right text-[9px]" />
-        </button>
-      </div>
+        </Boton>
+      </Card>
     </div>
   );
 }

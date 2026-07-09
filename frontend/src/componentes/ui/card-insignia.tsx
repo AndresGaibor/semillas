@@ -2,7 +2,7 @@ import * as React from "react";
 import { Award, Book, Flame, Download } from "lucide-react";
 import { unirClases } from "@/lib/utilidades";
 import { Card } from "./card-base";
-import { BarraProgreso } from "./indicadores-progreso";
+import { BarraProgreso } from "./barra-progreso";
 
 export interface PropiedadesCardInsignia {
   titulo: string;

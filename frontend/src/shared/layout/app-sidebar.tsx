@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/componentes/ui/button";
+import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 
 type AppSidebarProps = {
@@ -65,7 +66,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout }:
 
         <div className="mt-auto flex flex-col gap-4 pt-4">
           {isOffline && (
-            <div className="rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
+            <Card sombra="sm" className="p-4">
               <div className="mb-2 flex items-center gap-2 text-[13.6px] font-bold text-neutro-oscuro-max">
                 <i className="fa-solid fa-circle-check text-primario"></i> Estás sin conexión
               </div>
@@ -73,7 +74,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout }:
               <button className="w-full rounded-xl border-0 bg-primario py-2 text-[12.8px] font-semibold text-white transition-opacity hover:opacity-90">
                 Ver estado
               </button>
-            </div>
+            </Card>
           )}
 
           <Button

@@ -33,7 +33,9 @@ import {
 
 import { Chip, Badge, CampanaBadge } from "./chip";
 import { Alerta } from "./alerta";
-import { BarraProgreso, ProgresoCircular, StepperCRECER } from "./indicadores-progreso";
+import { BarraProgreso } from "./barra-progreso";
+import { ProgresoCircular } from "./progreso-circular";
+import { StepperCRECER } from "./stepper-crecer";
 import { TabsLinea, PillsFiltros, TabsSegmentado, BottomNav } from "./navegacion-tabs";
 
 const meta = {
