@@ -52,12 +52,12 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   return (
     <button 
       type="button" 
-      className={`login-social__btn ${getButtonClass()}`} 
+      className={`login-social__btn ${getButtonClass()} ${disabled || isPending ? "cursor-not-allowed opacity-55" : ""}`} 
       onClick={onClick}
       disabled={disabled || isPending}
     >
       <img src={logo} alt="" className="login-social__icon" width="22" height="22" />
-      <span>{label}</span>
+      <span>{isPending ? "Conectando..." : label}</span>
     </button>
   );
 };

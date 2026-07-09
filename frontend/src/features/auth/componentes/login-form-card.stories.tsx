@@ -16,6 +16,7 @@ export const Default: Story = {
     onFacebookClick: () => console.log("Facebook clicked"),
     onGuestClick: () => console.log("Guest clicked"),
     onDevAdminClick: () => console.log("Dev admin clicked"),
+    googlePending: false,
   },
 };
 

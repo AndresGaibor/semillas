@@ -3,14 +3,14 @@ import { describe, expect, it } from "bun:test";
 import { obtenerDatosCuentaTopbar } from "./app-topbar";
 
 describe("obtenerDatosCuentaTopbar", () => {
-  it("muestra Invitado cuando el usuario es invitado", () => {
+  it("usa el apodo guardado y marca la sesión como invitado", () => {
     const cuenta = obtenerDatosCuentaTopbar(
-      { apodo: "Semillero", url_avatar: null } as never,
+      { apodo: "Mateo", url_avatar: null } as never,
       { proveedor: "invitado", correo: null, nombre_visible: "Semillero" } as never,
     );
 
-    expect(cuenta.nombre).toBe("Invitado");
-    expect(cuenta.correo).toBe("Invitado");
+    expect(cuenta.nombre).toBe("Mateo");
+    expect(cuenta.nivelTexto).toBe("Invitado");
     expect(cuenta.avatarUrl).toBeTruthy();
   });
 
@@ -21,6 +21,6 @@ describe("obtenerDatosCuentaTopbar", () => {
     );
 
     expect(cuenta.nombre).toBe("Semillero");
-    expect(cuenta.correo).toBe("admin@semillas.org");
+    expect(cuenta.nivelTexto).toBe("admin@semillas.org");
   });
 });

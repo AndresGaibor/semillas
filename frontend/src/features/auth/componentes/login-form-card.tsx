@@ -10,6 +10,7 @@ export interface LoginFormCardProps {
   onFacebookClick: () => void;
   onGuestClick: () => void;
   onDevAdminClick: () => void;
+  googlePending?: boolean;
   guestPending?: boolean;
   guestError?: boolean;
   devAdminPending?: boolean;
@@ -21,6 +22,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
   onFacebookClick,
   onGuestClick,
   onDevAdminClick,
+  googlePending,
   guestPending,
   guestError,
   devAdminPending,
@@ -40,13 +42,15 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
             logo={googleIcon}
             label="Continuar con Google"
             onClick={onGoogleClick}
+            isPending={googlePending}
           />
 
           <SocialLoginButton
             tipo="facebook"
             logo={facebookIcon}
-            label="Continuar con Facebook"
+            label="Facebook desactivado"
             onClick={onFacebookClick}
+            disabled={true}
           />
           
           <div className="login-divider" role="separator" aria-hidden="true">

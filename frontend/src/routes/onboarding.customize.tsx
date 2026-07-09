@@ -49,6 +49,7 @@ function CustomizePage() {
 
   return (
     <div
+      className="onboarding-shell"
       style={{
         fontFamily: "'Nunito', sans-serif",
         background: "#f8f9fc",
@@ -63,6 +64,7 @@ function CustomizePage() {
     >
       <OnboardingTopbar onHelpClick={() => setIsHelpOpen(true)} />
       <main
+        className="onboarding-shell__main"
         style={{
           flex: 1,
           display: "flex",
@@ -76,6 +78,7 @@ function CustomizePage() {
         }}
       >
         <div
+          className="onboarding-shell__form"
           style={{
             flex: 3,
             background: "#fff",

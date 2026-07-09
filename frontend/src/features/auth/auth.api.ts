@@ -1,5 +1,6 @@
 import { peticion } from "../../shared/api/api";
 import type { Autenticacion, Perfil, Usuario } from "../../shared/api/api";
+import { iniciarSesionGoogle as iniciarSesionGoogleSupabase } from "../../shared/auth/supabase";
 
 export type SesionInvitadoRespuesta = {
   usuario: Usuario;
@@ -30,4 +31,8 @@ export function configurarDevAdmin() {
     "/autenticacion/configuracion-dev",
     { metodo: "POST", autenticar: false }
   );
+}
+
+export function iniciarSesionGoogle(redirectTo: string) {
+  return iniciarSesionGoogleSupabase(redirectTo);
 }

@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { crearSesionInvitado, configurarDevAdmin } from "../features/auth/auth.api";
+import { crearSesionInvitado, configurarDevAdmin, iniciarSesionGoogle } from "../features/auth/auth.api";
 import { sessionStorageApi } from "../shared/api/session";
 
 import "../estilos.css";
@@ -25,6 +25,10 @@ function LoginPage() {
       sessionStorageApi.setGuestUserId(data.autenticacion.valor);
       navigate({ to: "/onboarding" });
     }
+  });
+
+  const googleMutation = useMutation({
+    mutationFn: () => iniciarSesionGoogle(`${window.location.origin}/app`),
   });
 
   const devAdminMutation = useMutation({
@@ -62,10 +66,11 @@ function LoginPage() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="login-main" id="main-content" role="main">
         <LoginFormCard
-          onGoogleClick={() => console.log("Google login clicked")}
-          onFacebookClick={() => console.log("Facebook login clicked")}
+          onGoogleClick={() => googleMutation.mutate()}
+          onFacebookClick={() => undefined}
           onGuestClick={() => guestMutation.mutate({ apodo: "Semillero" })}
           onDevAdminClick={() => devAdminMutation.mutate()}
+          googlePending={googleMutation.isPending}
           guestPending={guestMutation.isPending}
           guestError={guestMutation.isError}
           devAdminPending={devAdminMutation.isPending}

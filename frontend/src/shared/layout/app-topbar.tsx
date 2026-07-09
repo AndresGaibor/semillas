@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/componentes/ui/button";
 import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
+import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/profile/profile.api";
 
 import type { Perfil, Usuario } from "@/shared/api/api";
@@ -15,11 +16,11 @@ type AppTopbarProps = {
 
 export function obtenerDatosCuentaTopbar(perfil?: Perfil, usuario?: Usuario) {
   const esInvitado = usuario?.proveedor === "invitado";
-  const nombre = esInvitado ? "Invitado" : perfil?.apodo || usuario?.nombre_visible || "Semillero";
-  const correo = esInvitado ? "Invitado" : usuario?.correo || "admin@semillas.org";
+  const nombre = perfil?.apodo || usuario?.nombre_visible || "Semillero";
+  const nivelTexto = esInvitado ? "Invitado" : usuario?.correo || "Cuenta registrada";
   const avatarUrl = MAPA_AVATARES[perfil?.url_avatar || "1"] || MAPA_AVATARES["1"] || "";
 
-  return { nombre, correo, avatarUrl };
+  return { nombre, nivelTexto, avatarUrl };
 }
 
 export function AppTopbar({ title, onOpenSidebar, onLogout }: AppTopbarProps) {
@@ -73,14 +74,7 @@ export function AppTopbar({ title, onOpenSidebar, onLogout }: AppTopbarProps) {
           </span>
         </Button>
 
-        <div className="flex items-center gap-3 cursor-pointer rounded-xl p-1.5 transition-colors hover:bg-slate-100">
-          <img src={cuenta.avatarUrl} alt="Avatar" className="h-9 w-9 rounded-full border border-slate-200 bg-white sm:h-10 sm:w-10" />
-          <div className="hidden flex-col md:flex">
-            <span className="text-sm font-black leading-tight text-slate-800">{cuenta.nombre}</span>
-            <span className="text-xs font-bold text-slate-500">{cuenta.correo}</span>
-          </div>
-          <i className="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 hidden md:block"></i>
-        </div>
+        <AppAccountMenu nombreVisible={cuenta.nombre} nivelTexto={cuenta.nivelTexto} avatarUrl={cuenta.avatarUrl} onLogout={onLogout} />
       </div>
     </header>
   );

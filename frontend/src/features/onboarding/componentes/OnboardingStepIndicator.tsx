@@ -56,6 +56,7 @@ export function OnboardingStepIndicator({ pasoActual }: OnboardingStepIndicatorP
 
   return (
     <div
+      className="onboarding-stepper"
       style={{
         display: "flex",
         background: "#f4f5f7",

@@ -4,6 +4,7 @@ import { hasSession } from "../shared/api/auth-guard";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { sessionStorageApi } from "../shared/api/session";
+import { cerrarSesionAutenticada } from "../shared/auth/supabase";
 
 import "./app.css";
 
@@ -40,9 +41,9 @@ function AppLayout() {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
   }, [sidebarOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestUserId();
-    sessionStorageApi.clearAccessToken();
     navigate({ to: "/login" });
   };
 

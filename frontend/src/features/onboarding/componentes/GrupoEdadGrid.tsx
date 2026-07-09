@@ -27,7 +27,7 @@ const loadingStyle: React.CSSProperties = {
 
 export function GrupoEdadGrid({ grupos, seleccionadoId, onSelect, cargando }: GrupoEdadGridProps) {
   return (
-    <div style={gridStyle}>
+    <div className="onboarding-age-grid" style={gridStyle}>
       {cargando && <p style={loadingStyle}>Cargando franjas...</p>}
 
       {grupos.map((grupo) => (

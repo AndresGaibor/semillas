@@ -1,20 +1,26 @@
-import { Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
+import {
+  Outlet,
+  createFileRoute,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { sessionStorageApi } from "../shared/api/session";
+import { cerrarSesionAutenticada } from "../shared/auth/supabase";
 
 import "./app.css"; // Reutilizar estilos globales de layout
 
 export const Route = createFileRoute("/admin")({
-  component: AdminLayout
+  component: AdminLayout,
 });
 
 function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const activePage = location.pathname;
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);
@@ -28,9 +34,9 @@ function AdminLayout() {
     }
   }, [sidebarOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestUserId();
-    sessionStorageApi.clearAccessToken();
     navigate({ to: "/login" });
   };
 
@@ -44,7 +50,8 @@ function AdminLayout() {
 
   if (activePage.includes("/admin/temas/new")) {
     tituloHeader = "Crear nuevo tema";
-    subtituloHeader = "Crea un tema que inspire y guíe a los niños en su crecimiento espiritual.";
+    subtituloHeader =
+      "Crea un tema que inspire y guíe a los niños en su crecimiento espiritual.";
   } else if (activePage.includes("/detalle")) {
     tituloHeader = "";
     subtituloHeader = "";
@@ -65,7 +72,8 @@ function AdminLayout() {
     subtituloHeader = "Gestiona los recursos multimedia de la plataforma.";
   } else if (activePage.includes("/admin/usuarios")) {
     tituloHeader = "Panel de administración";
-    subtituloHeader = "Administra cuentas, roles y participación dentro de la plataforma.";
+    subtituloHeader =
+      "Administra cuentas, roles y participación dentro de la plataforma.";
   } else if (activePage.includes("/admin/actividades")) {
     tituloHeader = "Panel de administración";
     subtituloHeader = "Gestiona, edita y publica las actividades de Semillas.";
@@ -75,7 +83,7 @@ function AdminLayout() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#fbf7ed]">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
       <AppSidebar
         activePage={activePage}
         variant="admin"
@@ -85,7 +93,7 @@ function AdminLayout() {
         onLogout={handleLogout}
       />
 
-      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-6 py-5 md:px-7 lg:px-8">
+      <main className="flex flex-1 flex-col overflow-y-auto p-6 md:p-8 lg:p-10">
         <AppTopbar
           title={tituloHeader}
           subtitle={subtituloHeader}
