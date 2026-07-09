@@ -11,14 +11,14 @@ export const Route = createFileRoute("/app")({
   beforeLoad: () => {
     if (!hasSession()) throw redirect({ to: "/login" });
   },
-  component: AppLayout
+  component: AppLayout,
 });
 
 function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const activePage = location.pathname;
-  
+  const path = location.pathname;
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
 
@@ -36,13 +36,8 @@ function AppLayout() {
 
   const closeSidebar = () => setSidebarOpen(false);
 
-  // Prevenir scroll en body cuando el menú móvil está abierto
   useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
   }, [sidebarOpen]);
 
   const handleLogout = () => {
@@ -54,22 +49,22 @@ function AppLayout() {
   let tituloHeader = "Hola Semillero";
   let subtituloHeader = "Sigue aprendiendo y creciendo en la Palabra de Dios.";
 
-  if (activePage.includes("/app/temas")) {
+  if (path.startsWith("/app/temas")) {
     tituloHeader = "Mis temas";
     subtituloHeader = "Explora y repasa los temas que has estudiado.";
-  } else if (activePage.includes("/app/sendas")) {
+  } else if (path.startsWith("/app/sendas")) {
     tituloHeader = "Sendas";
     subtituloHeader = "Elige tu senda y recorre el camino de la fe.";
-  } else if (activePage.includes("/app/logros")) {
+  } else if (path.startsWith("/app/logros")) {
     tituloHeader = "Mis insignias";
     subtituloHeader = "Los logros y premios que has alcanzado.";
-  } else if (activePage.includes("/app/perfil")) {
+  } else if (path.startsWith("/app/perfil")) {
     tituloHeader = "Mi perfil";
     subtituloHeader = "Administra tu avatar y configuración.";
-  } else if (activePage.includes("/app/clubes")) {
+  } else if (path.startsWith("/app/clubes")) {
     tituloHeader = "Mi club";
     subtituloHeader = "Aprende y participa con tu iglesia, curso o familia.";
-  } else if (activePage.includes("/app/descargas")) {
+  } else if (path.startsWith("/app/descargas")) {
     tituloHeader = "Descargas";
     subtituloHeader = "Recursos para aprender y crecer en la fe, incluso sin conexión.";
   }
@@ -77,7 +72,7 @@ function AppLayout() {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
       <AppSidebar
-        activePage={activePage}
+        activePage={path}
         isOffline={isOffline}
         isOpen={sidebarOpen}
         onClose={closeSidebar}

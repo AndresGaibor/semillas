@@ -1,4 +1,3 @@
-import * as React from "react";
 import { TabsOpciones } from "@/componentes/ui/navegacion-tabs";
 
 export type FiltroTab = "todos" | "completados" | "progreso" | "favoritos";
