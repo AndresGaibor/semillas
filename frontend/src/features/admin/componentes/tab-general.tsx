@@ -20,6 +20,7 @@ type TabGeneralProps = {
   onMainMessageChange: (v: string) => void;
   tagsList: string[];
   onTagsChange: (v: string[]) => void;
+  previewImageUrl?: string | null;
 };
 
 export function TabGeneral({
@@ -39,6 +40,7 @@ export function TabGeneral({
   onMainMessageChange,
   tagsList,
   onTagsChange,
+  previewImageUrl,
 }: TabGeneralProps) {
   return (
     <>
@@ -157,12 +159,23 @@ export function TabGeneral({
 
         <div className="rounded-2xl border border-slate-100/70 p-4 bg-[#eefcf4]/50 flex flex-col sm:flex-row items-center gap-5">
           <div className="w-44 h-28 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-100 relative shadow-xs">
-            <img src={imgBoySheep} alt="Dios me cuida preview" className="w-full h-full object-cover" />
+            <img src={previewImageUrl ?? imgBoySheep} alt={title || "Vista previa del tema"} className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col gap-2 min-w-0 text-left">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-[#6c3aed]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#6c3aed]">
+                {category || "confianza"}
+              </span>
+              <span className="inline-flex items-center rounded-full bg-[#2e9e5b]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#2e9e5b]">
+                {targetAudience}
+              </span>
+            </div>
             <h4 className="font-black text-slate-800 text-base md:text-lg leading-tight truncate">{title || "Dios me cuida"}</h4>
             <p className="text-[11.5px] font-semibold text-slate-500 leading-relaxed line-clamp-2">
               {shortDesc || "Descubrimos cómo Dios cuida de nosotros cada día con amor y detalle."}
+            </p>
+            <p className="text-[10.5px] font-bold leading-relaxed text-slate-400 line-clamp-2">
+              {mainMessage || "Mensaje central del tema."}
             </p>
             <div className="flex items-center gap-3.5 mt-1 text-[10.5px] text-slate-400 font-bold">
               <div className="flex items-center gap-1">

@@ -44,7 +44,7 @@ export function AdminThemesTable({
 }: AdminThemesTableProps) {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const encabezados = [
-    { contenido: <input type="checkbox" className="rounded border-slate-300 text-primario focus:ring-primario" />, className: "w-10 pl-6" },
+    { contenido: <input type="checkbox" aria-label="Seleccionar todos los temas" className="rounded border-slate-300 text-primario focus:ring-primario" />, className: "w-10 pl-6" },
     { contenido: "Tema", className: "font-extrabold" },
     { contenido: "Senda", className: "font-semibold" },
     { contenido: "Franja", className: "font-semibold" },
@@ -70,7 +70,7 @@ export function AdminThemesTable({
         return (
           <FilaTabla key={tema.id} onActivate={() => onDetalle?.(tema.id)} className="hover:bg-slate-50/30">
             <td className="py-4 pl-6">
-              <input type="checkbox" className="rounded border-slate-300 text-primario focus:ring-primario" />
+              <input type="checkbox" aria-label={`Seleccionar ${tema.titulo}`} className="rounded border-slate-300 text-primario focus:ring-primario" />
             </td>
 
             <td className="py-4 px-4">

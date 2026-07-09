@@ -27,7 +27,8 @@ export const updateThemeSchema = z.object({
   minutos_estimados: z.number().int().min(1).max(120).optional(),
   xp_recompensa: z.number().int().min(0).max(500).optional(),
   version_biblica_id: z.string().uuid().optional(),
-  grupo_edad_ids: z.array(z.string().uuid()).min(1).optional()
+  grupo_edad_ids: z.array(z.string().uuid()).min(1).optional(),
+  portada_recurso_id: z.string().uuid().nullable().optional(),
 });
 
 export const upsertStepContentSchema = z.object({

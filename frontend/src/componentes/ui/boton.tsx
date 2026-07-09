@@ -25,12 +25,12 @@ const variantesBoton = cva(
           "disabled:bg-violet-200 disabled:text-violet-300 disabled:shadow-none",
         ],
         exito: [
-          "bg-[#16A34A] text-white",
-          "shadow-[0_2px_8px_rgba(22,163,74,0.18)]",
-          "hover:bg-[#15803D]",
-          "active:bg-[#14532D]",
+          "bg-primario-oscuro-max text-white",
+          "shadow-[0_2px_8px_rgba(27,94,32,0.25)]",
+          "hover:bg-primario-oscuro",
+          "active:bg-verde-profundo",
           "focus-visible:ring-green-500",
-          "disabled:bg-green-100 disabled:text-green-400 disabled:shadow-none",
+          "disabled:bg-green-200 disabled:text-green-600 disabled:shadow-none",
         ],
         secundario: [
           "bg-violet-50 text-violet-700",
@@ -128,8 +128,8 @@ const clasesEstadoVisual: Record<
     presionado: "!bg-[#3B1FA3] scale-[0.98]",
   },
   exito: {
-    encima: "!bg-[#15803D]",
-    presionado: "!bg-[#14532D] scale-[0.98]",
+    encima: "!bg-primario-oscuro",
+    presionado: "!bg-verde-profundo scale-[0.98]",
   },
   secundario: {
     encima: "!bg-violet-100",

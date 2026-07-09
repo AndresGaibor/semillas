@@ -21,6 +21,7 @@ export type ActualizarTemaSolicitud = {
   xp_recompensa?: number;
   version_biblica_id?: string;
   grupo_edad_ids?: string[];
+  portada_recurso_id?: string | null;
 };
 
 export type GuardarParlanteSolicitud = {
@@ -116,6 +117,18 @@ export function despublicarTema(idTema: string) {
   });
 }
 
+export function archivarTema(idTema: string) {
+  return peticion<Tema>(`/administracion/temas/${idTema}/archivar`, {
+    metodo: "POST",
+  });
+}
+
+export function duplicarTema(idTema: string) {
+  return peticion<Tema>(`/administracion/temas/${idTema}/duplicar`, {
+    metodo: "POST",
+  });
+}
+
 export function crearActividad(datos: CrearActividadSolicitud) {
   return peticion("/administracion/actividades", {
     metodo: "POST",
@@ -141,4 +154,73 @@ export function eliminarActividad(idActividad: string) {
 
 export function obtenerUsuariosAdmin() {
   return peticion<{ usuarios: any[] }>("/administracion/usuarios");
+}
+
+export type ActividadAdmin = {
+  id: string;
+  tema_id: string;
+  paso_id: string | null;
+  grupo_edad_id: string;
+  tipo_actividad_id: string;
+  titulo: string;
+  consigna: string;
+  retroalimentacion: string | null;
+  orden: number;
+  xp_recompensa: number;
+  limite_tiempo_seg: number | null;
+  dificultad: string;
+  obligatorio: boolean;
+  configuracion: Record<string, unknown>;
+  estado: string;
+  creado_en: string | null;
+  actualizado_en: string | null;
+  tipo_actividad: {
+    id: string;
+    codigo: string;
+    nombre: string;
+  } | null;
+  tema: {
+    id: string;
+    titulo: string;
+    slug: string;
+    estado: string;
+    sendero?: {
+      id: string;
+      codigo: string;
+      nombre: string;
+      color_hex: string;
+    };
+    senda?: {
+      id: string;
+      codigo: string;
+      nombre: string;
+      color_hex: string;
+    };
+  } | null;
+  grupo_edad: {
+    id: string;
+    codigo: string;
+    nombre: string;
+  } | null;
+};
+
+export type ObtenerActividadesAdminParams = {
+  tema_id?: string;
+  tipo_actividad_id?: string;
+  grupo_edad_id?: string;
+  estado?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export function obtenerActividadesAdmin(params?: ObtenerActividadesAdminParams) {
+  const busqueda = new URLSearchParams();
+  if (params?.tema_id) busqueda.set("tema_id", params.tema_id);
+  if (params?.tipo_actividad_id) busqueda.set("tipo_actividad_id", params.tipo_actividad_id);
+  if (params?.grupo_edad_id) busqueda.set("grupo_edad_id", params.grupo_edad_id);
+  if (params?.estado) busqueda.set("estado", params.estado);
+  if (params?.limit) busqueda.set("limit", String(params.limit));
+  if (params?.offset) busqueda.set("offset", String(params.offset));
+  const query = busqueda.toString();
+  return peticion<{ actividades: ActividadAdmin[]; total: number }>(`/administracion/actividades${query ? `?${query}` : ""}`);
 }

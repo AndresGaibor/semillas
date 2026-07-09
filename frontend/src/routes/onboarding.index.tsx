@@ -76,16 +76,17 @@ function OnboardingPage() {
           width: "100%",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <h1 style={{ fontSize: "32px", fontWeight: 800, color: "#311B92", lineHeight: 1.2, margin: "0 0 12px 0" }}>
+        <div className="onboarding-age-hero" style={{ textAlign: "center", marginBottom: "24px" }}>
+          <h1 className="onboarding-age-hero__title" style={{ fontSize: "32px", fontWeight: 800, color: "#311B92", lineHeight: 1.2, margin: "0 0 12px 0" }}>
             Elige tu franja de edad
           </h1>
-          <p style={{ fontSize: "16px", color: "#5C5C5C", margin: 0 }}>
+          <p className="onboarding-age-hero__copy" style={{ fontSize: "16px", color: "#5C5C5C", margin: 0 }}>
             Selecciona la opción que mejor te representa. Podrás cambiarla después.
           </p>
         </div>
 
         <div
+          className="onboarding-age-stepper"
           style={{
             display: "flex",
             background: "#F4F5F7",

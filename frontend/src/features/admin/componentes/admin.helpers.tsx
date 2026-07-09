@@ -25,8 +25,8 @@ export type BotonAccionProps = {
 
 export function BotonAccion({ onClick, title, icon, className = BOTON_ACCION_CLS }: BotonAccionProps) {
   return (
-    <button type="button" onClick={onClick} title={title} className={className}>
-      <i className={`fa-solid ${icon} text-xs`} />
+    <button type="button" onClick={onClick} title={title} aria-label={title} className={className}>
+      <i className={`fa-solid ${icon} text-xs`} aria-hidden="true" />
     </button>
   );
 }
@@ -85,9 +85,9 @@ export function MenuAcciones({ items, isActive, onToggle, onClose }: MenuAccione
 export const CELDA_CHECKBOX_CLS = "py-4 px-2 text-center";
 export const CELDA_ACCION_CLS = "py-4 px-4 text-right";
 
-export const CheckboxCell = ({ stopPropagation = true }: { stopPropagation?: boolean }) => (
+export const CheckboxCell = ({ stopPropagation = true, ariaLabel }: { stopPropagation?: boolean; ariaLabel: string }) => (
   <td className={CELDA_CHECKBOX_CLS} onClick={stopPropagation ? (e) => e.stopPropagation() : undefined}>
-    <input type="checkbox" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />
+    <input type="checkbox" aria-label={ariaLabel} className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />
   </td>
 );
 

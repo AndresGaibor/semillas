@@ -80,7 +80,24 @@ export function TablaBase({
 export function FilaTabla({ children, className, onActivate, onKeyDown, tabIndex, ...props }: FilaTablaProps) {
   const esInteractiva = Boolean(onActivate);
 
+  const esControlInteractivo = (objetivo: EventTarget | null) => {
+    const elemento = objetivo as unknown as { closest?: (selector: string) => Element | null } | null;
+
+    if (!elemento || typeof elemento.closest !== "function") return false;
+
+    return Boolean(
+      elemento.closest(
+        "button, a, input, select, textarea, label, [role='button']",
+      ),
+    );
+  };
+
   const manejarKeyDown: React.KeyboardEventHandler<HTMLTableRowElement> = (evento) => {
+    if (esControlInteractivo(evento.target)) {
+      onKeyDown?.(evento);
+      return;
+    }
+
     if (evento.key === "Enter" || evento.key === " ") {
       evento.preventDefault();
       onActivate?.();
@@ -92,7 +109,14 @@ export function FilaTabla({ children, className, onActivate, onKeyDown, tabIndex
   return (
     <tr
       {...props}
-      onClick={onActivate ? () => onActivate() : undefined}
+      onClick={
+        onActivate
+          ? (evento) => {
+              if (esControlInteractivo(evento.target)) return;
+              onActivate();
+            }
+          : undefined
+      }
       onKeyDown={esInteractiva ? manejarKeyDown : onKeyDown}
       tabIndex={esInteractiva ? (tabIndex ?? 0) : tabIndex}
       role={esInteractiva ? "button" : props.role}

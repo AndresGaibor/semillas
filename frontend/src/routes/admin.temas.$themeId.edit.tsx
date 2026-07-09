@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { obtenerTemaAdmin, actualizarTema } from "../features/admin/admin.api";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { archivarTema, actualizarTema, despublicarTema, duplicarTema, obtenerTemaAdmin, publicarTema } from "../features/admin/admin.api";
 import { Loader } from "lucide-react";
 
 import { AdminTemasEditHeader } from "../features/admin/componentes/admin-temas-edit-header";
@@ -10,6 +10,8 @@ import { TabGeneral } from "../features/admin/componentes/tab-general";
 import { TabPortada } from "../features/admin/componentes/tab-portada";
 import { TabConfig } from "../features/admin/componentes/tab-config";
 import { TabPublicacion } from "../features/admin/componentes/tab-publicacion";
+import { obtenerUrlPortadaTema } from "../features/themes/themes.api";
+import { subirArchivo } from "../features/media/media.api";
 
 import imgSprout from "@/assets/images/Ilustraciones/Semilla.png";
 
@@ -23,28 +25,41 @@ function EditThemePage() {
   const { themeId } = Route.useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const inputPortadaRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<TabType>("general");
   const [title, setTitle] = useState("");
   const [targetAudience, setTargetAudience] = useState("Niños de 6 a 10 años");
   const [shortDesc, setShortDesc] = useState("");
-  const [category, setCategory] = useState("Confianza en Dios");
-  const [keyVerse, setKeyVerse] = useState("");
+  const [category, setCategory] = useState("confianza");
   const [duration, setDuration] = useState(45);
+  const [keyVerse, setKeyVerse] = useState("Salmo 23:1");
   const [mainMessage, setMainMessage] = useState("");
-  const [tagsList, setTagsList] = useState<string[]>(["cuidado", "amor de Dios", "confianza"]);
+  const [tagsList, setTagsList] = useState<string[]>([]);
 
   const themeQuery = useQuery({
     queryKey: ["admin", "theme", themeId],
     queryFn: () => obtenerTemaAdmin(themeId)
   });
 
+  const portadaQuery = useQuery({
+    queryKey: ["tema-portada", themeId],
+    queryFn: () => obtenerUrlPortadaTema(themeId),
+    enabled: Boolean(themeQuery.data?.portada_recurso_id),
+    staleTime: 3 * 60 * 1000,
+    gcTime: 4 * 60 * 1000,
+    retry: 1,
+  });
+
   const theme = themeQuery.data;
+  const portadaUrl = portadaQuery.data?.url ?? theme?.portada_recurso?.url_publica ?? null;
 
   useEffect(() => {
     if (theme) {
       setTitle(theme.titulo);
+      setTargetAudience(theme.grupos_edad?.[0]?.nombre ?? "Niños de 6 a 10 años");
       setShortDesc(theme.resumen ?? "");
+      setCategory(theme.senda?.nombre ?? "confianza");
       setDuration(theme.minutos_estimados);
       setKeyVerse(theme.versiculo_clave?.texto ?? "Salmo 23:1");
       setMainMessage(theme.objetivo ?? "");
@@ -66,28 +81,67 @@ function EditThemePage() {
     }
   });
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "general":
-        return (
-          <TabGeneral
-            title={title} onTitleChange={setTitle}
-            targetAudience={targetAudience} onTargetAudienceChange={setTargetAudience}
-            shortDesc={shortDesc} onShortDescChange={setShortDesc}
-            category={category} onCategoryChange={setCategory}
-            keyVerse={keyVerse} onKeyVerseChange={setKeyVerse}
-            duration={duration} onDurationChange={setDuration}
-            mainMessage={mainMessage} onMainMessageChange={setMainMessage}
-            tagsList={tagsList} onTagsChange={setTagsList}
-          />
-        );
-      case "portada":
-        return <TabPortada />;
-      case "config":
-        return <TabConfig />;
-      case "publicacion":
-        return <TabPublicacion />;
+  const portadaMutation = useMutation({
+    mutationFn: async (archivo: File | null) => {
+      if (!archivo) {
+        return actualizarTema(themeId, { portada_recurso_id: null });
+      }
+
+      const recurso = await subirArchivo(archivo, "imagen", `Portada ${title || theme?.titulo || "tema"}`);
+      return actualizarTema(themeId, { portada_recurso_id: recurso.id });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId] });
+      await queryClient.invalidateQueries({ queryKey: ["tema-portada", themeId] });
     }
+  });
+
+  const publicarMutation = useMutation({
+    mutationFn: () => publicarTema(themeId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
+    }
+  });
+
+  const borradorMutation = useMutation({
+    mutationFn: () => despublicarTema(themeId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
+    }
+  });
+
+  const archivarMutation = useMutation({
+    mutationFn: () => archivarTema(themeId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
+    }
+  });
+
+  const duplicarMutation = useMutation({
+    mutationFn: () => duplicarTema(themeId),
+    onSuccess: async (duplicado) => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
+      navigate({ to: "/admin/temas/$themeId/edit", params: { themeId: duplicado.id } });
+    }
+  });
+
+  const handlePortadaInput = async (event: ChangeEvent<HTMLInputElement>) => {
+    const archivo = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    if (!archivo) return;
+    await portadaMutation.mutateAsync(archivo);
+  };
+
+  const handleAbrirSelectorPortada = () => {
+    inputPortadaRef.current?.click();
+  };
+
+  const handleQuitarPortada = async () => {
+    await portadaMutation.mutateAsync(null);
   };
 
   const completenessItems = [
@@ -99,6 +153,14 @@ function EditThemePage() {
 
   return (
     <div className="flex flex-col gap-6 text-left select-none">
+      <input
+        ref={inputPortadaRef}
+        type="file"
+        className="hidden"
+        accept="image/*"
+        onChange={handlePortadaInput}
+      />
+
       <AdminTemasEditHeader title={title} onNavigate={(to) => navigate({ to })} />
 
       {themeQuery.isLoading && (
@@ -108,7 +170,44 @@ function EditThemePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
           <AdminTemasEditTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          {renderTabContent()}
+          {activeTab === "portada" ? (
+            <TabPortada
+              themeTitle={title || theme?.titulo || "Tema"}
+              portadaUrl={portadaUrl}
+              isUploading={portadaMutation.isPending}
+              onChangePortada={handleAbrirSelectorPortada}
+              onRemovePortada={handleQuitarPortada}
+            />
+          ) : activeTab === "config" ? (
+            <TabConfig
+              estado={theme?.estado ?? "borrador"}
+              versionContenido={theme?.version_contenido ?? 1}
+              publicadoEn={theme?.publicado_en ?? null}
+              minutosEstimados={duration}
+              xpRecompensa={theme?.xp_recompensa ?? 0}
+            />
+          ) : activeTab === "publicacion" ? (
+            <TabPublicacion
+              estado={theme?.estado ?? "borrador"}
+              publicadoEn={theme?.publicado_en ?? null}
+              isPublishing={publicarMutation.isPending}
+              isDrafting={borradorMutation.isPending}
+              onPublicar={() => publicarMutation.mutate()}
+              onBorrador={() => borradorMutation.mutate()}
+            />
+          ) : (
+            <TabGeneral
+              title={title} onTitleChange={setTitle}
+              targetAudience={targetAudience} onTargetAudienceChange={setTargetAudience}
+              shortDesc={shortDesc} onShortDescChange={setShortDesc}
+              category={category} onCategoryChange={setCategory}
+              keyVerse={keyVerse} onKeyVerseChange={setKeyVerse}
+              duration={duration} onDurationChange={setDuration}
+              mainMessage={mainMessage} onMainMessageChange={setMainMessage}
+              tagsList={tagsList} onTagsChange={setTagsList}
+              previewImageUrl={portadaUrl}
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-6">
@@ -122,11 +221,21 @@ function EditThemePage() {
               {updateMutation.isPending ? <Loader className="animate-spin" size={12} /> : <i className="fa-solid fa-circle-check text-[10px]" />}
               <span>Guardar cambios</span>
             </button>
-            <button type="button" className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-[#6c3aed] font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer">
-              <i className="fa-regular fa-clone text-[10px]" /> Duplicar tema
+            <button
+              type="button"
+              onClick={() => duplicarMutation.mutate()}
+              disabled={duplicarMutation.isPending}
+              className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-[#6c3aed] font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
+            >
+              {duplicarMutation.isPending ? <Loader className="animate-spin" size={12} /> : <i className="fa-regular fa-clone text-[10px]" />} Duplicar tema
             </button>
-            <button type="button" className="w-full bg-white hover:bg-red-50/50 border border-red-200 text-red-650 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer">
-              <i className="fa-solid fa-box-archive text-[10px]" /> Archivar tema
+            <button
+              type="button"
+              onClick={() => archivarMutation.mutate()}
+              disabled={archivarMutation.isPending}
+              className="w-full bg-white hover:bg-red-50/50 border border-red-200 text-red-650 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
+            >
+              {archivarMutation.isPending ? <Loader className="animate-spin" size={12} /> : <i className="fa-solid fa-box-archive text-[10px]" />} Archivar tema
             </button>
           </div>
 

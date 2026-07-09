@@ -223,7 +223,7 @@ export const RUTAS_API = {
   MEDIA: {
     SUBIR: "/media/subir",
     VER: (id: string) => `/media/${id}`,
-    URL_FIRMADA: (id: string) => `/media/${id}/url-firmada`,
+    URL_FIRMADA: (id: string) => `/media/${id}/url`,
     ELIMINAR: (id: string) => `/media/${id}`,
   },
 } as const;

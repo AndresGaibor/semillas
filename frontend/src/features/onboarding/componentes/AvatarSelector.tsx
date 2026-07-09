@@ -7,8 +7,9 @@ interface AvatarSelectorProps {
 
 export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps) {
   return (
-    <div style={{ marginBottom: "32px" }}>
+    <div className="onboarding-avatar-section" style={{ marginBottom: "32px" }}>
       <div
+        className="onboarding-section-title"
         style={{
           display: "flex",
           alignItems: "center",
@@ -39,6 +40,7 @@ export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps
         Elige un avatar que te represente
       </div>
       <div
+        className="onboarding-avatar-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
@@ -52,6 +54,7 @@ export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps
           return (
             <label
               key={avatarNum}
+              className="onboarding-avatar-card"
               style={{ cursor: "pointer", display: "block", position: "relative" }}
             >
               <input

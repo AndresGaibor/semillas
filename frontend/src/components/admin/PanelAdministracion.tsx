@@ -1,7 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { BarraLateral } from "./panel/barra-lateral";
-import { EncabezadoAdmin } from "./panel/encabezado-admin";
 import { TarjetaMetrica } from "./panel/tarjeta-metrica";
 import { EstadoContenido } from "./panel/estado-contenido";
 import { AccionesRapidas } from "./panel/acciones-rapidas";

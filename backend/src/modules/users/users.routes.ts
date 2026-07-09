@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
-import { responderExito } from "../../shared/http/respuesta";
+import { responderError, responderExito } from "../../shared/http/respuesta";
 import { serializarPerfil } from "../../shared/serializers/perfil.serializer";
 import { serializarUsuario } from "../../shared/serializers/usuario.serializer";
 import { updateProfileSchema } from "./users.schemas";
@@ -73,3 +73,49 @@ usersRoutes.patch(
     return responderExito(serializarPerfil(data));
   }
 );
+
+usersRoutes.post("/vincular-cuenta", async (c) => {
+  const db = c.get("db");
+  const user = c.get("user");
+  const authSessionUser = c.get("authSessionUser");
+
+  if (user.provider !== "invitado") {
+    return responderError("Solo las cuentas invitadas pueden reclamar una cuenta vinculada", "CUENTA_NO_INVITADA", 400);
+  }
+
+  if (!authSessionUser) {
+    return responderError("Falta la sesión autenticada para vincular la cuenta", "SIN_SESION_AUTENTICADA", 401);
+  }
+
+  const { data: updatedUser, error: updateError } = await db
+    .from("usuario_app")
+    .update({
+      id_externo: authSessionUser.id,
+      proveedor: authSessionUser.provider,
+      correo: authSessionUser.email ?? user.email,
+      actualizado_en: new Date().toISOString()
+    })
+    .eq("id", user.id)
+    .select("id, rol, proveedor, nombre_visible, correo")
+    .single();
+
+  if (updateError || !updatedUser) {
+    throw updateError;
+  }
+
+  const { data: profile, error: profileError } = await db
+    .from("perfil")
+    .select("*")
+    .eq("usuario_id", user.id)
+    .single();
+
+  if (profileError || !profile) {
+    throw profileError;
+  }
+
+  return responderExito({
+    vinculada: true,
+    usuario: serializarUsuario(updatedUser),
+    perfil: serializarPerfil(profile)
+  });
+});

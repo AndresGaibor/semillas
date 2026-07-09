@@ -1,4 +1,5 @@
 import * as React from "react";
+import { LoaderCircle } from "lucide-react";
 
 export interface SocialLoginButtonProps {
   onClick?: () => void;
@@ -22,7 +23,9 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   const getButtonClass = () => {
     switch (tipo) {
       case "google":
-        return "login-social__btn--google";
+        return isPending
+          ? "login-social__btn--google bg-gradient-to-r from-[#2E9E5B] via-[#38b56a] to-[#123B2C] text-white shadow-[0_12px_30px_rgba(46,158,91,0.28)] ring-1 ring-white/20"
+          : "login-social__btn--google";
       case "facebook":
         return "login-social__btn--facebook";
       case "guest":
@@ -52,12 +55,16 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   return (
     <button 
       type="button" 
-      className={`login-social__btn ${getButtonClass()}`} 
+      className={`login-social__btn ${getButtonClass()} ${disabled || isPending ? "cursor-not-allowed opacity-55" : ""}`} 
       onClick={onClick}
       disabled={disabled || isPending}
     >
-      <img src={logo} alt="" className="login-social__icon" width="22" height="22" />
-      <span>{label}</span>
+      {isPending ? (
+        <LoaderCircle className="login-social__icon animate-spin text-white" size={22} />
+      ) : (
+        <img src={logo} alt="" className="login-social__icon" width="22" height="22" />
+      )}
+      <span>{isPending ? "Conectando con Google..." : label}</span>
     </button>
   );
 };

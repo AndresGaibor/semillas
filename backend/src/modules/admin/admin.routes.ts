@@ -20,6 +20,17 @@ function mapTheme(theme: Record<string, unknown>) {
   const createdByRaw = theme.created_by as Record<string, unknown> | undefined;
   const portadaRaw = theme.portada_recurso as Record<string, unknown> | undefined;
   const ageGroupsRaw = theme.grupos_edad as Array<Record<string, unknown>> | undefined;
+  const gruposEdad = Array.isArray(ageGroupsRaw)
+    ? ageGroupsRaw.map((ag) => {
+        const grupoEdadRaw = (ag.grupo_edad as Record<string, unknown> | undefined) ?? ag;
+
+        return {
+          id: String(grupoEdadRaw.id ?? ""),
+          codigo: String(grupoEdadRaw.codigo ?? ""),
+          nombre: String(grupoEdadRaw.nombre ?? "")
+        };
+      })
+    : [];
 
   return {
     id: String(theme.id),
@@ -59,14 +70,24 @@ function mapTheme(theme: Record<string, unknown>) {
           titulo: (portadaRaw.titulo ?? null) as string | null,
         }
       : null,
-    grupos_edad: Array.isArray(ageGroupsRaw)
-      ? ageGroupsRaw.map((ag) => ({
-          id: String(ag.id ?? ""),
-          codigo: String(ag.codigo ?? ""),
-          nombre: String(ag.nombre ?? ""),
-        }))
-      : [],
+    grupos_edad: gruposEdad,
   };
+}
+
+function crearSlugCopia(slug: string) {
+  const sufijo = `-copia-${crypto.randomUUID().replaceAll("-", "").slice(0, 8)}`;
+  const maximo = 140;
+  const base = slug.slice(0, Math.max(1, maximo - sufijo.length));
+
+  return `${base}${sufijo}`;
+}
+
+function crearTituloCopia(titulo: string) {
+  const sufijo = " (copia)";
+  const maximo = 120;
+  const base = titulo.slice(0, Math.max(1, maximo - sufijo.length));
+
+  return `${base}${sufijo}`;
 }
 
 function mapStep(step: Record<string, unknown>) {
@@ -101,8 +122,62 @@ function mapStep(step: Record<string, unknown>) {
 export const adminRoutes = new Hono<AppBindings>();
 
 adminRoutes.use("*", authMiddleware);
-// TODO: restaurar requireRole cuando roles de BD estén configurados
-// adminRoutes.use("*", requireRole("administrador"));
+
+function mapActivity(activity: Record<string, unknown>) {
+  const tipoActividadRaw = activity.tipo_actividad as Record<string, unknown> | undefined;
+  const temaRaw = activity.tema as Record<string, unknown> | undefined;
+  const temaSendaRaw = temaRaw?.senda as Record<string, unknown> | undefined;
+  const grupoEdadRaw = activity.grupo_edad as Record<string, unknown> | undefined;
+
+  return {
+    id: String(activity.id),
+    tema_id: String(activity.tema_id ?? ""),
+    paso_id: activity.paso_id ? String(activity.paso_id) : null,
+    grupo_edad_id: String(activity.grupo_edad_id ?? ""),
+    tipo_actividad_id: String(activity.tipo_actividad_id ?? ""),
+    titulo: String(activity.titulo ?? ""),
+    consigna: String(activity.consigna ?? ""),
+    retroalimentacion: (activity.retroalimentacion ?? null) as string | null,
+    orden: Number(activity.orden ?? 0),
+    xp_recompensa: Number(activity.xp_recompensa ?? 0),
+    limite_tiempo_seg: activity.limite_tiempo_seg ? Number(activity.limite_tiempo_seg) : null,
+    dificultad: String(activity.dificultad ?? "facil"),
+    obligatorio: Boolean(activity.obligatorio),
+    configuracion: (activity.configuracion ?? {}) as Record<string, unknown>,
+    estado: String(activity.estado ?? "borrador"),
+    creado_en: (activity.creado_en ?? null) as string | null,
+    actualizado_en: (activity.actualizado_en ?? null) as string | null,
+    tipo_actividad: tipoActividadRaw
+      ? {
+          id: String(tipoActividadRaw.id ?? ""),
+          codigo: String(tipoActividadRaw.codigo ?? ""),
+          nombre: String(tipoActividadRaw.nombre ?? ""),
+        }
+      : null,
+    tema: temaRaw
+      ? {
+          id: String(temaRaw.id ?? ""),
+          titulo: String(temaRaw.titulo ?? ""),
+          slug: String(temaRaw.slug ?? ""),
+          senda: temaSendaRaw
+            ? {
+                id: String(temaSendaRaw.id ?? ""),
+                codigo: String(temaSendaRaw.codigo ?? ""),
+                nombre: String(temaSendaRaw.nombre ?? ""),
+                color_hex: String(temaSendaRaw.color_hex ?? ""),
+              }
+            : null,
+        }
+      : null,
+    grupo_edad: grupoEdadRaw
+      ? {
+          id: String(grupoEdadRaw.id ?? ""),
+          codigo: String(grupoEdadRaw.codigo ?? ""),
+          nombre: String(grupoEdadRaw.nombre ?? ""),
+        }
+      : null,
+  };
+}
 
 
 adminRoutes.get("/resumen", async (c) => {
@@ -120,6 +195,42 @@ adminRoutes.get("/resumen", async (c) => {
     publicados: published.count ?? 0,
     usuarios: users.count ?? 0,
     actividades: activities.count ?? 0
+  });
+});
+
+adminRoutes.get("/actividades", async (c) => {
+  const db = c.get("db");
+
+  const temaId = c.req.query("tema_id");
+  const tipoId = c.req.query("tipo_actividad_id");
+  const grupoEdadId = c.req.query("grupo_edad_id");
+  const estado = c.req.query("estado");
+  const limit = Math.min(Math.max(Number(c.req.query("limit") ?? "100"), 1), 500);
+  const offset = Math.max(Number(c.req.query("offset") ?? "0"), 0);
+
+  let query = db
+    .from("actividad")
+    .select(`
+      *,
+      tipo_actividad:tipo_actividad_id(id, codigo, nombre),
+      tema:tema_id(id, titulo, slug, estado, senda:senda_id(id, codigo, nombre, color_hex)),
+      grupo_edad:grupo_edad_id(id, codigo, nombre)
+    `, { count: "exact" })
+    .order("creado_en", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (temaId) query = query.eq("tema_id", temaId);
+  if (tipoId) query = query.eq("tipo_actividad_id", tipoId);
+  if (grupoEdadId) query = query.eq("grupo_edad_id", grupoEdadId);
+  if (estado) query = query.eq("obligatorio", estado === "publicada");
+
+  const { data, error, count } = await query;
+
+  if (error) throw error;
+
+  return responderExito({
+    actividades: (data ?? []).map((a) => mapActivity(a as Record<string, unknown>)),
+    total: count ?? 0
   });
 });
 
@@ -206,15 +317,16 @@ adminRoutes.patch(
     const themeId = c.req.param("tema_id");
     const body = c.req.valid("json");
 
-    const { data: theme, error } = await db
-      .from("tema")
-      .update({
-        titulo: body.titulo,
-        objetivo: body.objetivo,
-        resumen: body.resumen,
-        minutos_estimados: body.minutos_estimados,
-        xp_recompensa: body.xp_recompensa,
-        version_biblica_id: body.version_biblica_id,
+  const { data: theme, error } = await db
+    .from("tema")
+    .update({
+        ...(body.titulo !== undefined ? { titulo: body.titulo } : {}),
+        ...(body.objetivo !== undefined ? { objetivo: body.objetivo } : {}),
+        ...(body.resumen !== undefined ? { resumen: body.resumen } : {}),
+        ...(body.minutos_estimados !== undefined ? { minutos_estimados: body.minutos_estimados } : {}),
+        ...(body.xp_recompensa !== undefined ? { xp_recompensa: body.xp_recompensa } : {}),
+        ...(body.version_biblica_id !== undefined ? { version_biblica_id: body.version_biblica_id } : {}),
+        ...(body.portada_recurso_id !== undefined ? { portada_recurso_id: body.portada_recurso_id } : {}),
         actualizado_en: new Date().toISOString()
       })
       .eq("id", themeId)
@@ -518,6 +630,103 @@ adminRoutes.post("/temas/:tema_id/borrador", async (c) => {
   if (error) throw error;
 
     return responderExito(mapTheme(data as Record<string, unknown>));
+});
+
+adminRoutes.post("/temas/:tema_id/archivar", async (c) => {
+  const db = c.get("db");
+  const themeId = c.req.param("tema_id");
+
+  const { error } = await db
+    .from("tema")
+    .update({
+      estado: "archivado",
+      actualizado_en: new Date().toISOString()
+    })
+    .eq("id", themeId);
+
+  if (error) throw error;
+
+  const { data, error: lecturaError } = await db
+    .from("tema")
+    .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))")
+    .eq("id", themeId)
+    .single();
+
+  if (lecturaError || !data) throw new NotFoundError("Tema no encontrado");
+
+  return responderExito(mapTheme(data as Record<string, unknown>));
+});
+
+adminRoutes.post("/temas/:tema_id/duplicar", async (c) => {
+  const db = c.get("db");
+  const user = c.get("user");
+  const themeId = c.req.param("tema_id");
+
+  const { data: temaOrigen, error: temaOrigenError } = await db
+    .from("tema")
+    .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))")
+    .eq("id", themeId)
+    .single();
+
+  if (temaOrigenError || !temaOrigen) {
+    throw new NotFoundError("Tema no encontrado");
+  }
+
+  const temaBase = temaOrigen as Record<string, unknown>;
+  const { data: temaDuplicado, error: duplicadoError } = await db
+    .from("tema")
+    .insert({
+      senda_id: String(temaBase.senda_id ?? ""),
+      titulo: crearTituloCopia(String(temaBase.titulo ?? "Tema")),
+      slug: crearSlugCopia(String(temaBase.slug ?? "tema")),
+      objetivo: String(temaBase.objetivo ?? ""),
+      resumen: (temaBase.resumen ?? null) as string | null,
+      portada_recurso_id: (temaBase.portada_recurso_id ?? null) as string | null,
+      estado: "borrador",
+      version_biblica_id: (temaBase.version_biblica_id ?? null) as string | null,
+      xp_recompensa: Number(temaBase.xp_recompensa ?? 0),
+      minutos_estimados: Number(temaBase.minutos_estimados ?? 0),
+      version_contenido: 0,
+      creado_por: user.id,
+      actualizado_en: new Date().toISOString()
+    })
+    .single();
+
+  if (duplicadoError || !temaDuplicado) {
+    throw duplicadoError ?? new NotFoundError("Tema duplicado no encontrado");
+  }
+
+  const gruposEdad = Array.isArray(temaBase.grupos_edad)
+    ? temaBase.grupos_edad.map((grupo) => {
+        const grupoEdadRaw = (grupo as Record<string, unknown>).grupo_edad as Record<string, unknown> | undefined;
+        const grupoEdad = grupoEdadRaw ?? (grupo as Record<string, unknown>);
+
+        return {
+          tema_id: String((temaDuplicado as Record<string, unknown>).id ?? ""),
+          grupo_edad_id: String(grupoEdad.id ?? "")
+        };
+      })
+    : [];
+
+  if (gruposEdad.length > 0) {
+    const { error: gruposError } = await db.from("tema_grupo_edad").insert(gruposEdad);
+    if (gruposError) throw gruposError;
+  }
+
+  return responderExito(
+    mapTheme({
+      ...(temaBase as Record<string, unknown>),
+      ...(temaDuplicado as Record<string, unknown>),
+      path: temaBase.path,
+      created_by: {
+        id: user.id,
+        nombre_visible: user.displayName
+      },
+      portada_recurso: temaBase.portada_recurso,
+      grupos_edad: temaBase.grupos_edad
+    }),
+    201
+  );
 });
 
 adminRoutes.get("/usuarios", async (c) => {

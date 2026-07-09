@@ -28,6 +28,7 @@ interface PasoInformacionGeneralProps {
   onRemoveTag: (idx: number) => void;
   clubVisibilities: ClubVisibilidades;
   onClubVisibilitiesChange: React.Dispatch<React.SetStateAction<ClubVisibilidades>>;
+  onSlugManualEdit?: () => void;
 }
 
 export function PasoInformacionGeneral({
@@ -43,6 +44,7 @@ export function PasoInformacionGeneral({
   onRemoveTag,
   clubVisibilities,
   onClubVisibilitiesChange,
+  onSlugManualEdit,
 }: PasoInformacionGeneralProps) {
   return (
     <>
@@ -73,6 +75,7 @@ export function PasoInformacionGeneral({
             <label className="text-xs font-bold text-slate-700">Slug (identificador) <span className="text-red-500">*</span></label>
             <input
               {...register("slug", { required: true })}
+              onFocus={() => onSlugManualEdit?.()}
               placeholder="ej. dios-cuida-de-mi"
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
             />

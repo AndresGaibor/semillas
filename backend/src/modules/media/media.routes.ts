@@ -235,7 +235,24 @@ mediaRoutes.get("/", authMiddleware, async (c) => {
     .order("creado_en", { ascending: false });
 
   if (error) throw error;
-  return responderExito(recursos);
+
+  const resourcesWithSignedUrls = await Promise.all(
+    (recursos ?? []).map(async (recurso) => {
+      if (!recurso.clave_almacenamiento) return recurso;
+
+      const bucket = recurso.bucket_almacenamiento ?? STORAGE_BUCKET;
+      const { data } = await db.storage
+        .from(bucket)
+        .createSignedUrl(recurso.clave_almacenamiento, SIGNED_URL_EXPIRES_IN_SECONDS);
+
+      return {
+        ...recurso,
+        url_publica: data?.signedUrl ?? recurso.url_publica,
+      };
+    }),
+  );
+
+  return responderExito(resourcesWithSignedUrls);
 });
 
 mediaRoutes.get("/:id", async (c) => {

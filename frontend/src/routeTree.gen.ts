@@ -19,7 +19,6 @@ import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as OnboardingCustomizeRouteImport } from './routes/onboarding.customize'
-import { Route as AppSendasRouteImport } from './routes/app.sendas'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppLogrosRouteImport } from './routes/app.logros'
 import { Route as AppDescargasRouteImport } from './routes/app.descargas'
@@ -35,7 +34,6 @@ import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminActividadesRouteImport } from './routes/admin.actividades'
 import { Route as AppTemasIndexRouteImport } from './routes/app.temas.index'
 import { Route as AppTemasThemeIdRouteImport } from './routes/app.temas.$themeId'
-import { Route as AppSendasSendaIdRouteImport } from './routes/app.sendas.$sendaId'
 import { Route as AppActividadesActivityIdRouteImport } from './routes/app.actividades.$activityId'
 import { Route as AppR_relatarThemeIdRouteImport } from './routes/app.R_relatar.$themeId'
 import { Route as AppR_recompensarThemeIdRouteImport } from './routes/app.R_recompensar.$themeId'
@@ -99,11 +97,6 @@ const OnboardingCustomizeRoute = OnboardingCustomizeRouteImport.update({
   id: '/customize',
   path: '/customize',
   getParentRoute: () => OnboardingRoute,
-} as any)
-const AppSendasRoute = AppSendasRouteImport.update({
-  id: '/sendas',
-  path: '/sendas',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
@@ -179,11 +172,6 @@ const AppTemasThemeIdRoute = AppTemasThemeIdRouteImport.update({
   id: '/temas/$themeId',
   path: '/temas/$themeId',
   getParentRoute: () => AppRoute,
-} as any)
-const AppSendasSendaIdRoute = AppSendasSendaIdRouteImport.update({
-  id: '/$sendaId',
-  path: '/$sendaId',
-  getParentRoute: () => AppSendasRoute,
 } as any)
 const AppActividadesActivityIdRoute =
   AppActividadesActivityIdRouteImport.update({
@@ -276,7 +264,6 @@ export interface FileRoutesByFullPath {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
-  '/app/sendas': typeof AppSendasRouteWithChildren
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -289,7 +276,6 @@ export interface FileRoutesByFullPath {
   '/app/R_recompensar/$themeId': typeof AppR_recompensarThemeIdRoute
   '/app/R_relatar/$themeId': typeof AppR_relatarThemeIdRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
-  '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
   '/app/temas/': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
@@ -315,7 +301,6 @@ export interface FileRoutesByTo {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
-  '/app/sendas': typeof AppSendasRouteWithChildren
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -328,7 +313,6 @@ export interface FileRoutesByTo {
   '/app/R_recompensar/$themeId': typeof AppR_recompensarThemeIdRoute
   '/app/R_relatar/$themeId': typeof AppR_relatarThemeIdRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
-  '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
   '/app/temas': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
@@ -358,7 +342,6 @@ export interface FileRoutesById {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
-  '/app/sendas': typeof AppSendasRouteWithChildren
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -371,7 +354,6 @@ export interface FileRoutesById {
   '/app/R_recompensar/$themeId': typeof AppR_recompensarThemeIdRoute
   '/app/R_relatar/$themeId': typeof AppR_relatarThemeIdRoute
   '/app/actividades/$activityId': typeof AppActividadesActivityIdRoute
-  '/app/sendas/$sendaId': typeof AppSendasSendaIdRoute
   '/app/temas/$themeId': typeof AppTemasThemeIdRoute
   '/app/temas/': typeof AppTemasIndexRoute
   '/admin/temas/$themeId/activities': typeof AdminTemasThemeIdActivitiesRoute
@@ -402,7 +384,6 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
-    | '/app/sendas'
     | '/onboarding/customize'
     | '/admin/'
     | '/app/'
@@ -415,7 +396,6 @@ export interface FileRouteTypes {
     | '/app/R_recompensar/$themeId'
     | '/app/R_relatar/$themeId'
     | '/app/actividades/$activityId'
-    | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
     | '/app/temas/'
     | '/admin/temas/$themeId/activities'
@@ -441,7 +421,6 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
-    | '/app/sendas'
     | '/onboarding/customize'
     | '/admin'
     | '/app'
@@ -454,7 +433,6 @@ export interface FileRouteTypes {
     | '/app/R_recompensar/$themeId'
     | '/app/R_relatar/$themeId'
     | '/app/actividades/$activityId'
-    | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
     | '/app/temas'
     | '/admin/temas/$themeId/activities'
@@ -483,7 +461,6 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
-    | '/app/sendas'
     | '/onboarding/customize'
     | '/admin/'
     | '/app/'
@@ -496,7 +473,6 @@ export interface FileRouteTypes {
     | '/app/R_recompensar/$themeId'
     | '/app/R_relatar/$themeId'
     | '/app/actividades/$activityId'
-    | '/app/sendas/$sendaId'
     | '/app/temas/$themeId'
     | '/app/temas/'
     | '/admin/temas/$themeId/activities'
@@ -586,13 +562,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/onboarding/customize'
       preLoaderRoute: typeof OnboardingCustomizeRouteImport
       parentRoute: typeof OnboardingRoute
-    }
-    '/app/sendas': {
-      id: '/app/sendas'
-      path: '/sendas'
-      fullPath: '/app/sendas'
-      preLoaderRoute: typeof AppSendasRouteImport
-      parentRoute: typeof AppRoute
     }
     '/app/perfil': {
       id: '/app/perfil'
@@ -698,13 +667,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/temas/$themeId'
       preLoaderRoute: typeof AppTemasThemeIdRouteImport
       parentRoute: typeof AppRoute
-    }
-    '/app/sendas/$sendaId': {
-      id: '/app/sendas/$sendaId'
-      path: '/$sendaId'
-      fullPath: '/app/sendas/$sendaId'
-      preLoaderRoute: typeof AppSendasSendaIdRouteImport
-      parentRoute: typeof AppSendasRoute
     }
     '/app/actividades/$activityId': {
       id: '/app/actividades/$activityId'
@@ -850,24 +812,11 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface AppSendasRouteChildren {
-  AppSendasSendaIdRoute: typeof AppSendasSendaIdRoute
-}
-
-const AppSendasRouteChildren: AppSendasRouteChildren = {
-  AppSendasSendaIdRoute: AppSendasSendaIdRoute,
-}
-
-const AppSendasRouteWithChildren = AppSendasRoute._addFileChildren(
-  AppSendasRouteChildren,
-)
-
 interface AppRouteChildren {
   AppClubesRoute: typeof AppClubesRoute
   AppDescargasRoute: typeof AppDescargasRoute
   AppLogrosRoute: typeof AppLogrosRoute
   AppPerfilRoute: typeof AppPerfilRoute
-  AppSendasRoute: typeof AppSendasRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppC_comprobarThemeIdRoute: typeof AppC_comprobarThemeIdRoute
   AppC_conectarThemeIdRoute: typeof AppC_conectarThemeIdRoute
@@ -885,7 +834,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppDescargasRoute: AppDescargasRoute,
   AppLogrosRoute: AppLogrosRoute,
   AppPerfilRoute: AppPerfilRoute,
-  AppSendasRoute: AppSendasRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppC_comprobarThemeIdRoute: AppC_comprobarThemeIdRoute,
   AppC_conectarThemeIdRoute: AppC_conectarThemeIdRoute,
@@ -925,4 +873,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-

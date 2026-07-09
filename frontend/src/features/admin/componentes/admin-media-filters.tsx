@@ -43,7 +43,7 @@ export function AdminMediaFilters({
             onChange={(e) => onTabChange(e.target.value as TipoMedia)}
             className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
           >
-            <option value="imagen">Todos los tipos</option>
+            <option value="">Todos los tipos</option>
             <option value="imagen">Imágenes</option>
             <option value="audio">Audios</option>
             <option value="video">Videos</option>

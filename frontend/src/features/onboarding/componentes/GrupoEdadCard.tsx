@@ -17,6 +17,7 @@ export function GrupoEdadCard({ grupo, seleccionado, onSelect }: GrupoEdadCardPr
 
   return (
     <label
+      className="onboarding-age-card"
       style={{
         background: seleccionado ? colores.fondo : "#ffffff",
         border: `2px solid ${seleccionado ? colores.borde : "#e5e7eb"}`,

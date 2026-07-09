@@ -10,24 +10,34 @@ const meta: Meta<typeof LoginFormCard> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const SocialTab: Story = {
   args: {
     onGoogleClick: () => console.log("Google clicked"),
-    onFacebookClick: () => console.log("Facebook clicked"),
     onGuestClick: () => console.log("Guest clicked"),
-    onDevAdminClick: () => console.log("Dev admin clicked"),
+    onEmailSuccess: () => console.log("Email success"),
+    tabActivo: "social",
+    onCambiarTab: () => undefined,
+    googlePending: false,
+  },
+};
+
+export const EmailTab: Story = {
+  args: {
+    ...SocialTab.args,
+    tabActivo: "email",
   },
 };
 
 export const Pending: Story = {
   args: {
-    ...Default.args,
+    ...SocialTab.args,
     guestPending: true,
   },
 };
+
 export const ErrorState: Story = {
   args: {
-    ...Default.args,
+    ...SocialTab.args,
     guestError: true,
   },
 };

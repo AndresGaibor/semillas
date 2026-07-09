@@ -9,6 +9,7 @@ interface ProfilePreviewProps {
 export function ProfilePreview({ selectedAvatar, nickname }: ProfilePreviewProps) {
   return (
     <div
+      className="onboarding-preview"
       style={{
         flex: 2,
         display: "flex",
@@ -36,6 +37,7 @@ export function ProfilePreview({ selectedAvatar, nickname }: ProfilePreviewProps
       </div>
 
       <div
+        className="onboarding-preview-card"
         style={{
           background: "#fff",
           borderRadius: "24px",

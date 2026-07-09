@@ -8,6 +8,7 @@ interface FormNavigationProps {
 export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormNavigationProps) {
   return (
     <div
+      className="onboarding-actions"
       style={{
         display: "flex",
         justifyContent: "space-between",
@@ -19,6 +20,7 @@ export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormN
     >
       <button
         onClick={onBack}
+        className="onboarding-actions__secondary"
         style={{
           background: "transparent",
           border: "1.5px solid #9E9E9E",
@@ -36,6 +38,7 @@ export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormN
       <button
         onClick={onFinish}
         disabled={!isEnabled}
+        className="onboarding-actions__primary"
         style={{
           background: isEnabled ? "#7E57C2" : "#E0E0E0",
           color: isEnabled ? "#fff" : "#9E9E9E",

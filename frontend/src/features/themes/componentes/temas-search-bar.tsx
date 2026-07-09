@@ -13,7 +13,7 @@ export const TemasSearchBar: React.FC<TemasSearchBarProps> = ({
   onFiltrarClick,
 }) => {
   return (
-    <div className="flex gap-4 mb-6 flex-wrap">
+    <div className="hidden gap-4 mb-6 flex-wrap md:flex">
       <CampoBusqueda
         valor={valor}
         onChange={onChange}

@@ -4,6 +4,7 @@ import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
 import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/profile/profile.api";
 
+import type { Perfil, Usuario } from "@/shared/api/api";
 import { MAPA_AVATARES } from "@/shared/constants/avatares";
 
 type AppTopbarProps = {
@@ -11,35 +12,46 @@ type AppTopbarProps = {
   subtitle: string; // Keep for compatibility, though not used in new design
   onOpenSidebar: () => void;
   onLogout: () => void;
+  showMenuButton?: boolean;
 };
 
-export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopbarProps) {
+export function obtenerDatosCuentaTopbar(perfil?: Perfil, usuario?: Usuario) {
+  const esInvitado = usuario?.proveedor === "invitado";
+  const nombre = perfil?.apodo || usuario?.nombre_visible || "Semillero";
+  const nivelTexto = esInvitado ? "Invitado" : usuario?.correo || "Cuenta registrada";
+  const avatarUrl = MAPA_AVATARES[perfil?.url_avatar || "1"] || MAPA_AVATARES["1"] || "";
+
+  return { nombre, nivelTexto, avatarUrl };
+}
+
+export function AppTopbar({ title, onOpenSidebar, onLogout, showMenuButton = true }: AppTopbarProps) {
   const meQuery = useQuery({
     queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
 
   const perfil = meQuery.data?.perfil;
-  const apodo = perfil?.apodo || "Administrador";
-  const avatarIndex = perfil?.url_avatar || "1";
-  const resolvedAvatarUrl = MAPA_AVATARES[avatarIndex] || MAPA_AVATARES["1"] || "";
+  const usuario = meQuery.data?.usuario;
+  const cuenta = obtenerDatosCuentaTopbar(perfil, usuario);
 
   return (
     <header className="mb-5 flex items-center justify-between gap-4 max-sm:flex-wrap">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-responsive"
-        className="hidden text-lg text-neutro hover:text-neutro-oscuro-max md:hidden max-md:flex shrink-0"
-        aria-label="Abrir menú"
-        onClick={onOpenSidebar}
-      >
-        <i className="fa-solid fa-bars"></i>
-      </Button>
+      {showMenuButton ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-responsive"
+          className="hidden text-lg text-neutro hover:text-neutro-oscuro-max md:hidden max-md:flex shrink-0"
+          aria-label="Abrir menú"
+          onClick={onOpenSidebar}
+        >
+          <i className="fa-solid fa-bars"></i>
+        </Button>
+      ) : null}
 
-      <div className="flex items-center gap-3 text-left max-md:hidden">
+      <div className="flex items-center gap-3 text-left">
         <span className="text-3xl leading-none">🌱</span>
-        <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-800 sm:text-3xl md:text-4xl">{title}</h1>
+        <h1 className="text-xl font-black leading-tight tracking-tight text-slate-800 sm:text-2xl md:text-4xl">{title}</h1>
       </div>
 
       <div className="mx-0 hidden max-w-[460px] flex-1 sm:mx-6 sm:block max-md:order-3 max-md:w-full">
@@ -57,7 +69,7 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
         </div>
       </div>
 
-      <div className="ml-auto flex shrink-0 items-center gap-3 md:ml-0 sm:gap-4">
+      <div className="ml-auto hidden shrink-0 items-center gap-3 md:ml-0 sm:gap-4 md:flex">
         <Button type="button" variant="ghost" size="icon-responsive" className="relative text-lg text-slate-600 hover:text-slate-900 cursor-pointer sm:text-xl" aria-label="Notificaciones">
           <i className="fa-regular fa-bell"></i>
           <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-slate-50 bg-red-500 text-[9px] font-bold text-white">
@@ -65,14 +77,7 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
           </span>
         </Button>
 
-        <div className="flex items-center gap-3 cursor-pointer rounded-xl p-1.5 transition-colors hover:bg-slate-100">
-          <img src={resolvedAvatarUrl} alt="Avatar" className="h-9 w-9 rounded-full border border-slate-200 bg-white sm:h-10 sm:w-10" />
-          <div className="hidden flex-col md:flex">
-            <span className="text-sm font-black leading-tight text-slate-800">{apodo}</span>
-            <span className="text-xs font-bold text-slate-500">admin@semillas.org</span>
-          </div>
-          <i className="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 hidden md:block"></i>
-        </div>
+        <AppAccountMenu nombreVisible={cuenta.nombre} nivelTexto={cuenta.nivelTexto} avatarUrl={cuenta.avatarUrl} onLogout={onLogout} />
       </div>
     </header>
   );
