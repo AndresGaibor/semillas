@@ -146,7 +146,7 @@ export function TabGeneral({
       <Card sombra="sm" className="p-6 flex flex-col gap-4 text-left">
         <div className="flex justify-between items-center select-none">
           <div>
-            <h3 className="font-extrabold text-slate-800 text-[15px]">Vista previa rápida</h3>
+            <h3 className="font-extrabold text-slate-800 text-sm md:text-base">Vista previa rápida</h3>
             <p className="text-[12px] text-slate-400 mt-1 font-medium">Así se verá tu tema para los niños.</p>
           </div>
 
@@ -160,7 +160,7 @@ export function TabGeneral({
             <img src={imgBoySheep} alt="Dios me cuida preview" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col gap-2 min-w-0 text-left">
-            <h4 className="font-black text-slate-800 text-[16px] leading-tight truncate">{title || "Dios me cuida"}</h4>
+            <h4 className="font-black text-slate-800 text-base md:text-lg leading-tight truncate">{title || "Dios me cuida"}</h4>
             <p className="text-[11.5px] font-semibold text-slate-500 leading-relaxed line-clamp-2">
               {shortDesc || "Descubrimos cómo Dios cuida de nosotros cada día con amor y detalle."}
             </p>

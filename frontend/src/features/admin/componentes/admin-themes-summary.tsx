@@ -74,9 +74,9 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
             }
             titulo={item.label}
             derecha={
-              <div className="flex items-center gap-4 text-[13px] font-extrabold text-slate-800">
+              <div className="flex items-center gap-4 text-xs font-extrabold text-slate-800 sm:text-sm">
                 <span>{item.count}</span>
-                <span className="text-slate-400 font-semibold text-[11px] w-8 text-right">{item.percentage}%</span>
+                <span className="text-slate-400 font-semibold text-xs w-8 text-right">{item.percentage}%</span>
               </div>
             }
             className="rounded-none border-0 bg-transparent p-0 pb-3 last:pb-0"

@@ -124,13 +124,13 @@ function FilaActividad({ act, navigate }: { act: ActivityTableRow; navigate: Ret
             <i className={`fa-solid ${act.tipoIcon} text-xs ${act.tipoIconColor}`} />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-extrabold text-slate-800 text-[13px] truncate group-hover:text-[#2e9e5b] transition-colors">{act.titulo}</span>
-            <span className="text-[11px] text-slate-400 truncate mt-0.5">{act.consigna}</span>
+            <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-[#2e9e5b] transition-colors sm:text-sm">{act.titulo}</span>
+            <span className="text-xs text-slate-400 truncate mt-0.5">{act.consigna}</span>
           </div>
         </div>
       </td>
 
-      <td className="py-4 px-4 font-bold text-slate-700 text-[12px]">
+      <td className="py-4 px-4 font-bold text-slate-700 text-xs">
         {act.tipoNombre}
       </td>
 
@@ -139,15 +139,15 @@ function FilaActividad({ act, navigate }: { act: ActivityTableRow; navigate: Ret
           <div className={`w-5 h-5 rounded-full ${sendaColor.bg} flex items-center justify-center shrink-0`}>
             <i className={`fa-solid ${sendaColor.icon} text-[9px] ${sendaColor.text}`} />
           </div>
-          <span className="font-bold text-slate-600 text-[12px] whitespace-nowrap">{act.sendaNombre}</span>
+          <span className="font-bold text-slate-600 text-xs whitespace-nowrap">{act.sendaNombre}</span>
         </div>
       </td>
 
-      <td className="py-4 px-4 font-semibold text-slate-500 text-[12px] whitespace-nowrap">
+      <td className="py-4 px-4 font-semibold text-slate-500 text-xs whitespace-nowrap">
         {act.franjaEdad}
       </td>
 
-      <td className="py-4 px-2 text-center font-black text-[#2e9e5b] text-[12px] whitespace-nowrap">
+      <td className="py-4 px-2 text-center font-black text-[#2e9e5b] text-xs whitespace-nowrap">
         {act.xpText}
       </td>
 
@@ -155,7 +155,7 @@ function FilaActividad({ act, navigate }: { act: ActivityTableRow; navigate: Ret
         <BadgeEstado estado={act.estado} />
       </td>
 
-      <td className="py-4 px-4 text-slate-400 font-bold text-[11px] whitespace-nowrap">
+      <td className="py-4 px-4 text-slate-400 font-bold text-xs whitespace-nowrap">
         {act.fechaCreacion}
       </td>
 

@@ -39,7 +39,7 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
 
       <div className="flex items-center gap-3 text-left max-md:hidden">
         <span className="text-3xl leading-none">🌱</span>
-        <h1 className="text-[28px] font-black leading-tight tracking-tight text-slate-800">{title}</h1>
+        <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-800 sm:text-3xl md:text-4xl">{title}</h1>
       </div>
 
       <div className="mx-0 hidden max-w-[460px] flex-1 sm:mx-6 sm:block max-md:order-3 max-md:w-full">

@@ -45,11 +45,11 @@ function contenidoFila({
     <>
       <div className={unirClases("shrink-0", izquierdaClassName)}>{izquierda}</div>
       <div className={unirClases("min-w-0 flex-1 text-left", contenidoClassName)}>
-        <span className="block text-[12.8px] font-extrabold text-neutro-oscuro-max truncate leading-tight">
+        <span className="block text-xs font-extrabold text-neutro-oscuro-max truncate leading-tight sm:text-sm">
           {titulo}
         </span>
         {subtitulo ? (
-          <span className="mt-0.5 block truncate text-[10px] leading-tight text-neutro">{subtitulo}</span>
+          <span className="mt-0.5 block truncate text-xs leading-tight text-neutro">{subtitulo}</span>
         ) : null}
       </div>
       {derecha ? <div className={unirClases("shrink-0", derechaClassName)}>{derecha}</div> : null}

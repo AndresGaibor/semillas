@@ -24,7 +24,7 @@ export const TabsLinea: React.FC<PropiedadesTabsLinea> = ({
             type="button"
             onClick={() => onCambiar(tab)}
             className={unirClases(
-              "px-4 py-2.5 text-[11px] font-bold transition-all border-b-2 -mb-[2px]",
+              "px-4 py-2.5 text-[10px] font-bold transition-all border-b-2 -mb-[2px] sm:text-xs",
               esActivo
                 ? "border-[#6C3AED] text-[#6C3AED]"
                 : "border-transparent text-gray-400 hover:text-gray-600"

@@ -24,7 +24,7 @@ export function AdminTemasEditHeader({ title, onNavigate }: AdminTemasEditHeader
         </div>
         <div>
           <h2 className="text-2xl font-black text-slate-800">Editar tema</h2>
-          <p className="text-[13px] text-slate-500 mt-1">Actualiza la información y el contenido de tu tema.</p>
+          <p className="text-xs text-slate-500 mt-1 sm:text-sm">Actualiza la información y el contenido de tu tema.</p>
         </div>
       </div>
     </>

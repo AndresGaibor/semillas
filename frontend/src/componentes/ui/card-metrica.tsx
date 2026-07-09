@@ -1,4 +1,4 @@
-import * as React from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { Book, Download, Flame } from "lucide-react";
 import { unirClases } from "@/lib/utilidades";
 import { Card } from "./card-base";
@@ -8,12 +8,12 @@ export interface TonoTarjetaMetrica {
   colorSubtexto: string;
 }
 
-export interface TarjetaMetricaCompactaProps extends React.HTMLAttributes<HTMLDivElement> {
-  titulo: React.ReactNode;
-  valor: React.ReactNode;
-  subtexto: React.ReactNode;
-  icono?: React.ReactNode;
-  etiquetaIcono?: React.ReactNode;
+export interface TarjetaMetricaCompactaProps extends HTMLAttributes<HTMLDivElement> {
+  titulo: ReactNode;
+  valor: ReactNode;
+  subtexto: ReactNode;
+  icono?: ReactNode;
+  etiquetaIcono?: ReactNode;
   tono?: TonoTarjetaMetrica;
   alineacion?: "izquierda" | "centrada";
   clase?: string;
@@ -27,7 +27,7 @@ export interface PropiedadesCardMetrica {
   clase?: string;
 }
 
-export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
+export function TarjetaMetricaCompacta({
   titulo,
   valor,
   subtexto,
@@ -35,10 +35,9 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
   etiquetaIcono,
   tono,
   alineacion = "izquierda",
-  className,
   clase,
   ...propiedades
-}) => {
+}: TarjetaMetricaCompactaProps) {
   const esCentrada = alineacion === "centrada";
 
   return (
@@ -48,7 +47,6 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
       clase={unirClases(
         "w-full bg-white",
         esCentrada ? "p-5 sm:p-6" : "min-h-[168px] p-5 sm:p-6",
-        className,
         clase,
       )}
       {...propiedades}
@@ -62,11 +60,11 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
             {etiquetaIcono ?? icono}
           </div>
           <div className="mt-3 min-w-0">
-            <span className="mb-1 block text-[10px] font-extrabold uppercase leading-none tracking-wide text-slate-400">
+            <span className="mb-1 block text-[10px] font-extrabold uppercase leading-none tracking-wide text-slate-400 md:text-xs">
               {titulo}
             </span>
             <h3 className="text-[clamp(1.65rem,2.1vw,2.3rem)] font-black leading-none text-slate-900">{valor}</h3>
-            <p className={unirClases("mt-2 text-[11px] font-semibold leading-snug", tono?.colorSubtexto ?? "text-slate-400")}>
+            <p className={unirClases("mt-2 text-xs font-semibold leading-snug", tono?.colorSubtexto ?? "text-slate-400")}>
               {subtexto}
             </p>
           </div>
@@ -74,7 +72,7 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
       ) : (
         <div className="flex h-full flex-col justify-between gap-3">
           <div className="text-center">
-            <span className="mb-1 block text-[10px] font-extrabold uppercase leading-none tracking-wide text-slate-400">
+            <span className="mb-1 block text-[10px] font-extrabold uppercase leading-none tracking-wide text-slate-400 md:text-xs">
               {titulo}
             </span>
           </div>
@@ -89,7 +87,7 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
 
             <div className="min-w-0">
               <h3 className="text-[clamp(1.7rem,2.2vw,2.4rem)] font-black leading-none text-slate-900">{valor}</h3>
-              <p className={unirClases("mt-1.5 max-w-[10ch] text-[10px] font-semibold leading-tight", tono?.colorSubtexto ?? "text-slate-400")}>
+              <p className={unirClases("mt-1.5 max-w-[10ch] text-xs font-semibold leading-tight", tono?.colorSubtexto ?? "text-slate-400")}>
                 {subtexto}
               </p>
             </div>
@@ -100,13 +98,13 @@ export const TarjetaMetricaCompacta: React.FC<TarjetaMetricaCompactaProps> = ({
   );
 };
 
-export const CardMetrica: React.FC<PropiedadesCardMetrica> = ({
+export function CardMetrica({
   titulo,
   valor,
   subtexto,
   tipo,
   clase,
-}) => {
+}: PropiedadesCardMetrica) {
   const configs = {
     xp: {
       gradiente: "linear-gradient(135deg, #2E9E5B, #16A34A)",
@@ -143,4 +141,5 @@ export const CardMetrica: React.FC<PropiedadesCardMetrica> = ({
       clase={clase}
     />
   );
-};
+}
+

@@ -33,7 +33,7 @@ export function PanelSeccionAdmin({
           <h3 className="text-[clamp(1.35rem,1.55vw,2rem)] font-black leading-none tracking-tight text-slate-900">
             {titulo}
           </h3>
-          {descripcion ? <p className="mt-2 text-[13px] leading-snug text-slate-500">{descripcion}</p> : null}
+          {descripcion ? <p className="mt-2 text-xs leading-snug text-slate-500 sm:text-sm">{descripcion}</p> : null}
         </div>
         {accion ? <div className="shrink-0 pt-1">{accion}</div> : null}
       </div>

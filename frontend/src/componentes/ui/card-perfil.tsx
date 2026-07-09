@@ -50,7 +50,7 @@ export const CardPerfil: React.FC<PropiedadesCardPerfil> = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold mb-1">
+        <div className="flex justify-between items-center text-xs text-slate-400 font-bold mb-1">
           <span>{xpActual} / {xpMaximo} XP</span>
         </div>
         <BarraProgreso valor={xpActual} maximo={xpMaximo} mostrarEtiquetas={false} color="morado" />
@@ -59,15 +59,15 @@ export const CardPerfil: React.FC<PropiedadesCardPerfil> = ({
       <div className="grid grid-cols-3 gap-2 border-y border-slate-100 py-3 text-center">
         <div>
           <h5 className="text-xs font-black text-slate-800 leading-none">{racha}</h5>
-          <span className="text-[9px] text-slate-400 font-bold block mt-1">días</span>
+          <span className="text-[10px] text-slate-400 font-bold block mt-1">días</span>
         </div>
         <div>
           <h5 className="text-xs font-black text-slate-800 leading-none">{lecciones}</h5>
-          <span className="text-[9px] text-slate-400 font-bold block mt-1">lecciones</span>
+          <span className="text-[10px] text-slate-400 font-bold block mt-1">lecciones</span>
         </div>
         <div>
           <h5 className="text-xs font-black text-slate-800 leading-none">{logros}</h5>
-          <span className="text-[9px] text-slate-400 font-bold block mt-1">logros</span>
+          <span className="text-[10px] text-slate-400 font-bold block mt-1">logros</span>
         </div>
       </div>
 

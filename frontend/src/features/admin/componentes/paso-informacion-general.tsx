@@ -49,7 +49,7 @@ export function PasoInformacionGeneral({
       {/* Informacion del tema */}
       <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col gap-5 text-left">
         <div>
-          <h3 className="font-extrabold text-slate-800 text-[15px]">Informacion del tema</h3>
+          <h3 className="font-extrabold text-slate-800 text-sm md:text-base">Informacion del tema</h3>
           <p className="text-[12px] text-slate-400 mt-1 font-medium">Completa los datos basicos para crear el nuevo tema.</p>
         </div>
 
@@ -268,7 +268,7 @@ export function PasoInformacionGeneral({
       {/* Visibilidad por clubes */}
       <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col gap-4 text-left">
         <div>
-          <h3 className="font-extrabold text-slate-800 text-[15px]">Visibilidad por clubes</h3>
+          <h3 className="font-extrabold text-slate-800 text-sm md:text-base">Visibilidad por clubes</h3>
           <p className="text-[12px] text-slate-400 mt-1 font-medium">Selecciona en que clubes estara disponible este tema.</p>
         </div>
 
