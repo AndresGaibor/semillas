@@ -14,11 +14,10 @@
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
     "types": ["@types/bun"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "*": ["./*"]
     },
     "noUnusedLocals": false,
     "noUnusedParameters": false
