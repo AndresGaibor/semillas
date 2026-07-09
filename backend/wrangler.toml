@@ -1,4 +1,4 @@
-name = "semillas-api"
+name = "api-semillas"
 main = "src/index.ts"
 compatibility_date = "2026-07-09"
 compatibility_flags = ["nodejs_compat"]
