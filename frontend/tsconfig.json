@@ -16,7 +16,7 @@
     "noUncheckedIndexedAccess": true,
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
-    "types": ["bun-types"],
+    "types": ["@types/bun"],
     "paths": {
       "@/*": ["./src/*"]
     },
