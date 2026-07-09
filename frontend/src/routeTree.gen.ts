@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AdminRequiredRouteImport } from './routes/admin-required'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
@@ -62,6 +63,11 @@ const LoginRoute = LoginRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRequiredRoute = AdminRequiredRouteImport.update({
+  id: '/admin-required',
+  path: '/admin-required',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -253,6 +259,7 @@ const AdminTemasThemeIdActivitiesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin-required': typeof AdminRequiredRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
@@ -293,6 +300,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-required': typeof AdminRequiredRoute
   '/login': typeof LoginRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -333,6 +341,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin-required': typeof AdminRequiredRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin-required'
     | '/app'
     | '/login'
     | '/onboarding'
@@ -416,6 +426,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-required'
     | '/login'
     | '/admin/actividades'
     | '/admin/ajustes'
@@ -455,6 +466,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin-required'
     | '/app'
     | '/login'
     | '/onboarding'
@@ -497,6 +509,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AdminRequiredRoute: typeof AdminRequiredRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
@@ -523,6 +536,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-required': {
+      id: '/admin-required'
+      path: '/admin-required'
+      fullPath: '/admin-required'
+      preLoaderRoute: typeof AdminRequiredRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -897,6 +917,7 @@ const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AdminRequiredRoute: AdminRequiredRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
