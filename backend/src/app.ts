@@ -1,26 +1,36 @@
 import { Hono } from "hono";
+import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import type { AppBindings } from "./config/env";
-import { errorHandler } from "./shared/middleware/error-handler";
+import { APP_NAME, APP_VERSION } from "./config/constants";
 import { createSupabaseAdmin } from "./db/client";
+import { openApiSpec } from "./openapi/spec";
+import { errorHandler } from "./shared/middleware/error-handler";
 
 import { authRoutes } from "./modules/auth/auth.routes";
+import { catalogRoutes } from "./modules/catalog/catalog.routes";
 import { sendasRoutes } from "./modules/sendas/sendas.routes";
 import { themesRoutes } from "./modules/themes/themes.routes";
+import { usersRoutes } from "./modules/users/users.routes";
 import { progressRoutes } from "./modules/progress/progress.routes";
+import { activitiesRoutes } from "./modules/activities/activities.routes";
+import { adminRoutes } from "./modules/admin/admin.routes";
+import { clubsRoutes } from "./modules/clubs/clubs.routes";
 import { gamificationRoutes } from "./modules/gamification/gamification.routes";
+import { mediaRoutes } from "./modules/media/media.routes";
+import { syncRoutes } from "./modules/sync/sync.routes";
 
 const app = new Hono<AppBindings>();
 
 app.use("*", logger());
-
 app.use(
   "*",
   cors({
     origin: (origin, c) => {
       const allowed = c.env.CORS_ORIGIN;
       if (!origin) return allowed;
+      if (origin?.startsWith("http://localhost")) return origin;
       return origin === allowed ? origin : allowed;
     },
     allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id"],
@@ -36,25 +46,51 @@ app.use("*", async (c, next) => {
 
 app.get("/", (c) => {
   return c.json({
-    ok: true,
-    name: "Semillas API",
-    version: "0.1.0"
+    exito: true,
+    datos: {
+      nombre: APP_NAME,
+      version: APP_VERSION
+    }
   });
 });
+
+app.get("/openapi.json", (c) => {
+  return c.json(openApiSpec);
+});
+
+app.get(
+  "/docs",
+  Scalar({
+    spec: { url: "/openapi.json" },
+    theme: "kepler",
+    layout: "modern",
+    defaultHttpClient: { targetKey: "javascript", clientKey: "fetch" },
+    metaData: { title: `${APP_NAME} — API Docs` }
+  })
+);
 
 app.get("/health", (c) => {
   return c.json({
-    ok: true,
-    status: "healthy",
-    env: c.env.APP_ENV
+    exito: true,
+    datos: {
+      estado: "healthy",
+      entorno: c.env.APP_ENV
+    }
   });
 });
 
-app.route("/auth", authRoutes);
+app.route("/autenticacion", authRoutes);
+app.route("/catalogo", catalogRoutes);
 app.route("/sendas", sendasRoutes);
-app.route("/themes", themesRoutes);
-app.route("/progress", progressRoutes);
-app.route("/gamification", gamificationRoutes);
+app.route("/temas", themesRoutes);
+app.route("/perfil", usersRoutes);
+app.route("/progreso", progressRoutes);
+app.route("/actividades", activitiesRoutes);
+app.route("/administracion", adminRoutes);
+app.route("/clubes", clubsRoutes);
+app.route("/gamificacion", gamificationRoutes);
+app.route("/media", mediaRoutes);
+app.route("/sync", syncRoutes);
 
 app.onError(errorHandler);
 

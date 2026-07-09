@@ -1,0 +1,333 @@
+import { afterEach, describe, expect, it } from "bun:test";
+import app from "../../app";
+import type { AppBindings } from "../../config/env";
+
+type ErrorBody = { exito: false; codigo?: string; error: string };
+type DeleteBody = { exito: true; datos: { deleted: boolean } };
+type SignedUrlBody = { exito: true; datos: { url: string; expira_en_segundos: number } };
+
+const env: AppBindings["Bindings"] = {
+  APP_ENV: "development",
+  CORS_ORIGIN: "http://localhost:3000",
+  SUPABASE_URL: "https://example.supabase.co",
+  SUPABASE_ANON_KEY: "test-anon-key",
+  SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
+  SUPABASE_PROJECT_REF: "test-project-ref",
+};
+
+const admin = {
+  id: "550e8400-e29b-41d4-a716-446655440010",
+  rol: "administrador",
+  proveedor: "invitado",
+  nombre_visible: "Admin Semillas",
+  correo: null,
+};
+
+const usuario = {
+  ...admin,
+  id: "550e8400-e29b-41d4-a716-446655440011",
+  rol: "usuario",
+};
+
+const originalFetch = globalThis.fetch;
+
+afterEach(() => {
+  globalThis.fetch = originalFetch;
+});
+
+function crearImagen(nombre = "portada.png", tipo = "image/png", size = 4) {
+  const firmaPng = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const relleno = new Uint8Array(Math.max(size - firmaPng.length, 0));
+  return new File([firmaPng, relleno], nombre, { type: tipo });
+}
+
+function crearImagenFalsa(nombre = "falsa.png", tipo = "image/png") {
+  return new File([new TextEncoder().encode("no-es-una-imagen")], nombre, { type: tipo });
+}
+
+function crearSolicitudSubida(archivo: File, tipo = "imagen", usuarioId = admin.id) {
+  const formData = new FormData();
+  formData.append("archivo", archivo, archivo.name);
+  formData.append("tipo", tipo);
+  formData.append("texto_alternativo", "Portada del tema");
+
+  return new Request("http://localhost/media/subir", {
+    method: "POST",
+    headers: { "x-guest-user-id": usuarioId },
+    body: formData,
+  });
+}
+
+describe("media.routes", () => {
+  it("rechaza subida de imagenes si el usuario no es administrador", async () => {
+    const rutas: string[] = [];
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+      rutas.push(url.pathname);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(usuario), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const response = await app.fetch(crearSolicitudSubida(crearImagen(), "imagen", usuario.id), env);
+    const body = (await response.json()) as ErrorBody;
+
+    expect(response.status).toBe(403);
+    expect(body.exito).toBe(false);
+    expect(rutas.some((ruta) => ruta.includes("/storage/v1/object"))).toBe(false);
+  });
+
+  it("rechaza imagenes sobre 5 MB", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const imagenGrande = crearImagen("grande.png", "image/png", 5 * 1024 * 1024 + 1);
+    const response = await app.fetch(crearSolicitudSubida(imagenGrande), env);
+    const body = (await response.json()) as ErrorBody;
+
+    expect(response.status).toBe(400);
+    expect(body.codigo).toBe("FILE_TOO_LARGE");
+  });
+
+  it("rechaza MIME de imagen no permitido aunque use prefijo image", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const response = await app.fetch(crearSolicitudSubida(crearImagen("vector.svg", "image/svg+xml")), env);
+    const body = (await response.json()) as ErrorBody;
+
+    expect(response.status).toBe(400);
+    expect(body.codigo).toBe("INVALID_MIME_TYPE");
+  });
+
+  it("rechaza imagenes con MIME valido pero firma binaria invalida", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const response = await app.fetch(crearSolicitudSubida(crearImagenFalsa()), env);
+    const body = (await response.json()) as ErrorBody;
+
+    expect(response.status).toBe(400);
+    expect(body.codigo).toBe("INVALID_FILE_SIGNATURE");
+  });
+
+  it("guarda bucket y clave de storage al registrar la imagen", async () => {
+    let registroInsertado: Record<string, unknown> = {};
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/storage/v1/object/media/")) {
+        return new Response(JSON.stringify({ Key: url.pathname }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "POST") {
+        registroInsertado = await request.json();
+        return new Response(
+          JSON.stringify({
+            id: "550e8400-e29b-41d4-a716-446655440099",
+            ...registroInsertado,
+            activo: true,
+            creado_en: "2026-07-07T00:00:00.000Z",
+            actualizado_en: "2026-07-07T00:00:00.000Z",
+          }),
+          { status: 201, headers: { "content-type": "application/json" } },
+        );
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const response = await app.fetch(crearSolicitudSubida(crearImagen("Portada Feliz.png")), env);
+
+    expect(response.status).toBe(201);
+    expect(registroInsertado?.bucket_almacenamiento).toBe("media");
+    expect(registroInsertado?.clave_almacenamiento).toEqual(expect.stringMatching(/^imagen\//));
+    expect(registroInsertado?.url_publica).toEqual(expect.stringContaining("/storage/v1/object/public/media/imagen/"));
+  });
+
+  it("desactiva recursos multimedia con borrado logico", async () => {
+    let actualizacion: Record<string, unknown> = {};
+    let removioStorage = false;
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "GET") {
+        return new Response(JSON.stringify({
+          id: "550e8400-e29b-41d4-a716-446655440099",
+          bucket_almacenamiento: "media",
+          clave_almacenamiento: "imagen/admin/recurso.png",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/storage/v1/object/media") && request.method === "DELETE") {
+        removioStorage = true;
+        return new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "PATCH") {
+        actualizacion = await request.json();
+        return new Response(JSON.stringify({}), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const response = await app.fetch(
+      new Request("http://localhost/media/550e8400-e29b-41d4-a716-446655440099", {
+        method: "DELETE",
+        headers: { "x-guest-user-id": admin.id },
+      }),
+      env,
+    );
+    const body = (await response.json()) as DeleteBody;
+
+    expect(response.status).toBe(200);
+    expect(body.datos.deleted).toBe(true);
+    expect(actualizacion).toEqual(expect.objectContaining({ activo: false }));
+    expect(typeof actualizacion.actualizado_en).toBe("string");
+    expect(removioStorage).toBe(true);
+  });
+
+  it("genera URL firmada corta para un recurso activo", async () => {
+    let pidioUrlFirmada = false;
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "GET") {
+        return new Response(JSON.stringify({
+          id: "550e8400-e29b-41d4-a716-446655440099",
+          bucket_almacenamiento: "media",
+          clave_almacenamiento: "imagen/admin/recurso.png",
+          activo: true,
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (url.pathname.includes("/storage/v1/object/sign/media/imagen/admin/recurso.png") && request.method === "POST") {
+        pidioUrlFirmada = true;
+        return new Response(JSON.stringify({ signedURL: "https://example.supabase.co/signed/recurso.png" }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const response = await app.fetch(
+      new Request("http://localhost/media/550e8400-e29b-41d4-a716-446655440099/url", {
+        headers: { "x-guest-user-id": admin.id },
+      }),
+      env,
+    );
+    const body = (await response.json()) as SignedUrlBody;
+
+    expect(response.status).toBe(200);
+    expect(body.datos.url).toContain("/signed/recurso.png");
+    expect(body.datos.expira_en_segundos).toBe(300);
+    expect(pidioUrlFirmada).toBe(true);
+  });
+});

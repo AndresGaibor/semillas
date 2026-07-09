@@ -9,7 +9,7 @@ const servicios: Servicio[] = [
   {
     nombre: 'api',
     cwd: 'backend',
-    comando: ['bun', 'run', 'start'],
+    comando: ['bun', 'run', 'dev'],
     env: { PORT: '8787' },
   },
   {

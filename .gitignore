@@ -6,3 +6,5 @@ coverage/
 .env.*
 !.env.example
 .DS_Store
+.superpowers/
+docs/superpowers/

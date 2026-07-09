@@ -1,13 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../db/database.types";
 
-export type UserRole = "admin" | "user" | "guest" | "parent";
+export type UserRole = "administrador" | "usuario" | "invitado" | "padre";
 
 export type AuthUser = {
   id: string;
   role: UserRole;
   displayName: string;
   email: string | null;
+  provider: string;
 };
 
 export type Env = {
@@ -15,9 +16,9 @@ export type Env = {
   CORS_ORIGIN: string;
 
   SUPABASE_URL: string;
-  SUPABASE_PUBLISHABLE_KEY: string;
-  SUPABASE_SERVER_KEY: string;
-  SUPABASE_PROJECT_REF: string;
+  SUPABASE_ANON_KEY: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
+  SUPABASE_PROJECT_REF?: string;
 };
 
 export type Variables = {
