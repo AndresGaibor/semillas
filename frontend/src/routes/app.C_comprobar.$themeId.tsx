@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import { obtenerTema, obtenerPasos, obtenerActividades } from "../features/themes/themes.api";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { obtenerGruposEdad } from "../features/catalog/catalog.api";
 import { enviarEventosProgreso } from "../features/progress/progress.api";
 import type { EventoProgreso } from "../shared/api/api";
 import { playSound } from "../lib/audio";
@@ -38,6 +40,12 @@ function CComprobarPage() {
     queryFn: () => obtenerActividades(temaDbId!),
     enabled: !!temaDbId
   });
+
+  const profileQuery = useQuery({ queryKey: ["myProfile"], queryFn: obtenerMiPerfil });
+  const ageGroupsQuery = useQuery({ queryKey: ["ageGroups"], queryFn: obtenerGruposEdad });
+
+  const activeAgeGroupId = profileQuery.data?.perfil?.grupo_edad_id;
+  const activeAgeGroup = ageGroupsQuery.data?.find(g => g.id === activeAgeGroupId);
 
   const pasoActual = stepsQuery.data?.find((p) => p.tipo_paso?.codigo === 'comprobar');
   const contenidoPaso = pasoActual?.contenidos?.[0];
@@ -125,6 +133,56 @@ function CComprobarPage() {
           </PreguntaItem>
         ))
       ) : null}
+
+      {/* Temporal: Listar todas las actividades del tema (independiente del paso) para validación */}
+      {activitiesQuery.data && activitiesQuery.data.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mt-6 animate-in fade-in zoom-in-95">
+          <div className="mb-4 pb-2 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-800">
+              Actividades disponibles en este tema:
+            </h3>
+            {profileQuery.data && (
+              <div className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full border border-green-200">
+                👤 {profileQuery.data.perfil?.apodo} | Franja: {activeAgeGroup?.nombre || "No seleccionada"}
+              </div>
+            )}
+          </div>
+          <ul className="space-y-3">
+            {activitiesQuery.data.map((act) => {
+              const actAgeGroup = ageGroupsQuery.data?.find(g => g.id === act.grupo_edad_id);
+              return (
+                <li key={act.id} className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 font-bold text-sm">
+                      {act.tipo_actividad?.nombre?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-700">{act.titulo}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium whitespace-nowrap">
+                          Para: {actAgeGroup?.nombre || "Desconocida"}
+                        </span>
+                      </div>
+                      <span className="text-sm text-slate-500 uppercase tracking-wide">
+                        {act.tipo_actividad?.nombre || 'Desconocido'}
+                      </span>
+                    </div>
+                  </div>
+                
+                {/* Visualización en crudo de la configuración (JSON) */}
+                <div className="mt-2 bg-slate-800 text-slate-200 rounded-lg p-4 text-xs font-mono overflow-x-auto">
+                  <p className="text-slate-400 mb-2 border-b border-slate-700 pb-1">Datos crudos de la BD (act.configuracion):</p>
+                  <pre>
+                    {JSON.stringify(act.configuracion, null, 2)}
+                  </pre>
+                </div>
+              </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
     </CrecerLayout>
   );
 }

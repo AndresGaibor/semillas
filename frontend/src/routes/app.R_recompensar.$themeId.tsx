@@ -47,6 +47,7 @@ function RRecompensarPage() {
   const contenidoPaso = pasoActual?.contenidos?.[0];
   const actividadesFase = activitiesQuery.data?.filter((a) => a.paso_id === pasoActual?.id) || [];
 
+
   const isLoading = themeQuery.isLoading || (!!temaDbId && (stepsQuery.isLoading || activitiesQuery.isLoading));
   const isError = themeQuery.isError || stepsQuery.isError || activitiesQuery.isError;
   const navigate = useNavigate();
