@@ -1,16 +1,16 @@
 import * as React from "react";
 import { Lock, Share2, Star, Users } from "lucide-react";
-import { BarraProgreso, ProgresoCircular } from "@/componentes/ui/indicadores-progreso";
+import { Boton } from "@/componentes/ui/boton";
+import { CabeceraSeccion } from "@/componentes/ui/cabecera-seccion";
+import { Card } from "@/componentes/ui/card-base";
+import { BarraProgreso } from "@/componentes/ui/barra-progreso";
+import { ProgresoCircular } from "@/componentes/ui/progreso-circular";
 
 export const SidebarDerecho: React.FC = () => {
   return (
     <aside className="w-[300px] border-l border-[#E2E8F0] p-5 bg-white flex flex-col gap-5 flex-shrink-0">
-
-      <section className="border border-[#F1F5F9] p-4 rounded-2xl shadow-sm flex flex-col gap-4">
-        <div className="flex justify-between items-center border-b border-[#F1F5F9] pb-3">
-          <h3 className="text-xs font-extrabold text-[#123B2C]">Tu progreso</h3>
-          <button type="button" className="text-[10px] text-[#6C3AED] font-bold hover:underline">Ver detalles</button>
-        </div>
+      <Card sombra="sm" className="p-4 flex flex-col gap-4">
+        <CabeceraSeccion titulo="Tu progreso" textoBoton="Ver detalles" />
         <div className="flex items-center gap-4">
           <ProgresoCircular porcentaje={72} etiqueta="Completado" color="verde" tamano={70} />
           <div className="flex-1">
@@ -26,13 +26,10 @@ export const SidebarDerecho: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <section className="border border-[#F1F5F9] p-4 rounded-2xl shadow-sm flex flex-col gap-4">
-        <div className="flex justify-between items-center border-b border-[#F1F5F9] pb-3">
-          <h3 className="text-xs font-extrabold text-[#123B2C]">Próxima meta</h3>
-          <button type="button" className="text-[10px] text-[#6C3AED] font-bold hover:underline">Ver todas</button>
-        </div>
+      <Card sombra="sm" className="p-4 flex flex-col gap-4">
+        <CabeceraSeccion titulo="Próxima meta" textoBoton="Ver todas" />
         <div className="flex items-start gap-4">
           <div className="w-11 h-14 bg-[#FAF5FF] border border-[#6C3AED]/20 rounded-xl flex items-center justify-center text-[#6C3AED] flex-shrink-0">
             <Lock className="size-5" />
@@ -49,9 +46,9 @@ export const SidebarDerecho: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <section className="border border-[#F1F5F9] p-4 rounded-2xl shadow-sm flex flex-col gap-3">
+      <Card sombra="sm" className="p-4 flex flex-col gap-3">
         <h3 className="text-xs font-extrabold text-[#123B2C]">Comparte tu logro</h3>
         <p className="text-[10px] text-gray-400 font-semibold leading-snug">
           ¡Comparte esta imagen con tus amigos y tu club!
@@ -80,20 +77,14 @@ export const SidebarDerecho: React.FC = () => {
           </svg>
         </div>
 
-        <button
-          type="button"
-          className="w-full flex items-center justify-center gap-2 py-2 border border-[#6C3AED] rounded-xl text-xs font-bold text-[#6C3AED] hover:bg-violet-50 transition-all"
-        >
+        <Boton variante="contorno" tamano="pequeno" forma="cuadrado" className="w-full justify-center gap-2 py-2 text-xs" type="button">
           <Share2 className="size-4" />
           <span>Compartir</span>
-        </button>
-      </section>
+        </Boton>
+      </Card>
 
-      <section className="border border-[#F1F5F9] p-4 rounded-2xl shadow-sm flex flex-col gap-4">
-        <div className="flex justify-between items-center border-b border-[#F1F5F9] pb-3">
-          <h3 className="text-xs font-extrabold text-[#123B2C]">Insignia reciente</h3>
-          <button type="button" className="text-[10px] text-[#6C3AED] font-bold hover:underline">Ver todas</button>
-        </div>
+      <Card sombra="sm" className="p-4 flex flex-col gap-4">
+        <CabeceraSeccion titulo="Insignia reciente" textoBoton="Ver todas" />
         <div className="flex items-center gap-4">
           <div className="w-14 h-16 flex items-center justify-center flex-shrink-0 relative">
             <svg viewBox="0 0 100 115" className="w-full h-full" fill="none">
@@ -125,7 +116,7 @@ export const SidebarDerecho: React.FC = () => {
             </p>
           </div>
         </div>
-      </section>
+      </Card>
 
     </aside>
   );

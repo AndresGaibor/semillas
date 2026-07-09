@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Target } from "lucide-react";
-import { BarraProgreso } from "@/componentes/ui/indicadores-progreso";
+import { Card } from "@/componentes/ui/card-base";
+import { BarraProgreso } from "@/componentes/ui/barra-progreso";
 
 export interface ClubRetoSemanalWidgetProps {
   completadas: number;
@@ -12,7 +13,7 @@ export const ClubRetoSemanalWidget: React.FC<ClubRetoSemanalWidgetProps> = ({
   meta,
 }) => {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+    <Card sombra="sm" className="p-6 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-8 rounded-full bg-[#EDE7F6] text-[#7E57C2] flex items-center justify-center flex-shrink-0">
           <Target size={16} />
@@ -30,6 +31,6 @@ export const ClubRetoSemanalWidget: React.FC<ClubRetoSemanalWidgetProps> = ({
 
       {/* Barra */}
       <BarraProgreso valor={completadas} maximo={meta} color="morado" mostrarEtiquetas={false} />
-    </div>
+    </Card>
   );
 };

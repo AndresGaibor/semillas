@@ -10,7 +10,19 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i
       }
-    }
+    },
+    backgrounds: {
+      default: "Crema",
+      values: [
+        { name: "Crema", value: "#F7F4EC" },
+        { name: "Blanco", value: "#ffffff" },
+        { name: "Verde profundo", value: "#123B2C" }
+      ]
+    },
+    viewport: {
+      defaultViewport: "mobile1"
+    },
+    layout: "padded"
   }
 };
 

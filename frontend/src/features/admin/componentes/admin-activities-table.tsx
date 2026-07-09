@@ -4,6 +4,7 @@ import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { Paginacion } from "@/componentes/ui/paginacion";
 import { TablaSkeleton } from "@/componentes/ui/tabla-skeleton";
 import { getSendaColorClasses } from "./actividades.helpers";
+import { BotonAccion, FILA_HOVER_CLS, CheckboxCell } from "./admin.helpers";
 
 export type ActivityTableRow = {
   id: string;
@@ -100,14 +101,22 @@ export function AdminActivitiesTable({
   );
 }
 
+function MenuAccionesActividad({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <BotonAccion onClick={() => navigate({ to: `/admin/temas` })} title="Vista previa" icon="fa-eye" />
+      <BotonAccion onClick={() => navigate({ to: `/admin/temas` })} title="Editar" icon="fa-pencil" />
+      <BotonAccion title="Más opciones" icon="fa-ellipsis-vertical" />
+    </div>
+  );
+}
+
 function FilaActividad({ act, navigate }: { act: ActivityTableRow; navigate: ReturnType<typeof useNavigate> }) {
   const sendaColor = getSendaColorClasses(act.sendaNombre);
 
   return (
-    <tr className="hover:bg-slate-50/40 transition-colors group cursor-pointer">
-      <td className="py-4 px-2 text-center" onClick={(e) => e.stopPropagation()}>
-        <input type="checkbox" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />
-      </td>
+    <tr className={FILA_HOVER_CLS}>
+      <CheckboxCell />
 
       <td className="py-4 px-4">
         <div className="flex items-center gap-3">
@@ -150,29 +159,8 @@ function FilaActividad({ act, navigate }: { act: ActivityTableRow; navigate: Ret
         {act.fechaCreacion}
       </td>
 
-      <td className="py-4 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-end gap-1">
-          <button
-            onClick={() => navigate({ to: `/admin/temas` })}
-            title="Vista previa"
-            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-          >
-            <i className="fa-solid fa-eye text-xs" />
-          </button>
-          <button
-            onClick={() => navigate({ to: `/admin/temas` })}
-            title="Editar"
-            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-          >
-            <i className="fa-solid fa-pencil text-xs" />
-          </button>
-          <button
-            title="Más opciones"
-            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-          >
-            <i className="fa-solid fa-ellipsis-vertical text-xs" />
-          </button>
-        </div>
+      <td className="py-4 px-4 text-right">
+        <MenuAccionesActividad navigate={navigate} />
       </td>
     </tr>
   );

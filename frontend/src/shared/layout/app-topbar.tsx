@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/componentes/ui/button";
+import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
 import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/profile/profile.api";
 
@@ -42,14 +43,15 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
       </div>
 
       <div className="mx-0 hidden max-w-[460px] flex-1 sm:mx-6 sm:block max-md:order-3 max-md:w-full">
-        <div className="relative flex items-center w-full">
-          <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-xs"></i>
-          <input
-            type="text"
+        <div className="relative w-full">
+          <CampoBusqueda
+            valor=""
+            onChange={() => undefined}
             placeholder="Buscar..."
-            className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-9 pr-10 text-xs font-semibold text-slate-700 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 focus:border-[#2E9E5B] focus:ring-2 focus:ring-[#2E9E5B]/20 sm:pr-12"
+            contenedorClassName="w-full"
+            inputClassName="rounded-full py-2.5 pl-11 pr-10 text-xs font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400 focus:border-[#2E9E5B] focus:ring-2 focus:ring-[#2E9E5B]/20 sm:pr-12"
           />
-          <div className="absolute right-3 hidden h-6 items-center justify-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 px-2 text-[10px] font-bold text-slate-400 select-none sm:flex">
+          <div className="absolute right-3 top-1/2 hidden h-6 -translate-y-1/2 items-center justify-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 px-2 text-[10px] font-bold text-slate-400 select-none sm:flex">
             <span className="text-[11px] font-medium font-sans">⌘</span>K
           </div>
         </div>

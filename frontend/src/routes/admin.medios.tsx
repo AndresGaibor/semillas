@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
-import { obtenerRecursosMultimedia, eliminarRecursoMultimedia } from "../features/media/media.api";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useMemo, useRef, type ChangeEvent } from "react";
+import { obtenerRecursosMultimedia, eliminarRecursoMultimedia, subirArchivo } from "../features/media/media.api";
 import { Loader } from "lucide-react";
 
 import { AdminMediaHeader } from "../features/admin/componentes/admin-media-header";
@@ -26,8 +26,8 @@ export const Route = createFileRoute("/admin/medios")({
 });
 
 function AdminMediosPage() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const inputArchivoRef = useRef<HTMLInputElement>(null);
 
   const [selectedId, setSelectedId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<TipoMedia>("imagen");
@@ -36,6 +36,7 @@ function AdminMediosPage() {
   const [selectedSort, setSelectedSort] = useState("recientes");
   const [paginaActual, setPaginaActual] = useState(1);
   const [porPagina, setPorPagina] = useState(10);
+  const [isUploading, setIsUploading] = useState(false);
 
   const mediaQuery = useQuery({
     queryKey: ["admin", "media"],
@@ -119,8 +120,46 @@ function AdminMediosPage() {
     }
   };
 
+  const handleUpload = () => {
+    inputArchivoRef.current?.click();
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const archivo = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!archivo) {
+      return;
+    }
+
+    const tipo = archivo.type.startsWith("image/")
+      ? "imagen"
+      : archivo.type.startsWith("audio/")
+        ? "audio"
+        : archivo.type.startsWith("video/")
+          ? "video"
+          : "documento";
+
+    setIsUploading(true);
+    try {
+      const recurso = await subirArchivo(archivo, tipo, archivo.name);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
+      setActiveTab(recurso.tipo);
+      setSelectedId(recurso.id);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 text-left">
+      <input
+        ref={inputArchivoRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileChange}
+        accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt"
+      />
       {mediaQuery.isLoading && (
         <div className="flex items-center justify-center py-6">
           <Loader className="animate-spin text-primario" size={24} />
@@ -132,7 +171,7 @@ function AdminMediosPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
-          <AdminMediaHeader />
+          <AdminMediaHeader onSubirRecurso={handleUpload} />
           <AdminMediaTypeTabs activeTab={activeTab} onTabChange={handleTabChange} />
           <AdminMediaFilters
             searchValue={searchValue}
@@ -159,6 +198,12 @@ function AdminMediosPage() {
           onDelete={handleDelete}
         />
       </div>
+
+      {isUploading && (
+        <div className="fixed bottom-4 right-4 rounded-2xl bg-[#123b2c] px-4 py-3 text-sm font-semibold text-white shadow-lg">
+          Subiendo recurso...
+        </div>
+      )}
     </div>
   );
 }

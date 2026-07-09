@@ -1,6 +1,6 @@
 import * as React from "react";
 import { HardDrive, Settings } from "lucide-react";
-import { BarraProgreso } from "@/componentes/ui/indicadores-progreso";
+import { BarraProgreso } from "@/componentes/ui/barra-progreso";
 
 export interface StorageWidgetProps {
   usedMB: number;

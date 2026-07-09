@@ -1,7 +1,20 @@
 name = "semillas-api"
 main = "src/index.ts"
-compatibility_date = "2026-07-05"
+compatibility_date = "2026-07-09"
+compatibility_flags = ["nodejs_compat"]
 
-[vars]
-APP_ENV = "local"
-CORS_ORIGIN = "http://localhost:5173"
+routes = [
+  { pattern = "api.semillas.org", custom_domain = true }
+]
+
+[env.production]
+vars = { APP_ENV = "production", CORS_ORIGIN = "https://semillas.org" }
+
+[env.staging]
+vars = { APP_ENV = "staging", CORS_ORIGIN = "https://staging.semillas.pages.dev" }
+
+[env.preview]
+vars = { APP_ENV = "preview", CORS_ORIGIN = "https://{branch}.semillas.pages.dev" }
+
+# Los secrets (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
+# se configuran via: wrangler secret put SUPABASE_URL --env production

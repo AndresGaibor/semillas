@@ -10,8 +10,13 @@
   "scripts": {
     "dev": "bun run scripts/dev.ts",
     "dev:frontend": "bun run --cwd frontend dev",
-    "dev:backend": "PORT=8787 bun run --cwd backend start",
+    "dev:backend": "bun run --cwd backend dev",
     "build": "bun run --cwd frontend build && bun run --cwd backend build",
+    "build:frontend": "bun run --cwd frontend build",
+    "build:backend": "bun run --cwd backend build",
+    "deploy:backend": "bun run --cwd backend deploy",
+    "deploy:backend:staging": "bun run --cwd backend deploy --env staging",
+    "preview:backend": "bun run --cwd backend dev --remote",
     "check": "bun run --cwd backend lint && bun run --cwd backend test && bun run --cwd backend test:e2e && bun run build"
   }
 }

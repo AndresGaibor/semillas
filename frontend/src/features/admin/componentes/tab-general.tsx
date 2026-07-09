@@ -1,4 +1,6 @@
 import { TagInput } from "./TagInput";
+import { Boton } from "@/componentes/ui/boton";
+import { Card } from "@/componentes/ui/card-base";
 import imgBoySheep from "@/assets/images/Ilustraciones/in2.png";
 
 type TabGeneralProps = {
@@ -21,32 +23,47 @@ type TabGeneralProps = {
 };
 
 export function TabGeneral({
-  title, onTitleChange,
-  targetAudience, onTargetAudienceChange,
-  shortDesc, onShortDescChange,
-  category, onCategoryChange,
-  keyVerse, onKeyVerseChange,
-  duration, onDurationChange,
-  mainMessage, onMainMessageChange,
-  tagsList, onTagsChange,
+  title,
+  onTitleChange,
+  targetAudience,
+  onTargetAudienceChange,
+  shortDesc,
+  onShortDescChange,
+  category,
+  onCategoryChange,
+  keyVerse,
+  onKeyVerseChange,
+  duration,
+  onDurationChange,
+  mainMessage,
+  onMainMessageChange,
+  tagsList,
+  onTagsChange,
 }: TabGeneralProps) {
   return (
     <>
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col gap-5 text-left">
+      <Card sombra="sm" className="p-6 flex flex-col gap-5 text-left">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Título del tema <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => onTitleChange(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
-            />
-            <span className="text-[10px] text-slate-400 font-bold">El título es como se mostrará en la plataforma.</span>
-          </div>
+          <Field
+            label="Título del tema"
+            required
+            help="El título es como se mostrará en la plataforma."
+          >
+            <div className="relative">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => onTitleChange(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
+              />
+            </div>
+          </Field>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Público objetivo <span className="text-red-500">*</span></label>
+          <Field
+            label="Público objetivo"
+            required
+            help="Selecciona el grupo de edad principal."
+          >
             <div className="relative">
               <select
                 value={targetAudience}
@@ -58,13 +75,11 @@ export function TabGeneral({
               </select>
               <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
             </div>
-            <span className="text-[10px] text-slate-400 font-bold">Selecciona el grupo de edad principal.</span>
-          </div>
+          </Field>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Descripción corta <span className="text-red-500">*</span></label>
+          <Field label="Descripción corta" required help="Máximo 120 caracteres.">
             <textarea
               value={shortDesc}
               onChange={(e) => onShortDescChange(e.target.value)}
@@ -72,11 +87,9 @@ export function TabGeneral({
               rows={3}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all resize-none"
             />
-            <span className="text-[10px] text-slate-400 font-bold">Máximo 120 caracteres.</span>
-          </div>
+          </Field>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Categoría <span className="text-red-500">*</span></label>
+          <Field label="Categoría" required help="Selecciona la categoría principal del tema.">
             <div className="relative">
               <select className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-[#2e9e5b] focus:outline-hidden cursor-pointer">
                 <option value="confianza">Confianza en Dios</option>
@@ -92,24 +105,20 @@ export function TabGeneral({
                 </span>
               </div>
             </div>
-            <span className="text-[10px] text-slate-400 font-bold mt-1">Selecciona la categoría principal del tema.</span>
-          </div>
+          </Field>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Versículo clave <span className="text-red-500">*</span></label>
+          <Field label="Versículo clave" required help="Versículo principal que memorizarán los niños.">
             <input
               type="text"
               value={keyVerse}
               onChange={(e) => onKeyVerseChange(e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
             />
-            <span className="text-[10px] text-slate-400 font-bold">Versículo principal que memorizarán los niños.</span>
-          </div>
+          </Field>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Duración estimada <span className="text-red-500">*</span></label>
+          <Field label="Duración estimada" required help="Tiempo aproximado para completar el tema.">
             <div className="relative flex items-center">
               <input
                 type="number"
@@ -119,38 +128,31 @@ export function TabGeneral({
               />
               <span className="absolute right-4 text-[11px] text-slate-400 font-bold">minutos</span>
             </div>
-            <span className="text-[10px] text-slate-400 font-bold">Tiempo aproximado para completar el tema.</span>
-          </div>
+          </Field>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-700">Mensaje central <span className="text-red-500">*</span></label>
+        <Field label="Mensaje central" required help="El mensaje principal que los niños deben recordar.">
           <textarea
             value={mainMessage}
             onChange={(e) => onMainMessageChange(e.target.value)}
             rows={3}
             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all resize-none"
           />
-          <span className="text-[10px] text-slate-400 font-bold">El mensaje principal que los niños deben recordar.</span>
-        </div>
+        </Field>
 
         <TagInput tags={tagsList} onChange={onTagsChange} />
-      </div>
+      </Card>
 
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col gap-4 text-left">
+      <Card sombra="sm" className="p-6 flex flex-col gap-4 text-left">
         <div className="flex justify-between items-center select-none">
           <div>
             <h3 className="font-extrabold text-slate-800 text-[15px]">Vista previa rápida</h3>
             <p className="text-[12px] text-slate-400 mt-1 font-medium">Así se verá tu tema para los niños.</p>
           </div>
 
-          <button
-            type="button"
-            className="px-4 py-2 bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors text-slate-700 font-bold text-xs rounded-full flex items-center gap-2 cursor-pointer"
-          >
-            <i className="fa-solid fa-eye text-[11px]" />
+          <Boton variante="texto" tamano="pequeno" forma="pildora" iconoIzquierdo={<i className="fa-solid fa-eye text-[11px]" />}>
             Ver vista previa
-          </button>
+          </Boton>
         </div>
 
         <div className="rounded-2xl border border-slate-100/70 p-4 bg-[#eefcf4]/50 flex flex-col sm:flex-row items-center gap-5">
@@ -178,7 +180,29 @@ export function TabGeneral({
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </>
+  );
+}
+
+function Field({
+  label,
+  required = false,
+  help,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  help?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-bold text-slate-700">
+        {label} {required ? <span className="text-red-500">*</span> : null}
+      </label>
+      {children}
+      {help ? <span className="text-[10px] text-slate-400 font-bold">{help}</span> : null}
+    </div>
   );
 }

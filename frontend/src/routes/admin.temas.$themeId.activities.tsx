@@ -1,21 +1,31 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { crearActividad, eliminarActividad, obtenerPasosAdmin } from "../features/admin/admin.api";
 import { obtenerTiposActividad, obtenerGruposEdad } from "../features/catalog/catalog.api";
 import { obtenerActividades } from "../features/themes/themes.api";
 import { ArrowLeft, Loader, Plus, Trash2, Gamepad2 } from "lucide-react";
 
+interface ActivitySearch {
+  form?: "nueva";
+}
+
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
-  component: AdminThemeActivitiesPage
+  component: AdminThemeActivitiesPage,
+  validateSearch: (search: Record<string, unknown>): ActivitySearch => ({
+    form: search.form === "nueva" ? "nueva" : undefined,
+  }),
 });
 
 function AdminThemeActivitiesPage() {
   const { themeId } = Route.useParams();
-  const navigate = useNavigate();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const queryClient = useQueryClient();
 
-  const [showForm, setShowForm] = useState(false);
+  const showForm = search.form === "nueva";
+
+  const [selectedAgeGroupId, setSelectedAgeGroupId] = useState("");
   const [title, setTitle] = useState("");
   const [prompt, setPrompt] = useState("");
   const [xpReward, setXpReward] = useState(10);
@@ -31,10 +41,15 @@ function AdminThemeActivitiesPage() {
 
   const ageGroupsQuery = useQuery({
     queryKey: ["catalog", "age-groups"],
-    queryFn: () => obtenerGruposEdad()
-      .then(data => { setSelectedAgeGroupId(data[0]?.id ?? ""); return data; })
+    queryFn: obtenerGruposEdad,
   });
-  const [selectedAgeGroupId, setSelectedAgeGroupId] = useState("");
+
+  useEffect(() => {
+    if (!selectedAgeGroupId && ageGroupsQuery.data) {
+      const first = ageGroupsQuery.data[0];
+      if (first) setSelectedAgeGroupId(first.id);
+    }
+  }, [ageGroupsQuery.data, selectedAgeGroupId]);
 
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities", selectedAgeGroupId],
@@ -77,7 +92,7 @@ function AdminThemeActivitiesPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId, "activities"] });
-      setShowForm(false);
+      navigate({ search: (prev) => ({ ...prev, form: undefined }) });
       setTitle(""); setPrompt(""); setXpReward(10); setFeedback("");
       setOptions([{ etiqueta: "A", texto: "", correcta: false, orden: 1 }, { etiqueta: "B", texto: "", correcta: false, orden: 2 }, { etiqueta: "C", texto: "", correcta: false, orden: 3 }, { etiqueta: "D", texto: "", correcta: false, orden: 4 }]);
     }
@@ -88,9 +103,18 @@ function AdminThemeActivitiesPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId, "activities"] })
   });
 
+  const toggleForm = () => {
+    navigate({
+      search: (prev: ActivitySearch) => ({
+        ...prev,
+        form: prev.form === "nueva" ? undefined : "nueva",
+      }),
+    });
+  };
+
   return (
     <div>
-      <button onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-6">
+      <button type="button" onClick={() => navigate({ to: "/admin/temas" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-6">
         <ArrowLeft size={16} /> Volver
       </button>
 
@@ -108,13 +132,13 @@ function AdminThemeActivitiesPage() {
             ))}
           </select>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 bg-[#2e9e5b] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#267d4c] transition-colors">
+        <button type="button" onClick={toggleForm} className="flex items-center gap-1.5 bg-[#2e9e5b] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#267d4c] transition-colors">
           <Plus size={16} /> {showForm ? "Cancelar" : "Nueva"}
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-2xl p-5 shadow-sm mb-6 grid gap-4 max-w-xl">
+        <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate(); }} className="bg-white rounded-2xl p-5 shadow-sm mb-6 grid gap-4 max-w-xl">
           <h3 className="font-bold text-[#123b2c]">Nueva actividad (Quiz)</h3>
 
           <div className="grid grid-cols-2 gap-3">
@@ -150,11 +174,11 @@ function AdminThemeActivitiesPage() {
             ))}
           </div>
 
-          <button onClick={() => createMutation.mutate()} disabled={!selectedStepId || !title || !prompt} className="bg-[#2e9e5b] text-white py-2.5 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+          <button type="submit" disabled={!selectedStepId || !title || !prompt} className="bg-[#2e9e5b] text-white py-2.5 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
             {createMutation.isPending ? <Loader className="animate-spin" size={18} /> : <Plus size={18} />}
             {createMutation.isPending ? "Creando..." : "Crear actividad"}
           </button>
-        </div>
+        </form>
       )}
 
       <div className="grid gap-3">
@@ -173,7 +197,7 @@ function AdminThemeActivitiesPage() {
                 <p className="text-sm text-[#123b2c]/60 mt-0.5 line-clamp-2">{activity.consigna}</p>
                 <span className="text-xs text-[#f4b740] font-medium mt-1 inline-block">{activity.xp_recompensa} XP</span>
               </div>
-              <button onClick={() => deleteMutation.mutate(activity.id)} className="p-2 text-[#ee6c4d] hover:bg-[#ee6c4d]/10 rounded-lg transition-colors">
+              <button type="button" onClick={() => deleteMutation.mutate(activity.id)} className="p-2 text-[#ee6c4d] hover:bg-[#ee6c4d]/10 rounded-lg transition-colors">
                 <Trash2 size={16} />
               </button>
             </div>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Trophy } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
-import { BarraProgreso } from "@/componentes/ui/indicadores-progreso";
+import { BarraProgreso } from "@/componentes/ui/barra-progreso";
 import bannerKidsImg from "@/assets/images/Ilustraciones/Ninños 2.png";
 
 export interface ClubRetosCardProps {
@@ -16,7 +16,7 @@ export const ClubRetosCard: React.FC<ClubRetosCardProps> = ({
   actualActividades,
 }) => {
   return (
-    <Card className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm flex flex-col justify-between">
+    <Card sombra="sm" className="p-6 flex flex-col justify-between">
       <div className="flex items-start gap-4">
         <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500 flex-shrink-0">
           <Trophy size={18} className="fill-amber-500/10" />

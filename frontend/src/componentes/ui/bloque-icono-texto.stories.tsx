@@ -40,6 +40,11 @@ export const SoloTitulo: Story = {
 };
 
 export const ConIconosColoreados: Story = {
+  args: {
+    icono: <Heart className="size-5 text-red-500" />,
+    titulo: "Amor",
+    descripcion: "El amor de Dios es eterno",
+  },
   render: () => (
     <div className="space-y-4 w-80">
       <BloqueIconoTexto
@@ -66,6 +71,11 @@ export const ConIconosColoreados: Story = {
 
 export const DocumentacionCompleta: Story = {
   name: "📄 Documentación Completa",
+  args: {
+    icono: <Star className="size-5 text-amber-500" />,
+    titulo: "Bloque de ejemplo",
+    descripcion: "Componente con icono, título y descripción",
+  },
   parameters: {
     layout: "fullscreen",
   },

@@ -1,3 +1,6 @@
+import { Boton } from "@/componentes/ui/boton";
+import { Card } from "@/componentes/ui/card-base";
+import { EmptyState } from "@/componentes/ui/empty-state";
 import { TablaBase, type EncabezadoTabla } from "@/componentes/ui/tabla-base";
 import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeRol, type TipoRol } from "@/componentes/ui/badge-rol";
@@ -5,6 +8,7 @@ import { BadgeEstadoUsuario, type EstadoUsuario } from "@/componentes/ui/badge-e
 import { InfoNivelXP } from "@/componentes/ui/info-nivel-xp";
 import { Paginacion } from "@/componentes/ui/paginacion";
 import { TablaSkeleton } from "@/componentes/ui/tabla-skeleton";
+import { BotonAccion, FILA_HOVER_CLS, CheckboxCell } from "./admin.helpers";
 
 export type UserTableRow = {
   id: string;
@@ -35,6 +39,15 @@ export type AdminUsersTableProps = {
   onCambiarPagina: (pagina: number) => void;
 };
 
+function MenuAccionesUsuario() {
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <BotonAccion title="Ver detalles" icon="fa-eye" />
+      <BotonAccion title="Opciones" icon="fa-ellipsis-vertical" />
+    </div>
+  );
+}
+
 const ENCABEZADOS: EncabezadoTabla[] = [
   { contenido: <input type="checkbox" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />, className: "w-[40px] text-center" },
   { contenido: "Usuario", className: "w-[25%]" },
@@ -59,7 +72,7 @@ export function AdminUsersTable({
 }: AdminUsersTableProps) {
   if (isError) {
     return (
-      <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4">
+      <Card sombra="sm" className="flex items-center gap-3 border-red-200 bg-red-50 px-5 py-4">
         <i className="fa-solid fa-circle-exclamation text-red-500 text-lg" />
         <div>
           <p className="font-bold text-red-700 text-sm">Error al cargar usuarios</p>
@@ -68,14 +81,17 @@ export function AdminUsersTable({
           </p>
         </div>
         {onReintentar && (
-          <button
+          <Boton
+            variante="peligroContorno"
+            tamano="pequeno"
+            forma="pildora"
             onClick={onReintentar}
-            className="ml-auto text-xs font-bold text-red-600 hover:text-red-800 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+            className="ml-auto text-xs"
           >
             Reintentar
-          </button>
+          </Boton>
         )}
-      </div>
+      </Card>
     );
   }
 
@@ -112,10 +128,8 @@ export function AdminUsersTable({
 
 function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
   return (
-    <tr className="hover:bg-slate-50/40 transition-colors group cursor-pointer">
-      <td className="py-4 px-2 text-center" onClick={(e) => e.stopPropagation()}>
-        <input type="checkbox" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />
-      </td>
+    <tr className={FILA_HOVER_CLS}>
+      <CheckboxCell />
 
       <td className="py-4 px-4">
         <AvatarTexto
@@ -158,21 +172,8 @@ function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
         {usr.ultimoAcceso}
       </td>
 
-      <td className="py-4 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-end gap-1">
-          <button
-            title="Ver detalles"
-            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-          >
-            <i className="fa-solid fa-eye text-xs" />
-          </button>
-          <button
-            title="Opciones"
-            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-          >
-            <i className="fa-solid fa-ellipsis-vertical text-xs" />
-          </button>
-        </div>
+      <td className="py-4 px-4 text-right">
+        <MenuAccionesUsuario />
       </td>
     </tr>
   );
@@ -181,8 +182,7 @@ function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
 function EstadoVacio() {
   return (
     <td colSpan={9} className="py-16 text-center">
-      <i className="fa-regular fa-user text-slate-300 text-4xl mb-3 block" />
-      <p className="font-bold text-slate-500 text-sm">No hay usuarios registrados en la plataforma</p>
+      <EmptyState mensaje="No hay usuarios registrados en la plataforma" className="py-0 font-bold text-slate-500 text-sm" />
     </td>
   );
 }

@@ -23,16 +23,7 @@ function NewThemePage() {
   const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
   const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
 
-  if (sendasQuery.isLoading || ageGroupsQuery.isLoading || bibleVersionsQuery.isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader className="animate-spin text-primario" size={24} />
-        <span className="text-sm text-neutro ml-2">Cargando datos del catálogo...</span>
-      </div>
-    );
-  }
-
-  const { register, handleSubmit, control } = useForm<CrearTemaSolicitud>({
+  const { register, handleSubmit, control, getValues } = useForm<CrearTemaSolicitud>({
     defaultValues: {
       titulo: "",
       slug: "",
@@ -45,6 +36,8 @@ function NewThemePage() {
       xp_recompensa: 100
     }
   });
+
+  const [modoGuardado, setModoGuardado] = useState<"borrador" | "crecer">("crecer");
 
   const liveTitle = useWatch({ control, name: "titulo" }) || "Título del tema";
   const liveResumen = useWatch({ control, name: "resumen" }) || "Resumen breve del tema que ayudará a los niños a crecer en su fe.";
@@ -95,16 +88,43 @@ function NewThemePage() {
 
   const createMutation = useMutation({
     mutationFn: crearTema,
-    onSuccess: () => navigate({ to: "/admin/temas" })
+    onSuccess: (tema) => {
+      if (modoGuardado === "crecer") {
+        navigate({ to: "/admin/temas/$themeId/crecer", params: { themeId: tema.id } });
+        return;
+      }
+
+      navigate({ to: "/admin/temas" });
+    }
   });
 
   const onSubmitForm = (values: CrearTemaSolicitud) => {
+    setModoGuardado("crecer");
     createMutation.mutate({
       ...values,
       minutos_estimados: Number(values.minutos_estimados),
       xp_recompensa: Number(values.xp_recompensa)
     });
   };
+
+  const onSaveDraft = () => {
+    setModoGuardado("borrador");
+    const values = getValues();
+    createMutation.mutate({
+      ...values,
+      minutos_estimados: Number(values.minutos_estimados),
+      xp_recompensa: Number(values.xp_recompensa)
+    });
+  };
+
+  if (sendasQuery.isLoading || ageGroupsQuery.isLoading || bibleVersionsQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader className="animate-spin text-primario" size={24} />
+        <span className="text-sm text-neutro ml-2">Cargando datos del catálogo...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 text-left">
@@ -141,7 +161,7 @@ function NewThemePage() {
           />
           <FormNavigation
             isPending={createMutation.isPending}
-            onSaveDraft={() => console.log("Guardar borrador clicked")}
+            onSaveDraft={onSaveDraft}
           />
         </div>
 

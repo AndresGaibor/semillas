@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { FilaTabla, TablaBase } from "@/componentes/ui/tabla-base";
+import { BotonAccion, getSendaIcon, MenuAcciones, normalizarEstado, type MenuAccionItem } from "./admin.helpers";
 
 export type TemaTableRow = {
   id: string;
@@ -59,17 +60,6 @@ export function AdminThemesTable({
     { contenido: "Autor", className: "font-semibold" },
     { contenido: "Acciones", className: "pr-6 text-right font-semibold" },
   ];
-
-  const getSendaIcon = (sendaNombre: string, sendaIcono?: string) => {
-    if (sendaIcono === "fa-crown") return { icon: "fa-crown", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
-    if (sendaIcono === "fa-heart") return { icon: "fa-heart", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
-    if (sendaIcono === "fa-flame") return { icon: "fa-flame", color: "text-[#F97316] bg-[#F97316]/10" };
-    const s = sendaNombre.toLowerCase();
-    if (s.includes("padre")) return { icon: "fa-crown", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
-    if (s.includes("hijo")) return { icon: "fa-heart", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
-    if (s.includes("espíritu") || s.includes("espiritu")) return { icon: "fa-flame", color: "text-[#F97316] bg-[#F97316]/10" };
-    return { icon: "fa-star", color: "text-[#17A398] bg-[#17A398]/10" };
-  };
 
   return (
     <TablaBase encabezados={encabezados} contenedorClassName="max-h-[560px] select-none" tablaClassName="text-sm">
@@ -138,41 +128,14 @@ export function AdminThemesTable({
 
             <td className="relative py-4 pr-6 whitespace-nowrap text-right">
               <div className="flex items-center justify-end gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onPreview(tema.id)}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                  title="Vista previa"
-                >
-                  <i className="fa-solid fa-eye text-sm" />
-                </button>
+                <BotonAccion title="Vista previa" icon="fa-eye" onClick={() => onPreview(tema.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" />
 
-                <button
-                  type="button"
-                  onClick={() => onDetalle?.(tema.id)}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-primario"
-                  title="Ver detalle"
-                >
-                  <i className="fa-solid fa-file-lines text-sm" />
-                </button>
+                <BotonAccion title="Ver detalle" icon="fa-file-lines" onClick={() => onDetalle?.(tema.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-primario" />
 
-                <button
-                  type="button"
-                  onClick={() => onEditar(tema.id)}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                  title="Editar tema"
-                >
-                  <i className="fa-solid fa-pencil text-sm" />
-                </button>
+                <BotonAccion title="Editar tema" icon="fa-pencil" onClick={() => onEditar(tema.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" />
 
                 <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setActiveMenuId(activeMenuId === tema.id ? null : tema.id)}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                  >
-                    <i className="fa-solid fa-ellipsis-vertical text-sm" />
-                  </button>
+                  <BotonAccion title="Más opciones" icon="fa-ellipsis-vertical" onClick={() => setActiveMenuId(activeMenuId === tema.id ? null : tema.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" />
 
                   {activeMenuId === tema.id ? (
                     <>

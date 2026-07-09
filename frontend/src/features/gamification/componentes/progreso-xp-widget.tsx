@@ -1,7 +1,10 @@
 import * as React from "react";
 import { Zap } from "lucide-react";
 
-import { ProgresoCircular, BarraProgreso } from "@/componentes/ui/indicadores-progreso";
+import { CabeceraSeccion } from "@/componentes/ui/cabecera-seccion";
+import { ProgresoCircular } from "@/componentes/ui/progreso-circular";
+import { BarraProgreso } from "@/componentes/ui/barra-progreso";
+import { Card } from "@/componentes/ui/card-base";
 
 export interface ProgresoXpWidgetProps {
   xpTotal: number;
@@ -21,18 +24,8 @@ export const ProgresoXpWidget: React.FC<ProgresoXpWidgetProps> = ({
   onVerDetalles,
 }) => {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-base font-black text-slate-800 text-left">Tu progreso</h2>
-        {onVerDetalles && (
-          <button
-            onClick={onVerDetalles}
-            className="bg-transparent border-0 p-0 text-xs font-bold text-[#7E57C2] hover:underline cursor-pointer"
-          >
-            Ver detalles
-          </button>
-        )}
-      </div>
+    <Card sombra="sm" className="p-6 flex flex-col">
+      <CabeceraSeccion titulo="Tu progreso" textoBoton={onVerDetalles ? "Ver detalles" : undefined} onBotonClick={onVerDetalles} />
 
       <div className="flex items-center gap-5">
         {/* Progreso Circular */}
@@ -66,6 +59,6 @@ export const ProgresoXpWidget: React.FC<ProgresoXpWidgetProps> = ({
       <div className="mt-4">
         <BarraProgreso valor={porcentaje} color="morado" mostrarEtiquetas={false} />
       </div>
-    </div>
+    </Card>
   );
 };

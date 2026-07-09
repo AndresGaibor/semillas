@@ -1,3 +1,5 @@
+import { TabsOpciones } from "@/componentes/ui/tabs-opciones";
+
 type EditTab = "general" | "portada" | "config" | "publicacion";
 
 type AdminTemasEditTabsProps = {
@@ -14,21 +16,17 @@ const tabs: { id: EditTab; label: string; icon: string }[] = [
 
 export function AdminTemasEditTabs({ activeTab, onTabChange }: AdminTemasEditTabsProps) {
   return (
-    <div className="flex items-center gap-6 border-b border-slate-100 px-2 select-none">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={`pb-3 text-xs font-black border-b-2 transition-all cursor-pointer ${
-            activeTab === tab.id
-              ? "border-[#2e9e5b] text-[#2e9e5b]"
-              : "border-transparent text-slate-400 hover:text-slate-600"
-          }`}
-        >
-          <i className={`${tab.icon} mr-2 text-[10px]`} />
-          {tab.label}
-        </button>
-      ))}
-    </div>
+    <TabsOpciones
+      opciones={tabs.map((tab) => ({
+        id: tab.id,
+        label: tab.label,
+        icono: <i className={`${tab.icon} text-[10px]`} />,
+      }))}
+      activo={activeTab}
+      onCambiar={(id) => onTabChange(id as EditTab)}
+      clase="px-2"
+      claseActiva=""
+      claseInactiva=""
+    />
   );
 }

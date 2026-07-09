@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
+import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 import semillaImg from "@/assets/images/Ilustraciones/Semilla.png";
 
@@ -77,7 +78,7 @@ export function AdminSidebar({ activePage, isOpen, onClose, onLogout }: AdminSid
         {/* Bottom Panel */}
         <div className="mt-auto flex flex-col gap-3 border-t border-slate-100 pt-3 shrink-0">
           {/* Promo Seedling Card */}
-          <div className="relative flex h-[112px] flex-col justify-between overflow-hidden rounded-2xl border border-slate-100 bg-[#f7f4ec] p-4 text-left shadow-xs">
+          <Card sombra="sm" className="relative flex h-[112px] flex-col justify-between overflow-hidden border border-slate-100 bg-[#f7f4ec] p-4 text-left shadow-xs">
             <div className="flex flex-col gap-1 z-10 max-w-[65%]">
               <div className="text-[13px] font-black text-[#6c3aed]">Semillas crece contigo</div>
               <p className="text-[10px] leading-snug text-slate-500 font-bold">Cada contenido que gestionas inspira corazones y transforma vidas.</p>
@@ -87,7 +88,7 @@ export function AdminSidebar({ activePage, isOpen, onClose, onLogout }: AdminSid
               alt="Semilla mascot"
               className="w-16 h-16 object-contain absolute right-2 bottom-0 z-0"
             />
-          </div>
+          </Card>
 
           <div className="flex flex-col gap-3 md:hidden">
             <Link 

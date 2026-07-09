@@ -2,7 +2,7 @@ import * as React from "react";
 import { unirClases } from "@/lib/utilidades";
 import { Card } from "./card-base";
 import { Chip } from "./chip";
-import { BarraProgreso } from "./indicadores-progreso";
+import { BarraProgreso } from "./barra-progreso";
 import { Boton } from "./boton";
 
 interface PropiedadesCardPerfil {

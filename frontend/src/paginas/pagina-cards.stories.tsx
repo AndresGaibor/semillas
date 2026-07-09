@@ -18,3 +18,27 @@ export const VistaCompleta: Story = {
   name: "🎴 Vista Completa",
   render: () => <PaginaCards />,
 };
+
+export const VistaMovil: Story = {
+  name: "📱 Vista Móvil",
+  parameters: {
+    viewport: {
+      defaultViewport: "mobile1"
+    }
+  },
+  render: () => (
+    <div className="mx-auto w-[390px] overflow-hidden rounded-[32px] border border-slate-200 shadow-2xl">
+      <PaginaCards />
+    </div>
+  )
+};
+
+export const VistaDesktop: Story = {
+  name: "🖥️ Vista Desktop",
+  parameters: {
+    viewport: {
+      defaultViewport: "desktop"
+    }
+  },
+  render: () => <PaginaCards />
+};
