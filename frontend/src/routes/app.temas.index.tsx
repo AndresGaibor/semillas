@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo, useCallback } from "react";
-import { Compass, Loader2, AlertCircle } from "lucide-react";
+import { Compass, Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import { obtenerTemas } from "@/features/themes/themes.api";
 import { obtenerMiProgreso } from "@/features/progress/progress.api";
 import { CardLeccion } from "@/componentes/ui/card-leccion";
+import { Chip } from "@/componentes/ui/chip";
 import { TemasTabsFilter, type FiltroTab } from "@/features/themes/componentes/temas-tabs-filter";
 import { TemasSearchBar } from "@/features/themes/componentes/temas-search-bar";
 import { ResumenTemasCard } from "@/features/themes/componentes/resumen-temas-card";
@@ -13,8 +14,20 @@ import { usePortadasFirmadas } from "@/features/themes/hooks/usePortadasFirmadas
 import type { TemaUI, EstadoTema } from "@/features/themes/types";
 import type { Tema } from "@/shared/api/api";
 
+type SendaFiltro = "padre" | "hijo" | "espiritu";
+
+interface TemasSearch {
+  senda?: SendaFiltro;
+}
+
 export const Route = createFileRoute("/app/temas/")({
   component: PaginaTemas,
+  validateSearch: (search: Record<string, unknown>): TemasSearch => ({
+    senda:
+      search.senda === "padre" || search.senda === "hijo" || search.senda === "espiritu"
+        ? search.senda
+        : undefined,
+  }),
 });
 
 const STORAGE_KEY = "semillas:favoritos";
@@ -50,8 +63,24 @@ function mapearTema(t: Tema, porcentajeReal: number): TemaUI {
   };
 }
 
+const SENDAS = [
+  { id: "todas", label: "Todas las sendas", color: "gris" as const },
+  { id: "padre", label: "Senda del Padre", color: "amarillo" as const },
+  { id: "hijo", label: "Senda del Hijo", color: "azul" as const },
+  { id: "espiritu", label: "Senda del Espíritu Santo", color: "verde" as const },
+];
+
+function normalizarSenda(senda: string) {
+  const valor = senda.toLowerCase();
+  if (valor.includes("padre")) return "padre";
+  if (valor.includes("hijo")) return "hijo";
+  if (valor.includes("espíritu") || valor.includes("espiritu")) return "espiritu";
+  return "todas";
+}
+
 function PaginaTemas() {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const search = Route.useSearch();
   const [filtroTab, setFiltroTab] = useState<FiltroTab>("todos");
   const [busqueda, setBusqueda] = useState("");
   const [favoritosLocales, setFavoritosLocales] = useState<Record<string, boolean>>(leerFavoritos);
@@ -107,7 +136,9 @@ function PaginaTemas() {
         (filtroTab === "progreso" && tema.estado === "enProgreso") ||
         (filtroTab === "favoritos" && tema.favorito);
 
-      return cumpleBusqueda && cumpleTab;
+      const cumpleSenda = !search.senda || normalizarSenda(tema.senda) === search.senda;
+
+      return cumpleBusqueda && cumpleTab && cumpleSenda;
     });
 
     return {
@@ -119,7 +150,19 @@ function PaginaTemas() {
       },
       temaParaContinuar: temasConPortadas.find((t) => t.estado === "enProgreso"),
     };
-  }, [temasConPortadas, filtroTab, busqueda]);
+  }, [temasConPortadas, filtroTab, busqueda, search.senda]);
+
+  const cambiarSenda = useCallback(
+    (senda: SendaFiltro | "todas") => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          senda: senda === "todas" ? undefined : senda,
+        }),
+      });
+    },
+    [navigate],
+  );
 
   if (isLoading) {
     return (
@@ -145,6 +188,29 @@ function PaginaTemas() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 w-full font-sans text-left items-start">
       <div className="flex flex-col min-w-0">
+        <div className="mb-4 flex flex-wrap gap-2">
+          {SENDAS.map((senda) => {
+            const activa = (senda.id === "todas" && !search.senda) || search.senda === senda.id;
+
+            return (
+              <button
+                key={senda.id}
+                type="button"
+                onClick={() => cambiarSenda(senda.id as SendaFiltro | "todas")}
+                className="focus-visible:outline-none"
+              >
+                <Chip
+                  color={senda.color}
+                  forma="badgePildora"
+                  icono={<ArrowRight />}
+                  className={activa ? "ring-2 ring-offset-2 ring-slate-900/10" : "opacity-80"}
+                >
+                  {senda.label}
+                </Chip>
+              </button>
+            );
+          })}
+        </div>
         <TemasTabsFilter activo={filtroTab} onChange={setFiltroTab} />
         <TemasSearchBar valor={busqueda} onChange={setBusqueda} />
 
@@ -170,6 +236,7 @@ function PaginaTemas() {
                 favorito={tema.favorito}
                 imagenUrl={tema.imagenUrl ?? undefined}
                 estado={tema.estado}
+                mostrarSendaBadge={!search.senda}
                 onFavorito={() => {
                   const slug = temasApi?.find((t) => t.id === tema.id)?.slug ?? tema.id;
                   toggleFavorito(slug);

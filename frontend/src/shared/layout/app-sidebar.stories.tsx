@@ -8,38 +8,39 @@ import {
 } from "@tanstack/react-router";
 import { AppSidebar } from "./app-sidebar";
 
-const crearRouter = (activePage: string) => {
+const crearRouter = (activePage: string, variant: "app" | "admin" = "app") => {
   const rootRoute = createRootRoute();
+
+  const renderSidebar = () => (
+    <AppSidebar
+      activePage={activePage}
+      isOffline={false}
+      isOpen={true}
+      onClose={() => {}}
+      onLogout={() => {}}
+      variant={variant}
+    />
+  );
 
   const rutaApp = createRoute({
     getParentRoute: () => rootRoute,
     path: "/app",
-    component: () => (
-      <AppSidebar
-        activePage={activePage}
-        isOffline={false}
-        isOpen={true}
-        onClose={() => {}}
-        onLogout={() => {}}
-      />
-    ),
+    component: renderSidebar,
   });
 
   const rutaTemas = createRoute({
     getParentRoute: () => rootRoute,
     path: "/app/temas",
-    component: () => (
-      <AppSidebar
-        activePage={activePage}
-        isOffline={false}
-        isOpen={true}
-        onClose={() => {}}
-        onLogout={() => {}}
-      />
-    ),
+    component: renderSidebar,
   });
 
-  const routeTree = rootRoute.addChildren([rutaApp, rutaTemas]);
+  const rutaAdmin = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/admin",
+    component: renderSidebar,
+  });
+
+  const routeTree = rootRoute.addChildren([rutaApp, rutaTemas, rutaAdmin]);
 
   return createRouter({
     routeTree,
@@ -65,6 +66,7 @@ export const InicioActivo: Story = {
     isOpen: true,
     onClose: () => {},
     onLogout: () => {},
+    variant: "app",
   },
   render: () => <RouterProvider router={crearRouter("/app")} />,
 };
@@ -76,6 +78,19 @@ export const TemasActivo: Story = {
     isOpen: true,
     onClose: () => {},
     onLogout: () => {},
+    variant: "app",
   },
   render: () => <RouterProvider router={crearRouter("/app/temas")} />,
+};
+
+export const AdminActivo: Story = {
+  args: {
+    activePage: "/admin",
+    isOffline: false,
+    isOpen: true,
+    onClose: () => {},
+    onLogout: () => {},
+    variant: "admin",
+  },
+  render: () => <RouterProvider router={crearRouter("/admin", "admin")} />,
 };

@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/componentes/ui/button";
 import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
-import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/profile/profile.api";
 
+import type { Perfil, Usuario } from "@/shared/api/api";
 import { MAPA_AVATARES } from "@/shared/constants/avatares";
 
 type AppTopbarProps = {
@@ -13,16 +13,24 @@ type AppTopbarProps = {
   onLogout: () => void;
 };
 
-export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopbarProps) {
+export function obtenerDatosCuentaTopbar(perfil?: Perfil, usuario?: Usuario) {
+  const esInvitado = usuario?.proveedor === "invitado";
+  const nombre = esInvitado ? "Invitado" : perfil?.apodo || usuario?.nombre_visible || "Semillero";
+  const correo = esInvitado ? "Invitado" : usuario?.correo || "admin@semillas.org";
+  const avatarUrl = MAPA_AVATARES[perfil?.url_avatar || "1"] || MAPA_AVATARES["1"] || "";
+
+  return { nombre, correo, avatarUrl };
+}
+
+export function AppTopbar({ title, onOpenSidebar, onLogout }: AppTopbarProps) {
   const meQuery = useQuery({
     queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
 
   const perfil = meQuery.data?.perfil;
-  const apodo = perfil?.apodo || "Administrador";
-  const avatarIndex = perfil?.url_avatar || "1";
-  const resolvedAvatarUrl = MAPA_AVATARES[avatarIndex] || MAPA_AVATARES["1"] || "";
+  const usuario = meQuery.data?.usuario;
+  const cuenta = obtenerDatosCuentaTopbar(perfil, usuario);
 
   return (
     <header className="mb-5 flex items-center justify-between gap-4 max-sm:flex-wrap">
@@ -66,10 +74,10 @@ export function AppTopbar({ title, subtitle, onOpenSidebar, onLogout }: AppTopba
         </Button>
 
         <div className="flex items-center gap-3 cursor-pointer rounded-xl p-1.5 transition-colors hover:bg-slate-100">
-          <img src={resolvedAvatarUrl} alt="Avatar" className="h-9 w-9 rounded-full border border-slate-200 bg-white sm:h-10 sm:w-10" />
+          <img src={cuenta.avatarUrl} alt="Avatar" className="h-9 w-9 rounded-full border border-slate-200 bg-white sm:h-10 sm:w-10" />
           <div className="hidden flex-col md:flex">
-            <span className="text-sm font-black leading-tight text-slate-800">{apodo}</span>
-            <span className="text-xs font-bold text-slate-500">admin@semillas.org</span>
+            <span className="text-sm font-black leading-tight text-slate-800">{cuenta.nombre}</span>
+            <span className="text-xs font-bold text-slate-500">{cuenta.correo}</span>
           </div>
           <i className="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 hidden md:block"></i>
         </div>

@@ -1,6 +1,6 @@
 import { Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { AdminSidebar } from "../shared/layout/admin-sidebar";
+import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { sessionStorageApi } from "../shared/api/session";
 
@@ -76,8 +76,10 @@ function AdminLayout() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#fbf7ed]">
-      <AdminSidebar
+      <AppSidebar
         activePage={activePage}
+        variant="admin"
+        isOffline={false}
         isOpen={sidebarOpen}
         onClose={closeSidebar}
         onLogout={handleLogout}
