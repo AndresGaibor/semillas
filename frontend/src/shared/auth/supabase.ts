@@ -1,7 +1,14 @@
-import { createClient, type Session } from "@supabase/supabase-js";
-
-import { sessionStorageApi } from "../api/session";
+import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env";
+import {
+  cerrarSesionAutenticadaConCliente,
+  escucharCambiosAutenticacionConCliente,
+  iniciarSesionConCorreoConCliente,
+  iniciarSesionGoogleConCliente,
+  registrarConCorreoConCliente,
+  vincularGoogleConCliente,
+  sincronizarSesionAutenticadaConCliente,
+} from "./supabase.helpers";
 
 const supabaseUrl = env.supabaseUrl || "http://localhost:54321";
 const supabaseAnonKey = env.supabaseAnonKey || "test-anon-key";
@@ -14,57 +21,30 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-function sincronizarTokenSesion(session: Session | null) {
-  if (session?.access_token) {
-    sessionStorageApi.setAccessToken(session.access_token);
-    return;
-  }
-
-  sessionStorageApi.clearAccessToken();
+export async function sincronizarSesionAutenticada() {
+  return sincronizarSesionAutenticadaConCliente(supabase);
 }
 
-type ClienteSupabaseAuth = Pick<typeof supabase, "auth">;
-
-export async function sincronizarSesionAutenticada(cliente: ClienteSupabaseAuth = supabase) {
-  const { data, error } = await cliente.auth.getSession();
-
-  if (error) {
-    sessionStorageApi.clearAccessToken();
-    throw error;
-  }
-
-  sincronizarTokenSesion(data.session);
-  return data.session;
+export function escucharCambiosAutenticacion(onCambio?: Parameters<typeof escucharCambiosAutenticacionConCliente>[1]) {
+  return escucharCambiosAutenticacionConCliente(supabase, onCambio);
 }
 
-export function escucharCambiosAutenticacion(cliente: ClienteSupabaseAuth = supabase) {
-  const { data } = cliente.auth.onAuthStateChange((_event, session) => {
-    sincronizarTokenSesion(session);
-  });
-
-  return () => data.subscription.unsubscribe();
+export async function iniciarSesionGoogle(redirectTo: string) {
+  return iniciarSesionGoogleConCliente(supabase, redirectTo);
 }
 
-export async function iniciarSesionGoogle(redirectTo: string, cliente: ClienteSupabaseAuth = supabase) {
-  const { data, error } = await cliente.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo,
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-    },
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return data.url ?? "";
+export async function vincularGoogle() {
+  return vincularGoogleConCliente(supabase);
 }
 
-export async function cerrarSesionAutenticada(cliente: ClienteSupabaseAuth = supabase) {
-  await cliente.auth.signOut();
-  sessionStorageApi.clearAccessToken();
+export async function cerrarSesionAutenticada() {
+  return cerrarSesionAutenticadaConCliente(supabase);
+}
+
+export async function registrarConCorreo(email: string, password: string) {
+  return registrarConCorreoConCliente(supabase, email, password);
+}
+
+export async function iniciarSesionConCorreo(email: string, password: string) {
+  return iniciarSesionConCorreoConCliente(supabase, email, password);
 }

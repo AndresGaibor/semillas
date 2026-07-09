@@ -35,6 +35,26 @@ describe("tabla-base", () => {
     expect(String(fila.props.className)).toContain("cursor-pointer");
   });
 
+  it("no activa la fila cuando el click viene de un control interno", () => {
+    const handleClick = mock(() => undefined);
+    const fila = FilaTabla({
+      onActivate: handleClick,
+      children: (
+        <td>
+          <button type="button">Editar</button>
+        </td>
+      ),
+    });
+
+    fila.props.onClick?.({
+      target: {
+        closest: () => true,
+      },
+    } as any);
+
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
   it("renderiza el badge de estado con texto normalizado", () => {
     const html = renderToStaticMarkup(<BadgeEstado estado="en revisión" />);
 

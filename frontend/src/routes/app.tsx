@@ -5,6 +5,8 @@ import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { sessionStorageApi } from "../shared/api/session";
 import { cerrarSesionAutenticada } from "../shared/auth/supabase";
+import { BottomNav } from "@/componentes/ui/bottom-nav";
+import { obtenerNavMovilActivo, obtenerNavegacionMovil } from "../shared/layout/app-mobile-nav";
 
 import "./app.css";
 
@@ -47,15 +49,16 @@ function AppLayout() {
     navigate({ to: "/login" });
   };
 
+  const navegacionMovil = obtenerNavegacionMovil();
+  const opcionesBottomNav = navegacionMovil.map(({ id, etiqueta, icono }) => ({ id, etiqueta, icono }));
+  const activoMovil = obtenerNavMovilActivo(path);
+
   let tituloHeader = "Hola Semillero";
   let subtituloHeader = "Sigue aprendiendo y creciendo en la Palabra de Dios.";
 
   if (path.startsWith("/app/temas")) {
     tituloHeader = "Mis temas";
     subtituloHeader = "Explora y repasa los temas que has estudiado.";
-  } else if (path.startsWith("/app/sendas")) {
-    tituloHeader = "Sendas";
-    subtituloHeader = "Elige tu senda y recorre el camino de la fe.";
   } else if (path.startsWith("/app/logros")) {
     tituloHeader = "Mis insignias";
     subtituloHeader = "Los logros y premios que has alcanzado.";
@@ -80,18 +83,31 @@ function AppLayout() {
         onLogout={handleLogout}
       />
 
-      <main className="flex flex-1 flex-col overflow-y-auto p-6 md:p-8 lg:p-10">
+      <main className="flex flex-1 flex-col overflow-y-auto p-4 pb-24 md:p-8 md:pb-8 lg:p-10 lg:pb-10">
         <AppTopbar
           title={tituloHeader}
           subtitle={subtituloHeader}
           onOpenSidebar={() => setSidebarOpen(true)}
           onLogout={handleLogout}
+          showMenuButton={false}
         />
 
         <div className="flex flex-col gap-6 md:gap-8">
           <Outlet />
         </div>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-[120] md:hidden">
+        <BottomNav
+          opciones={opcionesBottomNav}
+          activo={activoMovil}
+          onCambiar={(id) => {
+            const destino = navegacionMovil.find((opcion) => opcion.id === id)?.to ?? "/app";
+            navigate({ to: destino as never });
+          }}
+          clase="pb-[env(safe-area-inset-bottom)]"
+        />
+      </div>
     </div>
   );
 }

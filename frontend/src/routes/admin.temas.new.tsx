@@ -4,7 +4,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { crearTema, type CrearTemaSolicitud } from "../features/admin/admin.api";
 import { obtenerGruposEdad, obtenerVersionesBiblicas } from "../features/catalog/catalog.api";
 import { obtenerSendas } from "../features/sendas/sendas.api";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Loader } from "lucide-react";
 
 import { AdminTemasNewHeader } from "../features/admin/componentes/admin-temas-new-header";
@@ -23,7 +23,7 @@ function NewThemePage() {
   const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
   const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
 
-  const { register, handleSubmit, control, getValues } = useForm<CrearTemaSolicitud>({
+  const { register, handleSubmit, control, getValues, setValue } = useForm<CrearTemaSolicitud>({
     defaultValues: {
       titulo: "",
       slug: "",
@@ -38,8 +38,25 @@ function NewThemePage() {
   });
 
   const [modoGuardado, setModoGuardado] = useState<"borrador" | "crecer">("crecer");
+  const slugManualEdit = useRef(false);
 
-  const liveTitle = useWatch({ control, name: "titulo" }) || "Título del tema";
+  const liveTitle = useWatch({ control, name: "titulo" }) || "";
+  const liveSlug = useWatch({ control, name: "slug" }) || "";
+
+  useEffect(() => {
+    if (!slugManualEdit.current && liveTitle) {
+      const slugGenerado = liveTitle
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .slice(0, 140);
+      setValue("slug", slugGenerado);
+    }
+  }, [liveTitle, setValue]);
+
   const liveResumen = useWatch({ control, name: "resumen" }) || "Resumen breve del tema que ayudará a los niños a crecer en su fe.";
   const liveDuration = useWatch({ control, name: "minutos_estimados" }) || 40;
   const liveXp = useWatch({ control, name: "xp_recompensa" }) || 100;
@@ -146,6 +163,7 @@ function NewThemePage() {
             onRemoveTag={removeTag}
             clubVisibilities={clubVisibilities}
             onClubVisibilitiesChange={setClubVisibilities}
+            onSlugManualEdit={() => { slugManualEdit.current = true; }}
           />
         </div>
 

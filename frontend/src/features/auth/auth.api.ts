@@ -1,6 +1,10 @@
 import { peticion } from "../../shared/api/api";
 import type { Autenticacion, Perfil, Usuario } from "../../shared/api/api";
-import { iniciarSesionGoogle as iniciarSesionGoogleSupabase } from "../../shared/auth/supabase";
+import {
+  iniciarSesionConCorreo as iniciarSesionConCorreoSupabase,
+  iniciarSesionGoogle as iniciarSesionGoogleSupabase,
+  registrarConCorreo as registrarConCorreoSupabase,
+} from "../../shared/auth/supabase";
 
 export type SesionInvitadoRespuesta = {
   usuario: Usuario;
@@ -20,19 +24,14 @@ export function crearSesionInvitado(datos: {
   });
 }
 
-export type ConfiguracionDevRespuesta = {
-  usuario: Usuario;
-  perfil: Perfil;
-  mensaje: string;
-};
-
-export function configurarDevAdmin() {
-  return peticion<ConfiguracionDevRespuesta>(
-    "/autenticacion/configuracion-dev",
-    { metodo: "POST", autenticar: false }
-  );
-}
-
 export function iniciarSesionGoogle(redirectTo: string) {
   return iniciarSesionGoogleSupabase(redirectTo);
+}
+
+export function registrarConCorreo(email: string, password: string) {
+  return registrarConCorreoSupabase(email, password);
+}
+
+export function iniciarSesionConCorreo(email: string, password: string) {
+  return iniciarSesionConCorreoSupabase(email, password);
 }

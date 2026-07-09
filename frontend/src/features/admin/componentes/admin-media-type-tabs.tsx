@@ -1,6 +1,6 @@
 import { TabsOpciones } from "@/componentes/ui/tabs-opciones";
 
-export type TipoMedia = "imagen" | "audio" | "video" | "documento";
+export type TipoMedia = "" | "imagen" | "audio" | "video" | "documento";
 
 type Props = {
   activeTab: TipoMedia;

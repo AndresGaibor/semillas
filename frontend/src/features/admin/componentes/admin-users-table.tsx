@@ -49,7 +49,7 @@ function MenuAccionesUsuario() {
 }
 
 const ENCABEZADOS: EncabezadoTabla[] = [
-  { contenido: <input type="checkbox" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />, className: "w-[40px] text-center" },
+  { contenido: <input type="checkbox" aria-label="Seleccionar todos los usuarios" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />, className: "w-[40px] text-center" },
   { contenido: "Usuario", className: "w-[25%]" },
   { contenido: "Rol" },
   { contenido: "Franja" },
@@ -129,7 +129,7 @@ export function AdminUsersTable({
 function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
   return (
     <tr className={FILA_HOVER_CLS}>
-      <CheckboxCell />
+      <CheckboxCell ariaLabel={`Seleccionar ${usr.nombre}`} />
 
       <td className="py-4 px-4">
         <AvatarTexto

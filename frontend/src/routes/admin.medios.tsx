@@ -10,6 +10,7 @@ import { AdminMediaFilters } from "../features/admin/componentes/admin-media-fil
 import { AdminMediaGrid } from "../features/admin/componentes/admin-media-grid";
 import { AdminMediaDetailPanel } from "../features/admin/componentes/admin-media-detail-panel";
 import type { MediaCardItem } from "../features/admin/__mocks__/medios.mock";
+import { mockupMedias } from "../features/admin/__mocks__/medios.mock";
 import type { TipoMedia } from "../features/admin/componentes/admin-media-type-tabs";
 
 import imgSemilla from "@/assets/images/Ilustraciones/Semilla.png";
@@ -45,6 +46,11 @@ function AdminMediosPage() {
 
   const mappedMedia = useMemo(() => {
     const dbAssets = mediaQuery.data ?? [];
+
+    if (!dbAssets.length) {
+      return mockupMedias;
+    }
+
     const poolImgs = [imgSemilla, imgIn1, imgVersiculo, imgIn2, imgTema2, imgTema3, imgExploradores, imgEmbajadores];
 
     return dbAssets.map((asset, index) => {
@@ -60,7 +66,7 @@ function AdminMediosPage() {
       return {
         id: asset.id,
         nombre: asset.titulo || `recurso_multimedia_${index + 1}.${format.toLowerCase()}`,
-        tipo: asset.tipo as TipoMedia,
+        tipo: asset.tipo as "imagen" | "audio" | "video" | "documento",
         tipoLabel: asset.tipo.charAt(0).toUpperCase() + asset.tipo.slice(1),
         imgUrl,
         usadoEnCount: 2 + (index % 4),
@@ -79,7 +85,7 @@ function AdminMediosPage() {
 
   const filteredMedia = useMemo(() => {
     return mappedMedia.filter((item) => {
-      if (item.tipo !== activeTab) return false;
+      if (activeTab && item.tipo !== activeTab) return false;
       if (
         searchValue &&
         !item.nombre.toLowerCase().includes(searchValue.toLowerCase()) &&
@@ -108,8 +114,12 @@ function AdminMediosPage() {
   const handleTabChange = (tab: TipoMedia) => {
     setActiveTab(tab);
     setPaginaActual(1);
-    const first = mappedMedia.find((m) => m.tipo === tab);
-    setSelectedId(first?.id ?? "");
+    if (tab) {
+      const first = mappedMedia.find((m) => m.tipo === tab);
+      setSelectedId(first?.id ?? "");
+    } else {
+      setSelectedId(mappedMedia[0]?.id ?? "");
+    }
   };
 
   const handleDelete = async (id: string) => {

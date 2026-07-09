@@ -223,28 +223,32 @@
   }
 
   .onboarding-age-hero {
-    margin-bottom: 18px !important;
+    margin-bottom: 14px !important;
   }
 
   .onboarding-age-hero__title {
-    font-size: clamp(1.55rem, 6vw, 1.95rem) !important;
-    line-height: 1.04 !important;
+    font-size: clamp(1.42rem, 5.4vw, 1.72rem) !important;
+    line-height: 1.08 !important;
     letter-spacing: -0.03em;
-    max-width: 14ch;
+    max-width: 13ch;
     margin-inline: auto !important;
   }
 
   .onboarding-age-hero__copy {
-    font-size: 0.95rem !important;
-    line-height: 1.5 !important;
-    max-width: 30ch;
+    font-size: 0.9rem !important;
+    line-height: 1.45 !important;
+    max-width: 28ch;
     margin-inline: auto !important;
+    color: #6b7280 !important;
   }
 
   .onboarding-age-stepper {
-    max-width: 560px;
+    max-width: 520px;
     margin-inline: auto;
-    margin-bottom: 24px !important;
+    margin-bottom: 20px !important;
+    padding: 3px !important;
+    background: rgba(244, 245, 247, 0.92) !important;
+    border-radius: 16px !important;
   }
 
   .onboarding-preview {

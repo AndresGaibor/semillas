@@ -1,8 +1,23 @@
+import { useState, useCallback } from "react";
 import { Paginacion } from "@/componentes/ui/paginacion";
 import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 import { MediaTypeBadge } from "./media-type-badge";
 import type { MediaCardItem } from "../__mocks__/medios.mock";
+
+const COLORES_TIPO = {
+  imagen: "from-[#2e9e5b]/20 to-[#2e9e5b]/5 text-[#2e9e5b]",
+  audio: "from-[#6c3aed]/20 to-[#6c3aed]/5 text-[#6c3aed]",
+  video: "from-[#ee6c4d]/20 to-[#ee6c4d]/5 text-[#ee6c4d]",
+  documento: "from-[#17a398]/20 to-[#17a398]/5 text-[#17a398]",
+} as const;
+
+const ICONOS_TIPO = {
+  imagen: "fa-regular fa-image",
+  audio: "fa-solid fa-volume-high",
+  video: "fa-solid fa-circle-play",
+  documento: "fa-solid fa-file-pdf",
+} as const;
 
 type Props = {
   items: MediaCardItem[];
@@ -13,6 +28,24 @@ type Props = {
   onCambiarPagina: (pagina: number) => void;
   onCambiarPorPagina: (n: number) => void;
 };
+
+function ImagenConFallback({ src, alt, tipo }: { src: string; alt: string; tipo: MediaCardItem["tipo"] }) {
+  const [fallo, setFallo] = useState(false);
+
+  const manejarError = useCallback(() => setFallo(true), []);
+
+  if (fallo) {
+    return (
+      <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${COLORES_TIPO[tipo]}`}>
+        <i className={`${ICONOS_TIPO[tipo]} text-3xl opacity-40`} />
+      </div>
+    );
+  }
+
+  return (
+    <img src={src} alt={alt} className="w-full h-full object-cover" onError={manejarError} />
+  );
+}
 
 export function AdminMediaGrid({
   items,
@@ -58,11 +91,7 @@ export function AdminMediaGrid({
                 }`}
               >
                 <div className="w-full h-32 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/50 relative flex items-center justify-center shrink-0">
-                  <img
-                    src={item.imgUrl}
-                    alt={item.nombre}
-                    className="w-full h-full object-cover"
-                  />
+                  <ImagenConFallback src={item.imgUrl} alt={item.nombre} tipo={item.tipo} />
 
                   <div className="absolute left-2.5 bottom-2.5 w-6 h-6 rounded-lg bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-[11px]">
                     {item.tipo === "imagen" && <i className="fa-regular fa-image" />}

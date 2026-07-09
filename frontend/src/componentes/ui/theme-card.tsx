@@ -214,7 +214,7 @@ export function ThemeCard({
           ) : (
             <span
               className={unirClases(
-                "inline-flex items-center justify-center gap-1.5 self-center rounded-full px-5 py-2 text-[10px] font-black transition-colors",
+                "inline-flex w-full max-w-[240px] items-center justify-center gap-2 self-center rounded-full px-5 py-3 text-[13px] font-black transition-colors sm:w-auto sm:max-w-none sm:py-2 sm:text-[10px]",
                 estado === "enProgreso" ? "bg-sky-100 text-sky-600" : "bg-slate-900 text-white group-hover:bg-primario",
               )}
             >

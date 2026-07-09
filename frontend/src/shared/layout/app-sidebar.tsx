@@ -62,7 +62,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout, v
       />
 
       <aside
-        className={`fixed left-0 top-0 z-[110] flex h-screen w-[260px] max-w-[82vw] flex-col border-r border-[#e5e7eb] bg-slate-50 px-4 py-5 shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:w-[248px] md:translate-x-0 md:opacity-100 md:px-4 md:py-5 ${
+        className={`fixed left-0 top-0 z-[110] hidden h-screen w-[260px] max-w-[82vw] flex-col border-r border-[#e5e7eb] bg-slate-50 px-4 py-5 shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:flex md:w-[248px] md:translate-x-0 md:opacity-100 md:px-4 md:py-5 ${
           isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 md:translate-x-0 md:opacity-100"
         }`}
       >

@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Loader } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { AdminActivitiesHeader } from "@/features/admin/componentes/admin-activities-header";
 import { AdminActivitiesTabs } from "@/features/admin/componentes/admin-activities-tabs";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/admin/actividades")({
 });
 
 function AdminActivitiesPage() {
+  const queryClient = useQueryClient();
   const {
     searchValue, setSearchValue,
     selectedTemaId, setSelectedTemaId,
@@ -24,9 +26,15 @@ function AdminActivitiesPage() {
     paginaActual, setPaginaActual,
     porPagina, setPorPagina,
     isLoading,
-    filteredActivities, tabCounts, summaryStats,
-    clearFilters, tieneFiltros,
-    temasBase, sendasBase, ageGroupsBase,
+    filteredActivities,
+    filteredTotal,
+    tabCounts,
+    summaryStats,
+    clearFilters,
+    tieneFiltros,
+    temasBase,
+    sendasBase,
+    ageGroupsBase,
   } = useAdminActivities();
 
   return (
@@ -60,11 +68,12 @@ function AdminActivitiesPage() {
           <AdminActivitiesTable
             activities={filteredActivities}
             isLoading={isLoading}
-            totalResultados={filteredActivities.length}
+            totalResultados={filteredTotal}
             paginaActual={paginaActual}
             onCambiarPagina={setPaginaActual}
             porPagina={porPagina}
             onCambiarPorPagina={setPorPagina}
+            onActividadEliminada={() => queryClient.invalidateQueries({ queryKey: ["admin", "activities"] })}
           />
         </div>
 
