@@ -19,7 +19,7 @@ export interface PropiedadesCardLeccion {
   clase?: string;
 }
 
-export const CardLeccion: React.FC<PropiedadesCardLeccion> = ({
+export function CardLeccion({
   estado = "porDefecto",
   senda,
   titulo,
@@ -30,7 +30,7 @@ export const CardLeccion: React.FC<PropiedadesCardLeccion> = ({
   onFavorito,
   onAccion,
   clase,
-}) => {
+}: PropiedadesCardLeccion) {
   const esBloqueada = estado === "bloqueada";
   const esError = estado === "error";
   const { esPadre, esHijo, esEspiritu, texto: claseSenda, relleno: claseRellenoBarra } = obtenerClasesSenda(senda);
@@ -81,7 +81,7 @@ export const CardLeccion: React.FC<PropiedadesCardLeccion> = ({
             {senda}
           </span>
 
-          <h3 className="text-[15px] font-black text-slate-800 leading-tight">
+          <h3 className="text-sm md:text-base font-black text-slate-800 leading-tight">
             {titulo}
           </h3>
 

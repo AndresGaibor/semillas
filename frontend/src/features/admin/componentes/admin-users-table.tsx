@@ -138,8 +138,8 @@ function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
           titulo={usr.nombre}
           subtitulo={usr.correo}
           avatarClassName="w-9 h-9 rounded-full border-2 border-slate-100"
-          tituloClassName="font-extrabold text-slate-800 text-[13px] group-hover:text-[#2e9e5b] transition-colors"
-          subtituloClassName="text-[11px] text-slate-400 mt-0.5"
+          tituloClassName="font-extrabold text-slate-800 text-xs group-hover:text-[#2e9e5b] transition-colors sm:text-sm"
+          subtituloClassName="text-xs text-slate-400 mt-0.5"
         />
       </td>
 
@@ -147,7 +147,7 @@ function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
         <BadgeRol rol={usr.rol} />
       </td>
 
-      <td className="py-4 px-4 font-bold text-slate-500 text-[12px] whitespace-nowrap">
+      <td className="py-4 px-4 font-bold text-slate-500 text-xs whitespace-nowrap">
         {usr.franja}
       </td>
 
@@ -156,7 +156,7 @@ function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
           <div className={`w-5 h-5 rounded-full ${usr.clubBadgeBg} flex items-center justify-center shrink-0`}>
             <i className={`fa-solid ${usr.clubIcon} text-[9px] ${usr.clubIconColor}`} />
           </div>
-          <span className="font-bold text-slate-600 text-[12px] whitespace-nowrap">{usr.club}</span>
+          <span className="font-bold text-slate-600 text-xs whitespace-nowrap">{usr.club}</span>
         </div>
       </td>
 
@@ -168,7 +168,7 @@ function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
         <BadgeEstadoUsuario estado={usr.estado} />
       </td>
 
-      <td className="py-4 px-4 text-slate-400 font-bold text-[11px] whitespace-nowrap">
+      <td className="py-4 px-4 text-slate-400 font-bold text-xs whitespace-nowrap">
         {usr.ultimoAcceso}
       </td>
 

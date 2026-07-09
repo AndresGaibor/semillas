@@ -10,10 +10,10 @@ export interface ContinuarAprendiendoCardProps {
   onContinuar: () => void;
 }
 
-export const ContinuarAprendiendoCard: React.FC<ContinuarAprendiendoCardProps> = ({
+export function ContinuarAprendiendoCard({
   tema,
   onContinuar,
-}) => {
+}: ContinuarAprendiendoCardProps) {
   if (!tema) {
     return (
       <Card sombra="sm" hoverEffect="none" clase="p-6 rounded-[24px] flex flex-col items-center justify-center text-center gap-3">
@@ -29,7 +29,7 @@ export const ContinuarAprendiendoCard: React.FC<ContinuarAprendiendoCardProps> =
   return (
     <Card sombra="sm" hoverEffect="none" clase="p-6 rounded-[24px] flex flex-col gap-5">
       <div className="flex justify-between items-center">
-        <h3 className="text-[17.5px] font-extrabold text-slate-800">
+        <h3 className="text-base md:text-lg font-extrabold text-slate-800">
           Continuar aprendiendo
         </h3>
         <TrendingUp className="size-6 text-emerald-500" />

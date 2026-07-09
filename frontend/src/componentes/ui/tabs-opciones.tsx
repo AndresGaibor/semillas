@@ -51,7 +51,7 @@ export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
             className={unirClases(
               esVariantePildora
                 ? "px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7E57C2]/30 focus-visible:ring-offset-2"
-                : "flex items-center gap-2 pb-3 font-bold text-[13px] transition-all border-b-2 outline-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2e9e5b]/30",
+                : "flex items-center gap-2 pb-3 font-bold text-xs transition-all border-b-2 outline-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2e9e5b]/30 sm:text-sm",
               esActivo
                 ? esVariantePildora
                   ? "bg-[#7E57C2] text-white shadow-sm"

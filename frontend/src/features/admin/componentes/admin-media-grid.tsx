@@ -27,7 +27,7 @@ export function AdminMediaGrid({
 
   return (
     <>
-      <div className="text-[12px] text-slate-400 font-bold select-none">
+      <div className="text-xs text-slate-400 font-bold select-none">
         {total} recursos encontrados
       </div>
 
@@ -79,7 +79,7 @@ export function AdminMediaGrid({
                 </div>
 
                 <div className="flex flex-col mt-3.5 min-w-0">
-                  <span className="font-extrabold text-slate-800 text-[12.5px] truncate group-hover:text-[#2e9e5b] transition-colors">
+                  <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-[#2e9e5b] transition-colors sm:text-sm">
                     {item.nombre}
                   </span>
 
@@ -87,7 +87,7 @@ export function AdminMediaGrid({
                     <MediaTypeBadge tipo={item.tipo} />
                   </div>
 
-                  <div className="flex items-center justify-between mt-3 text-[11px] text-slate-400 font-bold">
+                  <div className="flex items-center justify-between mt-3 text-xs text-slate-400 font-bold">
                     <span>Usado en {item.usadoEnCount} contenidos</span>
 
                     <Boton

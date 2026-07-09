@@ -7,15 +7,15 @@ export interface ResumenTemasCardProps {
   enProgreso: number;
 }
 
-export const ResumenTemasCard: React.FC<ResumenTemasCardProps> = ({
+export function ResumenTemasCard({
   totales,
   completados,
   enProgreso,
-}) => {
+}: ResumenTemasCardProps) {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[17.5px] font-extrabold text-slate-800 text-left w-full">
+        <h3 className="text-base md:text-lg font-extrabold text-slate-800 text-left w-full">
           Resumen de temas
         </h3>
       </div>
@@ -49,4 +49,4 @@ export const ResumenTemasCard: React.FC<ResumenTemasCardProps> = ({
       </div>
     </div>
   );
-};
+}

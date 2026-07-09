@@ -32,9 +32,9 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
           <i className="fa-regular fa-image text-slate-350 text-4xl mb-3.5" />
           <EmptyState
             mensaje="Ning&uacute;n recurso seleccionado"
-            className="py-0 text-[12px] text-slate-500 font-extrabold"
+            className="py-0 text-xs text-slate-500 font-extrabold"
           />
-          <p className="text-[11px] text-slate-400 mt-1 leading-normal max-w-[200px]">
+          <p className="text-xs text-slate-400 mt-1 leading-normal max-w-[200px]">
             Selecciona un elemento de la galer&iacute;a para ver sus detalles y
             metadatos.
           </p>
@@ -50,7 +50,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
           </div>
 
           <div className="flex flex-col mt-4">
-            <h4 className="font-black text-slate-800 text-[14px] break-all">
+            <h4 className="font-black text-slate-800 text-sm md:text-base break-all">
               {selectedResource.nombre}
             </h4>
 
@@ -66,7 +66,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
             <h4 className="font-extrabold text-slate-800 text-xs mt-5 mb-2 select-none">
               Informaci&oacute;n t&eacute;cnica
             </h4>
-            <div className="flex flex-col gap-2.5 text-[11px] font-semibold text-slate-650">
+            <div className="flex flex-col gap-2.5 text-xs font-semibold text-slate-650">
               <DetailRow label="Tama&ntilde;o del archivo" value={selectedResource.tamano} noBorder />
               <DetailRow label="Formato" value={selectedResource.formato} noBorder />
               <DetailRow label="Resoluci&oacute;n" value={selectedResource.resolucion} noBorder />
@@ -76,7 +76,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
             <h4 className="font-extrabold text-slate-800 text-xs mt-5 mb-2 select-none">
               Texto alternativo (Alt)
             </h4>
-            <p className="text-[11px] font-semibold text-slate-500 bg-slate-50 rounded-xl p-3 border border-slate-100 leading-relaxed text-left">
+            <p className="text-xs font-semibold text-slate-500 bg-slate-50 rounded-xl p-3 border border-slate-100 leading-relaxed text-left">
               {selectedResource.altText}
             </p>
 
@@ -87,7 +87,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
               {selectedResource.etiquetas.map((t, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100 text-[10.5px] font-extrabold text-slate-600"
+                  className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100 text-xs font-extrabold text-slate-600"
                 >
                   {t}
                 </span>
@@ -135,7 +135,7 @@ function DetailRow({
 }) {
   return (
     <div
-      className={`flex items-center justify-between text-[11px] font-semibold py-3 select-none ${noBorder ? "" : "border-b border-slate-50"} ${className}`}
+      className={`flex items-center justify-between text-xs font-semibold py-3 select-none ${noBorder ? "" : "border-b border-slate-50"} ${className}`}
     >
       <span className="text-slate-400">{label}:</span>
       <span className="font-extrabold text-slate-800">{value}</span>

@@ -85,7 +85,7 @@ export const CardInsignia: React.FC<PropiedadesCardInsignia> = ({
 
         <div>
           <h4 className="text-xs font-black text-slate-800 leading-tight mb-1">{titulo}</h4>
-          <p className="text-[10px] text-slate-400 font-semibold leading-snug line-clamp-2 px-1">
+          <p className="text-xs text-slate-400 font-semibold leading-snug line-clamp-2 px-1">
             {descripcion}
           </p>
         </div>
@@ -94,7 +94,7 @@ export const CardInsignia: React.FC<PropiedadesCardInsignia> = ({
       <div className="w-full mt-4">
         {obtenida ? (
           <div
-            className="text-[10px] font-bold py-1 rounded-lg text-center"
+            className="text-xs font-bold py-1 rounded-lg text-center"
             style={{ backgroundColor: "#D1FAE5", color: "#065F46" }}
           >
             ¡Logro obtenido!
@@ -107,13 +107,13 @@ export const CardInsignia: React.FC<PropiedadesCardInsignia> = ({
               mostrarEtiquetas={false}
               color={color === "amarillo" ? "naranja" : color === "gris" ? "azul" : color}
             />
-            <span className="text-[9px] text-slate-400 font-bold self-end mt-0.5">
+            <span className="text-[10px] text-slate-400 font-bold self-end mt-0.5">
               {progresoActual} / {progresoMaximo}
             </span>
           </div>
         ) : (
           <div
-            className="text-[10px] font-bold py-1 rounded-lg text-center border border-slate-200"
+            className="text-xs font-bold py-1 rounded-lg text-center border border-slate-200"
             style={{ backgroundColor: "#F1F5F9", color: "#64748B" }}
           >
             Bloqueado

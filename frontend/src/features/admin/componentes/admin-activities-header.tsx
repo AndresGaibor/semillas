@@ -11,7 +11,7 @@ export function AdminActivitiesHeader() {
         </div>
         <div>
           <h2 className="text-2xl font-black text-slate-800">Actividades</h2>
-          <p className="text-[13px] text-slate-500 mt-1">Crea, administra y organiza actividades para fortalecer el aprendizaje en cada senda.</p>
+          <p className="text-xs text-slate-500 mt-1 sm:text-sm">Crea, administra y organiza actividades para fortalecer el aprendizaje en cada senda.</p>
         </div>
       </div>
       <div className="flex items-center">

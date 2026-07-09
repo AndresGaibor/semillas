@@ -35,11 +35,11 @@ export function BloqueIconoTexto({
       </div>
 
       <div className="min-w-0 flex-1">
-        <span className={unirClases("block text-[13.6px] font-extrabold leading-tight text-neutro-oscuro-max", tituloClassName)}>
+        <span className={unirClases("block text-sm font-extrabold leading-tight text-neutro-oscuro-max sm:text-base", tituloClassName)}>
           {titulo}
         </span>
         {descripcion ? (
-          <span className={unirClases("mt-1 block text-[11px] leading-tight text-neutro", descripcionClassName)}>
+          <span className={unirClases("mt-1 block text-xs leading-tight text-neutro", descripcionClassName)}>
             {descripcion}
           </span>
         ) : null}
