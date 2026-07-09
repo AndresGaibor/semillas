@@ -281,7 +281,7 @@ mediaRoutes.get("/:id", async (c) => {
   return responderExito(recurso);
 });
 
-mediaRoutes.delete("/:id", authMiddleware, async (c) => {
+mediaRoutes.delete("/:id", authMiddleware, requireRole("administrador"), async (c) => {
   const db = c.get("db");
   const id = c.req.param("id");
 

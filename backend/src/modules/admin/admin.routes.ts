@@ -122,6 +122,7 @@ function mapStep(step: Record<string, unknown>) {
 export const adminRoutes = new Hono<AppBindings>();
 
 adminRoutes.use("*", authMiddleware);
+adminRoutes.use("*", requireRole("administrador"));
 
 function mapActivity(activity: Record<string, unknown>) {
   const tipoActividadRaw = activity.tipo_actividad as Record<string, unknown> | undefined;
