@@ -12,7 +12,7 @@ import "./app.css";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: () => {
-    if (!hasSession()) throw redirect({ to: "/login" });
+    if (!hasSession()) throw redirect({ to: "/login", search: { redirect: "/app" } });
   },
   component: AppLayout,
 });
@@ -46,7 +46,7 @@ function AppLayout() {
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestUserId();
-    navigate({ to: "/login" });
+    navigate({ to: "/login", search: { redirect: "/onboarding" } });
   };
 
   const navegacionMovil = obtenerNavegacionMovil();

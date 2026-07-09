@@ -37,7 +37,7 @@ function AdminLayout() {
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestUserId();
-    navigate({ to: "/login" });
+    navigate({ to: "/login", search: { redirect: "/onboarding" } });
   };
 
   let tituloHeader = "Panel de Control";

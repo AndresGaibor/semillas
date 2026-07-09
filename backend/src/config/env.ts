@@ -2,20 +2,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../db/database.types";
 
 export type UserRole = "administrador" | "usuario" | "invitado" | "padre";
+export type AuthProvider = Database["public"]["Enums"]["proveedor_autenticacion"];
 
 export type AuthUser = {
   id: string;
   role: UserRole;
   displayName: string;
   email: string | null;
-  provider: string;
+  provider: AuthProvider;
 };
 
 export type AuthSessionUser = {
   id: string;
   displayName: string;
   email: string | null;
-  provider: string;
+  provider: AuthProvider;
 };
 
 export type Env = {

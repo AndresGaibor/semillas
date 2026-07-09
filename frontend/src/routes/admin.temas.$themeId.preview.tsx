@@ -355,6 +355,35 @@ function MetricMini({ icon: Icon, label, value }: { icon: LucideIcon; label: str
   );
 }
 
+function SubPanel({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-100 bg-[#faf8f2] p-4">
+      <div className="mb-3 flex items-center gap-2 text-slate-700">
+        <Icon size={16} className="text-[#2e9e5b]" />
+        <h3 className="text-sm font-black">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function SidebarMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{label}</span>
+      <span className="text-sm font-extrabold text-slate-800">{value}</span>
+    </div>
+  );
+}
+
 function SectionCard({
   icon: Icon,
   title,
