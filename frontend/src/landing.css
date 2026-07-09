@@ -57,7 +57,7 @@ body {
 }
 
 .navbar__logo-text .brand {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   font-weight: 800;
   color: var(--color-secundario-oscuro-min, #123b2c);
   line-height: 1;
@@ -139,7 +139,7 @@ body {
 }
 
 .hero__content h1 {
-  font-size: 3.2rem; /* Reduced from 4rem */
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
   font-weight: 900;
   color: var(--color-secundario-oscuro-max, #0a251b);
   line-height: 1.2;
@@ -148,7 +148,7 @@ body {
 }
 
 .hero__content p {
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   color: var(--color-neutro, #666);
   margin-bottom: 24px;
   line-height: 1.5;
@@ -258,7 +258,7 @@ body {
 .path-card--purple .path-label { color: var(--color-secundario, #8e44ad); }
 
 .path-card h3 {
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
   font-weight: 800;
   margin-bottom: 12px;
 }
@@ -348,14 +348,14 @@ body {
 }
 
 .clubes__content h2 {
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 900;
   color: var(--color-secundario-oscuro-max, #0a251b);
   margin-bottom: 16px;
 }
 
 .clubes__content p {
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   color: var(--color-neutro, #666);
   margin-bottom: 32px;
   line-height: 1.5;
@@ -395,7 +395,7 @@ body {
 }
 
 .feature-card__text h4 {
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   font-weight: 700;
   margin-bottom: 8px;
   color: var(--color-neutro-oscuro-max, #333);
@@ -425,14 +425,14 @@ body {
 }
 
 .methodology__header h2 {
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 900;
   color: var(--color-secundario-oscuro-max, #0a251b);
   margin-bottom: 12px;
 }
 
 .methodology__header p {
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   color: var(--color-neutro, #666);
 }
 
@@ -655,9 +655,6 @@ body {
 }
 
 @media (max-width: 600px) {
-  .hero__content h1 {
-    font-size: 2.5rem;
-  }
   .hero__buttons {
     flex-direction: column;
     width: 100%;

@@ -56,7 +56,7 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
 
   return (
     <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left select-none">
-      <h3 className="text-[17px] font-black text-slate-800 mb-1">Resumen por estado</h3>
+      <h3 className="text-base md:text-lg font-black text-slate-800 mb-1">Resumen por estado</h3>
       <span className="text-xs text-slate-400 font-bold">Total de temas</span>
 
       {/* Big Total */}
