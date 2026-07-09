@@ -1,7 +1,17 @@
-name = "semillas-api"
+name = "api-semillas"
 main = "src/index.ts"
 compatibility_date = "2026-07-09"
 compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
 
 # Las rutas custom domain se configuran desde el dashboard (Workers → Triggers)
 # routes = [
