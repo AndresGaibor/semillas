@@ -6,6 +6,7 @@ import { Loader } from "lucide-react";
 import imagenFase from "../assets/images/Ilustraciones/Conectar.png";
 import { enviarEventosProgreso } from "../features/progress/progress.api";
 import type { EventoProgreso } from "../shared/api/api";
+import { playSound } from "../lib/audio";
 
 export const Route = createFileRoute("/app/C_conectar/$themeId")({
   component: CConectarPage
@@ -148,6 +149,7 @@ function CConectarPage() {
                 params={{ themeId }}
                 className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
                 style={{ backgroundColor: '#16a34a', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(22, 163, 74, 0.3), 0 8px 10px -6px rgba(22, 163, 74, 0.1)' }}
+                onClick={() => playSound('siguiente')}
               >
                 Siguiente Fase
               </Link>

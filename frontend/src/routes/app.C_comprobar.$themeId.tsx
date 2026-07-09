@@ -6,6 +6,8 @@ import { Loader } from "lucide-react";
 import imagenFase from "../assets/images/Ilustraciones/Comprobar.png";
 import { enviarEventosProgreso } from "../features/progress/progress.api";
 import type { EventoProgreso } from "../shared/api/api";
+import { playSound } from "../lib/audio";
+import { Flashcards } from "../componentes/actividades/Flashcards";
 
 export const Route = createFileRoute("/app/C_comprobar/$themeId")({
   component: CComprobarPage
@@ -65,6 +67,7 @@ function CComprobarPage() {
     // Si ya respondió, no permitimos cambiar (opcional)
     if (selectedAnswers[actividadId]) return;
     setSelectedAnswers(prev => ({ ...prev, [actividadId]: opcionId }));
+    playSound(esCorrecta ? 'acertado' : 'error');
 
     if (temaDbId) {
       const evento: EventoProgreso = {
@@ -168,6 +171,15 @@ function CComprobarPage() {
                         })}
                       </div>
                     )}
+
+                    {actividad.tipo_actividad?.codigo === 'tarjetas_memoria' && (
+                      <div className="mt-8">
+                        <Flashcards 
+                          actividad={actividad} 
+                          onComplete={(actId, xp) => handleSelectOption(actId, 'repaso_completado', true, xp)} 
+                        />
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
@@ -186,6 +198,7 @@ function CComprobarPage() {
                 params={{ themeId }}
                 className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
                 style={{ backgroundColor: '#7c3aed', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(124, 58, 237, 0.3), 0 8px 10px -6px rgba(124, 58, 237, 0.1)' }}
+                onClick={() => playSound('siguiente')}
               >
                 Siguiente Fase
               </Link>

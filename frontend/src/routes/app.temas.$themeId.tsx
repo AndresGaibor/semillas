@@ -4,6 +4,7 @@ import { obtenerTema, obtenerPasos, obtenerActividades, obtenerUrlPortadaTema } 
 import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { obtenerMiProgreso } from "../features/progress/progress.api";
 import { Zap, Loader, Play, CheckCircle, Clock } from "lucide-react";
+import { playSound } from "../lib/audio";
 
 const hex = (s: string | null | undefined): string => s ?? "#ccc";
 const hexColor = (s: string | null | undefined): React.CSSProperties["color"] => s ?? "#ccc";
@@ -124,6 +125,7 @@ function ThemeDetailPage() {
               params={{ themeId }}
               className="flex items-center justify-center gap-3 w-full py-4 rounded-[1.5rem] font-black text-lg shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
               style={{ backgroundColor: '#43a047', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(67, 160, 71, 0.3), 0 8px 10px -6px rgba(67, 160, 71, 0.1)' }}
+              onClick={() => playSound('iniciar')}
             >
               <Play fill="currentColor" size={22} />
               {progresoReal === 0 ? "Iniciar Actividad" : "Reanudar Actividad"}
