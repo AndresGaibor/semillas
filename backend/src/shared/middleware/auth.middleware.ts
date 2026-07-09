@@ -9,8 +9,38 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
 
   const guestUserId = c.req.header("x-guest-user-id");
   const authHeader = c.req.header("authorization");
+  c.set("guestUserId", guestUserId ?? null);
 
   if (guestUserId) {
+    const authUser = authHeader?.startsWith("Bearer ")
+      ? await (async () => {
+          const token = authHeader.replace("Bearer ", "").trim();
+          const authClient = createSupabaseAuthClient(c.env, token);
+
+          const {
+            data: { user },
+            error
+          } = await authClient.auth.getUser();
+
+          if (error || !user) {
+            throw new UnauthorizedError("Token inválido");
+          }
+
+          return {
+            id: user.id,
+            role: "usuario" as const,
+            displayName: user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email ?? "Semillero",
+            email: user.email ?? null,
+            provider:
+              user.app_metadata?.provider === "facebook"
+                ? "facebook"
+                : user.app_metadata?.provider === "google"
+                  ? "google"
+                  : "correo"
+          };
+        })()
+      : null;
+
     const { data, error } = await db
       .from("usuario_app")
       .select("id, rol, proveedor, nombre_visible, correo")
@@ -29,6 +59,10 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
       email: data.correo,
       provider: data.proveedor
     });
+
+    if (authUser) {
+      c.set("authSessionUser", authUser);
+    }
 
     await next();
     return;
@@ -111,6 +145,14 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
     displayName: appUser.nombre_visible,
     email: appUser.correo,
     provider: appUser.proveedor
+  });
+
+  c.set("authSessionUser", {
+    id: user.id,
+    displayName:
+      user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email ?? appUser.nombre_visible,
+    email: user.email ?? null,
+    provider
   });
 
   await next();

@@ -11,6 +11,13 @@ export type AuthUser = {
   provider: string;
 };
 
+export type AuthSessionUser = {
+  id: string;
+  displayName: string;
+  email: string | null;
+  provider: string;
+};
+
 export type Env = {
   APP_ENV: string;
   CORS_ORIGIN: string;
@@ -24,6 +31,8 @@ export type Env = {
 export type Variables = {
   db: SupabaseClient<Database>;
   user: AuthUser;
+  authSessionUser?: AuthSessionUser;
+  guestUserId?: string | null;
 };
 
 export type AppBindings = {
