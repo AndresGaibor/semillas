@@ -7,6 +7,9 @@ import { router } from "../router";
 import { escucharCambiosAutenticacion, sincronizarSesionAutenticada } from "../shared/auth/supabase";
 import { reclamarCuentaInvitada } from "../features/profile/profile.api";
 import { sessionStorageApi } from "../shared/api/session";
+import { guardarNombreSugeridoDeGoogle } from "../shared/auth/google-profile";
+import { obtenerRutaPostLogin } from "../shared/auth/post-login";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
 
 async function vincularCuentaPendiente() {
   const guestUserId = sessionStorageApi.getGuestUserId();
@@ -21,16 +24,36 @@ async function vincularCuentaPendiente() {
   await queryClient.invalidateQueries();
 }
 
+async function redirigirSegunOnboarding() {
+  const perfilRespuesta = await obtenerMiPerfil();
+  const ruta = obtenerRutaPostLogin(perfilRespuesta.perfil, perfilRespuesta.usuario);
+
+  if (window.location.pathname !== ruta) {
+    await router.navigate({ to: ruta as never, replace: true });
+  }
+}
+
 function AuthBootstrap({ children }: { children: ReactNode }) {
   const [listo, setListo] = useState(false);
 
   useEffect(() => {
-    const detenerEscucha = escucharCambiosAutenticacion(() => {
+    const detenerEscucha = escucharCambiosAutenticacion((session) => {
+      guardarNombreSugeridoDeGoogle(session);
       void vincularCuentaPendiente().catch(() => undefined);
     });
 
     sincronizarSesionAutenticada()
-      .then(() => vincularCuentaPendiente().catch(() => undefined))
+      .then((session) => {
+        guardarNombreSugeridoDeGoogle(session);
+
+        if (!session) {
+          return undefined;
+        }
+
+        return vincularCuentaPendiente()
+          .then(() => redirigirSegunOnboarding())
+          .catch(() => undefined);
+      })
       .catch(() => undefined)
       .finally(() => setListo(true));
 

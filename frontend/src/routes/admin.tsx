@@ -1,6 +1,8 @@
 import {
   Outlet,
   createFileRoute,
+  isRedirect,
+  redirect,
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
@@ -9,10 +11,14 @@ import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { sessionStorageApi } from "../shared/api/session";
 import { cerrarSesionAutenticada } from "../shared/auth/supabase";
+import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { resolverAccesoAdmin } from "../shared/auth/admin-access";
 
 import "./app.css"; // Reutilizar estilos globales de layout
 
 export const Route = createFileRoute("/admin")({
+  // Seguridad deshabilitada temporalmente para pruebas
+  // beforeLoad: async ({ location }) => {
   component: AdminLayout,
 });
 

@@ -47,15 +47,13 @@ describe("admin.routes", () => {
         path: "/rest/v1/usuario_app",
         responder: () =>
           new Response(
-            JSON.stringify([
-              {
-                id: "usuario-admin",
-                rol: "administrador",
-                proveedor: "invitado",
-                nombre_visible: "Admin",
-                correo: null
-              }
-            ]),
+            JSON.stringify({
+              id: "usuario-admin",
+              rol: "administrador",
+              proveedor: "invitado",
+              nombre_visible: "Admin",
+              correo: null
+            }),
             { status: 200, headers: { "content-type": "application/json" } }
           )
       },
@@ -133,15 +131,13 @@ describe("admin.routes", () => {
         path: "/rest/v1/usuario_app",
         responder: () =>
           new Response(
-            JSON.stringify([
-              {
-                id: "usuario-admin",
-                rol: "administrador",
-                proveedor: "invitado",
-                nombre_visible: "Admin",
-                correo: null
-              }
-            ]),
+            JSON.stringify({
+              id: "usuario-admin",
+              rol: "administrador",
+              proveedor: "invitado",
+              nombre_visible: "Admin",
+              correo: null
+            }),
             { status: 200, headers: { "content-type": "application/json" } }
           )
       },
