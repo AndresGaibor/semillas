@@ -9,6 +9,7 @@ import type { EventoProgreso } from "../shared/api/api";
 import { playSound } from "../lib/audio";
 import { CrecerLayout, PreguntaItem, OpcionesConFeedback } from "../features/crecer/componentes";
 import { Flashcards } from "../componentes/actividades/Flashcards";
+import { QuizActividad } from "../componentes/actividades/QuizActividad";
 import imagenFase from "../assets/images/Ilustraciones/Comprobar.png";
 
 export const Route = createFileRoute("/app/C_comprobar/$themeId")({
@@ -112,76 +113,45 @@ function CComprobarPage() {
       isError={isError}
       botonesAccion={botonesAccion}
     >
-      {actividadesFase.length > 0 ? (
-        actividadesFase.map((actividad) => (
-          <PreguntaItem key={actividad.id} actividad={actividad}>
-            {actividad.tipo_actividad?.codigo === 'cuestionario' && actividad.opciones && (
-              <OpcionesConFeedback
-                opciones={actividad.opciones}
-                actividadId={actividad.id}
-                selectedAnswers={selectedAnswers}
-                onSelectOption={handleSelectOption}
-                xpRecompensa={actividad.xp_recompensa}
-              />
-            )}
-            {actividad.tipo_actividad?.codigo === 'tarjetas_memoria' && (
-              <Flashcards
-                actividad={actividad}
-                onComplete={(actId, xp) => handleSelectOption(actId, 'repaso_completado', true, xp)}
-              />
-            )}
-          </PreguntaItem>
-        ))
+      {/* Renderizado de actividades funcionales según su tipo */}
+      {activitiesQuery.data && activitiesQuery.data.length > 0 ? (
+        <div className="w-full flex flex-col gap-12 mt-8">
+          {activitiesQuery.data.map((actividad) => {
+            
+            // Si es un Cuestionario (Quiz)
+            if (actividad.tipo_actividad?.codigo === 'cuestionario') {
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <span className="bg-violet-100 text-violet-700 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest mb-2">Quiz</span>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  
+                  <QuizActividad 
+                    actividad={actividad} 
+                    onComplete={(actId, xp) => handleSelectOption(actId, 'quiz_completado', true, xp)} 
+                  />
+                </div>
+              );
+            }
+
+            // Aquí podemos agregar más 'ifs' para Flashcards, Sopa de Letras, etc.
+            // ...
+
+            // Fallback para las actividades que aún no tienen interfaz
+            return (
+              <div key={actividad.id} className="w-full bg-slate-100 p-8 rounded-3xl border border-slate-200 text-center opacity-70">
+                <span className="text-4xl mb-4 block">🚧</span>
+                <h3 className="text-xl font-bold text-slate-700">Modo de juego en construcción</h3>
+                <p className="text-slate-500 mt-2">Próximamente: {actividad.tipo_actividad?.nombre}</p>
+              </div>
+            );
+          })}
+        </div>
       ) : null}
 
-      {/* Temporal: Listar todas las actividades del tema (independiente del paso) para validación */}
-      {activitiesQuery.data && activitiesQuery.data.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mt-6 animate-in fade-in zoom-in-95">
-          <div className="mb-4 pb-2 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <h3 className="text-lg font-bold text-slate-800">
-              Actividades disponibles en este tema:
-            </h3>
-            {profileQuery.data && (
-              <div className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full border border-green-200">
-                👤 {profileQuery.data.perfil?.apodo} | Franja: {activeAgeGroup?.nombre || "No seleccionada"}
-              </div>
-            )}
-          </div>
-          <ul className="space-y-3">
-            {activitiesQuery.data.map((act) => {
-              const actAgeGroup = ageGroupsQuery.data?.find(g => g.id === act.grupo_edad_id);
-              return (
-                <li key={act.id} className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 font-bold text-sm">
-                      {act.tipo_actividad?.nombre?.charAt(0) || '?'}
-                    </div>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-700">{act.titulo}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium whitespace-nowrap">
-                          Para: {actAgeGroup?.nombre || "Desconocida"}
-                        </span>
-                      </div>
-                      <span className="text-sm text-slate-500 uppercase tracking-wide">
-                        {act.tipo_actividad?.nombre || 'Desconocido'}
-                      </span>
-                    </div>
-                  </div>
-                
-                {/* Visualización en crudo de la configuración (JSON) */}
-                <div className="mt-2 bg-slate-800 text-slate-200 rounded-lg p-4 text-xs font-mono overflow-x-auto">
-                  <p className="text-slate-400 mb-2 border-b border-slate-700 pb-1">Datos crudos de la BD (act.configuracion):</p>
-                  <pre>
-                    {JSON.stringify(act.configuracion, null, 2)}
-                  </pre>
-                </div>
-              </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+
 
     </CrecerLayout>
   );
