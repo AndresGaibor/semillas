@@ -4,6 +4,7 @@ import { TablaBase, type EncabezadoTabla } from "@/componentes/ui/tabla-base";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { Paginacion } from "@/componentes/ui/paginacion";
 import { TablaSkeleton } from "@/componentes/ui/tabla-skeleton";
+import { MenuDesplegable, type ItemMenu } from "@/componentes/ui/menu-desplegable";
 import { getSendaColorClasses } from "./actividades.helpers";
 import { BotonAccion, FILA_HOVER_CLS, CheckboxCell } from "./admin.helpers";
 import { EliminarActividadDialog } from "./eliminar-actividad-dialog";
@@ -147,49 +148,39 @@ function MenuAccionesActividad({
 }) {
   const [open, setOpen] = useState(false);
 
-  return (
-    <div className="relative">
-      <div className="flex items-center justify-end gap-1">
-        <BotonAccion
-          onClick={() => navigate({ to: "/app/actividades/$activityId", params: { activityId: act.id } })}
-          title="Vista previa"
-          icon="fa-eye"
-        />
-        <BotonAccion
-          onClick={() => navigate({ to: "/admin/temas/$themeId/activities", params: { themeId: act.temaId }, search: { form: "editar", actividadId: act.id } })}
-          title="Editar"
-          icon="fa-pencil"
-        />
-        <BotonAccion onClick={() => setOpen(!open)} title="Más opciones" icon="fa-ellipsis-vertical" />
-      </div>
+  const itemsMenu: ItemMenu[] = [
+    {
+      label: "Copiar enlace",
+      icono: "fa-link",
+      onClick: () => navigator.clipboard.writeText(`${window.location.origin}/app/temas/${act.temaSlug}/actividades/${act.id}`),
+    },
+    {
+      label: "Eliminar",
+      icono: "fa-trash",
+      iconoColor: "text-red-500",
+      textoColor: "text-red-500",
+      onClick: onEliminar,
+    },
+  ];
 
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 z-20 bg-white rounded-xl shadow-lg border border-slate-100 py-1 min-w-[160px]">
-            <button
-              onClick={() => {
-                setOpen(false);
-                navigator.clipboard.writeText(`${window.location.origin}/app/temas/${act.temaSlug}/actividades/${act.id}`);
-              }}
-              className="w-full px-4 py-2 text-left text-xs font-semibold text-slate-600 hover:bg-slate-50 flex items-center gap-2"
-            >
-              <i className="fa-solid fa-link w-4" />
-              Copiar enlace
-            </button>
-            <button
-              onClick={() => {
-                setOpen(false);
-                onEliminar();
-              }}
-              className="w-full px-4 py-2 text-left text-xs font-semibold text-red-500 hover:bg-red-50 flex items-center gap-2"
-            >
-              <i className="fa-solid fa-trash w-4" />
-              Eliminar
-            </button>
-          </div>
-        </>
-      )}
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <BotonAccion
+        onClick={() => navigate({ to: "/app/actividades/$activityId", params: { activityId: act.id } })}
+        title="Vista previa"
+        icon="fa-eye"
+      />
+      <BotonAccion
+        onClick={() => navigate({ to: "/admin/temas/$themeId/activities", params: { themeId: act.temaId }, search: { form: "editar", actividadId: act.id } })}
+        title="Editar"
+        icon="fa-pencil"
+      />
+      <MenuDesplegable
+        items={itemsMenu}
+        estaAbierto={open}
+        onAlternar={() => setOpen(!open)}
+        onCerrar={() => setOpen(false)}
+      />
     </div>
   );
 }

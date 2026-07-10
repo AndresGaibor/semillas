@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Boton } from "./boton";
 import { unirClases } from "@/lib/utilidades";
 
 type CabeceraSeccionProps = {
@@ -25,13 +26,9 @@ export function CabeceraSeccion({
         )}
       </div>
       {textoBoton && (
-        <button
-          type="button"
-          onClick={onBotonClick}
-          className="rounded-xl border border-emerald-200 px-3 py-2 text-xs font-extrabold text-emerald-600 hover:bg-emerald-50"
-        >
+        <Boton variante="contorno" tamano="pequeno" onClick={onBotonClick}>
           {textoBoton}
-        </button>
+        </Boton>
       )}
     </div>
   );

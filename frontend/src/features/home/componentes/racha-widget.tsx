@@ -1,4 +1,7 @@
 import * as React from "react";
+import { Flame } from "lucide-react";
+import { Card } from "@/componentes/ui/card-base";
+import { unirClases } from "@/lib/utilidades";
 
 export interface RachaWidgetProps {
   diasRacha: number;
@@ -8,55 +11,26 @@ export const RachaWidget: React.FC<RachaWidgetProps> = ({ diasRacha }) => {
   const tieneRacha = diasRacha > 0;
 
   return (
-    <div 
-      className="widget-card" 
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'stretch', 
-        justifyContent: 'space-between',
-        gap: '16px',
-        padding: '20px',
-        borderRadius: '16px',
-        background: 'var(--color-blanco)',
-        border: '1.5px solid var(--color-border)'
-      }}
-    >
-      <div style={{ flex: 1, textAlign: 'left' }}>
-        <h2 className="section-title" style={{ marginBottom: '8px', fontSize: '1rem', fontWeight: 'bold' }}>
-          {tieneRacha ? "Racha actual" : "Racha actual"}
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.5 }}>
-          {tieneRacha 
-            ? `¡Increíble! Has estudiado ${diasRacha} días seguidos.` 
-            : "Completa una lección para iniciar tu racha."
-          }
+    <Card sombra="sm" hoverEffect="none" className="p-5 flex flex-col justify-between gap-4">
+      <div className="flex-1 text-left">
+        <h2 className="text-base font-bold text-slate-800 mb-2">Racha actual</h2>
+        <p className="text-sm text-slate-500 leading-relaxed">
+          {tieneRacha
+            ? `¡Increíble! Has estudiado ${diasRacha} días seguidos.`
+            : "Completa una lección para iniciar tu racha."}
         </p>
       </div>
-      <div 
-        className={tieneRacha ? "" : "empty-state-widget"} 
-        style={{ 
-          margin: 0,
-          alignSelf: 'center', 
-          padding: '16px', 
-          minHeight: 'auto', 
-          width: 'auto', 
-          aspectRatio: '1/1', 
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: tieneRacha ? 'var(--color-yellow-light)' : undefined,
-          color: tieneRacha ? 'var(--color-yellow)' : undefined,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <i className="fa-solid fa-fire" style={{ fontSize: '1.75rem' }}></i>
+      <div className={unirClases(
+        "mx-auto w-16 h-16 rounded-full flex items-center justify-center",
+        tieneRacha ? "bg-amber-100 text-amber-500" : "bg-slate-100 text-slate-300",
+      )}>
+        <div className="flex items-center gap-1">
+          <Flame size={28} />
           {tieneRacha && (
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', marginLeft: '4px' }}>{diasRacha}</span>
+            <span className="text-lg font-bold">{diasRacha}</span>
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

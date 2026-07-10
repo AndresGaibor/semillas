@@ -3,6 +3,7 @@ import { Award, Book, Flame, Download } from "lucide-react";
 import { unirClases } from "@/lib/utilidades";
 import { Card } from "./card-base";
 import { BarraProgreso } from "./barra-progreso";
+import { EtiquetaPildora } from "./etiqueta-pildora";
 
 export interface PropiedadesCardInsignia {
   titulo: string;
@@ -58,10 +59,7 @@ export const CardInsignia: React.FC<PropiedadesCardInsignia> = ({
     <Card
       sombra="sm"
       clase={unirClases("p-5 flex flex-col items-center justify-between text-center h-[260px] max-w-[200px] w-full", clase)}
-      style={{
-        backgroundColor: obtenida ? "#FFFFFF" : "#FAFAFA",
-        opacity: obtenida ? 1 : 0.7,
-      }}
+      className={obtenida ? "" : "opacity-70"}
     >
       <div className="flex flex-col items-center gap-3">
         <div className="relative w-16 h-18 flex items-center justify-center flex-shrink-0">
@@ -93,12 +91,9 @@ export const CardInsignia: React.FC<PropiedadesCardInsignia> = ({
 
       <div className="w-full mt-4">
         {obtenida ? (
-          <div
-            className="text-xs font-bold py-1 rounded-lg text-center"
-            style={{ backgroundColor: "#D1FAE5", color: "#065F46" }}
-          >
+          <EtiquetaPildora variante="exito" clase="w-full justify-center">
             ¡Logro obtenido!
-          </div>
+          </EtiquetaPildora>
         ) : progresoActual !== undefined && progresoMaximo !== undefined ? (
           <div className="flex flex-col gap-1 w-full">
             <BarraProgreso
@@ -112,12 +107,9 @@ export const CardInsignia: React.FC<PropiedadesCardInsignia> = ({
             </span>
           </div>
         ) : (
-          <div
-            className="text-xs font-bold py-1 rounded-lg text-center border border-slate-200"
-            style={{ backgroundColor: "#F1F5F9", color: "#64748B" }}
-          >
+          <EtiquetaPildora variante="bloqueado" clase="w-full justify-center">
             Bloqueado
-          </div>
+          </EtiquetaPildora>
         )}
       </div>
     </Card>

@@ -1,5 +1,26 @@
 import { CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
+import { SelectFiltro } from "@/componentes/ui/select-filtro";
 import type { TipoMedia } from "./admin-media-type-tabs";
+
+type CarpetaOpcion = { id: string; nombre: string };
+type OrdenOpcion = { id: string; nombre: string };
+
+const OPCIONES_TIPO: { id: string; nombre: string }[] = [
+  { id: "imagen", nombre: "Imágenes" },
+  { id: "audio", nombre: "Audios" },
+  { id: "video", nombre: "Videos" },
+  { id: "documento", nombre: "Documentos" },
+];
+
+const OPCIONES_CARPETA: CarpetaOpcion[] = [
+  { id: "Ilustraciones", nombre: "Ilustraciones" },
+  { id: "Documentos", nombre: "Documentos" },
+];
+
+const OPCIONES_ORDEN: OrdenOpcion[] = [
+  { id: "recientes", nombre: "Más recientes" },
+  { id: "antiguos", nombre: "Más antiguos" },
+];
 
 type Props = {
   searchValue: string;
@@ -37,44 +58,34 @@ export function AdminMediaFilters({
           }
         />
 
-        <div className="relative min-w-[150px]">
-          <select
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_TIPO}
+            placeholder="Todos los tipos"
+            etiquetaAria="Filtrar por tipo de recurso"
             value={activeTab}
             onChange={(e) => onTabChange(e.target.value as TipoMedia)}
-            className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-          >
-            <option value="">Todos los tipos</option>
-            <option value="imagen">Imágenes</option>
-            <option value="audio">Audios</option>
-            <option value="video">Videos</option>
-            <option value="documento">Documentos</option>
-          </select>
-          <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+          />
         </div>
 
-        <div className="relative min-w-[150px]">
-          <select
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_CARPETA}
+            placeholder="Todas las carpetas"
+            etiquetaAria="Filtrar por carpeta"
             value={selectedFolder}
             onChange={(e) => onFolderChange(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-          >
-            <option value="">Todas las carpetas</option>
-            <option value="Ilustraciones">Ilustraciones</option>
-            <option value="Documentos">Documentos</option>
-          </select>
-          <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+          />
         </div>
 
-        <div className="relative min-w-[150px]">
-          <select
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_ORDEN}
+            placeholder="Más recientes"
+            etiquetaAria="Ordenar por"
             value={selectedSort}
             onChange={(e) => onSortChange(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-          >
-            <option value="recientes">M&aacute;s recientes</option>
-            <option value="antiguos">M&aacute;s antiguos</option>
-          </select>
-          <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+          />
         </div>
 
         <button

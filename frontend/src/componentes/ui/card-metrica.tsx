@@ -54,8 +54,10 @@ export function TarjetaMetricaCompacta({
       {esCentrada ? (
         <div className="flex h-full flex-col items-center justify-center text-center">
           <div
-            className="flex h-14 w-14 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner sm:h-16 sm:w-16 sm:text-lg"
-            style={tono?.fondoIcono ? { background: tono.fondoIcono } : undefined}
+            className={unirClases(
+              "flex h-14 w-14 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner sm:h-16 sm:w-16 sm:text-lg",
+              tono?.fondoIcono ? `bg-[${tono.fondoIcono}]` : ""
+            )}
           >
             {etiquetaIcono ?? icono}
           </div>
@@ -79,8 +81,10 @@ export function TarjetaMetricaCompacta({
 
           <div className="flex items-center gap-3">
             <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner sm:h-14 sm:w-14 sm:text-base"
-              style={tono?.fondoIcono ? { background: tono.fondoIcono } : undefined}
+              className={unirClases(
+                "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner sm:h-14 sm:w-14 sm:text-base",
+                tono?.fondoIcono ? `bg-[${tono.fondoIcono}]` : ""
+              )}
             >
               {etiquetaIcono ?? icono}
             </div>

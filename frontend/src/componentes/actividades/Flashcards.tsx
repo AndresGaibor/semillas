@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { playSound } from "../../lib/audio";
 import dorsoCarta from "../../assets/images/Ilustraciones/flascards.png";
+import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 
 interface ParData {
   id: number;
@@ -118,10 +119,9 @@ export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
               const matchedStyle = card.isMatched ? "opacity-60 scale-95" : "";
 
               return (
-                <div 
-                  key={card.uid} 
-                  className={`w-full h-24 sm:h-32 cursor-pointer transition-all duration-300 ${matchedStyle}`}
-                  style={{ perspective: '1000px' }}
+                <div
+                  key={card.uid}
+                  className={`w-full h-24 sm:h-32 cursor-pointer transition-all duration-300 [perspective:1000px] ${matchedStyle}`}
                   onClick={() => handleCardClick(index)}
                 >
                   <div 
@@ -158,20 +158,10 @@ export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
           </div>
         </div>
       ) : (
-        /* Card de Completado */
-        <div className="w-full p-8 bg-green-50 rounded-3xl border-2 border-green-200 text-center animate-in zoom-in-95 mt-4 shadow-sm">
-          <div className="flex justify-center mb-6 text-green-500">
-            <div className="bg-white p-4 rounded-full shadow-md">
-              <Check size={64} strokeWidth={3} />
-            </div>
-          </div>
-          <h4 className="text-3xl font-bold text-green-800 mb-4">¡Excelente Trabajo!</h4>
-          {actividad.retroalimentacion ? (
-            <p className="text-green-700 text-xl font-medium max-w-lg mx-auto">{actividad.retroalimentacion}</p>
-          ) : (
-            <p className="text-green-700 text-xl font-medium">Has encontrado todos los pares con éxito.</p>
-          )}
-        </div>
+        <AlertaCompletado
+          clase="mt-4"
+          mensaje={actividad.retroalimentacion || "Has encontrado todos los pares con éxito."}
+        />
       )}
     </div>
   );

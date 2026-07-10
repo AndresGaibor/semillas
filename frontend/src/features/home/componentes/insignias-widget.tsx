@@ -1,4 +1,6 @@
 import * as React from "react";
+import { Card, CardHeader, CardTitle } from "@/componentes/ui/card-base";
+import { AvatarCircular } from "@/componentes/ui/avatar-circular";
 
 export interface Insignia {
   id: string;
@@ -14,40 +16,29 @@ export const InsigniasWidget: React.FC<InsigniasWidgetProps> = ({ insignias }) =
   const tieneInsignias = insignias && insignias.length > 0;
 
   return (
-    <div className="widget-card" style={{ padding: '20px', borderRadius: '16px', background: 'var(--color-blanco)', border: '1.5px solid var(--color-border)' }}>
-      <div className="section-header" style={{ marginBottom: tieneInsignias ? '16px' : 0, textAlign: 'left' }}>
-        <h2 className="section-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Insignias</h2>
-      </div>
-      
+    <Card sombra="sm" hoverEffect="none" className="p-5">
+      {tieneInsignias && (
+        <CardHeader className="p-0 mb-4">
+          <CardTitle>Insignias</CardTitle>
+        </CardHeader>
+      )}
+
       {tieneInsignias ? (
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="flex gap-3 flex-wrap">
           {insignias.map((insignia) => (
-            <div 
-              key={insignia.id} 
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                width: '60px' 
-              }}
-            >
-              <img 
-                src={insignia.imagenUrl} 
-                alt={insignia.nombre} 
-                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
-              />
-              <span style={{ fontSize: '0.65rem', textAlign: 'center', marginTop: '4px', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', whiteSpace: 'nowrap' }}>
+            <div key={insignia.id} className="flex flex-col items-center w-[60px]">
+              <AvatarCircular src={insignia.imagenUrl} alt={insignia.nombre} tamano="xs" />
+              <span className="text-[0.65rem] text-center mt-1 text-slate-400 truncate w-full">
                 {insignia.nombre}
               </span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="empty-state-widget">
-          <i className="fa-solid fa-medal"></i>
+        <div className="py-8 text-center text-slate-400 text-sm">
           <p>Aún no tienes insignias.</p>
         </div>
       )}
-    </div>
+    </Card>
   );
 };

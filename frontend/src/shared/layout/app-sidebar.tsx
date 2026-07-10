@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { Boton } from "@/componentes/ui/boton";
 import { Button } from "@/componentes/ui/button";
 import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
@@ -101,9 +102,9 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout, v
                 <i className="fa-solid fa-circle-check text-primario"></i> Estás sin conexión
               </div>
               <p className="mb-2.5 text-[11px] leading-normal text-neutro">Tu progreso se sincronizará cuando vuelva internet.</p>
-              <button className="w-full rounded-xl border-0 bg-primario py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90">
+              <Boton variante="exito" tamano="pequeno" anchoCompleto className="shadow-none">
                 Ver estado
-              </button>
+              </Boton>
             </Card>
           )}
 

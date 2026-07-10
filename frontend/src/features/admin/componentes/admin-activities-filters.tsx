@@ -1,3 +1,5 @@
+import { SelectFiltro } from "@/componentes/ui/select-filtro";
+import { Boton } from "@/componentes/ui/boton";
 import type { Tema } from "@/shared/api/api";
 
 export type AdminActivitiesFiltersProps = {
@@ -31,6 +33,8 @@ export function AdminActivitiesFilters({
   onClear,
   tieneFiltros,
 }: AdminActivitiesFiltersProps) {
+  const temasOpciones = temasBase.map((t) => ({ id: t.id, nombre: t.titulo }));
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="relative flex-1 min-w-[200px]">
@@ -44,55 +48,45 @@ export function AdminActivitiesFilters({
         />
       </div>
 
-      <div className="relative min-w-[150px]">
-        <select
+      <div className="w-full lg:w-48">
+        <SelectFiltro
+          opciones={temasOpciones}
+          placeholder="Todos los temas"
+          etiquetaAria="Filtrar por tema"
           value={selectedTemaId}
           onChange={(e) => onTemaChange(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-        >
-          <option value="">Todos los temas</option>
-          {temasBase.map((t) => (
-            <option key={t.id} value={t.id}>{t.titulo}</option>
-          ))}
-        </select>
-        <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+        />
       </div>
 
-      <div className="relative min-w-[150px]">
-        <select
+      <div className="w-full lg:w-48">
+        <SelectFiltro
+          opciones={sendasBase}
+          placeholder="Todas las sendas"
+          etiquetaAria="Filtrar por faixa"
           value={selectedSendaId}
           onChange={(e) => onSendaChange(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-        >
-          <option value="">Todas las sendas</option>
-          {sendasBase.map((s) => (
-            <option key={s.id} value={s.id}>{s.nombre}</option>
-          ))}
-        </select>
-        <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+        />
       </div>
 
-      <div className="relative min-w-[150px]">
-        <select
+      <div className="w-full lg:w-48">
+        <SelectFiltro
+          opciones={ageGroupsBase}
+          placeholder="Todas las franjas"
+          etiquetaAria="Filtrar por franja de edad"
           value={selectedAgeGroupId}
           onChange={(e) => onAgeGroupChange(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-        >
-          <option value="">Todas las franjas</option>
-          {ageGroupsBase.map((g) => (
-            <option key={g.id} value={g.id}>{g.nombre}</option>
-          ))}
-        </select>
-        <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+        />
       </div>
 
       {tieneFiltros && (
-        <button
+        <Boton
+          variante="contorno"
+          tamano="pequeno"
+          forma="pildora"
           onClick={onClear}
-          className="px-4 py-2 rounded-full border border-slate-200 text-[13px] font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
         >
           Limpiar filtros
-        </button>
+        </Boton>
       )}
     </div>
   );

@@ -17,7 +17,7 @@ export const StepperCRECER: React.FC<PropiedadesStepper> = ({ pasos, clase, clas
   return (
     <div className={unirClases("w-full flex flex-col gap-6", className, clase)} {...propiedades}>
       <div className="relative flex items-start justify-between w-full gap-2 sm:items-center">
-        <div className="absolute left-0 right-0 top-5 h-[3px] bg-[#E2E8F0] z-0" style={{ position: "absolute", left: 0, right: 0, top: "20px", height: "3px", backgroundColor: "#E2E8F0", zIndex: 0 }} />
+        <div className="absolute left-0 right-0 top-5 h-[3px] bg-[#E2E8F0] z-0" />
 
         {pasos.map((paso, idx) => {
           let estiloBurbuja = {};
@@ -38,7 +38,7 @@ export const StepperCRECER: React.FC<PropiedadesStepper> = ({ pasos, clase, clas
           }
 
           return (
-            <div key={paso.numero} className="relative z-10 flex flex-1 flex-col items-center" style={{ position: "relative", zIndex: 10 }}>
+            <div key={paso.numero} className="relative z-10 flex flex-1 flex-col items-center">
               <div
                 style={estiloBurbuja}
                 className={unirClases(
@@ -49,7 +49,7 @@ export const StepperCRECER: React.FC<PropiedadesStepper> = ({ pasos, clase, clas
                 {paso.numero}
               </div>
 
-              <span className="absolute top-11 text-[10px] font-bold whitespace-nowrap text-gray-800 sm:top-12 sm:text-[11px]" style={{ position: "absolute", top: "44px" }}>
+              <span className="absolute top-11 text-[10px] font-bold whitespace-nowrap text-gray-800 sm:top-12 sm:text-[11px]">
                 {paso.nombre}
               </span>
             </div>
@@ -59,15 +59,15 @@ export const StepperCRECER: React.FC<PropiedadesStepper> = ({ pasos, clase, clas
 
       <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-[11px] font-bold text-gray-600 sm:gap-6 sm:text-xs">
         <div className="flex items-center gap-2">
-          <span className="size-3.5 rounded-full bg-[#6C3AED]" style={{ width: "14px", height: "14px", borderRadius: "50%", backgroundColor: "#6C3AED" }} />
+          <span className="size-3.5 rounded-full bg-[#6C3AED]" />
           <span>Completado</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="size-3.5 rounded-full border-2 border-[#6C3AED] bg-white" style={{ width: "14px", height: "14px", borderRadius: "50%", border: "2px solid #6C3AED", backgroundColor: "#FFFFFF" }} />
+          <span className="size-3.5 rounded-full border-2 border-[#6C3AED] bg-white" />
           <span>Actual</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="size-3.5 rounded-full bg-[#E2E8F0]" style={{ width: "14px", height: "14px", borderRadius: "50%", backgroundColor: "#E2E8F0" }} />
+          <span className="size-3.5 rounded-full bg-[#E2E8F0]" />
           <span>Pendiente</span>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { Boton } from "@/componentes/ui/boton";
-import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
+import { CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
+import { SelectFiltro } from "@/componentes/ui/select-filtro";
 
 export type AdminUsersFiltersProps = {
   searchValue: string;
@@ -15,34 +16,34 @@ export type AdminUsersFiltersProps = {
   onClear: () => void;
 };
 
-const OPCIONES_ROL: { value: string; label: string }[] = [
-  { value: "Niño", label: "Niño" },
-  { value: "Adolescente", label: "Adolescente" },
-  { value: "Padre/Madre", label: "Padre/Madre" },
-  { value: "Moderador", label: "Moderador" },
-  { value: "Administrador", label: "Administrador" },
+const OPCIONES_ROL: { id: string; nombre: string }[] = [
+  { id: "Niño", nombre: "Niño" },
+  { id: "Adolescente", nombre: "Adolescente" },
+  { id: "Padre/Madre", nombre: "Padre/Madre" },
+  { id: "Moderador", nombre: "Moderador" },
+  { id: "Administrador", nombre: "Administrador" },
 ];
 
-const OPCIONES_FRANJA: { value: string; label: string }[] = [
-  { value: "8-10 años", label: "8-10 años" },
-  { value: "11-13 años", label: "11-13 años" },
-  { value: "14+ años", label: "14+ años" },
-  { value: "Todas", label: "Todas" },
-  { value: "-", label: "-" },
+const OPCIONES_FRANJA: { id: string; nombre: string }[] = [
+  { id: "8-10 años", nombre: "8-10 años" },
+  { id: "11-13 años", nombre: "11-13 años" },
+  { id: "14+ años", nombre: "14+ años" },
+  { id: "Todas", nombre: "Todas" },
+  { id: "-", nombre: "-" },
 ];
 
-const OPCIONES_ESTADO: { value: string; label: string }[] = [
-  { value: "activo", label: "Activo" },
-  { value: "pendiente", label: "Pendiente" },
-  { value: "bloqueado", label: "Bloqueado" },
+const OPCIONES_ESTADO: { id: string; nombre: string }[] = [
+  { id: "activo", nombre: "Activo" },
+  { id: "pendiente", nombre: "Pendiente" },
+  { id: "bloqueado", nombre: "Bloqueado" },
 ];
 
-const OPCIONES_CLUB: { value: string; label: string }[] = [
-  { value: "Semillitas de Luz", label: "Semillitas de Luz" },
-  { value: "Guardianes de Paz", label: "Guardianes de Paz" },
-  { value: "Corazones Valientes", label: "Corazones Valientes" },
-  { value: "Jóvenes en Misión", label: "Jóvenes en Misión" },
-  { value: "Todos los clubes", label: "Todos los clubes" },
+const OPCIONES_CLUB: { id: string; nombre: string }[] = [
+  { id: "Semillitas de Luz", nombre: "Semillitas de Luz" },
+  { id: "Guardianes de Paz", nombre: "Guardianes de Paz" },
+  { id: "Corazones Valientes", nombre: "Corazones Valientes" },
+  { id: "Jóvenes en Misión", nombre: "Jóvenes en Misión" },
+  { id: "Todos los clubes", nombre: "Todos los clubes" },
 ];
 
 export function AdminUsersFilters({
@@ -71,12 +72,47 @@ export function AdminUsersFilters({
           inputClassName="rounded-full pl-10 py-2.5 text-[13px] focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] placeholder:text-slate-400 placeholder:font-normal"
         />
 
-        <SelectFiltro value={selectedRol} onChange={onRolChange} placeholder="Rol" opciones={OPCIONES_ROL} />
-        <SelectFiltro value={selectedFranja} onChange={onFranjaChange} placeholder="Franja" opciones={OPCIONES_FRANJA} />
-        <SelectFiltro value={selectedEstado} onChange={onEstadoChange} placeholder="Estado" opciones={OPCIONES_ESTADO} />
-        <SelectFiltro value={selectedClub} onChange={onClubChange} placeholder="Club" opciones={OPCIONES_CLUB} />
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_ROL}
+            placeholder="Rol"
+            etiquetaAria="Filtrar por rol"
+            value={selectedRol}
+            onChange={(e) => onRolChange(e.target.value)}
+          />
+        </div>
 
-          {tieneFiltros && (
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_FRANJA}
+            placeholder="Franja"
+            etiquetaAria="Filtrar por franja"
+            value={selectedFranja}
+            onChange={(e) => onFranjaChange(e.target.value)}
+          />
+        </div>
+
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_ESTADO}
+            placeholder="Estado"
+            etiquetaAria="Filtrar por estado"
+            value={selectedEstado}
+            onChange={(e) => onEstadoChange(e.target.value)}
+          />
+        </div>
+
+        <div className="w-full lg:w-48">
+          <SelectFiltro
+            opciones={OPCIONES_CLUB}
+            placeholder="Club"
+            etiquetaAria="Filtrar por club"
+            value={selectedClub}
+            onChange={(e) => onClubChange(e.target.value)}
+          />
+        </div>
+
+        {tieneFiltros && (
           <Boton
             variante="contorno"
             tamano="pequeno"
@@ -87,36 +123,6 @@ export function AdminUsersFilters({
           </Boton>
         )}
       </div>
-    </div>
-  );
-}
-
-function SelectFiltro({
-  value,
-  onChange,
-  placeholder,
-  opciones,
-}: {
-  value: string;
-  onChange: (val: string) => void;
-  placeholder: string;
-  opciones: { value: string; label: string }[];
-}) {
-  return (
-    <div className="relative min-w-[120px]">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-700 appearance-none focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden cursor-pointer"
-      >
-        <option value="">{placeholder}</option>
-        {opciones.map((op) => (
-          <option key={op.value} value={op.value}>
-            {op.label}
-          </option>
-        ))}
-      </select>
-      <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
     </div>
   );
 }

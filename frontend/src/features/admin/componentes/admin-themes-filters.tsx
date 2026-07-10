@@ -1,9 +1,8 @@
 import { CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
+import { SelectFiltro } from "@/componentes/ui/select-filtro";
+import { Boton } from "@/componentes/ui/boton";
 
-type FilterItem = {
-  id: string;
-  nombre: string;
-};
+type FilterItem = { id: string; nombre: string };
 
 type AdminThemesFiltersProps = {
   searchValue: string;
@@ -30,7 +29,6 @@ export function AdminThemesFilters({
 }: AdminThemesFiltersProps) {
   return (
     <div className="flex flex-col lg:flex-row gap-3 w-full bg-white rounded-3xl border border-slate-100 p-5 shadow-sm select-none">
-      {/* Search Input */}
       <CampoBusqueda
         valor={searchValue}
         onChange={onSearchChange}
@@ -39,52 +37,35 @@ export function AdminThemesFilters({
         inputClassName="rounded-full pl-10 py-2.5 text-[13px] focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] placeholder:text-slate-400 placeholder:font-normal"
       />
 
-      {/* Senda Select */}
-      <div className="w-full lg:w-48 relative">
-        <select
+      <div className="w-full lg:w-48">
+        <SelectFiltro
+          opciones={sendas}
+          placeholder="Todas las sendas"
+          etiquetaAria="Filtrar por senda"
           value={selectedSendaId}
           onChange={(e) => onSendaChange(e.target.value)}
-          aria-label="Filtrar por senda"
-          className="w-full px-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] transition-all appearance-none cursor-pointer"
-        >
-          <option value="">Todas las sendas</option>
-          {sendas.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.nombre}
-            </option>
-          ))}
-        </select>
-        <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+        />
       </div>
 
-      {/* Age Group Select */}
-      <div className="w-full lg:w-48 relative">
-        <select
+      <div className="w-full lg:w-48">
+        <SelectFiltro
+          opciones={ageGroups}
+          placeholder="Todas las franjas"
+          etiquetaAria="Filtrar por franja de edad"
           value={selectedAgeGroupId}
           onChange={(e) => onAgeGroupChange(e.target.value)}
-          aria-label="Filtrar por franja de edad"
-          className="w-full px-4 pr-10 py-2.5 rounded-full border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] transition-all appearance-none cursor-pointer"
-        >
-          <option value="">Todas las franjas</option>
-          {ageGroups.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.nombre}
-            </option>
-          ))}
-        </select>
-        <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
+        />
       </div>
 
-      {/* Más filtros Button */}
-      <button
-        type="button"
+      <Boton
+        variante="contorno"
+        tamano="pequeno"
+        iconoIzquierdo={<i className="fa-solid fa-filter text-xs" />}
         onClick={onMasFiltros}
-        disabled={!onMasFiltros}
-        className="rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-[13px] font-semibold text-slate-600 h-[42px] px-5 flex items-center justify-center gap-2 transition-colors outline-none cursor-pointer"
+        deshabilitado={!onMasFiltros}
       >
-        <i className="fa-solid fa-filter text-slate-400 text-xs" />
         Más filtros
-      </button>
+      </Boton>
     </div>
   );
 }

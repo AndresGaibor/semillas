@@ -3,7 +3,8 @@ import { useState } from "react";
 import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { FilaTabla, TablaBase } from "@/componentes/ui/tabla-base";
-import { BotonAccion, getSendaIcon, MenuAcciones, normalizarEstado, type MenuAccionItem } from "./admin.helpers";
+import { MenuDesplegable, type ItemMenu } from "@/componentes/ui/menu-desplegable";
+import { BotonAccion, getSendaIcon, normalizarEstado } from "./admin.helpers";
 
 export type TemaTableRow = {
   id: string;
@@ -134,64 +135,19 @@ export function AdminThemesTable({
 
                 <BotonAccion title="Editar tema" icon="fa-pencil" onClick={() => onEditar(tema.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" />
 
-                <div className="relative">
-                  <BotonAccion title="Más opciones" icon="fa-ellipsis-vertical" onClick={() => setActiveMenuId(activeMenuId === tema.id ? null : tema.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" />
-
-                  {activeMenuId === tema.id ? (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
-                      <div className="absolute right-0 z-20 mt-1.5 w-40 rounded-xl border border-slate-100 bg-white py-1.5 text-left shadow-lg">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onCRECER(tema.id);
-                              setActiveMenuId(null);
-                            }}
-                          className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-neutro-oscuro-max transition-colors hover:bg-slate-50"
-                        >
-                          <i className="fa-solid fa-bookmark w-4 text-center text-slate-400" />
-                          Editor CRECER
-                        </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onActivities(tema.id);
-                              setActiveMenuId(null);
-                            }}
-                          className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-neutro-oscuro-max transition-colors hover:bg-slate-50"
-                        >
-                          <i className="fa-solid fa-gamepad w-4 text-center text-slate-400" />
-                          Actividades
-                        </button>
-                        {estadoNormalizado !== "publicado" ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onPublicar?.(tema.id);
-                              setActiveMenuId(null);
-                            }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-primario transition-colors hover:bg-slate-50"
-                          >
-                            <i className="fa-solid fa-cloud-arrow-up w-4 text-center text-primario" />
-                            Publicar
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onDespublicar?.(tema.id);
-                              setActiveMenuId(null);
-                            }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#EE6C4D] transition-colors hover:bg-slate-50"
-                          >
-                            <i className="fa-solid fa-cloud-arrow-down w-4 text-center text-[#EE6C4D]" />
-                            Despublicar
-                          </button>
-                        )}
-                      </div>
-                    </>
-                  ) : null}
-                </div>
+                <MenuDesplegable
+                  items={[
+                    { label: "Editor CRECER", icono: "fa-bookmark", onClick: () => onCRECER(tema.id) },
+                    { label: "Actividades", icono: "fa-gamepad", onClick: () => onActivities(tema.id) },
+                    ...(estadoNormalizado !== "publicado"
+                      ? [{ label: "Publicar", icono: "fa-cloud-arrow-up", iconoColor: "text-[#2e9e5b]", textoColor: "text-[#2e9e5b]", onClick: () => onPublicar?.(tema.id) }]
+                      : [{ label: "Despublicar", icono: "fa-cloud-arrow-down", iconoColor: "text-[#EE6C4D]", textoColor: "text-[#EE6C4D]", onClick: () => onDespublicar?.(tema.id) }]
+                    ),
+                  ]}
+                  estaAbierto={activeMenuId === tema.id}
+                  onAlternar={() => setActiveMenuId(activeMenuId === tema.id ? null : tema.id)}
+                  onCerrar={() => setActiveMenuId(null)}
+                />
               </div>
             </td>
           </FilaTabla>

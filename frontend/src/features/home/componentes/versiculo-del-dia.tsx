@@ -1,5 +1,7 @@
 import * as React from "react";
+import { BookOpen } from "lucide-react";
 import versiculoImg from "@/assets/images/Ilustraciones/Versiculo del dia.png";
+import { Card } from "@/componentes/ui/card-base";
 
 export interface VersiculoDelDiaProps {
   texto: string;
@@ -8,64 +10,25 @@ export interface VersiculoDelDiaProps {
 
 export const VersiculoDelDia: React.FC<VersiculoDelDiaProps> = ({ texto, referencia }) => {
   return (
-    <section 
-      className="widget-card" 
-      style={{ 
-        position: 'relative', 
-        overflow: 'hidden', 
-        padding: '24px', 
-        borderRadius: '16px', 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '24px', 
-        background: 'var(--color-blanco)', 
-        border: '2px solid var(--color-secundario-palido)' 
-      }}
-    >
-      <div style={{ flex: 1, zIndex: 1 }}>
-        <h2 
-          className="section-title" 
-          style={{ 
-            marginBottom: '12px', 
-            color: 'var(--color-secundario-oscuro)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px' 
-          }}
-        >
-          <i className="fa-solid fa-book-bible" style={{ color: 'var(--color-secundario)' }}></i> Versículo del día
+    <Card sombra="sm" hoverEffect="none" className="relative overflow-hidden p-6 flex items-center gap-6 border-2 border-amber-100">
+      <div className="flex-1 z-10">
+        <h2 className="mb-3 text-lg font-bold text-amber-900 flex items-center gap-2">
+          <BookOpen size={20} className="text-amber-500" /> Versículo del día
         </h2>
-        <p 
-          id="verse-text" 
-          style={{ 
-            fontSize: '1.15rem', 
-            fontStyle: 'italic', 
-            lineHeight: 1.5, 
-            color: 'var(--color-neutro-oscuro-max)', 
-            marginBottom: '8px' 
-          }}
-        >
+        <p className="text-lg italic leading-relaxed text-slate-800 mb-2">
           "{texto}"
         </p>
-        <p 
-          id="verse-ref" 
-          style={{ 
-            textAlign: 'right', 
-            fontSize: '0.95rem', 
-            fontWeight: 500, 
-            color: 'var(--color-secundario-oscuro)' 
-          }}
-        >
+        <p className="text-right text-sm font-medium text-amber-800">
           - {referencia}
         </p>
       </div>
-      <div style={{ flex: '0 0 140px', zIndex: 1 }}>
-        <img 
-          src={versiculoImg} 
-          alt="Versículo del día" 
-          style={{ width: '100%', borderRadius: '12px', boxShadow: 'var(--sombra-md)' }} 
+      <div className="flex-shrink-0 w-[140px] z-10">
+        <img
+          src={versiculoImg}
+          alt="Versículo del día"
+          className="w-full rounded-xl shadow-md"
         />
       </div>
-    </section>
+    </Card>
   );
 };
