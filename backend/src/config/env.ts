@@ -23,6 +23,10 @@ export type Env = {
   APP_ENV: string;
   CORS_ORIGIN: string;
 
+  HYPERDRIVE?: {
+    connectionString: string;
+  };
+
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
@@ -34,6 +38,7 @@ export type Variables = {
   user: AuthUser;
   authSessionUser?: AuthSessionUser;
   guestUserId?: string | null;
+  requestId: string;
 };
 
 export type AppBindings = {

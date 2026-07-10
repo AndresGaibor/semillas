@@ -1,25 +1,30 @@
 import { describe, expect, it } from "bun:test";
 import { responderError, responderExito } from "./respuesta";
 
-describe("respuesta HTTP", () => {
-  it("serializa la respuesta de exito en el envelope canónico", async () => {
-    const response = responderExito({ id: "1" });
+describe("respuesta", () => {
+  it("incluye detalle opcional en respuestas de error", async () => {
+    const response = responderError("No permitido", "FORBIDDEN", 403, {
+      causa: "rol insuficiente"
+    });
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({
+      exito: false,
+      error: "No permitido",
+      codigo: "FORBIDDEN",
+      detalle: {
+        causa: "rol insuficiente"
+      }
+    });
+  });
+
+  it("mantiene la respuesta de exito existente", async () => {
+    const response = responderExito({ listo: true });
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       exito: true,
-      datos: { id: "1" }
-    });
-  });
-
-  it("serializa la respuesta de error en el envelope canónico", async () => {
-    const response = responderError("No encontrado", "NO_ENCONTRADO");
-
-    expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({
-      exito: false,
-      error: "No encontrado",
-      codigo: "NO_ENCONTRADO"
+      datos: { listo: true }
     });
   });
 });

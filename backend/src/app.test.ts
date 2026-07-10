@@ -30,13 +30,19 @@ describe("app", () => {
   });
 
   it("mantiene viva la ruta health", async () => {
-    const response = await app.fetch(new Request("http://localhost/health"), env);
+    const response = await app.fetch(
+      new Request("http://localhost/health", {
+        headers: { "x-request-id": "req-health" }
+      }),
+      env
+    );
     const body = (await response.json()) as {
       exito: true;
       datos: { estado: string; entorno: string };
     };
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("x-request-id")).toBe("req-health");
     expect(body).toEqual({
       exito: true,
       datos: {

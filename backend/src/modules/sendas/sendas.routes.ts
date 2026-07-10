@@ -16,7 +16,7 @@ import { Hono } from "hono";
 import { eq, asc } from "drizzle-orm";
 import type { AppBindings } from "../../config/env";
 import { responderExito } from "../../shared/http/respuesta";
-import { db, schema } from "../../db/client";
+import { db as dbPredeterminado, schema, type DbClient } from "../../db/client";
 
 /**
  * Tipos para Serialización
@@ -54,7 +54,12 @@ function serializarSenda(fila: typeof schema.enda.$inferSelect): SendaSerializad
  * Rutas de Sendas
  * Agrupa todos los endpoints relacionados con sendas
  */
-export const sendasRoutes = new Hono<AppBindings>();
+type Dependencias = {
+  db?: DbClient;
+};
+
+export function crearModuloSendas({ db = dbPredeterminado }: Dependencias = {}) {
+  const sendasRoutes = new Hono<AppBindings>();
 
 /**
  * GET /sendas
@@ -64,15 +69,20 @@ export const sendasRoutes = new Hono<AppBindings>();
  *
  * @returns Lista de sendas activas
  */
-sendasRoutes.get("/", async (c) => {
-  // Query a la base de datos usando Drizzle ORM
-  // Traemos todas las sendas donde activo = true, ordenadas ascendentemente
-  const sendas = await db
-    .select()
-    .from(schema.enda)
-    .where(eq(schema.enda.activo, true))
-    .orderBy(asc(schema.enda.orden));
+  sendasRoutes.get("/", async (c) => {
+    // Query a la base de datos usando Drizzle ORM
+    // Traemos todas las sendas donde activo = true, ordenadas ascendentemente
+    const sendas = await db
+      .select()
+      .from(schema.enda)
+      .where(eq(schema.enda.activo, true))
+      .orderBy(asc(schema.enda.orden));
 
-  // Respondemos con formato estándar de éxito
-  return responderExito(sendas.map(serializarSenda));
-});
+    // Respondemos con formato estándar de éxito
+    return responderExito(sendas.map(serializarSenda));
+  });
+
+  return sendasRoutes;
+}
+
+export const sendasRoutes = crearModuloSendas();

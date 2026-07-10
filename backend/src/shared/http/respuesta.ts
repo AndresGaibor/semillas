@@ -8,12 +8,18 @@ export function responderExito<T>(datos: T, status = 200) {
   );
 }
 
-export function responderError(error: string, codigo?: string, status = 400) {
+export function responderError<TDetalle = unknown>(
+  error: string,
+  codigo?: string,
+  status = 400,
+  detalle?: TDetalle
+) {
   return Response.json(
     {
       exito: false as const,
       error,
-      ...(codigo ? { codigo } : {})
+      ...(codigo ? { codigo } : {}),
+      ...(detalle === undefined ? {} : { detalle })
     },
     { status }
   );

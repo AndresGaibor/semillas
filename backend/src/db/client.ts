@@ -51,9 +51,23 @@ import * as schema from "./schema";
  *   .where(eq(schema.usuarioApp.activo, true));
  */
 
-// Cliente de consultas PostgreSQL (sin transformación de tipos)
+export function crearDb(env: Env) {
+  if (!env.HYPERDRIVE) {
+    throw new Error("El binding HYPERDRIVE es obligatorio para crear el cliente Drizzle.");
+  }
+
+  const clientePostgres = postgres(env.HYPERDRIVE.connectionString, {
+    prepare: false
+  });
+
+  return drizzle(clientePostgres, { schema });
+}
+
+// Cliente de compatibilidad para los módulos que aún importan `db` directamente.
+// No puede usar Hyperdrive hasta que la composición de la aplicación inyecte `env`.
 const queryClient = postgres({
-  transform: undefined // Mantener tipos originales de PostgreSQL
+  transform: undefined,
+  prepare: false
 });
 
 // Instancia global del cliente Drizzle

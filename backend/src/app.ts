@@ -25,14 +25,15 @@ import { APP_NAME, APP_VERSION } from "./config/constants";
 import { createSupabaseAdmin } from "./db/client";
 import { openApiSpec } from "./openapi/spec";
 import { errorHandler } from "./shared/middleware/error-handler";
+import { requestIdMiddleware } from "./shared/middleware/request-id.middleware";
 
 /**
  * Rutas de la API
  * Cada módulo maneja un grupo de endpoints relacionados
  */
 import { authRoutes } from "./modules/auth/auth.routes";
-import { catalogRoutes } from "./modules/catalog/catalog.routes";
-import { sendasRoutes } from "./modules/sendas/sendas.routes";
+import { crearModuloCatalogo } from "./modules/catalog/catalog.routes";
+import { crearModuloSendas } from "./modules/sendas/sendas.routes";
 import { themesRoutes } from "./modules/themes/themes.routes";
 import { usersRoutes } from "./modules/users/users.routes";
 import { progressRoutes } from "./modules/progress/progress.routes";
@@ -60,6 +61,7 @@ const app = new Hono<AppBindings>();
  * Muestra método, ruta, status y tiempo de respuesta
  */
 app.use("*", logger());
+app.use("*", requestIdMiddleware());
 
 /**
  * Configuración de CORS
@@ -179,8 +181,8 @@ app.get("/health", (c) => {
  */
 
 app.route("/autenticacion", authRoutes);
-app.route("/catalogo", catalogRoutes);
-app.route("/sendas", sendasRoutes);
+app.route("/catalogo", crearModuloCatalogo());
+app.route("/sendas", crearModuloSendas());
 app.route("/temas", themesRoutes);
 app.route("/perfil", usersRoutes);
 app.route("/progreso", progressRoutes);

@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { AppBindings } from "../../config/env";
 import type { Database, Json } from "../../db/database.types";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
@@ -14,6 +15,7 @@ import {
   upsertStepContentSchema
 } from "./admin.schemas";
 import { NotFoundError } from "../../shared/errors/http-error";
+import { db, schema } from "../../db/client";
 
 function mapTheme(theme: Record<string, unknown>) {
   const sendaRaw = theme.path as Record<string, unknown> | undefined;
@@ -183,20 +185,18 @@ function mapActivity(activity: Record<string, unknown>) {
 
 
 adminRoutes.get("/resumen", async (c) => {
-  const db = c.get("db");
-
   const [themes, users, activities, published] = await Promise.all([
-    db.from("tema").select("id", { count: "exact", head: true }),
-    db.from("usuario_app").select("id", { count: "exact", head: true }),
-    db.from("actividad").select("id", { count: "exact", head: true }),
-    db.from("tema").select("id", { count: "exact", head: true }).eq("estado", "publicado")
+    db.select({ total: sql<number>`count(*)` }).from(schema.tema),
+    db.select({ total: sql<number>`count(*)` }).from(schema.usuarioApp),
+    db.select({ total: sql<number>`count(*)` }).from(schema.actividad),
+    db.select({ total: sql<number>`count(*)` }).from(schema.tema).where(eq(schema.tema.estado, "publicado"))
   ]);
 
   return responderExito({
-    temas: themes.count ?? 0,
-    publicados: published.count ?? 0,
-    usuarios: users.count ?? 0,
-    actividades: activities.count ?? 0
+    temas: Number(themes[0]?.total ?? 0),
+    publicados: Number(published[0]?.total ?? 0),
+    usuarios: Number(users[0]?.total ?? 0),
+    actividades: Number(activities[0]?.total ?? 0)
   });
 });
 
@@ -732,118 +732,134 @@ adminRoutes.post("/temas/:tema_id/duplicar", async (c) => {
 });
 
 adminRoutes.get("/usuarios", async (c) => {
-  const db = c.get("db");
   const q = c.req.query("q");
   const rol = c.req.query("rol");
   const limit = Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100);
   const offset = Math.max(Number(c.req.query("offset") ?? "0"), 0);
 
-  let query = db
-    .from("usuario_app")
-    .select("*, perfil:perfil(*)", { count: "exact" })
-    .order("creado_en", { ascending: false });
+  const condiciones = [] as Array<ReturnType<typeof eq> | ReturnType<typeof or>>;
 
   if (q) {
-    query = query.or(`nombre_visible.ilike.%${q}%,correo.ilike.%${q}%`);
+    condiciones.push(or(ilike(schema.usuarioApp.nombreVisible, `%${q}%`), ilike(schema.usuarioApp.correo, `%${q}%`))!);
   }
 
   if (rol) {
-    query = query.eq("rol", rol as Database["public"]["Enums"]["rol_usuario"]);
+    condiciones.push(eq(schema.usuarioApp.rol, rol as Database["public"]["Enums"]["rol_usuario"]));
   }
 
-  const { data: usuarios, error, count } = await query.range(offset, offset + limit - 1);
+  const whereClause = condiciones.length > 0 ? and(...condiciones) : undefined;
 
-  if (error) throw error;
+  const usuarios = await db
+    .select({
+      usuario: schema.usuarioApp,
+      perfil: schema.perfil
+    })
+    .from(schema.usuarioApp)
+    .leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId))
+    .where(whereClause)
+    .orderBy(desc(schema.usuarioApp.creadoEn))
+    .limit(limit)
+    .offset(offset);
+
+  const [countRow] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(schema.usuarioApp)
+    .where(whereClause);
 
   return responderExito({
-    usuarios: (usuarios ?? []).map((u) => ({
-      id: u.id,
-      rol: u.rol,
-      proveedor: u.proveedor,
-      nombre_visible: u.nombre_visible,
-      correo: u.correo,
-      activo: u.activo,
-      creado_en: u.creado_en,
-      actualizado_en: u.actualizado_en,
-      ultimo_login_en: u.ultimo_login_en,
-      perfil: u.perfil
+    usuarios: usuarios.map((fila) => ({
+      id: fila.usuario.id,
+      rol: fila.usuario.rol,
+      proveedor: fila.usuario.proveedor,
+      nombre_visible: fila.usuario.nombreVisible,
+      correo: fila.usuario.correo,
+      activo: fila.usuario.activo,
+      creado_en: fila.usuario.creadoEn.toISOString(),
+      actualizado_en: fila.usuario.actualizadoEn.toISOString(),
+      ultimo_login_en: fila.usuario.ultimoLoginEn ? fila.usuario.ultimoLoginEn.toISOString() : null,
+      perfil: fila.perfil
     })),
-    total: count ?? 0
+    total: Number(countRow?.total ?? 0)
   });
 });
 
 adminRoutes.get("/usuarios/:usuario_id", async (c) => {
-  const db = c.get("db");
   const usuarioId = c.req.param("usuario_id");
 
-  const { data: usuario, error } = await db
-    .from("usuario_app")
-    .select("*, perfil:perfil(*)")
-    .eq("id", usuarioId)
-    .single();
+  const [usuario] = await db
+    .select({ usuario: schema.usuarioApp, perfil: schema.perfil })
+    .from(schema.usuarioApp)
+    .leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId))
+    .where(eq(schema.usuarioApp.id, usuarioId))
+    .limit(1);
 
-  if (error || !usuario) throw new NotFoundError("Usuario no encontrado");
+  if (!usuario) throw new NotFoundError("Usuario no encontrado");
 
-  return responderExito(usuario);
+  return responderExito({
+    id: usuario.usuario.id,
+    rol: usuario.usuario.rol,
+    proveedor: usuario.usuario.proveedor,
+    nombre_visible: usuario.usuario.nombreVisible,
+    correo: usuario.usuario.correo,
+    activo: usuario.usuario.activo,
+    creado_en: usuario.usuario.creadoEn.toISOString(),
+    actualizado_en: usuario.usuario.actualizadoEn.toISOString(),
+    ultimo_login_en: usuario.usuario.ultimoLoginEn ? usuario.usuario.ultimoLoginEn.toISOString() : null,
+    perfil: usuario.perfil
+  });
 });
 
 adminRoutes.patch(
   "/usuarios/:usuario_id",
   zValidator("json", updateUserSchema),
   async (c) => {
-    const db = c.get("db");
     const usuarioId = c.req.param("usuario_id");
     const body = c.req.valid("json");
 
-    const { data: existing } = await db
-      .from("usuario_app")
-      .select("id")
-      .eq("id", usuarioId)
-      .single();
-
+    const [existing] = await db.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1);
     if (!existing) throw new NotFoundError("Usuario no encontrado");
 
-    const updates: Database["public"]["Tables"]["usuario_app"]["Update"] = {
-      actualizado_en: new Date().toISOString()
-    };
+    await db
+      .update(schema.usuarioApp)
+      .set({
+        ...(body.rol !== undefined ? { rol: body.rol } : {}),
+        ...(body.nombre_visible !== undefined ? { nombreVisible: body.nombre_visible } : {}),
+        actualizadoEn: new Date()
+      })
+      .where(eq(schema.usuarioApp.id, usuarioId));
 
-    if (body.rol !== undefined) updates.rol = body.rol;
-    if (body.nombre_visible !== undefined) updates.nombre_visible = body.nombre_visible;
+    const [usuario] = await db
+      .select({ usuario: schema.usuarioApp, perfil: schema.perfil })
+      .from(schema.usuarioApp)
+      .leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId))
+      .where(eq(schema.usuarioApp.id, usuarioId))
+      .limit(1);
 
-    const { data: usuario, error } = await db
-      .from("usuario_app")
-      .update(updates)
-      .eq("id", usuarioId)
-      .select("*, perfil:perfil(*)")
-      .single();
-
-    if (error || !usuario) throw error;
-
-    return responderExito(usuario);
+    return responderExito({
+      id: usuario.usuario.id,
+      rol: usuario.usuario.rol,
+      proveedor: usuario.usuario.proveedor,
+      nombre_visible: usuario.usuario.nombreVisible,
+      correo: usuario.usuario.correo,
+      activo: usuario.usuario.activo,
+      creado_en: usuario.usuario.creadoEn.toISOString(),
+      actualizado_en: usuario.usuario.actualizadoEn.toISOString(),
+      ultimo_login_en: usuario.usuario.ultimoLoginEn ? usuario.usuario.ultimoLoginEn.toISOString() : null,
+      perfil: usuario.perfil
+    });
   }
 );
 
 adminRoutes.delete("/usuarios/:usuario_id", async (c) => {
-  const db = c.get("db");
   const usuarioId = c.req.param("usuario_id");
 
-  const { data: existing } = await db
-    .from("usuario_app")
-    .select("id")
-    .eq("id", usuarioId)
-    .single();
-
+  const [existing] = await db.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1);
   if (!existing) throw new NotFoundError("Usuario no encontrado");
 
-  const { error } = await db
-    .from("usuario_app")
-    .update({
-      activo: false,
-      actualizado_en: new Date().toISOString()
-    })
-    .eq("id", usuarioId);
-
-  if (error) throw error;
+  await db
+    .update(schema.usuarioApp)
+    .set({ activo: false, actualizadoEn: new Date() })
+    .where(eq(schema.usuarioApp.id, usuarioId));
 
   return responderExito({ eliminado: true });
 });
