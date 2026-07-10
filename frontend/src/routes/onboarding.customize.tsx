@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { actualizarPerfil } from "../features/profile/profile.api";
+import { unirClases } from "@/lib/utilidades";
 import { OnboardingTopbar } from "../features/onboarding/componentes/OnboardingTopbar";
 import { OnboardingStepIndicator } from "../features/onboarding/componentes/OnboardingStepIndicator";
 import { NicknameField } from "../features/onboarding/componentes/NicknameField";
@@ -51,49 +52,28 @@ function CustomizePage() {
 
   return (
     <div
-      className="onboarding-shell"
-      style={{
-        fontFamily: "'Nunito', sans-serif",
-        background: "#f8f9fc",
-        color: "#1A1A1A",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        margin: 0,
-        padding: 0,
-        boxSizing: "border-box",
-      }}
+      className={unirClases(
+        "onboarding-shell",
+        "font-['Nunito',sans-serif] bg-[#f8f9fc] text-[#1A1A1A] min-h-screen flex flex-col m-0 p-0",
+      )}
     >
       <OnboardingTopbar onHelpClick={() => setIsHelpOpen(true)} />
       <main
-        className="onboarding-shell__main"
-        style={{
-          flex: 1,
-          display: "flex",
-          maxWidth: "1200px",
-          margin: "40px auto",
-          width: "100%",
-          padding: "0 20px",
-          gap: "40px",
-          boxSizing: "border-box",
-          alignItems: "flex-start",
-        }}
+        className={unirClases(
+          "onboarding-shell__main",
+          "flex-1 flex max-w-[1200px] my-10 mx-auto w-full px-5 gap-10 items-start",
+        )}
       >
         <div
-          className="onboarding-shell__form"
-          style={{
-            flex: 3,
-            background: "#fff",
-            padding: "40px",
-            borderRadius: "24px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-            minWidth: 0,
-          }}
+          className={unirClases(
+            "onboarding-shell__form",
+            "flex-[3] bg-white p-10 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] min-w-0",
+          )}
         >
-          <h1 style={{ fontSize: "32px", color: "#512DA8", margin: "0 0 8px 0", fontWeight: 800 }}>
+          <h1 className="text-3xl text-[#512DA8] mb-2 font-extrabold">
             Crea tu perfil
           </h1>
-          <p style={{ color: "#5C5C5C", marginBottom: "32px", fontSize: "16px", margin: "0 0 32px 0" }}>
+          <p className="text-[#5C5C5C] mb-8 text-base m-0">
             Cuéntanos un poco sobre ti para personalizar tu experiencia en Semillas.
           </p>
           <OnboardingStepIndicator pasoActual={2} />

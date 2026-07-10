@@ -101,9 +101,14 @@ export function TabGeneral({
               <div className="flex flex-wrap gap-1.5 mt-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#6c3aed]/10 bg-[#6c3aed]/5 text-[11px] font-extrabold text-[#6c3aed]">
                   {category}
-                  <button type="button" onClick={() => onCategoryChange("")} className="hover:text-red-500">
+                  <Boton
+                    variante="texto"
+                    tamano="iconoPequeno"
+                    onClick={() => onCategoryChange("")}
+                    clase="hover:text-red-500"
+                  >
                     <i className="fa-solid fa-xmark text-[9px]" />
-                  </button>
+                  </Boton>
                 </span>
               </div>
             </div>

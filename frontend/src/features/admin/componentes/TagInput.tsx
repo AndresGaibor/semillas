@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Boton } from "@/componentes/ui/boton";
+import { X } from "lucide-react";
 
 type TagInputProps = {
   tags: string[];
@@ -30,9 +32,14 @@ export function TagInput({ tags, onChange }: TagInputProps) {
           {tags.map((tag, idx) => (
             <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-100 bg-[#6c3aed]/5 text-[11px] font-extrabold text-[#6c3aed]">
               {tag}
-              <button type="button" onClick={() => removeTag(idx)} className="hover:text-red-500">
-                <i className="fa-solid fa-xmark text-[9px]" />
-              </button>
+              <Boton
+                variante="texto"
+                tamano="iconoPequeno"
+                onClick={() => removeTag(idx)}
+                clase="hover:text-red-500"
+              >
+                <X className="size-3" />
+              </Boton>
             </span>
           ))}
           <input
