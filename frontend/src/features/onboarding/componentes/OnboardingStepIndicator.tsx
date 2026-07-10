@@ -1,81 +1,29 @@
 import { useNavigate } from "@tanstack/react-router";
+import { Boton } from "@/componentes/ui/boton";
+import { Check } from "lucide-react";
 
 interface OnboardingStepIndicatorProps {
   pasoActual: number;
 }
 
-const tabInactiveBtnStyle: React.CSSProperties = {
-  flex: 1,
-  textAlign: "center",
-  padding: "12px",
-  borderRadius: "8px",
-  fontWeight: 700,
-  fontSize: "14px",
-  color: "#9E9E9E",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  background: "transparent",
-  border: "none",
-  cursor: "pointer",
-  fontFamily: "inherit",
-};
-
-const tabActiveStyle: React.CSSProperties = {
-  flex: 1,
-  textAlign: "center",
-  padding: "12px",
-  borderRadius: "8px",
-  fontWeight: 700,
-  fontSize: "14px",
-  color: "#7E57C2",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  background: "#fff",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-};
-
-const circleStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "24px",
-  height: "24px",
-  borderRadius: "50%",
-  background: "#7E57C2",
-  color: "#fff",
-  fontSize: "12px",
-  fontWeight: 700,
-};
-
 export function OnboardingStepIndicator({ pasoActual }: OnboardingStepIndicatorProps) {
   const navigate = useNavigate();
 
   return (
-    <div
-      className="onboarding-stepper"
-      style={{
-        display: "flex",
-        background: "#f4f5f7",
-        borderRadius: "12px",
-        padding: "4px",
-        marginBottom: "40px",
-      }}
-    >
-      <button
+    <div className="onboarding-stepper flex bg-[#f4f5f7] rounded-xl p-1 mb-10">
+      <Boton
+        variante="secundario"
+        type="button"
         onClick={() => navigate({ to: "/onboarding" })}
-        style={tabInactiveBtnStyle}
+        clase="flex-1 text-center p-3 rounded-lg font-bold text-sm text-[#9E9E9E] flex items-center justify-center gap-2 bg-transparent border-none cursor-pointer shadow-none hover:bg-transparent active:bg-transparent"
       >
-        <span style={circleStyle}>
-          ✓
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#7E57C2] text-white text-xs font-bold">
+          <Check size={14} strokeWidth={3} />
         </span>
         Tu edad
-      </button>
-      <div style={tabActiveStyle}>
-        <span style={circleStyle}>
+      </Boton>
+      <div className="flex-1 text-center p-3 rounded-lg font-bold text-sm text-[#7E57C2] flex items-center justify-center gap-2 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#7E57C2] text-white text-xs font-bold">
           2
         </span>
         Tu información

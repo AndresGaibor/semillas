@@ -7,98 +7,45 @@ interface AvatarSelectorProps {
 
 export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps) {
   return (
-    <div className="onboarding-avatar-section" style={{ marginBottom: "32px" }}>
-      <div
-        className="onboarding-section-title"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          fontSize: "18px",
-          fontWeight: 700,
-          color: "#1A1A1A",
-          marginBottom: "12px",
-        }}
-      >
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "28px",
-            height: "28px",
-            borderRadius: "50%",
-            background: "#7E57C2",
-            color: "#fff",
-            fontSize: "14px",
-            fontWeight: 700,
-            flexShrink: 0,
-          }}
-        >
+    <div className="onboarding-avatar-section mb-8">
+      <div className="onboarding-section-title flex items-center gap-3 text-lg font-bold text-[#1A1A1A] mb-3">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#7E57C2] text-white text-sm font-bold flex-shrink-0">
           2
         </span>
         Elige un avatar que te represente
       </div>
-      <div
-        className="onboarding-avatar-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          gap: "16px",
-          marginTop: "16px",
-        }}
-      >
+      <div className="onboarding-avatar-grid grid grid-cols-5 gap-4 mt-4">
         {Array.from({ length: 10 }).map((_, index) => {
           const avatarNum = index + 1;
           const isSelected = selectedAvatar === avatarNum;
           return (
-            <label
-              key={avatarNum}
-              className="onboarding-avatar-card"
-              style={{ cursor: "pointer", display: "block", position: "relative" }}
-            >
+            <label key={avatarNum} className="cursor-pointer block relative">
               <input
                 type="radio"
                 name="avatar"
                 value={avatarNum}
                 checked={isSelected}
                 onChange={() => onSelect(avatarNum)}
-                style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
+                className="absolute opacity-0 w-0 h-0"
               />
               <div
+                className="transition-all duration-200 relative"
                 style={{
                   border: `2px solid ${isSelected ? "#7E57C2" : "transparent"}`,
                   borderRadius: "16px",
                   padding: "4px",
                   background: isSelected ? "#EDE7F6" : "transparent",
-                  position: "relative",
-                  transition: "all 0.2s ease",
                 }}
               >
                 <img
                   src={MAPA_AVATARES[String(avatarNum)]}
                   alt={`Avatar ${avatarNum}`}
-                  style={{ width: "100%", height: "auto", borderRadius: "12px", display: "block" }}
+                  className="w-full h-auto block rounded-xl"
                 />
                 {isSelected && (
                   <div
-                    style={{
-                      position: "absolute",
-                      top: "-8px",
-                      right: "-8px",
-                      width: "24px",
-                      height: "24px",
-                      background: "#7E57C2",
-                      color: "#fff",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                      zIndex: 10,
-                    }}
+                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm text-white shadow-[0_2px_4px_rgba(0,0,0,0.2)] z-10"
+                    style={{ background: "#7E57C2" }}
                   >
                     ✓
                   </div>

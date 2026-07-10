@@ -1,6 +1,9 @@
 import type { UseFormRegister } from "react-hook-form";
 import type { CrearTemaSolicitud } from "../admin.api";
 import type { Senda, GrupoEdad } from "@/shared/api/api";
+import { Input } from "@/componentes/ui/input-base";
+import { SelectFiltro } from "@/componentes/ui/select-filtro";
+import { Boton } from "@/componentes/ui/boton";
 
 interface ClubVisibilidades {
   todos: boolean;
@@ -59,11 +62,11 @@ export function PasoInformacionGeneral({
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Titulo del tema <span className="text-red-500">*</span></label>
             <div className="relative">
-              <input
+              <Input
                 {...register("titulo", { required: true })}
                 maxLength={100}
                 placeholder="Ej. Dios cuida de mi"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
+                className="pr-12 text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
               />
               <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
                 {liveTitle.length === 16 ? 0 : liveTitle.length}/100
@@ -73,11 +76,11 @@ export function PasoInformacionGeneral({
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Slug (identificador) <span className="text-red-500">*</span></label>
-            <input
+            <Input
               {...register("slug", { required: true })}
               onFocus={() => onSlugManualEdit?.()}
               placeholder="ej. dios-cuida-de-mi"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
+              className="text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
             />
             <span className="text-[10px] text-slate-450 font-bold mt-0.5 leading-relaxed">
               Se usara en la URL. Solo minusculas, numeros y guiones.
@@ -88,18 +91,13 @@ export function PasoInformacionGeneral({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Senda <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <select
-                {...register("senda_id", { required: true })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-[#2e9e5b] focus:outline-hidden cursor-pointer"
-              >
-                <option value="">Selecciona una senda</option>
-                {sendas?.map((s) => (
-                  <option key={s.id} value={s.id}>{s.nombre}</option>
-                ))}
-              </select>
-              <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
-            </div>
+            <SelectFiltro
+              opciones={sendas ?? []}
+              placeholder="Selecciona una senda"
+              etiquetaAria="Seleccionar senda"
+              variante="cuadrado"
+              {...register("senda_id", { required: true })}
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -181,18 +179,13 @@ export function PasoInformacionGeneral({
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Version biblica <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <select
-                {...register("version_biblica_id", { required: true })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-[#2e9e5b] focus:outline-hidden cursor-pointer"
-              >
-                <option value="">Selecciona una version</option>
-                {bibleVersions?.map((v) => (
-                  <option key={v.id} value={v.id}>{v.codigo}</option>
-                ))}
-              </select>
-              <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
-            </div>
+            <SelectFiltro
+              opciones={bibleVersions ?? []}
+              placeholder="Selecciona una version"
+              etiquetaAria="Seleccionar version biblica"
+              variante="cuadrado"
+              {...register("version_biblica_id", { required: true })}
+            />
           </div>
         </div>
 
@@ -235,13 +228,13 @@ export function PasoInformacionGeneral({
           <span className="text-[11px] text-slate-450 font-bold mb-1">Anade etiquetas que describan el contenido del tema.</span>
 
           <div className="flex flex-col gap-2">
-            <input
+            <Input
               type="text"
               placeholder="Escribe una etiqueta y presiona Enter"
               value={tagsInput}
               onChange={(e) => onTagsInputChange(e.target.value)}
               onKeyDown={onAddTag}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
+              className="text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
             />
 
             {tagsList.length > 0 && (
@@ -249,13 +242,15 @@ export function PasoInformacionGeneral({
                 {tagsList.map((tag, idx) => (
                   <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-100 bg-slate-50 text-[11px] font-extrabold text-slate-500">
                     {tag}
-                    <button
+                    <Boton
                       type="button"
                       onClick={() => onRemoveTag(idx)}
-                      className="hover:text-red-500 transition-colors"
+                      className="hover:!text-red-500 transition-colors"
+                      variante="texto"
+                      tamano="iconoPequeno"
                     >
                       <i className="fa-solid fa-xmark text-[9px]" />
-                    </button>
+                    </Boton>
                   </span>
                 ))}
               </div>

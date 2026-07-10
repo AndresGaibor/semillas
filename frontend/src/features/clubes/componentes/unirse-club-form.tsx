@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Plus } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
+import { Boton } from "@/componentes/ui/boton";
 
 export interface UnirseClubFormProps {
   joinCode: string;
@@ -32,22 +33,22 @@ export const UnirseClubForm: React.FC<UnirseClubFormProps> = ({
             placeholder="Ingresa el código del club"
             className="w-full px-4 py-3 bg-white border border-[#e5e7eb] rounded-xl text-sm font-semibold outline-none focus:border-[#7E57C2] transition-colors pr-12 text-slate-700"
           />
-          <button
+          <Boton
             type="submit"
             disabled={!joinCode.trim()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#7E57C2]/10 hover:bg-[#7E57C2] text-[#7E57C2] hover:text-white border-0 flex items-center justify-center cursor-pointer transition-colors"
+            className="!absolute !right-2 !top-1/2 !-translate-y-1/2 !w-8 !h-8 !rounded-lg !bg-[#7E57C2]/10 hover:!bg-[#7E57C2] !text-[#7E57C2] hover:!text-white !border-0"
           >
             <Plus size={16} />
-          </button>
+          </Boton>
         </div>
 
-        <button
+        <Boton
           type="submit"
           disabled={!joinCode.trim()}
-          className="w-full bg-[#7E57C2] hover:bg-[#5B21B6] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white border-0 py-3.5 px-4 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-sm"
+          className="!w-full !bg-[#7E57C2] hover:!bg-[#5B21B6] disabled:!bg-slate-200 disabled:!text-slate-400 disabled:!cursor-not-allowed !text-white !border-0 !py-3.5 !px-4 !rounded-xl !text-xs !font-bold !shadow-sm"
         >
           Unirse al club
-        </button>
+        </Boton>
       </form>
     </Card>
   );

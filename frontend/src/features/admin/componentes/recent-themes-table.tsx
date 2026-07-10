@@ -1,4 +1,4 @@
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { FilaTabla, TablaBase } from "@/componentes/ui/tabla-base";
@@ -33,24 +33,25 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
       titulo="Temas recientes"
       descripcion="Últimos temas modificados o creados."
       accion={
-        <Button
+        <Boton
           type="button"
-          variant="outline"
-          size="sm"
+          variante="contorno"
+          tamano="pequeno"
           onClick={onVerTodos}
           className="h-9 rounded-xl border-slate-200 px-4 text-xs font-bold text-slate-600"
         >
           Ver todos
-        </Button>
+        </Boton>
       }
       footer={
-        <button
+        <Boton
           type="button"
+          variante="texto"
           onClick={onVerTodos}
           className="inline-block select-none py-1 text-center text-xs font-extrabold text-primario transition-colors hover:text-primario-oscuro"
         >
           Ver todos los temas
-        </button>
+        </Boton>
       }
     >
       <TablaBase

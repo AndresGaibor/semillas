@@ -1,4 +1,4 @@
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { TarjetaMetricaCompacta } from "@/componentes/ui/card-metrica";
 import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
@@ -55,14 +55,14 @@ export function ContentStatusGrid({
       titulo="Estado del contenido"
       descripcion="Resumen general del estado de todo el contenido."
       accion={
-        <Button
-          variant="outline"
-          size="sm"
+        <Boton
+          variante="contorno"
+          tamano="pequeno"
           onClick={onVerTodo}
           className="h-9 rounded-xl border-slate-200 px-4 text-xs font-bold text-slate-600"
         >
           Ver todo
-        </Button>
+        </Boton>
       }
     >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">

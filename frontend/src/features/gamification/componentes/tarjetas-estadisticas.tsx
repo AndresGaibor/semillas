@@ -56,20 +56,14 @@ export const TarjetasEstadisticas: React.FC = () => {
         subtitulo="Experiencia acumulada"
         colorSubtitulo="text-gray-500"
         icono={
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center text-white"
-            style={{ background: "linear-gradient(135deg, #3D8BD4, #2563EB)" }}
-          >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-[#3D8BD4] to-[#2563EB]">
             <Star className="size-6 text-white fill-white" />
           </div>
         }
       />
 
       <Card sombra="sm" className="p-4 flex items-start gap-3">
-        <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-white"
-          style={{ background: "linear-gradient(135deg, #EE6C4D, #C2410C)" }}
-        >
+        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-[#EE6C4D] to-[#C2410C]">
           <Flame className="size-6 text-white fill-white" />
         </div>
         <div className="flex-1">
@@ -80,8 +74,7 @@ export const TarjetasEstadisticas: React.FC = () => {
             {[1, 2, 3, 4, 5, 6].map((d) => (
               <span
                 key={d}
-                className="size-3.5 rounded-full flex items-center justify-center text-white text-[8px] font-bold"
-                style={{ backgroundColor: "#EE6C4D" }}
+                className="size-3.5 rounded-full flex items-center justify-center text-white text-[8px] font-bold bg-[#EE6C4D]"
               >
                 ✓
               </span>

@@ -11,6 +11,8 @@ import {
   User,
   Users,
 } from "lucide-react";
+import { Boton } from "@/componentes/ui/boton";
+import { unirClases } from "@/lib/utilidades";
 
 interface ElementoMenu {
   id: string;
@@ -43,10 +45,7 @@ export const SidebarIzquierdo: React.FC<PropiedadesSidebarIzquierdo> = ({
     <aside className="w-[240px] bg-white border-r border-[#E2E8F0] p-5 flex flex-col justify-between flex-shrink-0">
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold"
-            style={{ background: "linear-gradient(135deg, #16A34A, #2E9E5B)" }}
-          >
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold bg-gradient-to-br from-[#16A34A] to-[#2E9E5B]">
             🌱
           </div>
           <div>
@@ -63,13 +62,12 @@ export const SidebarIzquierdo: React.FC<PropiedadesSidebarIzquierdo> = ({
                 key={item.id}
                 type="button"
                 onClick={() => onCambiarSeccion(item.id)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all w-full text-left"
-                style={{
-                  backgroundColor: esActivo ? "#FAF5FF" : "transparent",
-                  color: esActivo ? "#6C3AED" : "#64748B",
-                }}
+                className={unirClases(
+                  "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all w-full text-left",
+                  esActivo ? "bg-[#FAF5FF] text-[#6C3AED]" : "bg-transparent text-[#64748B]"
+                )}
               >
-                <span style={{ color: esActivo ? "#6C3AED" : "#94A3B8" }}>{item.icono}</span>
+                <span className={esActivo ? "text-[#6C3AED]" : "text-[#94A3B8]"}>{item.icono}</span>
                 <span>{item.etiqueta}</span>
               </button>
             );
@@ -90,7 +88,7 @@ export const SidebarIzquierdo: React.FC<PropiedadesSidebarIzquierdo> = ({
           </div>
           <div className="flex justify-between items-center text-[9px] text-[#94A3B8] font-bold">
             <span>Hace 2 minutos</span>
-            <button type="button" className="text-[#6C3AED] hover:underline">Ver detalles</button>
+            <Boton variante="texto" tamano="pequeno" type="button" className="!text-[#6C3AED] hover:underline">Ver detalles</Boton>
           </div>
         </div>
 

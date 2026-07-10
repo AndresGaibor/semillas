@@ -1,4 +1,4 @@
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { FilaListaCompacta } from "@/componentes/ui/fila-lista-compacta";
 import { PanelSeccionAdmin } from "@/componentes/ui/panel-seccion-admin";
 
@@ -39,14 +39,14 @@ export function UpcomingReviewsList({
     <PanelSeccionAdmin
       titulo="Próximas revisiones"
       accion={
-        <Button
-          variant="ghost"
-          size="sm"
+        <Boton
+          variante="texto"
+          tamano="pequeno"
           onClick={onVerTodas}
           className="h-auto p-0 text-xs font-bold text-primario hover:bg-transparent hover:text-primario-oscuro"
         >
           Ver todas
-        </Button>
+        </Boton>
       }
     >
       <div className="flex flex-col gap-3">

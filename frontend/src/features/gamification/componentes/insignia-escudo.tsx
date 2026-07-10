@@ -1,5 +1,6 @@
 import * as React from "react";
 import { EscudoSVG } from "@/componentes/ui/escudo-svg";
+import { unirClases } from "@/lib/utilidades";
 
 export interface PropiedadesInsigniaEscudo {
   titulo: string;
@@ -22,14 +23,13 @@ export const InsigniaEscudo: React.FC<PropiedadesInsigniaEscudo> = ({
 
   return (
     <div
-      className="flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-200"
-      style={{
-        backgroundColor: obtenida ? "#FFFFFF" : "#FAFAFA",
-        borderColor: obtenida ? "#F1F5F9" : "#E2E8F0",
-        opacity: obtenida ? 1 : 0.65,
-        boxShadow: obtenida ? "0 4px 12px rgba(0, 0, 0, 0.03)" : "none",
-        textAlign: "center",
-      }}
+      className={unirClases(
+        "flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-200 text-center",
+        obtenida
+          ? "bg-white border-[#F1F5F9] shadow-[0_4px_12px_rgba(0,0,0,0.03)]"
+          : "bg-[#FAFAFA] border-[#E2E8F0]",
+        !obtenida && "opacity-65"
+      )}
     >
       <div className="relative w-16 h-18 flex items-center justify-center mb-3">
         <EscudoSVG
@@ -54,8 +54,10 @@ export const InsigniaEscudo: React.FC<PropiedadesInsigniaEscudo> = ({
           )}
         </EscudoSVG>
         <div
-          className="absolute inset-0 flex items-center justify-center text-white"
-          style={{ color: obtenida ? "#FFFFFF" : "#94A3B8" }}
+          className={unirClases(
+            "absolute inset-0 flex items-center justify-center",
+            obtenida ? "text-white" : "text-[#94A3B8]"
+          )}
         >
           {React.cloneElement(icono as React.ReactElement<{ className?: string }>, {
             className: "size-7 stroke-[2.2] drop-shadow-sm",
@@ -64,11 +66,10 @@ export const InsigniaEscudo: React.FC<PropiedadesInsigniaEscudo> = ({
       </div>
       <h4 className="text-xs font-bold text-gray-800 mb-1">{titulo}</h4>
       <span
-        className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-        style={{
-          backgroundColor: obtenida ? "#DCFCE7" : "#F1F5F9",
-          color: obtenida ? "#16A34A" : "#64748B",
-        }}
+        className={unirClases(
+          "text-[10px] font-bold px-2 py-0.5 rounded-full",
+          obtenida ? "bg-[#DCFCE7] text-[#16A34A]" : "bg-[#F1F5F9] text-[#64748B]"
+        )}
       >
         {subtitulo}
       </span>

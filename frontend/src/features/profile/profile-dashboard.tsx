@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import type { Perfil, Usuario } from "../../shared/api/api";
 import { resolverAvatar } from "../../shared/constants/avatares";
 import type { GamificacionMiRespuesta, ProgresoMiRespuesta } from "./profile.api";
+import { Boton } from "@/componentes/ui/boton";
 
 type PerfilDashboardProps = {
   usuario: Usuario | undefined;
@@ -193,14 +194,15 @@ function ActionButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Boton
       type="button"
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-[#2E9E5B]/40 hover:bg-slate-50"
+      variante="contorno"
+      clase="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 hover:border-[#2E9E5B]/40 hover:bg-slate-50"
     >
       <Icon className="h-4 w-4 text-[#2E9E5B]" />
       {label}
-    </button>
+    </Boton>
   );
 }
 

@@ -1,4 +1,5 @@
 import { FilaListaCompacta } from "@/componentes/ui/fila-lista-compacta";
+import { Boton } from "@/componentes/ui/boton";
 
 type SummaryCounts = {
   total: number;
@@ -88,14 +89,15 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
       </div>
 
       {/* Button link */}
-      <button
+      <Boton
         type="button"
         onClick={onVerReportes}
         className="mt-6 flex items-center justify-between w-full rounded-2xl bg-[#eefcf4] hover:bg-[#e1f9ea] text-[#2E9E5B] py-3 px-4 text-xs font-bold transition-all border border-transparent shadow-xs cursor-pointer"
+        variante="texto"
       >
         <span>Ver reportes de temas</span>
         <i className="fa-solid fa-chevron-right text-[10px]" />
-      </button>
+      </Boton>
     </div>
   );
 }

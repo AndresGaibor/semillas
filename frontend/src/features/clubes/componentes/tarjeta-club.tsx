@@ -1,5 +1,6 @@
 import { Copy, UserPlus, Share2, Shield, Edit2, Check } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
+import { Boton } from "@/componentes/ui/boton";
 import bannerKidsImg from "@/assets/images/Ilustraciones/Ninños 2.png";
 
 type PropsTarjetaClub = {
@@ -35,12 +36,14 @@ export function TarjetaClub({
         <div className="flex-1 text-left flex flex-col justify-center w-full">
           <div className="flex items-center gap-2.5 mb-1.5">
             <h2 className="text-2xl font-black text-[#1E1B4B]">{nombre}</h2>
-            <button
+            <Boton
+              variante="texto"
+              tamano="pequeno"
               onClick={onEditar}
-              className="bg-transparent border-0 p-1 hover:bg-slate-100 rounded-full cursor-pointer text-slate-400 hover:text-slate-600 transition-colors"
+              className="!p-1 hover:!bg-slate-100 !rounded-full !text-slate-400 hover:!text-slate-600"
             >
               <Edit2 size={16} />
-            </button>
+            </Boton>
           </div>
           <p className="text-sm font-semibold text-slate-400 mb-6">{descripcion}</p>
 
@@ -49,13 +52,15 @@ export function TarjetaClub({
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Código de invitación</span>
               <div className="flex items-center gap-2 bg-[#F3E8FF] border border-[#E9D5FF] px-3.5 py-1.5 rounded-xl">
                 <span className="text-sm font-black text-[#7E57C2] tracking-wide">{codigoInvitacion}</span>
-                <button
+                <Boton
+                  variante="texto"
+                  tamano="pequeno"
                   onClick={onCopiarCodigo}
-                  className="bg-transparent border-0 p-0 text-[#7E57C2] hover:text-[#5B21B6] cursor-pointer flex items-center justify-center"
+                  className="!p-0 !text-[#7E57C2] hover:!text-[#5B21B6]"
                   title="Copiar código"
                 >
                   {copiado ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
-                </button>
+                </Boton>
               </div>
             </div>
 
@@ -69,20 +74,24 @@ export function TarjetaClub({
           </div>
 
           <div className="flex flex-wrap gap-3 w-full">
-            <button
+            <Boton
+              variante="contorno"
+              tamano="pequeno"
               onClick={onCompartirCodigo}
-              className="flex-1 flex items-center justify-center gap-2 border border-[#7E57C2] hover:bg-[#F3E8FF] text-[#7E57C2] bg-white py-3 px-4 rounded-2xl text-xs font-bold cursor-pointer transition-all shadow-sm min-w-[140px]"
+              className="!flex-1 !border-[#7E57C2] hover:!bg-[#F3E8FF] !text-[#7E57C2] !bg-white !py-3 !px-4 !rounded-2xl !text-xs !font-bold !shadow-sm !min-w-[140px]"
             >
               <Share2 size={14} />
               Compartir código
-            </button>
-            <button
+            </Boton>
+            <Boton
+              variante="primario"
+              tamano="pequeno"
               onClick={onInvitar}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#7E57C2] hover:bg-[#5B21B6] text-white border-0 py-3 px-4 rounded-2xl text-xs font-bold cursor-pointer transition-all shadow-sm min-w-[140px]"
+              className="!flex-1 !bg-[#7E57C2] hover:!bg-[#5B21B6] !text-white !py-3 !px-4 !rounded-2xl !text-xs !font-bold !shadow-sm !min-w-[140px]"
             >
               <UserPlus size={14} />
               Invitar
-            </button>
+            </Boton>
           </div>
         </div>
 

@@ -179,8 +179,7 @@ function RRecompensarPage() {
             <div className="w-full mt-8 pt-6 border-t border-slate-100 flex flex-col gap-4 max-w-md mx-auto relative z-10">
               <Link
                 to="/app/temas"
-                className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
-                style={{ backgroundColor: '#f59e0b', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(245, 158, 11, 0.3), 0 8px 10px -6px rgba(245, 158, 11, 0.1)' }}
+                className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0 bg-[#f59e0b] text-white shadow-[0_20px_25px_-5px_rgba(245,158,11,0.3),0_8px_10px_-6px_rgba(245,158,11,0.1)]"
               >
                 Continuar
               </Link>

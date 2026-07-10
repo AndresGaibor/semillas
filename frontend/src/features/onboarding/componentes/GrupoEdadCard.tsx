@@ -17,19 +17,14 @@ export function GrupoEdadCard({ grupo, seleccionado, onSelect }: GrupoEdadCardPr
 
   return (
     <label
-      className="onboarding-age-card"
+      className={`onboarding-age-card relative flex flex-col rounded-2xl cursor-pointer overflow-hidden transition-all duration-200 ${
+        seleccionado ? "" : "bg-white border border-gray-200"
+      }`}
       style={{
         background: seleccionado ? colores.fondo : "#ffffff",
         border: `2px solid ${seleccionado ? colores.borde : "#e5e7eb"}`,
-        borderRadius: "16px",
         width: "280px",
-        cursor: "pointer",
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
         boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
-        overflow: "hidden",
-        transition: "all 0.2s ease",
       }}
     >
       <input
@@ -38,56 +33,35 @@ export function GrupoEdadCard({ grupo, seleccionado, onSelect }: GrupoEdadCardPr
         value={grupo.id}
         checked={seleccionado}
         onChange={() => onSelect(grupo.id)}
-        style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
+        className="absolute opacity-0 w-0 h-0"
       />
 
-      <div
-        style={{
-          width: "100%",
-          height: "160px",
-          position: "relative",
-          background: "#e5f0f9",
-          flexShrink: 0,
-        }}
-      >
+      <div className="w-full h-[160px] relative bg-[#e5f0f9] flex-shrink-0">
         <img
           src={grupo.imagen_url ?? undefined}
           alt={grupo.nombre}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          className="w-full h-full object-cover block"
         />
         <div
+          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg text-white transition-all duration-200 shadow-[0_2px_4px_rgba(0,0,0,0.2)]"
           style={{
-            position: "absolute",
-            top: "16px",
-            right: "16px",
-            width: "32px",
-            height: "32px",
             background: colores.acento,
-            color: "white",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "bold",
-            fontSize: "18px",
             opacity: seleccionado ? 1 : 0,
             transform: seleccionado ? "scale(1)" : "scale(0.8)",
-            transition: "all 0.2s ease",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
           }}
         >
           ✓
         </div>
       </div>
 
-      <div style={{ padding: "16px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#1A1A1A", margin: "0 0 4px 0" }}>
+      <div className="p-4 flex-1 flex flex-col">
+        <h2 className="text-xl font-bold text-[#1A1A1A] m-0 mb-1">
           {grupo.nombre}
         </h2>
-        <div style={{ fontSize: "14px", fontWeight: 600, color: colores.acento, marginBottom: "12px" }}>
+        <div className="text-sm font-semibold mb-3" style={{ color: colores.acento }}>
           {grupo.edad_minima} - {grupo.edad_maxima} años
         </div>
-        <p style={{ fontSize: "14px", color: "#5C5C5C", lineHeight: 1.5, margin: 0 }}>
+        <p className="text-sm text-[#5C5C5C] leading-relaxed m-0">
           {grupo.descripcion}
         </p>
       </div>

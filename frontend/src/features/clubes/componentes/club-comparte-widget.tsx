@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Share2 } from "lucide-react";
+import { Boton } from "@/componentes/ui/boton";
 import shareKidsImg from "@/assets/images/Ilustraciones/Niños_login.png";
 
 export interface ClubComparteWidgetProps {
@@ -18,13 +19,14 @@ export const ClubComparteWidget: React.FC<ClubComparteWidgetProps> = ({ onCompar
         <img src={shareKidsImg} alt="Comparte" className="h-full object-cover scale-105" />
       </div>
 
-      <button
+      <Boton
+        variante="contorno"
         onClick={onCompartir}
-        className="w-full flex items-center justify-center gap-2 border border-[#7E57C2] hover:bg-[#F3E8FF] text-[#7E57C2] bg-white py-3 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-sm"
+        className="!w-full !border-[#7E57C2] hover:!bg-[#F3E8FF] !text-[#7E57C2] !bg-white !py-3 !px-4 !rounded-xl !text-xs !font-bold !shadow-sm"
       >
         <Share2 size={14} />
         Compartir código
-      </button>
+      </Boton>
     </div>
   );
 };

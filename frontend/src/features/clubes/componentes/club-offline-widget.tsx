@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Download } from "lucide-react";
+import { Boton } from "@/componentes/ui/boton";
 
 export interface ClubOfflineWidgetProps {
   temasDescargadosCount: number;
@@ -28,13 +29,15 @@ export const ClubOfflineWidget: React.FC<ClubOfflineWidgetProps> = ({
         ))}
       </div>
 
-      <button
+      <Boton
+        variante="secundario"
+        tamano="pequeno"
         onClick={onIrDescargas}
-        className="w-full flex items-center justify-center gap-2 bg-[#F8FAFC] hover:bg-slate-100 text-slate-600 border border-slate-200 py-3 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-sm"
+        className="!w-full !bg-[#F8FAFC] hover:!bg-slate-100 !text-slate-600 !border !border-slate-200 !py-3 !px-4 !rounded-xl !text-xs !font-bold !shadow-sm"
       >
         <Download size={14} />
         Ir a mis descargas
-      </button>
+      </Boton>
     </div>
   );
 };

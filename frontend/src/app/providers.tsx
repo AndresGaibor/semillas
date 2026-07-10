@@ -10,6 +10,8 @@ import { sessionStorageApi } from "../shared/api/session";
 import { guardarNombreSugeridoDeGoogle } from "../shared/auth/google-profile";
 import { obtenerRutaPostLogin } from "../shared/auth/post-login";
 import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { useAutoSync } from "@/lib/offline";
+import { OfflineBanner } from "@/componentes/ui/sync-status-badge";
 
 async function vincularCuentaPendiente() {
   const guestUserId = sessionStorageApi.getGuestUserId();
@@ -35,6 +37,7 @@ async function redirigirSegunOnboarding() {
 
 function AuthBootstrap({ children }: { children: ReactNode }) {
   const [listo, setListo] = useState(false);
+  useAutoSync(true);
 
   useEffect(() => {
     const detenerEscucha = escucharCambiosAutenticacion((session) => {
@@ -70,7 +73,12 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
     );
   }
 
-  return children;
+  return (
+    <>
+      <OfflineBanner />
+      {children}
+    </>
+  );
 }
 
 export function AppProviders() {

@@ -8,27 +8,10 @@ interface GrupoEdadGridProps {
   cargando: boolean;
 }
 
-const gridStyle: React.CSSProperties = {
-  display: "flex",
-  gap: "16px",
-  justifyContent: "center",
-  marginBottom: "32px",
-  width: "100%",
-  flexWrap: "wrap",
-};
-
-const loadingStyle: React.CSSProperties = {
-  textAlign: "center",
-  color: "rgba(18,59,44,0.4)",
-  fontWeight: 600,
-  padding: "48px 0",
-  width: "100%",
-};
-
 export function GrupoEdadGrid({ grupos, seleccionadoId, onSelect, cargando }: GrupoEdadGridProps) {
   return (
-    <div className="onboarding-age-grid" style={gridStyle}>
-      {cargando && <p style={loadingStyle}>Cargando franjas...</p>}
+    <div className="onboarding-age-grid flex gap-4 justify-center mb-8 w-full flex-wrap">
+      {cargando && <p className="text-center text-[rgba(18,59,44,0.4)] font-semibold py-12 w-full">Cargando franjas...</p>}
 
       {grupos.map((grupo) => (
         <GrupoEdadCard

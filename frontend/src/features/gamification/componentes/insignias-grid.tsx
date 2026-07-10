@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { InsigniaEscudo } from "./insignia-escudo";
+import { Boton } from "@/componentes/ui/boton";
 
 interface Insignia {
   titulo: string;
@@ -110,7 +111,7 @@ export const InsigniasGrid: React.FC = () => {
     <section className="bg-white border border-[#E2E8F0] p-5 rounded-2xl shadow-sm flex flex-col gap-4">
       <div className="flex justify-between items-center border-b border-[#F1F5F9] pb-3">
         <h3 className="text-sm font-extrabold text-[#123B2C]">Mis insignias</h3>
-        <button type="button" className="text-xs text-[#6C3AED] font-bold hover:underline">Ver todas</button>
+        <Boton variante="texto" tamano="pequeno" clase="!text-xs !text-[#6C3AED] !font-bold hover:underline">Ver todas</Boton>
       </div>
       <div className="grid grid-cols-5 gap-4">
         {insignias.map((insignia) => (

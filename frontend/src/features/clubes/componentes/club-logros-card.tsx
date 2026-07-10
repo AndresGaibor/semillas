@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Shield, Flame, Heart } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
+import { Boton } from "@/componentes/ui/boton";
 
 export interface ClubLogro {
   id: string;
@@ -50,12 +51,14 @@ export const ClubLogrosCard: React.FC<ClubLogrosCardProps> = ({ logros, onVerTod
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-base font-black text-slate-800">Logros del club</h3>
         {onVerTodos && (
-          <button
+          <Boton
+            variante="contorno"
+            tamano="pequeno"
             onClick={onVerTodos}
-            className="bg-transparent border-0 p-0 text-xs font-bold text-[#7E57C2] hover:underline cursor-pointer"
+            className="!bg-transparent !border-0 !p-0 !text-xs !font-bold !text-[#7E57C2] hover:!underline"
           >
             Ver todos
-          </button>
+          </Boton>
         )}
       </div>
 

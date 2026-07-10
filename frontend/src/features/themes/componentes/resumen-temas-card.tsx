@@ -20,7 +20,7 @@ function ItemResumen({ titulo, valor, icono, fondoIcono, textoIcono }: MetricaRe
     <div className="flex min-w-0 flex-1 flex-col items-center gap-2 px-3 text-center sm:px-4">
       <div
         className="flex size-12 items-center justify-center rounded-full shadow-inner sm:size-14"
-        style={{ background: fondoIcono }}
+        style={{ backgroundColor: fondoIcono }}
       >
         <span className={textoIcono}>{icono}</span>
       </div>

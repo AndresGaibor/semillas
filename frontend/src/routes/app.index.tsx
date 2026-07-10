@@ -69,7 +69,7 @@ function AppHomePage() {
         <img 
           src={dashboardBannerImg} 
           alt="Dashboard Principal" 
-          style={{ width: '100%', maxHeight: '250px', borderRadius: '16px', objectFit: 'cover', objectPosition: 'center' }} 
+          className="w-full max-h-[250px] rounded-2xl object-cover object-center"
         />
       </div>
 
@@ -87,7 +87,7 @@ function AppHomePage() {
       />
 
       {/* Racha e Insignias Container */}
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <section className="flex flex-col gap-6">
         <RachaWidget diasRacha={diasRacha} />
         <InsigniasWidget insignias={logrosObtenidos} />
       </section>

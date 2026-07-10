@@ -63,14 +63,7 @@ function LoginPage() {
         </Link>
         <div className="login-lang">
           <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "var(--fuente-tam-sm)",
-              fontWeight: "var(--fuente-peso-negrita)",
-              color: "var(--color-neutro-oscuro)",
-            }}
+            className="flex items-center gap-1.5"
           >
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"></circle>

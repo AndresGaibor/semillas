@@ -147,10 +147,9 @@ function BotonesAccion({ botones, colorAccent }: BotonesAccionProps) {
       <Link
         to={botones.siguiente.to}
         params={{ themeId: botones.siguiente.themeId }}
-        className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
+        className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0 text-white"
         style={{ 
           backgroundColor: colorAccent, 
-          color: '#ffffff', 
           boxShadow: `0 20px 25px -5px ${colorAccent}33, 0 8px 10px -6px ${colorAccent}1a`
         }}
       >

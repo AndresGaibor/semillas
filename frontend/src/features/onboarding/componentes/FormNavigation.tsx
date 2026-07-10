@@ -1,3 +1,5 @@
+import { Boton } from "@/componentes/ui/boton";
+
 interface FormNavigationProps {
   onBack: () => void;
   onFinish: () => void;
@@ -7,53 +9,23 @@ interface FormNavigationProps {
 
 export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormNavigationProps) {
   return (
-    <div
-      className="onboarding-actions"
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        borderTop: "1px solid #e5e7eb",
-        paddingTop: "24px",
-        marginTop: "40px",
-      }}
-    >
-      <button
+    <div className="onboarding-actions flex justify-between items-center border-t border-[#e5e7eb] pt-6 mt-10">
+      <Boton
+        variante="secundario"
         onClick={onBack}
-        className="onboarding-actions__secondary"
-        style={{
-          background: "transparent",
-          border: "1.5px solid #9E9E9E",
-          color: "#2E2E2E",
-          padding: "12px 24px",
-          borderRadius: "8px",
-          fontWeight: 700,
-          fontSize: "16px",
-          cursor: "pointer",
-          fontFamily: "inherit",
-        }}
+        clase="bg-transparent border-[1.5px] border-[#9E9E9E] text-[#2E2E2E] px-6 py-3 rounded-lg font-bold text-base"
       >
         ← Atrás
-      </button>
-      <button
+      </Boton>
+      <Boton
+        variante="primario"
         onClick={onFinish}
         disabled={!isEnabled}
-        className="onboarding-actions__primary"
-        style={{
-          background: isEnabled ? "#7E57C2" : "#E0E0E0",
-          color: isEnabled ? "#fff" : "#9E9E9E",
-          border: "none",
-          padding: "12px 32px",
-          borderRadius: "8px",
-          fontWeight: 700,
-          fontSize: "16px",
-          cursor: isEnabled ? "pointer" : "not-allowed",
-          fontFamily: "inherit",
-          transition: "background 0.2s ease",
-        }}
+        cargando={isLoading}
+        clase="px-8 py-3 rounded-lg font-bold text-base"
       >
         {isLoading ? "Finalizando..." : "Finalizar →"}
-      </button>
+      </Boton>
     </div>
   );
 }
