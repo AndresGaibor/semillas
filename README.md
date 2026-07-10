@@ -120,6 +120,31 @@ Variables principales:
 | `SUPABASE_SERVICE_ROLE_KEY` | `backend/.dev.vars` | Clave secreta de servidor. No commitear. |
 | `SUPABASE_PROJECT_REF` | `backend/.dev.vars` | Referencia del proyecto Supabase. |
 
+### Drizzle con Hyperdrive en desarrollo local
+
+Si la API usa Drizzle, el flujo correcto en local es:
+
+1. En Supabase, copiar la cadena de conexión de Postgres desde `Settings -> Database -> Connection string`.
+2. En Cloudflare, crear o reutilizar Hyperdrive con:
+
+```bash
+cd backend
+bunx wrangler hyperdrive create semillas-db --connection-string "postgresql://postgres:..."
+```
+
+3. Copiar el id de Hyperdrive y dejarlo en `backend/wrangler.toml` como binding `HYPERDRIVE`.
+4. Definir en `backend/.dev.vars` la variable:
+
+```env
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://.../postgres?sslmode=require
+```
+
+5. Reiniciar `bun run dev` para que `scripts/dev.ts` cargue `.dev.vars` y se lo pase a `wrangler dev`.
+
+6. Verificar que el arranque muestre `env.HYPERDRIVE (...) Hyperdrive Config local`.
+
+Si aparece `proxy request failed` o `EHOSTUNREACH`, revisar que la conexión local de Hyperdrive sea accesible desde tu máquina y lleve `sslmode=require`.
+
 ## Desarrollo
 
 Levantar frontend y backend al mismo tiempo:
@@ -265,9 +290,12 @@ Los secretos de produccion deben configurarse en Cloudflare Workers, no en archi
 
 ## Documentacion
 
+- [`docs/arquitectura.md`](docs/arquitectura.md): vista general de capas, flujos y modulos del sistema.
+- [`docs/api.md`](docs/api.md): referencia canónica de la API y sus endpoints.
 - [`docs/backend-api.md`](docs/backend-api.md): endpoints, auth, roles, variables y comandos de API.
 - [`docs/media-storage.md`](docs/media-storage.md): flujo de media privada con Supabase Storage.
 - [`docs/documento_guia_RF_RNF_proyecto_semillas.md`](docs/documento_guia_RF_RNF_proyecto_semillas.md): guia funcional y no funcional del proyecto.
+- [`docs/estado-proyecto/README.md`](docs/estado-proyecto/README.md): indice del estado actual, tareas y brechas del proyecto.
 - [`backend/README.md`](backend/README.md): notas especificas de la API.
 - [`frontend/README.md`](frontend/README.md): notas especificas del frontend.
 
@@ -294,3 +322,5 @@ Buenas practicas esperadas:
 ## Estado Del Proyecto
 
 Semillas esta en desarrollo activo. El foco actual es consolidar la PWA, la API Hono en Cloudflare Workers, el CMS, el flujo offline-first, la gamificacion y la integracion segura con Supabase.
+
+Para ver el estado detallado por areas y las brechas pendientes, revisa [`docs/estado-proyecto/README.md`](docs/estado-proyecto/README.md).

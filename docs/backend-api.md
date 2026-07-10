@@ -231,6 +231,38 @@ export const table = {
 | `SUPABASE_SERVER_KEY`       | Clave de servicio (secreta)           |
 | `SUPABASE_PROJECT_REF`      | Referencia del proyecto              |
 
+### Drizzle en desarrollo local
+
+Para ejecutar Drizzle con `wrangler dev`:
+
+1. Configura `[[hyperdrive]]` en `backend/wrangler.toml` con el binding `HYPERDRIVE`.
+2. Define `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` en `backend/.dev.vars`.
+3. Reinicia `bun run dev` para que `scripts/dev.ts` propague las variables locales a Wrangler.
+4. Verifica que el arranque muestre `env.HYPERDRIVE (...) Hyperdrive Config local`.
+
+Si aparece `proxy request failed` o `EHOSTUNREACH`, la conexión local no es accesible desde tu máquina. Usa una cadena de conexión Postgres válida y con `sslmode=require`.
+
+#### Comandos para replicarlo
+
+```bash
+cd backend
+bunx wrangler hyperdrive create semillas-db --connection-string "postgresql://postgres:..."
+wrangler hyperdrive list
+bun run dev
+```
+
+#### Qué hacer en Cloudflare
+
+1. Crear o reutilizar un Hyperdrive.
+2. Copiar su id y dejarlo en `backend/wrangler.toml`.
+3. Confirmar que el binding se llame exactamente `HYPERDRIVE`.
+
+#### Qué hacer en Supabase
+
+1. Ir a `Settings -> Database -> Connection string`.
+2. Copiar la cadena de Postgres que pueda usarse desde tu máquina.
+3. Asegurar `sslmode=require`.
+
 Desarrollo: `.dev.vars`
 Producción: `bunx wrangler secret put <NAME>`
 

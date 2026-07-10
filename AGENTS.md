@@ -879,6 +879,61 @@ Antes de modificar muchos archivos:
 5. Mantener compatibilidad con la arquitectura existente.
 6. Priorizar simplicidad sobre complejidad.
 
+## Graphify - Grafo de Conocimiento
+
+El proyecto tiene un grafo de conocimiento en `graphify-out/` que representa la estructura del código, sus dependencias y relaciones semánticas.
+
+**Usar el grafo antes de hacer cambios significativos.** Responde preguntas sobre el código sin leer archivos individualmente.
+
+### Comandos disponibles
+
+```bash
+# Preguntar sobre el código (BFS - contexto amplio)
+graphify query "¿Cómo funciona la autenticación?"
+
+# Rastrear una dependencia específica (DFS)
+graphify query "¿Cómo llega el progreso del usuario al backend?" --dfs
+
+# Ruta más corta entre dos conceptos
+graphify path "Actividad" "Progreso"
+
+# Explicar un nodo/módulo
+graphify explain "GamificacionService"
+
+# Actualizar el grafo después de cambios grandes
+graphify --update .
+```
+
+### Wiki del grafo
+
+Navegación indexada en `graphify-out/wiki/index.md`. Cada comunidad temática tiene su propio artículo. Leer el índice antes de explorar módulos desconocidos.
+
+### MCP Server (queries en vivo)
+
+Para que otros agentes consulten el grafo en tiempo real:
+
+```bash
+$(cat graphify-out/.graphify_python) -m graphify.serve graphify-out/graph.json
+```
+
+Expone herramientas: `query_graph`, `get_node`, `get_neighbors`, `get_community`, `god_nodes`, `graph_stats`, `shortest_path`.
+
+### Actualizar el grafo
+
+Después de refactors grandes, merges o features complejas:
+
+```bash
+graphify --update .    # solo archivos nuevos/cambiados
+graphify .             # rebuild completo
+```
+
+### Reglas
+
+1. **Consultar el grafo primero** antes de explorar archivos manualmente.
+2. **Citar `source_file`** cuando se cite un hecho específico del grafo.
+3. **No inventar edges** — si el grafo no tiene la relación, decirlo.
+4. **Actualizar el grafo** después de cambios estructurales significativos.
+
 ## Decisión Final De Stack
 
 ```text
