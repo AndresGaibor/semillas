@@ -1,9 +1,29 @@
+import { existsSync, readFileSync } from 'node:fs';
+
 type Servicio = {
   nombre: string;
   cwd: string;
   comando: string[];
   env?: Record<string, string>;
 };
+
+async function cargarVarsLocal(cwd: string) {
+  const ruta = `${cwd}/.dev.vars`;
+  if (!existsSync(ruta)) return {};
+
+  const contenido = readFileSync(ruta, 'utf8');
+  return Object.fromEntries(
+    contenido
+      .split(/\r?\n/)
+      .map((linea) => linea.trim())
+      .filter((linea) => linea.length > 0 && !linea.startsWith("#"))
+      .map((linea) => {
+        const indice = linea.indexOf("=");
+        if (indice === -1) return [linea, ""];
+        return [linea.slice(0, indice), linea.slice(indice + 1)];
+      })
+  );
+}
 
 const servicios: Servicio[] = [
   {
@@ -20,13 +40,17 @@ const servicios: Servicio[] = [
   },
 ];
 
-const procesos = servicios.map((servicio) => {
+const procesos = await Promise.all(
+  servicios.map(async (servicio) => {
+    const varsLocales = servicio.cwd === "backend" ? await cargarVarsLocal(servicio.cwd) : {};
+
   console.log(`[${servicio.nombre}] iniciando en ${servicio.cwd}`);
 
   const proceso = Bun.spawn(servicio.comando, {
     cwd: servicio.cwd,
     env: {
       ...Bun.env,
+      ...varsLocales,
       ...servicio.env,
     },
     stdout: 'inherit',
@@ -34,8 +58,9 @@ const procesos = servicios.map((servicio) => {
     stdin: 'inherit',
   });
 
-  return { servicio, proceso };
-});
+    return { servicio, proceso };
+  })
+);
 
 const detenerTodos = () => {
   for (const { proceso } of procesos) {
