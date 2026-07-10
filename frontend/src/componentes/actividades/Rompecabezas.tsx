@@ -1,7 +1,5 @@
-import { CheckCircle2, Eye, Grip, RotateCcw, Sparkles } from "lucide-react";
+import { Check, Eye, Grip, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type JSX } from "react";
-
-import { Boton } from "@/componentes/ui/boton";
 
 import {
   calcularFondoPieza,
@@ -15,11 +13,9 @@ import {
 
 export type RompecabezasProps = {
   imagen: string;
-  titulo?: string;
-  descripcion?: string;
   filas?: number;
   columnas?: number;
-  xp?: number;
+  retroalimentacion?: string;
   mostrarVistaReferencia?: boolean;
   onComplete?: () => void;
 };
@@ -30,11 +26,9 @@ function ordenarPorPosicionActual(piezas: PiezaRompecabezas[]): PiezaRompecabeza
 
 export function Rompecabezas({
   imagen,
-  titulo = "Arma el rompecabezas",
-  descripcion = "Toca o arrastra dos piezas para intercambiarlas.",
   filas = 3,
   columnas = 3,
-  xp,
+  retroalimentacion,
   mostrarVistaReferencia = true,
   onComplete,
 }: RompecabezasProps): JSX.Element {
@@ -43,6 +37,7 @@ export function Rompecabezas({
   const [piezas, setPiezas] = useState(() => mezclarPiezasRompecabezas(piezasBase));
   const [piezaSeleccionadaId, setPiezaSeleccionadaId] = useState<number | null>(null);
   const [piezaArrastradaId, setPiezaArrastradaId] = useState<number | null>(null);
+  const [imagenAmpliada, setImagenAmpliada] = useState(false);
   const completoNotificado = useRef(false);
 
   const totalPiezas = dimensiones.filas * dimensiones.columnas;
@@ -104,42 +99,67 @@ export function Rompecabezas({
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-[2rem] bg-[#F7F4EC] p-4 text-[#123B2C] shadow-[0_18px_50px_rgba(18,59,44,0.12)] sm:p-5">
-      <header className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="mb-1 inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-[#2E9E5B]">
-            <Sparkles className="size-3" aria-hidden="true" /> Actividad
-          </p>
-          <h2 className="text-2xl font-black leading-tight text-[#123B2C]">{titulo}</h2>
-          <p className="mt-1 text-sm font-semibold leading-6 text-[#49695D]">{descripcion}</p>
-        </div>
-
-        {typeof xp === "number" && (
-          <span className="shrink-0 rounded-2xl bg-[#F4B740] px-3 py-2 text-sm font-black text-[#123B2C] shadow-sm">
-            {xp} XP
-          </span>
-        )}
-      </header>
-
-      {mostrarVistaReferencia && (
-        <div className="flex items-center gap-3 rounded-3xl border border-[#E5DEC9] bg-white/80 p-3">
-          <img src={imagen} alt="Vista de referencia del rompecabezas" className="size-16 rounded-2xl object-cover" />
-          <div>
-            <p className="flex items-center gap-1 text-sm font-black text-[#123B2C]">
-              <Eye className="size-4" aria-hidden="true" /> Mira la imagen completa
-            </p>
-            <p className="text-xs font-semibold leading-5 text-[#6E7F76]">Usala como pista antes de ordenar las piezas.</p>
+    <div className="w-full max-w-4xl mx-auto py-2 animate-in fade-in zoom-in-95">
+      
+      {/* Modal de Imagen Ampliada */}
+      {imagenAmpliada && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-in fade-in"
+          onClick={() => setImagenAmpliada(false)}
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center">
+            <button 
+              className="absolute -top-12 right-0 md:-right-12 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition-colors"
+              onClick={() => setImagenAmpliada(false)}
+            >
+              <X size={28} />
+            </button>
+            <img 
+              src={imagen} 
+              alt="Referencia ampliada" 
+              className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl" 
+            />
           </div>
         </div>
       )}
 
-      <p id="rompecabezas-ayuda" className="rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-[#49695D]">
-        Toca o arrastra dos piezas para intercambiarlas.
-      </p>
+      {!estaCompletado ? (
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch justify-center w-full">
+          
+          {/* Columna Izquierda */}
+          <div className="w-full md:w-1/3 flex flex-col justify-center gap-6">
+            {mostrarVistaReferencia && (
+              <div 
+                className="flex flex-col items-center gap-3 bg-indigo-50 border-2 border-indigo-200 text-indigo-800 rounded-2xl p-4 shadow-sm w-full cursor-pointer hover:bg-indigo-100 transition-colors"
+                onClick={() => setImagenAmpliada(true)}
+              >
+                <div className="relative group w-full">
+                  <img src={imagen} alt="Referencia" className="w-full h-auto aspect-video rounded-xl object-cover border-2 border-white shadow-sm transition-transform group-hover:scale-[1.02]" />
+                  <div className="absolute inset-0 bg-indigo-900/20 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Eye className="w-8 h-8 text-white drop-shadow-md" />
+                  </div>
+                </div>
+                <div className="text-center w-full">
+                  <p className="font-bold text-indigo-900 flex items-center justify-center gap-1">
+                    Imagen completa
+                  </p>
+                  <p className="text-xs bg-indigo-200 text-indigo-800 px-2 py-0.5 rounded-full inline-block mt-1">Toca para ampliar</p>
+                </div>
+              </div>
+            )}
 
-      <div
-        role="group"
-        className="grid aspect-square w-full overflow-hidden rounded-[1.75rem] border-4 border-white bg-white shadow-[inset_0_0_0_1px_rgba(18,59,44,0.08),0_14px_32px_rgba(18,59,44,0.16)]"
+            <div className="w-full text-center">
+              <p id="rompecabezas-ayuda" className="text-sm font-medium text-slate-600 bg-white inline-block px-4 py-2 rounded-xl shadow-sm border border-slate-100">
+                Toca o arrastra dos piezas para intercambiarlas.
+              </p>
+            </div>
+          </div>
+
+          {/* Columna Derecha: Rompecabezas Grid */}
+          <div className="w-full md:w-2/3 max-w-md mx-auto">
+            <div
+              role="group"
+              className="grid aspect-square w-full overflow-hidden rounded-[1.75rem] border-4 border-slate-200 bg-slate-100 shadow-inner"
         style={{ gridTemplateColumns: `repeat(${dimensiones.columnas}, 1fr)`, gridTemplateRows: `repeat(${dimensiones.filas}, 1fr)` }}
         aria-label={`Rompecabezas de ${dimensiones.filas} por ${dimensiones.columnas}`}
         aria-describedby="rompecabezas-ayuda"
@@ -172,18 +192,24 @@ export function Rompecabezas({
             </button>
           );
         })}
-      </div>
-
-      {estaCompletado && (
-        <div className="flex items-center gap-3 rounded-3xl bg-[#DCFCE7] px-4 py-3 text-[#166534]">
-          <CheckCircle2 className="size-6 shrink-0" aria-hidden="true" />
-          <p className="text-sm font-black">Excelente. Completaste el rompecabezas.</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full p-8 bg-green-50 rounded-3xl border-2 border-green-200 text-center animate-in zoom-in-95 mt-4 shadow-sm">
+          <div className="flex justify-center mb-6 text-green-500">
+            <div className="bg-white p-4 rounded-full shadow-md">
+              <Check size={64} strokeWidth={3} />
+            </div>
+          </div>
+          <h4 className="text-3xl font-bold text-green-800 mb-4">¡Excelente Trabajo!</h4>
+          {retroalimentacion ? (
+            <p className="text-green-700 text-xl font-medium max-w-lg mx-auto">{retroalimentacion}</p>
+          ) : (
+            <p className="text-green-700 text-xl font-medium">Armaste la imagen correctamente.</p>
+          )}
         </div>
       )}
-
-      <Boton variante="exito" tamano="grande" anchoCompleto iconoIzquierdo={<RotateCcw className="size-5" />} onClick={mezclarOtraVez}>
-        Mezclar otra vez
-      </Boton>
-    </section>
+    </div>
   );
 }

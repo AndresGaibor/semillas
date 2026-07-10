@@ -1,6 +1,20 @@
-import { useState } from "react";
-import { Check, ChevronLeft, RotateCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check } from "lucide-react";
 import { playSound } from "../../lib/audio";
+import dorsoCarta from "../../assets/images/Ilustraciones/flascards.png";
+
+interface ParData {
+  id: number;
+  texto: string;
+}
+
+interface FlashcardItem {
+  uid: string;
+  parId: number;
+  texto: string;
+  isFlipped: boolean;
+  isMatched: boolean;
+}
 
 interface FlashcardsProps {
   actividad: any;
@@ -8,104 +22,157 @@ interface FlashcardsProps {
 }
 
 export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [cards, setCards] = useState<FlashcardItem[]>([]);
+  const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
 
-  const opciones = actividad.opciones || [];
-  const currentCard = opciones[currentIndex];
+  // Inicializar cartas
+  useEffect(() => {
+    const paresData: ParData[] = actividad.configuracion?.pares || [];
+    
+    // Duplicar para hacer parejas
+    const deck: FlashcardItem[] = [];
+    paresData.forEach((par) => {
+      deck.push({ uid: `${par.id}_1`, parId: par.id, texto: par.texto, isFlipped: false, isMatched: false });
+      deck.push({ uid: `${par.id}_2`, parId: par.id, texto: par.texto, isFlipped: false, isMatched: false });
+    });
 
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
+    // Barajar aleatoriamente
+    const shuffled = deck.sort(() => Math.random() - 0.5);
+    setCards(shuffled);
+  }, [actividad]);
 
-  const handleNext = () => {
-    if (currentIndex < opciones.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      setIsFlipped(false);
-    } else {
-      if (!completed) {
-        setCompleted(true);
-        playSound('acertado');
-        onComplete(actividad.id, actividad.xp_recompensa || 0);
+  const handleCardClick = (index: number) => {
+    // Evitar clic si el tablero está bloqueado, si la carta ya está volteada o emparejada
+    if (isLocked || cards[index].isFlipped || cards[index].isMatched) return;
+
+    playSound('pop'); // Sonidito de giro
+
+    const newCards = [...cards];
+    newCards[index].isFlipped = true;
+    setCards(newCards);
+
+    const newFlippedIndices = [...flippedIndices, index];
+    setFlippedIndices(newFlippedIndices);
+
+    // Si volteamos dos cartas, comprobamos el match
+    if (newFlippedIndices.length === 2) {
+      setIsLocked(true); // Bloqueamos clics adicionales
+
+      const [firstIndex, secondIndex] = newFlippedIndices;
+      const firstCard = newCards[firstIndex];
+      const secondCard = newCards[secondIndex];
+
+      if (firstCard.parId === secondCard.parId) {
+        // MATCH CORRECTO
+        setTimeout(() => {
+          playSound('acertado');
+          setCards(prev => {
+            const matched = [...prev];
+            matched[firstIndex].isMatched = true;
+            matched[secondIndex].isMatched = true;
+            return matched;
+          });
+          setFlippedIndices([]);
+          setIsLocked(false);
+          checkWinCondition(newCards);
+        }, 500);
+      } else {
+        // MATCH INCORRECTO
+        setTimeout(() => {
+          playSound('error');
+          setCards(prev => {
+            const flippedBack = [...prev];
+            flippedBack[firstIndex].isFlipped = false;
+            flippedBack[secondIndex].isFlipped = false;
+            return flippedBack;
+          });
+          setFlippedIndices([]);
+          setIsLocked(false);
+        }, 1200);
       }
     }
   };
 
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-      setIsFlipped(false);
+  const checkWinCondition = (currentCards: FlashcardItem[]) => {
+    // Si todas las cartas están flipped (y matched)
+    if (currentCards.every(card => card.isFlipped)) {
+      setTimeout(() => {
+        setCompleted(true);
+        playSound('insignia');
+        onComplete(actividad.id, actividad.xp_recompensa || 0);
+      }, 800);
     }
   };
 
-  if (!opciones.length) return <div>No hay tarjetas disponibles.</div>;
-
   return (
-    <div className="flex flex-col items-center w-full max-w-xl mx-auto py-4">
-      {/* Indicador de progreso */}
-      <div className="flex justify-between w-full mb-6 text-slate-500 font-bold px-2">
-        <span>Tarjeta {currentIndex + 1} de {opciones.length}</span>
-        {completed && <span className="text-green-500 flex items-center gap-1"><Check size={18} strokeWidth={3}/> ¡Repaso completado!</span>}
-      </div>
+    <div className="flex flex-col w-full max-w-4xl mx-auto py-2 animate-in fade-in zoom-in-95">
+      
+      {!completed ? (
+        <div className="w-full">
+          {/* Grid responsivo: 2 col en móvil, 4 col en pantallas más grandes */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 place-items-center">
+            {cards.map((card, index) => {
+              // Estilo base para matched
+              const matchedStyle = card.isMatched ? "opacity-60 scale-95" : "";
 
-      {/* Contenedor de la Tarjeta con Perspectiva 3D */}
-      <div 
-        className="relative w-full aspect-[4/3] sm:aspect-[3/2] cursor-pointer group perspective-1000 mb-8"
-        onClick={handleFlip}
-      >
-        <div className={`w-full h-full absolute top-0 left-0 transition-transform duration-700 preserve-3d shadow-2xl rounded-3xl ${isFlipped ? 'rotate-y-180' : ''}`}>
-          
-          {/* Lado Frontal */}
-          <div className="absolute w-full h-full backface-hidden bg-white border-2 border-slate-100 rounded-3xl flex flex-col items-center justify-center p-8 text-center group-hover:border-purple-300 transition-colors">
-            <span className="text-sm font-bold text-slate-300 uppercase tracking-widest mb-4">Concepto</span>
-            <h3 className="text-4xl sm:text-5xl font-black text-slate-800">{currentCard?.texto}</h3>
-            <div className="absolute bottom-6 flex items-center gap-2 text-slate-400 font-medium">
-              <RotateCw size={18} /> Toca para voltear
+              return (
+                <div 
+                  key={card.uid} 
+                  className={`w-full h-24 sm:h-32 cursor-pointer transition-all duration-300 ${matchedStyle}`}
+                  style={{ perspective: '1000px' }}
+                  onClick={() => handleCardClick(index)}
+                >
+                  <div 
+                    className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] shadow-md rounded-xl ${
+                      card.isFlipped ? '[transform:rotateY(180deg)]' : ''
+                    }`}
+                  >
+                    {/* Reverso de la carta (boca abajo) */}
+                    <div 
+                      className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-100 rounded-xl border-4 border-white flex items-center justify-center overflow-hidden"
+                    >
+                      <img 
+                        src={dorsoCarta} 
+                        alt="Reverso Flashcard" 
+                        className="w-full h-full object-cover opacity-90 transition-transform hover:scale-110 duration-500"
+                      />
+                    </div>
+
+                    {/* Frente de la carta (boca arriba) */}
+                    <div 
+                      className={`absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl border-2 sm:border-4 flex flex-col items-center justify-center p-2 text-center overflow-hidden ${
+                        card.isMatched ? "bg-green-100 border-green-500" : "bg-amber-50 border-amber-400"
+                      }`}
+                    >
+                      <p className={`font-bold ${card.isMatched ? "text-green-800" : "text-amber-700"} text-xs sm:text-sm break-words w-full px-1`}>
+                        {card.texto}
+                      </p>
+                      {card.isMatched && <Check className="text-green-600 mt-1 shrink-0" size={16} strokeWidth={3} />}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        /* Card de Completado */
+        <div className="w-full p-8 bg-green-50 rounded-3xl border-2 border-green-200 text-center animate-in zoom-in-95 mt-4 shadow-sm">
+          <div className="flex justify-center mb-6 text-green-500">
+            <div className="bg-white p-4 rounded-full shadow-md">
+              <Check size={64} strokeWidth={3} />
             </div>
           </div>
-
-          {/* Lado Trasero */}
-          <div className="absolute w-full h-full backface-hidden bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-3xl flex flex-col items-center justify-center p-8 text-center rotate-y-180">
-            <span className="text-sm font-bold text-purple-400 uppercase tracking-widest mb-4">Definición</span>
-            <p className="text-2xl sm:text-3xl font-bold text-slate-700 leading-relaxed">{currentCard?.retroalimentacion}</p>
-          </div>
-
+          <h4 className="text-3xl font-bold text-green-800 mb-4">¡Excelente Trabajo!</h4>
+          {actividad.retroalimentacion ? (
+            <p className="text-green-700 text-xl font-medium max-w-lg mx-auto">{actividad.retroalimentacion}</p>
+          ) : (
+            <p className="text-green-700 text-xl font-medium">Has encontrado todos los pares con éxito.</p>
+          )}
         </div>
-      </div>
-
-      {/* Controles */}
-      <div className="flex items-center justify-between w-full gap-4">
-        <button 
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className="p-5 rounded-[1.5rem] bg-slate-100 text-slate-600 font-bold disabled:opacity-50 hover:bg-slate-200 transition-colors shadow-sm"
-        >
-          <ChevronLeft size={28} />
-        </button>
-        
-        <button 
-          onClick={handleNext}
-          className={`flex-1 py-5 px-6 rounded-[1.5rem] font-black text-xl transition-all text-white shadow-xl hover:-translate-y-1 active:translate-y-0 ${completed ? 'bg-green-500 shadow-green-500/30' : 'bg-[#7c3aed] shadow-purple-500/30'}`}
-        >
-          {currentIndex === opciones.length - 1 ? (completed ? "¡Completado!" : "Finalizar Repaso") : "Siguiente Tarjeta"}
-        </button>
-      </div>
-
-      <style>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
+      )}
     </div>
   );
 }

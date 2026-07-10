@@ -9,7 +9,12 @@ import type { EventoProgreso } from "../shared/api/api";
 import { playSound } from "../lib/audio";
 import { CrecerLayout, PreguntaItem, OpcionesConFeedback } from "../features/crecer/componentes";
 import { Flashcards } from "../componentes/actividades/Flashcards";
+import { SopaLetrasActividad } from "../componentes/actividades/SopaLetrasActividad";
+import { Rompecabezas } from "../componentes/actividades/Rompecabezas";
 import { QuizActividad } from "../componentes/actividades/QuizActividad";
+import { VerdaderoFalsoActividad } from "../componentes/actividades/VerdaderoFalsoActividad";
+import { RelacionarParesActividad } from "../componentes/actividades/RelacionarParesActividad";
+import { ManualidadActividad } from "../componentes/actividades/ManualidadActividad";
 import imagenFase from "../assets/images/Ilustraciones/Comprobar.png";
 
 export const Route = createFileRoute("/app/C_comprobar/$themeId")({
@@ -123,7 +128,9 @@ function CComprobarPage() {
               return (
                 <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
                   <div className="mb-6 flex flex-col items-center">
-                    <span className="bg-violet-100 text-violet-700 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest mb-2">Quiz</span>
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-violet-100 text-violet-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Quiz</span>
+                    </div>
                     <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
                     <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
                   </div>
@@ -136,8 +143,119 @@ function CComprobarPage() {
               );
             }
 
+            if (actividad.tipo_actividad?.codigo === 'verdadero_falso') {
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-blue-100 text-blue-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Verdadero o Falso</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  <VerdaderoFalsoActividad 
+                    actividad={actividad} 
+                    onComplete={(actId, xp) => handleSelectOption(actId, 'vf_completado', true, xp)} 
+                  />
+                </div>
+              );
+            }
+
             // Aquí podemos agregar más 'ifs' para Flashcards, Sopa de Letras, etc.
+            if (actividad.tipo_actividad?.codigo === 'relacionar_pares') {
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-orange-100 text-orange-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Relacionar Conceptos</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  <RelacionarParesActividad 
+                    actividad={actividad} 
+                    onComplete={(actId, xp) => handleSelectOption(actId, 'relacionar_completado', true, xp)} 
+                  />
+                </div>
+              );
+            }
             // ...
+            if (actividad.tipo_actividad?.codigo === 'manualidad') {
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-pink-100 text-pink-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Manualidad</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  <ManualidadActividad 
+                    actividad={actividad} 
+                    onComplete={(actId, xp) => handleSelectOption(actId, 'manualidad_completada', true, xp)} 
+                  />
+                </div>
+              );
+            }
+            if (actividad.tipo_actividad?.codigo === 'tarjetas_memoria') {
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-amber-100 text-amber-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Flashcards</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  <Flashcards 
+                    actividad={actividad} 
+                    onComplete={(actId, xp) => handleSelectOption(actId, 'flashcards_completado', true, xp)} 
+                  />
+                </div>
+              );
+            }
+            if (actividad.tipo_actividad?.codigo === 'sopa_letras') {
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-orange-100 text-orange-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Sopa de Letras</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  <SopaLetrasActividad 
+                    actividad={actividad} 
+                    onComplete={(actId, xp) => handleSelectOption(actId, 'sopa_letras_completada', true, xp)} 
+                  />
+                </div>
+              );
+            }
+
+            if (actividad.tipo_actividad?.codigo === 'rompecabezas') {
+              const config = actividad.configuracion || {};
+              // Para evitar errores si la DB no envía imagen, usamos una por defecto de las ilustraciones
+              const imgUrl = config.imagen || "/src/assets/images/Ilustraciones/Tema1.png";
+              return (
+                <div key={actividad.id} className="w-full bg-slate-50/50 p-4 sm:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="w-full text-left mb-2">
+                      <span className="bg-indigo-100 text-indigo-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest">Rompecabezas</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-700 text-center">{actividad.titulo}</h2>
+                    <p className="text-slate-500 mt-2 text-center">{actividad.consigna}</p>
+                  </div>
+                  <Rompecabezas 
+                    imagen={imgUrl}
+                    filas={config.filas || 3}
+                    columnas={config.columnas || 3}
+                    retroalimentacion={actividad.retroalimentacion}
+                    xp={actividad.xp_recompensa}
+                    onComplete={() => handleSelectOption(actividad.id, 'rompecabezas_completado', true, actividad.xp_recompensa || 0)} 
+                  />
+                </div>
+              );
+            }
 
             // Fallback para las actividades que aún no tienen interfaz
             return (

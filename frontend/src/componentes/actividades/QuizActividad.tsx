@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, X, ArrowLeft, ArrowRight } from "lucide-react";
 import { playSound } from "../../lib/audio";
+import imgBannerQuiz from "../../assets/images/Ilustraciones/banner_quiz.png";
 
 interface QuizActividadProps {
   actividad: any;
@@ -61,8 +62,16 @@ export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
       </div>
 
       {/* Pregunta */}
-      <div className="w-full mb-6 text-left">
-        <h3 className="text-xl sm:text-2xl font-bold text-slate-800">
+      <div 
+        className="w-full mb-8 relative flex items-center justify-center p-8 sm:p-12 min-h-[160px] overflow-hidden rounded-3xl"
+        style={{
+          backgroundImage: `url(${imgBannerQuiz})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <h3 className="text-xl sm:text-2xl font-bold text-slate-800 text-center relative z-10">
           {currentQuestion.pregunta}
         </h3>
       </div>
@@ -86,7 +95,6 @@ export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
               btnClass += "bg-red-50 border-red-300";
               textClass = "text-slate-800 font-semibold";
             } else if (isCorrectAnswer) {
-              // Mostrar cuál era la correcta si se equivocó
               btnClass += "bg-green-50/50 border-green-400 opacity-80";
               textClass = "text-slate-700";
             } else {
@@ -117,11 +125,11 @@ export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
 
       {/* Controles de Navegación */}
       {!completed && (
-        <div className="w-full flex justify-between items-center mt-2 pt-6">
+        <div className="flex flex-col-reverse sm:flex-row justify-center items-center gap-4 w-full mt-8">
           <button 
-            onClick={handlePrev}
+            onClick={handlePrev} 
             disabled={currentQuestionIndex === 0}
-            className="px-6 py-3 rounded-xl border border-violet-200 text-violet-700 font-semibold flex items-center gap-2 transition-colors hover:bg-violet-50 disabled:opacity-0"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl text-slate-500 font-semibold flex items-center justify-center gap-2 hover:bg-slate-100 disabled:opacity-0 transition-all"
           >
             <ArrowLeft size={18} /> Anterior
           </button>
@@ -129,18 +137,27 @@ export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
           <button 
             onClick={handleNext}
             disabled={selectedOption === null}
-            className="px-6 py-3 rounded-xl border border-violet-200 text-violet-700 font-semibold flex items-center gap-2 transition-colors hover:bg-violet-50 disabled:opacity-30 disabled:hover:bg-transparent"
+            className="w-full sm:w-auto px-8 py-3 rounded-xl border-2 border-violet-200 text-violet-700 font-bold flex items-center justify-center gap-2 transition-colors hover:bg-violet-50 disabled:opacity-30 disabled:hover:bg-transparent"
           >
             {currentQuestionIndex === preguntas.length - 1 ? "Finalizar" : "Siguiente"} <ArrowRight size={18} />
           </button>
         </div>
       )}
 
-      {/* Card de Completado (Sin XP) */}
+      {/* Card de Completado */}
       {completed && (
-        <div className="w-full p-6 bg-green-50 rounded-xl border border-green-200 text-center animate-in slide-in-from-bottom-2 mt-4">
-          <h4 className="text-xl font-bold text-green-700 mb-1">¡Excelente Trabajo!</h4>
-          <p className="text-green-600 text-sm">Has respondido todas las preguntas.</p>
+        <div className="w-full p-8 bg-green-50 rounded-3xl border-2 border-green-200 text-center animate-in zoom-in-95 mt-8 shadow-sm">
+          <div className="flex justify-center mb-6 text-green-500">
+            <div className="bg-white p-4 rounded-full shadow-md">
+              <Check size={64} strokeWidth={3} />
+            </div>
+          </div>
+          <h4 className="text-3xl font-bold text-green-800 mb-4">¡Excelente Trabajo!</h4>
+          {actividad.retroalimentacion ? (
+            <p className="text-green-700 text-xl font-medium max-w-lg mx-auto">{actividad.retroalimentacion}</p>
+          ) : (
+            <p className="text-green-700 text-xl font-medium">Has respondido todas las preguntas.</p>
+          )}
         </div>
       )}
     </div>
