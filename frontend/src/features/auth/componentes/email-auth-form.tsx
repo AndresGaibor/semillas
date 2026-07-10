@@ -22,14 +22,14 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
   if (cuentaCreada) {
     return (
       <div className="flex flex-col items-center py-6 text-center">
-        <div className="text-[#2e9e5b] text-lg font-bold mb-2">¡Cuenta creada!</div>
+        <div className="text-green-600 text-lg font-bold mb-2">¡Cuenta creada!</div>
         <p className="text-sm text-gray-600 mb-4">
           Hemos enviado un correo de confirmación a tu dirección.
           Revisa tu bandeja de entrada y sigue las instrucciones.
         </p>
         <button
           onClick={resetCuentaCreada}
-          className="text-[#2e9e5b] text-sm font-medium hover:underline"
+          className="text-green-600 text-sm font-medium hover:underline"
         >
           Volver a inicio de sesión
         </button>
@@ -50,11 +50,11 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
             type="email"
             placeholder="Correo electrónico"
             {...register("email")}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30 focus:border-[#2e9e5b]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600"
           />
         </div>
         {errors.email && (
-          <p className="text-[#ee6c4d] text-xs mt-1">{errors.email.message}</p>
+          <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
         )}
       </div>
 
@@ -69,11 +69,11 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
             type="password"
             placeholder="Contraseña"
             {...register("password")}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30 focus:border-[#2e9e5b]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600"
           />
         </div>
         {errors.password && (
-          <p className="text-[#ee6c4d] text-xs mt-1">{errors.password.message}</p>
+          <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
         )}
       </div>
 
@@ -89,16 +89,16 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
               type="password"
               placeholder="Confirmar contraseña"
               {...register("confirmarPassword")}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/30 focus:border-[#2e9e5b]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600"
             />
           </div>
           {(errors as Record<string, { message?: string } | undefined>)["confirmarPassword"] && (
-            <p className="text-[#ee6c4d] text-xs mt-1">{(errors as Record<string, { message?: string } | undefined>)["confirmarPassword"]?.message}</p>
+            <p className="text-red-500 text-xs mt-1">{(errors as Record<string, { message?: string } | undefined>)["confirmarPassword"]?.message}</p>
           )}
         </div>
       )}
 
-      {error && <p className="text-[#ee6c4d] text-sm text-center">{error}</p>}
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
       <button
         type="submit"
@@ -112,7 +112,7 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
       <button
         type="button"
         onClick={toggleModo}
-        className="text-sm font-semibold text-[#2e9e5b] hover:text-[#258a4d] transition-colors"
+        className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors"
       >
         {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
       </button>

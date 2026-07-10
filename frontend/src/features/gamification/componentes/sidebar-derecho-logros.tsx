@@ -8,21 +8,21 @@ import { ProgresoCircular } from "@/componentes/ui/progreso-circular";
 
 export const SidebarDerecho: React.FC = () => {
   return (
-    <aside className="w-[300px] border-l border-[#E2E8F0] p-5 bg-white flex flex-col gap-5 flex-shrink-0">
+    <aside className="w-[300px] border-l border-slate-200 p-5 bg-white flex flex-col gap-5 flex-shrink-0">
       <Card sombra="sm" className="p-4 flex flex-col gap-4">
         <CabeceraSeccion titulo="Tu progreso" textoBoton="Ver detalles" />
         <div className="flex items-center gap-4">
           <ProgresoCircular porcentaje={72} etiqueta="Completado" color="verde" tamano={70} />
           <div className="flex-1">
-            <h4 className="text-xs font-black text-gray-800 leading-none">Nivel 7</h4>
-            <p className="text-[10px] text-[#2E9E5B] font-bold mt-1">Explorador</p>
-            <div className="flex items-center gap-1 mt-2 text-[10px] text-gray-500 font-bold">
-              <Star className="size-3 text-[#FBBF24] fill-[#FBBF24]" />
+            <h4 className="text-xs font-black text-slate-800 leading-none">Nivel 7</h4>
+            <p className="text-[10px] text-green-600 font-bold mt-1">Explorador</p>
+            <div className="flex items-center gap-1 mt-2 text-[10px] text-slate-500 font-bold">
+              <Star className="size-3 text-amber-400 fill-amber-400" />
               <span>1,250 XP acumulados</span>
             </div>
             <div className="mt-3">
               <BarraProgreso valor={550} maximo={1000} mostrarEtiquetas={false} color="morado" />
-              <span className="text-[9px] text-gray-400 font-bold mt-1 block">550 XP para el nivel 8</span>
+              <span className="text-[9px] text-slate-400 font-bold mt-1 block">550 XP para el nivel 8</span>
             </div>
           </div>
         </div>
@@ -31,30 +31,30 @@ export const SidebarDerecho: React.FC = () => {
       <Card sombra="sm" className="p-4 flex flex-col gap-4">
         <CabeceraSeccion titulo="Próxima meta" textoBoton="Ver todas" />
         <div className="flex items-start gap-4">
-          <div className="w-11 h-14 bg-[#FAF5FF] border border-[#6C3AED]/20 rounded-xl flex items-center justify-center text-[#6C3AED] flex-shrink-0">
+          <div className="w-11 h-14 bg-violet-50 border border-violet-200/40 rounded-xl flex items-center justify-center text-violet-600 flex-shrink-0">
             <Lock className="size-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-xs font-black text-gray-800 leading-none">Nivel 8</h4>
-            <span className="text-[10px] text-[#6C3AED] font-extrabold mt-1 block">1,500 XP</span>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1 leading-snug">
+            <h4 className="text-xs font-black text-slate-800 leading-none">Nivel 8</h4>
+            <span className="text-[10px] text-violet-600 font-extrabold mt-1 block">1,500 XP</span>
+            <p className="text-[10px] text-slate-400 font-semibold mt-1 leading-snug">
               Sigue aprendiendo para alcanzar el siguiente nivel.
             </p>
             <div className="mt-3">
               <BarraProgreso valor={1250} maximo={1500} mostrarEtiquetas={false} color="morado" />
-              <span className="text-[8px] text-gray-400 font-bold mt-1 block self-end">1,250 / 1,500</span>
+              <span className="text-[8px] text-slate-400 font-bold mt-1 block self-end">1,250 / 1,500</span>
             </div>
           </div>
         </div>
       </Card>
 
       <Card sombra="sm" className="p-4 flex flex-col gap-3">
-        <h3 className="text-xs font-extrabold text-[#123B2C]">Comparte tu logro</h3>
-        <p className="text-[10px] text-gray-400 font-semibold leading-snug">
+        <h3 className="text-xs font-extrabold text-green-950">Comparte tu logro</h3>
+        <p className="text-[10px] text-slate-400 font-semibold leading-snug">
           ¡Comparte esta imagen con tus amigos y tu club!
         </p>
 
-        <div className="w-full h-28 bg-[#ECFDF5] rounded-xl flex items-center justify-center overflow-hidden border border-[#D1FAE5] relative">
+        <div className="w-full h-28 bg-green-50 rounded-xl flex items-center justify-center overflow-hidden border border-green-200 relative">
           <svg viewBox="0 0 200 110" className="w-full h-full">
             <path d="M 0 90 Q 50 60 100 90 Q 150 110 200 95 L 200 110 L 0 110 Z" fill="#D1FAE5" />
             <path d="M 0 100 Q 100 80 200 100 L 200 110 L 0 110 Z" fill="#A7F3D0" />
@@ -109,9 +109,9 @@ export const SidebarDerecho: React.FC = () => {
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-xs font-black text-gray-800 leading-none">Buen Pastor</h4>
-            <span className="text-[10px] text-[#2E9E5B] font-bold mt-1.5 block">Obtenida hoy</span>
-            <p className="text-[10px] text-gray-400 font-semibold mt-1 leading-snug">
+            <h4 className="text-xs font-black text-slate-800 leading-none">Buen Pastor</h4>
+            <span className="text-[10px] text-green-600 font-bold mt-1.5 block">Obtenida hoy</span>
+            <p className="text-[10px] text-slate-400 font-semibold mt-1 leading-snug">
               Completaste la senda &quot;Dios cuida de mí&quot;.
             </p>
           </div>

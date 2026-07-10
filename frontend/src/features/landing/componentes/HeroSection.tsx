@@ -20,7 +20,7 @@ export function HeroSection() {
         <div className="hero__buttons">
           <Button
             asChild
-            className="btn btn-primario btn-lg rounded-full px-6 py-3 h-auto text-base bg-[#2e9e5b] text-white hover:bg-[#218349]"
+            className="btn btn-primario btn-lg rounded-full px-6 py-3 h-auto text-base bg-green-600 text-white hover:bg-green-700"
           >
             <Link to="/login" search={{ redirect: "/onboarding" }}>
               <i className="fa-solid fa-play mr-2"></i> Comenzar ahora

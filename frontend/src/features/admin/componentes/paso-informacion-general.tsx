@@ -47,13 +47,13 @@ export function PasoInformacionGeneral({
     <>
       <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col gap-5 text-left">
         <div>
-          <h3 className="font-extrabold text-slate-800 text-sm md:text-base">Informacion del tema</h3>
-          <p className="text-[12px] text-slate-400 mt-1 font-medium">Completa los datos basicos para crear el nuevo tema.</p>
+          <h3 className="font-extrabold text-slate-800 text-sm md:text-base">Información del tema</h3>
+          <p className="text-[12px] text-slate-400 mt-1 font-medium">Completa los datos básicos para crear el nuevo tema.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Titulo del tema <span className="text-red-500">*</span></label>
+            <label className="text-xs font-bold text-slate-700">Título del tema <span className="text-red-500">*</span></label>
             <div className="relative">
               <Input
                 {...register("titulo", { required: true })}
@@ -76,7 +76,7 @@ export function PasoInformacionGeneral({
               className="text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
             />
             <span className="text-[10px] text-slate-450 font-bold mt-0.5 leading-relaxed">
-              Se usara en la URL. Solo minusculas, numeros y guiones.
+              Se usará en la URL. Solo minúsculas, números y guiones.
             </span>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function PasoInformacionGeneral({
             <SelectFiltro
               opciones={sendas ?? []}
               placeholder="Selecciona una senda"
-              etiquetaAria="Seleccionar saura"
+              etiquetaAria="Seleccionar senda"
               variante="cuadrado"
               {...register("senda_id", { required: true })}
             />
@@ -119,7 +119,7 @@ export function PasoInformacionGeneral({
                 {...register("objetivo", { required: true })}
                 maxLength={200}
                 rows={3}
-                placeholder="Ej. Que los ninos comprendan que Dios siempre cuida de ellos."
+                placeholder="Ej. Que los niños comprendan que Dios siempre cuida de ellos."
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all resize-none"
               />
               <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
@@ -135,7 +135,7 @@ export function PasoInformacionGeneral({
                 {...register("resumen", { required: true })}
                 maxLength={400}
                 rows={3}
-                placeholder="Breve descripcion del tema y lo que aprenderan los ninos."
+                placeholder="Breve descripción del tema y lo que aprenderán los niños."
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all resize-none"
               />
               <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
@@ -147,7 +147,7 @@ export function PasoInformacionGeneral({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Duracion estimada <span className="text-red-500">*</span></label>
+            <label className="text-xs font-bold text-slate-700">Duración estimada <span className="text-red-500">*</span></label>
             <div className="relative flex items-center">
               <input
                 type="number"
@@ -171,11 +171,11 @@ export function PasoInformacionGeneral({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Version biblica <span className="text-red-500">*</span></label>
+            <label className="text-xs font-bold text-slate-700">Versión bíblica <span className="text-red-500">*</span></label>
             <SelectFiltro
               opciones={bibleVersions ?? []}
-              placeholder="Selecciona una version"
-              etiquetaAria="Seleccionar version biblica"
+              placeholder="Selecciona una versión"
+              etiquetaAria="Seleccionar versión bíblica"
               variante="cuadrado"
               {...register("version_biblica_id", { required: true })}
             />

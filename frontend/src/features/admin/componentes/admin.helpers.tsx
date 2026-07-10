@@ -1,24 +1,24 @@
 import { Boton } from "@/componentes/ui/boton";
 
-export type SendaIconConfig = {
+type SendaIconConfig = {
   icon: string;
   color: string;
 };
 
 export const getSendaIcon = (s: string, icono?: string): SendaIconConfig => {
-  if (icono === "fa-crown") return { icon: "fa-crown", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
-  if (icono === "fa-heart") return { icon: "fa-heart", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
-  if (icono === "fa-flame") return { icon: "fa-flame", color: "text-[#F97316] bg-[#F97316]/10" };
+  if (icono === "fa-crown") return { icon: "fa-crown", color: "text-blue-500 bg-blue-100" };
+  if (icono === "fa-heart") return { icon: "fa-heart", color: "text-violet-600 bg-violet-100" };
+  if (icono === "fa-flame") return { icon: "fa-flame", color: "text-orange-500 bg-orange-100" };
   const lower = s.toLowerCase();
-  if (lower.includes("padre")) return { icon: "fa-crown", color: "text-[#3D8BD4] bg-[#3D8BD4]/10" };
-  if (lower.includes("hijo")) return { icon: "fa-heart", color: "text-[#6C3AED] bg-[#6C3AED]/10" };
-  if (lower.includes("espíritu") || lower.includes("espiritu")) return { icon: "fa-flame", color: "text-[#F97316] bg-[#F97316]/10" };
-  return { icon: "fa-star", color: "text-[#17A398] bg-[#17A398]/10" };
+  if (lower.includes("padre")) return { icon: "fa-crown", color: "text-blue-500 bg-blue-100" };
+  if (lower.includes("hijo")) return { icon: "fa-heart", color: "text-violet-600 bg-violet-100" };
+  if (lower.includes("espíritu") || lower.includes("espiritu")) return { icon: "fa-flame", color: "text-orange-500 bg-orange-100" };
+  return { icon: "fa-star", color: "text-teal-600 bg-teal-100" };
 };
 
-export const BOTON_ACCION_CLS = "w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer";
+const BOTON_ACCION_CLS = "w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer";
 
-export type BotonAccionProps = {
+type BotonAccionProps = {
   onClick?: () => void;
   title: string;
   icon: string;
@@ -33,11 +33,11 @@ export function BotonAccion({ onClick, title, icon, className = BOTON_ACCION_CLS
   );
 }
 
-export const CELDA_CHECKBOX_CLS = "py-4 px-2 text-center";
+const CELDA_CHECKBOX_CLS = "py-4 px-2 text-center";
 
 export const CheckboxCell = ({ stopPropagation = true, ariaLabel }: { stopPropagation?: boolean; ariaLabel: string }) => (
   <td className={CELDA_CHECKBOX_CLS} onClick={stopPropagation ? (e) => e.stopPropagation() : undefined}>
-    <input type="checkbox" aria-label={ariaLabel} className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />
+    <input type="checkbox" aria-label={ariaLabel} className="rounded border-slate-300 text-green-600 focus:ring-green-600 cursor-pointer" />
   </td>
 );
 

@@ -34,8 +34,8 @@ export function TabConfig({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-100 bg-[#eefcf4] p-4">
-        <p className="text-xs font-bold text-[#2e9e5b]">Publicación</p>
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-4">
+        <p className="text-xs font-bold text-green-600">Publicación</p>
         <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
           {publicadoEn ? `Publicado el ${new Date(publicadoEn).toLocaleDateString("es-EC", { day: "numeric", month: "long", year: "numeric" })}.` : "Todavía no está publicado."}
         </p>

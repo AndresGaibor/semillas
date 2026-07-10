@@ -15,14 +15,14 @@ export const ClubComparteWidget: React.FC<ClubComparteWidgetProps> = ({ onCompar
         <p className="text-[10px] text-slate-400 leading-normal">Invita a otros a tu club y aprendan juntos.</p>
       </div>
 
-      <div className="w-full h-28 rounded-2xl overflow-hidden bg-purple-50 flex items-center justify-center border border-[#EDE7F6] mb-4">
+      <div className="w-full h-28 rounded-2xl overflow-hidden bg-violet-50 flex items-center justify-center border border-violet-200 mb-4">
         <img src={shareKidsImg} alt="Comparte" className="h-full object-cover scale-105" />
       </div>
 
       <Boton
-        variante="contorno"
+        variante="violetaContorno"
         onClick={onCompartir}
-        className="!w-full !border-[#7E57C2] hover:!bg-[#F3E8FF] !text-[#7E57C2] !bg-white !py-3 !px-4 !rounded-xl !text-xs !font-bold !shadow-sm"
+        className="w-full py-3 px-4 rounded-xl text-xs font-bold shadow-sm"
       >
         <Share2 size={14} />
         Compartir código

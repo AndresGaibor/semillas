@@ -8,10 +8,10 @@ type Props = {
 };
 
 const tabs: { id: TipoMedia; label: string; icon: string; badgeClassName: string }[] = [
-  { id: "imagen", label: "Imágenes", icon: "fa-solid fa-image", badgeClassName: "bg-[#eefcf4] text-[#2e9e5b]" },
-  { id: "audio", label: "Audio", icon: "fa-solid fa-volume-high", badgeClassName: "bg-[#6c3aed]/10 text-[#6c3aed]" },
-  { id: "video", label: "Video", icon: "fa-solid fa-circle-play", badgeClassName: "bg-[#ee6c4d]/10 text-[#ee6c4d]" },
-  { id: "documento", label: "Documentos", icon: "fa-solid fa-file-lines", badgeClassName: "bg-[#17a398]/10 text-[#17a398]" },
+  { id: "imagen", label: "Imágenes", icon: "fa-solid fa-image", badgeClassName: "bg-green-50 text-green-600" },
+  { id: "audio", label: "Audio", icon: "fa-solid fa-volume-high", badgeClassName: "bg-violet-100 text-violet-600" },
+  { id: "video", label: "Video", icon: "fa-solid fa-circle-play", badgeClassName: "bg-red-50 text-red-500" },
+  { id: "documento", label: "Documentos", icon: "fa-solid fa-file-lines", badgeClassName: "bg-teal-50 text-teal-600" },
 ];
 
 export function AdminMediaTypeTabs({ activeTab, onTabChange }: Props) {

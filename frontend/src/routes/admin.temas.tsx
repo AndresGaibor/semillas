@@ -67,7 +67,7 @@ function AdminThemesListView() {
               onDespublicar={(id) => unpublishMutation.mutate(id)}
             />
 
-            <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-slate-100 gap-4 text-xs font-semibold text-[#5c5c5c] select-none">
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-slate-100 gap-4 text-xs font-semibold text-slate-500 select-none">
               <span>Mostrando {filteredThemes.length > 0 ? "1" : "0"} a {filteredThemes.length} de {filteredThemes.length} temas</span>
             </div>
           </div>

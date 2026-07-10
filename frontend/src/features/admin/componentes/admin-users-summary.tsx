@@ -1,6 +1,7 @@
+import { AdminWidgetCard } from "./admin-widget-card";
+import { StatRow } from "./stat-row";
 import { DonutChart, LeyendaDonut } from "@/componentes/ui/donut-chart";
 import { Boton } from "@/componentes/ui/boton";
-import { Card } from "@/componentes/ui/card-base";
 
 export type UserStats = {
   total: number;
@@ -59,97 +60,65 @@ export function AdminUsersSummary({ stats }: AdminUsersSummaryProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Summary Card */}
-      <Card sombra="sm" className="p-6 flex flex-col text-left">
-        <h3 className="font-extrabold text-slate-800 text-sm">Resumen de usuarios</h3>
-        <span className="text-[10px] text-slate-400 mt-1 font-semibold uppercase tracking-wider select-none">
-          Total usuarios
-        </span>
-        <div className="text-5xl font-black text-[#6c3aed] mt-4 mb-5 select-none">{stats.total}</div>
-
+      <AdminWidgetCard title="Resumen de usuarios" subtitle="Total usuarios">
+        <div className="text-5xl font-black text-violet-600 mt-4 mb-5 select-none">{stats.total}</div>
         <div className="flex flex-col gap-4 text-xs font-semibold text-slate-600">
-          <FilaResumen
-            icono={<i className="fa-solid fa-circle-check text-[10px]" />}
-            fondoIcono="bg-[#eefcf4] text-[#2e9e5b]"
+          <StatRow
+            icon={<i className="fa-solid fa-circle-check text-[10px]" />}
+            iconBg="bg-green-50 text-green-600"
             label="Activos"
-            valor={stats.activos}
-            porcentaje={stats.actPct}
+            value={stats.activos}
+            percentage={stats.actPct}
           />
-          <FilaResumen
-            icono={<i className="fa-solid fa-clock text-[10px]" />}
-            fondoIcono="bg-[#fff8eb] text-[#ea580c]"
+          <StatRow
+            icon={<i className="fa-solid fa-clock text-[10px]" />}
+            iconBg="bg-orange-50 text-orange-600"
             label="Invitados/Pendientes"
-            valor={stats.pendientes}
-            porcentaje={stats.pendPct}
+            value={stats.pendientes}
+            percentage={stats.pendPct}
           />
-          <FilaResumen
-            icono={<i className="fa-solid fa-user-group text-[9px]" />}
-            fondoIcono="bg-purple-100 text-[#6c3aed]"
+          <StatRow
+            icon={<i className="fa-solid fa-user-group text-[9px]" />}
+            iconBg="bg-purple-100 text-purple-600"
             label="Padres vinculados"
-            valor={stats.padres}
-            porcentaje={stats.padresPct}
+            value={stats.padres}
+            percentage={stats.padresPct}
           />
-          <FilaResumen
-            icono={<i className="fa-solid fa-shield-halved text-[9px]" />}
-            fondoIcono="bg-blue-100 text-blue-600"
+          <StatRow
+            icon={<i className="fa-solid fa-shield-halved text-[9px]" />}
+            iconBg="bg-blue-100 text-blue-600"
             label="Administradores"
-            valor={stats.administradores}
-            porcentaje={stats.adminPct}
+            value={stats.administradores}
+            percentage={stats.adminPct}
           />
         </div>
-
-        <Boton variante="secundario" tamano="pequeno" forma="cuadrado" className="mt-5 w-full justify-between px-4 py-3 text-xs">
+        <Boton
+          variante="secundario"
+          tamano="pequeno"
+          forma="cuadrado"
+          className="mt-5 w-full justify-between px-4 py-3 text-xs"
+        >
           <span>Ver reporte completo</span>
           <i className="fa-solid fa-chevron-right text-[9px]" />
         </Boton>
-      </Card>
+      </AdminWidgetCard>
 
-      {/* Donut Chart Card */}
-      <Card sombra="sm" className="p-6 flex flex-col text-left">
-        <h3 className="font-extrabold text-slate-800 text-sm">Distribución por rol</h3>
-
+      <AdminWidgetCard title="Distribución por rol">
         <DonutChart sectores={sectoresDonut} etiquetaTotal="Usuarios" className="mt-4 mb-5" />
         <LeyendaDonut sectores={leyendaDonut} />
-
-        <Boton variante="secundario" tamano="pequeno" forma="cuadrado" className="mt-5 w-full justify-between px-4 py-3 text-xs">
+        <Boton
+          variante="secundario"
+          tamano="pequeno"
+          forma="cuadrado"
+          className="mt-5 w-full justify-between px-4 py-3 text-xs"
+        >
           <div className="flex items-center gap-2">
             <i className="fa-solid fa-user-group text-[10px]" />
             <span>Ver detalles por rol</span>
           </div>
           <i className="fa-solid fa-chevron-right text-[9px]" />
         </Boton>
-      </Card>
-    </div>
-  );
-}
-
-function FilaResumen({
-  icono,
-  fondoIcono,
-  label,
-  valor,
-  porcentaje,
-}: {
-  icono: React.ReactNode;
-  fondoIcono: string;
-  label: string;
-  valor: number;
-  porcentaje: number;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div
-          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${fondoIcono}`}
-        >
-          {icono}
-        </div>
-        <span>{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="font-extrabold text-slate-800">{valor}</span>
-        <span className="text-slate-400 text-[10px]">{porcentaje}%</span>
-      </div>
+      </AdminWidgetCard>
     </div>
   );
 }

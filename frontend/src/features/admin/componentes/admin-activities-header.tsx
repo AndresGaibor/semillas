@@ -20,7 +20,7 @@ export function AdminActivitiesHeader() {
           <div className="flex rounded-xl overflow-hidden shadow-xs h-[42px]">
             <button
               onClick={() => setShowDialog(true)}
-              className="!bg-verde-brote hover:opacity-90 !text-white px-5 font-bold text-sm flex items-center gap-2 transition-colors h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e9e5b] focus-visible:ring-offset-2 focus-visible:ring-offset-white cursor-pointer"
+              className="bg-green-brote hover:opacity-90 text-white px-5 font-bold text-sm flex items-center gap-2 transition-colors h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white cursor-pointer"
             >
               <i className="fa-solid fa-plus text-[10px]" />
               Nueva actividad

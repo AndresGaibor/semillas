@@ -1,6 +1,5 @@
 import * as React from "react";
-
-import { unirClases } from "@/lib/utilidades";
+import { Card } from "@/componentes/ui/card-base";
 
 type PanelSeccionAdminProps = {
   titulo: React.ReactNode;
@@ -8,6 +7,8 @@ type PanelSeccionAdminProps = {
   accion?: React.ReactNode;
   footer?: React.ReactNode;
   children: React.ReactNode;
+  sombra?: "sm" | "md" | "lg";
+  hoverEffect?: "none" | "elevate";
   className?: string;
   contenidoClassName?: string;
 };
@@ -18,16 +19,13 @@ export function PanelSeccionAdmin({
   accion,
   footer,
   children,
+  sombra = "md",
+  hoverEffect = "none",
   className,
   contenidoClassName,
 }: PanelSeccionAdminProps) {
   return (
-    <section
-      className={unirClases(
-        "rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.06)]",
-        className,
-      )}
-    >
+    <Card sombra={sombra} hoverEffect={hoverEffect} className={className}>
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-[clamp(1.35rem,1.55vw,2rem)] font-black leading-none tracking-tight text-slate-900">
@@ -38,9 +36,9 @@ export function PanelSeccionAdmin({
         {accion ? <div className="shrink-0 pt-1">{accion}</div> : null}
       </div>
 
-      <div className={unirClases("min-w-0", contenidoClassName)}>{children}</div>
+      <div className={`min-w-0 ${contenidoClassName}`}>{children}</div>
 
       {footer ? <div className="mt-4">{footer}</div> : null}
-    </section>
+    </Card>
   );
 }

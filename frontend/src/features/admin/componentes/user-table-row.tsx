@@ -35,7 +35,7 @@ export function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
           titulo={usr.nombre}
           subtitulo={usr.correo}
           avatarClassName="w-9 h-9 rounded-full border-2 border-slate-100"
-          tituloClassName="font-extrabold text-slate-800 text-xs group-hover:text-[#2e9e5b] transition-colors sm:text-sm"
+          tituloClassName="font-extrabold text-slate-800 text-xs group-hover:text-green-600 transition-colors sm:text-sm"
           subtituloClassName="text-xs text-slate-400 mt-0.5"
         />
       </td>

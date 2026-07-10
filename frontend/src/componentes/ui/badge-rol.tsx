@@ -6,19 +6,19 @@ export type TipoRol = "Niño" | "Adolescente" | "Padre/Madre" | "Moderador" | "A
 const CONFIG_ROL: Record<TipoRol, { etiqueta: string; clases: string }> = {
   Niño: {
     etiqueta: "Niño",
-    clases: "bg-[#6c3aed]/10 text-[#6c3aed]",
+    clases: "bg-violet-100 text-violet-600",
   },
   Adolescente: {
     etiqueta: "Adolescente",
-    clases: "bg-[#6c3aed]/15 text-[#6c3aed]",
+    clases: "bg-violet-100 text-violet-600",
   },
   "Padre/Madre": {
     etiqueta: "Padre/Madre",
-    clases: "bg-orange-100 text-orange-650",
+    clases: "bg-orange-100 text-orange-600",
   },
   Moderador: {
     etiqueta: "Moderador",
-    clases: "bg-blue-105 text-blue-700",
+    clases: "bg-blue-100 text-blue-600",
   },
   Administrador: {
     etiqueta: "Administrador",

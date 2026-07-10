@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react";
 
 const COLORES_TIPO = {
-  imagen: "from-[#2e9e5b]/20 to-[#2e9e5b]/5 text-[#2e9e5b]",
-  audio: "from-[#6c3aed]/20 to-[#6c3aed]/5 text-[#6c3aed]",
-  video: "from-[#ee6c4d]/20 to-[#ee6c4d]/5 text-[#ee6c4d]",
-  documento: "from-[#17a398]/20 to-[#17a398]/5 text-[#17a398]",
+  imagen: "from-green-600/20 to-green-600/5 text-green-600",
+  audio: "from-violet-600/20 to-violet-600/5 text-violet-600",
+  video: "from-red-500/20 to-red-500/5 text-red-500",
+  documento: "from-teal-600/20 to-teal-600/5 text-teal-600",
 } as const;
 
 const ICONOS_TIPO = {

@@ -41,7 +41,7 @@ export function PasoPreview({
           </div>
           <div className="p-4 flex flex-col gap-2">
             <div>
-              <span className="inline-flex px-1.5 py-0.5 rounded bg-[#6c3aed]/10 text-[#6c3aed] text-[9px] font-extrabold uppercase tracking-wider">
+              <span className="inline-flex px-1.5 py-0.5 rounded bg-violet-100 text-violet-600 text-[9px] font-extrabold uppercase tracking-wider">
                 Tema
               </span>
             </div>
@@ -71,22 +71,22 @@ export function PasoPreview({
               <span>Visible en {checkedClubsCount} clubes</span>
               <div className="flex items-center -space-x-1.5">
                 {clubVisibilities.semillitas && (
-                  <div className="w-5 h-5 rounded-full bg-[#eefcf4] text-[#2e9e5b] border border-white flex items-center justify-center text-[8px] shadow-xs">
+                  <div className="w-5 h-5 rounded-full bg-green-50 text-green-600 border border-white flex items-center justify-center text-[8px] shadow-xs">
                     <i className="fa-solid fa-leaf" />
                   </div>
                 )}
                 {clubVisibilities.guardianes && (
-                  <div className="w-5 h-5 rounded-full bg-[#3d8bd4]/10 text-[#3d8bd4] border border-white flex items-center justify-center text-[8px] shadow-xs">
+                  <div className="w-5 h-5 rounded-full bg-blue-50 text-blue-500 border border-white flex items-center justify-center text-[8px] shadow-xs">
                     <i className="fa-solid fa-feather" />
                   </div>
                 )}
                 {clubVisibilities.corazones && (
-                  <div className="w-5 h-5 rounded-full bg-[#ee6c4d]/10 text-[#ee6c4d] border border-white flex items-center justify-center text-[8px] shadow-xs">
+                  <div className="w-5 h-5 rounded-full bg-red-50 text-red-500 border border-white flex items-center justify-center text-[8px] shadow-xs">
                     <i className="fa-solid fa-heart" />
                   </div>
                 )}
                 {clubVisibilities.jovenes && (
-                  <div className="w-5 h-5 rounded-full bg-[#17a398]/10 text-[#17a398] border border-white flex items-center justify-center text-[8px] shadow-xs">
+                  <div className="w-5 h-5 rounded-full bg-teal-50 text-teal-600 border border-white flex items-center justify-center text-[8px] shadow-xs">
                     <i className="fa-solid fa-mountain" />
                   </div>
                 )}
@@ -95,7 +95,7 @@ export function PasoPreview({
           </div>
         </div>
 
-        <div className="mt-4 bg-[#fff8eb] border border-[#fff8eb]/10 rounded-2xl p-4 flex items-start gap-3 text-amber-600">
+        <div className="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-start gap-3 text-amber-600">
           <i className="fa-solid fa-lightbulb text-xs shrink-0 mt-0.5" />
           <span className="text-[11px] font-bold leading-relaxed">
             Puedes guardar como borrador en cualquier momento y continuar después.

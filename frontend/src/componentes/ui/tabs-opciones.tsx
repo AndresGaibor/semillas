@@ -50,12 +50,12 @@ export const TabsOpciones: React.FC<PropiedadesTabsOpciones> = ({
             onClick={() => onCambiar(opcion.id)}
             className={unirClases(
               esVariantePildora
-                ? "px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7E57C2]/30 focus-visible:ring-offset-2"
-                : "flex items-center gap-2 pb-3 font-bold text-xs transition-all border-b-2 outline-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2e9e5b]/30 sm:text-sm",
+                ? "px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600/30 focus-visible:ring-offset-2"
+                : "flex items-center gap-2 pb-3 font-bold text-xs transition-all border-b-2 outline-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600/30 sm:text-sm",
               esActivo
                 ? esVariantePildora
-                  ? "bg-[#7E57C2] text-white shadow-sm"
-                  : "border-[#2e9e5b] text-[#2e9e5b]"
+                  ? "bg-violet-600 text-white shadow-sm"
+                  : "border-green-600 text-green-600"
                 : esVariantePildora
                   ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
                   : "border-transparent text-slate-500 hover:text-slate-700",

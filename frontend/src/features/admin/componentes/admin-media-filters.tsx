@@ -52,7 +52,7 @@ export function AdminMediaFilters({
           placeholder="Buscar por nombre o etiqueta..."
           ariaLabel="Buscar recursos multimedia"
           contenedorClassName="flex-1 min-w-[220px]"
-          inputClassName="rounded-full border-slate-100 bg-slate-50/50 text-[13px] text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 py-2.5"
+          inputClassName="rounded-full border-slate-100 bg-slate-50/50 text-[13px] text-slate-800 placeholder-slate-400 focus:border-green-600 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-green-600/10 py-2.5"
           icono={
             <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
           }

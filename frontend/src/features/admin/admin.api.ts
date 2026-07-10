@@ -1,5 +1,5 @@
 import { peticion } from "../../shared/api/api";
-import type { Actividad, Paso, Tema } from "../../shared/api/api";
+import type { Paso, Tema } from "../../shared/api/api";
 
 export type CrearTemaSolicitud = {
   senda_id: string;
@@ -59,15 +59,6 @@ export function obtenerTemasAdmin(params?: { status?: string }) {
   if (params?.status) busqueda.set("status", params.status);
   const query = busqueda.toString();
   return peticion<Tema[]>(`/administracion/temas${query ? `?${query}` : ""}`);
-}
-
-export function obtenerResumenAdmin() {
-  return peticion<{
-    temas: number;
-    publicados: number;
-    usuarios: number;
-    actividades: number;
-  }>("/administracion/resumen");
 }
 
 export function obtenerTemaAdmin(idTema: string) {
@@ -152,8 +143,24 @@ export function eliminarActividad(idActividad: string) {
   });
 }
 
+export type UsuarioAdmin = {
+  id: string;
+  nombre_visible: string | null;
+  correo: string | null;
+  activo: boolean | null;
+  rol: string;
+  ultimo_login_en: string | null;
+  perfil: {
+    apodo: string | null;
+    nivel_actual: number | null;
+    xp_acumulada: number | null;
+    avatar_url: string | null;
+    grupo_edad_id: string | null;
+  } | null;
+};
+
 export function obtenerUsuariosAdmin() {
-  return peticion<{ usuarios: any[] }>("/administracion/usuarios");
+  return peticion<{ usuarios: UsuarioAdmin[] }>("/administracion/usuarios");
 }
 
 export type ActividadAdmin = {

@@ -37,7 +37,7 @@ export function TabPublicacion({
           type="button"
           onClick={onPublicar}
           disabled={isPublishing || estaPublicado}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2e9e5b] px-4 py-2 text-xs font-bold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-xs font-bold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPublishing ? <Loader className="animate-spin" size={12} /> : <i className="fa-solid fa-paper-plane text-[10px]" />}
           {estaPublicado ? "Ya publicado" : "Publicar ahora"}

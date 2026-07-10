@@ -19,10 +19,10 @@ export const CompartirInsigniaWidget: React.FC<CompartirInsigniaWidgetProps> = (
     <Card sombra="sm" hoverEffect="none" className="p-6 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <CardTitle>Compartir en Clubes</CardTitle>
-        <Share2 size={16} className="text-[#7E57C2]" />
+        <Share2 size={16} className="text-violet-600" />
       </div>
 
-      <div className="bg-slate-50 border border-dashed border-[#EDE7F6] p-4 rounded-2xl flex flex-col items-center text-center">
+      <div className="bg-slate-50 border border-dashed border-violet-200 p-4 rounded-2xl flex flex-col items-center text-center">
         <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 shadow-sm mb-3">
           <img src={imagenInsignia} alt="Insignia a compartir" className="w-full h-full object-cover" />
         </div>

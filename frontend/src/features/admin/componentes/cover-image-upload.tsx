@@ -9,7 +9,7 @@ export function CoverImageUpload() {
       </span>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 hover:bg-slate-50 hover:border-[#2e9e5b]/40 transition-colors cursor-pointer">
+        <div className="md:col-span-2 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 hover:bg-slate-50 hover:border-green-600/40 transition-colors cursor-pointer">
           <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shadow-xs mb-3">
             <i className="fa-regular fa-image text-lg" />
           </div>
@@ -24,14 +24,14 @@ export function CoverImageUpload() {
           </span>
         </div>
 
-        <div className="bg-[#6c3aed]/5 border border-[#6c3aed]/10 rounded-2xl p-5 flex flex-col text-left">
-          <div className="w-7 h-7 rounded-lg bg-[#6c3aed]/10 text-[#6c3aed] flex items-center justify-center shrink-0 mb-3">
+        <div className="bg-violet-50 border border-violet-200 rounded-2xl p-5 flex flex-col text-left">
+          <div className="w-7 h-7 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 mb-3">
             <i className="fa-solid fa-lightbulb text-xs" />
           </div>
-          <span className="text-[11.5px] font-bold text-[#6c3aed] leading-relaxed">
+          <span className="text-[11.5px] font-bold text-violet-600 leading-relaxed">
             Consejo
           </span>
-          <p className="text-[11.5px] font-semibold text-[#6c3aed]/70 leading-relaxed mt-1">
+          <p className="text-[11.5px] font-semibold text-violet-600/70 leading-relaxed mt-1">
             Usa imagenes coloridas y significativas que conecten con el mensaje del tema.
           </p>
         </div>

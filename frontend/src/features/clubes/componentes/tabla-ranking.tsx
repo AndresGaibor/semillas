@@ -17,12 +17,12 @@ type PropsTablaRanking = {
 
 export function TablaRanking({ miembros, onVerCompleto }: PropsTablaRanking) {
   return (
-    <Card className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm flex flex-col">
+    <Card sombra="sm" className="p-6 flex flex-col">
       <div className="flex justify-between items-center mb-5">
         <h3 className="text-base font-black text-slate-800">Ranking de miembros esta semana</h3>
         <button
           onClick={onVerCompleto}
-          className="bg-transparent border-0 p-0 text-xs font-bold text-[#7E57C2] hover:underline cursor-pointer"
+          className="bg-transparent border-0 p-0 text-xs font-bold text-violet-600 hover:underline cursor-pointer"
         >
           Ver ranking completo
         </button>

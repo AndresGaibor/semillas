@@ -23,7 +23,7 @@ export function EditThemeActionsPanel({
       <button
         onClick={onSave}
         disabled={isSavePending}
-        className="w-full !bg-verde-brote hover:opacity-95 text-white font-bold text-xs py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+        className="w-full bg-green-brote hover:opacity-95 text-white font-bold text-xs py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
       >
         {isSavePending ? <Loader className="animate-spin" size={12} /> : <i className="fa-solid fa-circle-check text-[10px]" />}
         <span>Guardar cambios</span>
@@ -32,7 +32,7 @@ export function EditThemeActionsPanel({
         type="button"
         onClick={onDuplicate}
         disabled={isDuplicatePending}
-        className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-[#6c3aed] font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
+        className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-violet-600 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
       >
         {isDuplicatePending ? <Loader className="animate-spin" size={12} /> : <i className="fa-regular fa-clone text-[10px]" />} Duplicar tema
       </button>
@@ -40,7 +40,7 @@ export function EditThemeActionsPanel({
         type="button"
         onClick={onArchive}
         disabled={isArchivePending}
-        className="w-full bg-white hover:bg-red-50/50 border border-red-200 text-red-650 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
+        className="w-full bg-white hover:bg-red-50 border border-red-200 text-red-600 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
       >
         {isArchivePending ? <Loader className="animate-spin" size={12} /> : <i className="fa-solid fa-box-archive text-[10px]" />} Archivar tema
       </button>

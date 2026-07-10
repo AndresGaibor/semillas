@@ -38,7 +38,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
             onClick={() => onCambiarTab("social")}
             className={`flex-1 pb-3 text-sm font-medium transition-colors ${
               tabActivo === "social"
-                ? "text-[#2e9e5b] border-b-2 border-[#2e9e5b]"
+                ? "text-green-600 border-b-2 border-green-600"
                 : "text-gray-400 hover:text-gray-600"
             }`}
           >
@@ -48,7 +48,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
             onClick={() => onCambiarTab("email")}
             className={`flex-1 pb-3 text-sm font-medium transition-colors ${
               tabActivo === "email"
-                ? "text-[#2e9e5b] border-b-2 border-[#2e9e5b]"
+                ? "text-green-600 border-b-2 border-green-600"
                 : "text-gray-400 hover:text-gray-600"
             }`}
           >
@@ -82,7 +82,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
             />
 
             {guestError && (
-              <p className="text-[#ee6c4d] text-sm mt-2 text-center">No se pudo crear el invitado. Asegúrate de que el backend esté activo.</p>
+              <p className="text-red-500 text-sm mt-2 text-center">No se pudo crear el invitado. Asegúrate de que el backend esté activo.</p>
             )}
           </div>
         )}

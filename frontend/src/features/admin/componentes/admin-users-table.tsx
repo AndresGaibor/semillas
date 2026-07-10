@@ -20,7 +20,7 @@ export type AdminUsersTableProps = {
 };
 
 const ENCABEZADOS: EncabezadoTabla[] = [
-  { contenido: <input type="checkbox" aria-label="Seleccionar todos los usuarios" className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer" />, className: "w-[40px] text-center" },
+  { contenido: <input type="checkbox" aria-label="Seleccionar todos los usuarios" className="rounded border-slate-300 text-green-600 focus:ring-green-600 cursor-pointer" />, className: "w-[40px] text-center" },
   { contenido: "Usuario", className: "w-[25%]" },
   { contenido: "Rol" },
   { contenido: "Franja" },

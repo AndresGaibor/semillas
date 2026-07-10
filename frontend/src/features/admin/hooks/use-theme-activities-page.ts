@@ -2,6 +2,19 @@ import { useRouter } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { crearActividad, eliminarActividad, actualizarActividad } from "../admin.api";
 import { useActivityFormState } from "../componentes/use-activity-form-state";
+import type { Opcion } from "../componentes/use-activity-form-state";
+
+function mapearOpciones(options: Opcion[]) {
+  return options
+    .filter(o => o.texto)
+    .map((option, index) => ({
+      etiqueta: option.etiqueta,
+      texto: option.texto,
+      correcta: option.correcta,
+      orden: index + 1,
+      retroalimentacion: undefined,
+    }));
+}
 
 interface UseThemeActivitiesPageProps {
   themeId: string;
@@ -64,13 +77,7 @@ export function useThemeActivitiesPage({
         dificultad: "facil",
         obligatorio: true,
         configuracion: {},
-        opciones: options.filter(o => o.texto).map((option, index) => ({
-          etiqueta: option.etiqueta,
-          texto: option.texto,
-          correcta: option.correcta,
-          orden: index + 1,
-          retroalimentacion: undefined
-        }))
+        opciones: mapearOpciones(options)
       });
     },
     onSuccess: () => {
@@ -94,13 +101,7 @@ export function useThemeActivitiesPage({
         grupo_edad_id: selectedAgeGroupId,
         dificultad: "facil",
         obligatorio: true,
-        opciones: options.filter(o => o.texto).map((option, index) => ({
-          etiqueta: option.etiqueta,
-          texto: option.texto,
-          correcta: option.correcta,
-          orden: index + 1,
-          retroalimentacion: undefined
-        }))
+        opciones: mapearOpciones(options)
       });
     },
     onSuccess: () => {

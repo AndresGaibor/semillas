@@ -56,7 +56,7 @@ export function TagInput({
     <div className="flex flex-col gap-1.5">
       <label className="text-xs font-bold text-slate-700">{label}</label>
       <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap gap-1.5 p-1 rounded-xl border border-slate-200 bg-white items-center min-h-[42px] px-3 focus-within:border-[#2e9e5b] focus-within:ring-2 focus-within:ring-[#2e9e5b]/10 transition-all">
+        <div className="flex flex-wrap gap-1.5 p-1 rounded-xl border border-slate-200 bg-white items-center min-h-[42px] px-3 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
           {tags.map((tag, idx) => (
             <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-100 bg-slate-50 text-[11px] font-extrabold text-slate-500">
               {tag}

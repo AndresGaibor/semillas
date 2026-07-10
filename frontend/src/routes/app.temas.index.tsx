@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { CardLeccion } from "@/componentes/ui/card-leccion";
-import { TemasTabsFilter, type FiltroTab } from "@/features/themes/componentes/temas-tabs-filter";
+import { TemasTabsFilter } from "@/features/themes/componentes/temas-tabs-filter";
 import { TemasSearchBar } from "@/features/themes/componentes/temas-search-bar";
 import { ResumenTemasCard } from "@/features/themes/componentes/resumen-temas-card";
 import { ContinuarAprendiendoCard } from "@/features/themes/componentes/continuar-aprendiendo-card";
@@ -8,14 +9,13 @@ import { TemasLoadingState, TemasErrorState, TemasEmptyState } from "@/features/
 import { SendaFilterRow } from "@/features/themes/componentes/senda-filter-row";
 import { useTemasPage } from "@/features/themes/hooks/use-temas-page";
 
+const BusquedaSchema = z.object({
+  sendas: z.enum(["padre", "hijo", "espiritu"]).optional(),
+});
+
 export const Route = createFileRoute("/app/temas/")({
   component: PaginaTemas,
-  validateSearch: (search: Record<string, unknown>) => ({
-    sendas:
-      search.sendas === "padre" || search.sendas === "hijo" || search.sendas === "espiritu"
-        ? search.sendas
-        : undefined,
-  }),
+  validateSearch: (search) => BusquedaSchema.parse(search),
 });
 
 function PaginaTemas() {

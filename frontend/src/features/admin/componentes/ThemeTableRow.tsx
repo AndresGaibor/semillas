@@ -148,8 +148,8 @@ export function ThemeTableRow({
                     {
                       label: "Publicar",
                       icono: "fa-cloud-arrow-up",
-                      iconoColor: "text-[#2e9e5b]",
-                      textoColor: "text-[#2e9e5b]",
+                      iconoColor: "text-green-600",
+                      textoColor: "text-green-600",
                       onClick: () => onPublicar?.(),
                     },
                   ]
@@ -157,8 +157,8 @@ export function ThemeTableRow({
                     {
                       label: "Despublicar",
                       icono: "fa-cloud-arrow-down",
-                      iconoColor: "text-[#EE6C4D]",
-                      textoColor: "text-[#EE6C4D]",
+                      iconoColor: "text-orange-500",
+                      textoColor: "text-orange-500",
                       onClick: () => onDespublicar?.(),
                     },
                   ]),

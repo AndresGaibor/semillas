@@ -28,7 +28,7 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
       <div className="navbar__actions">
         <Button
           asChild
-          className="btn btn-secundario rounded-full px-5 py-2 h-auto text-sm bg-transparent text-[#2e9e5b] border-2 border-[#2e9e5b] hover:bg-[#e6f4ea] hover:text-[#2e9e5b]"
+          className="btn btn-secundario rounded-full px-5 py-2 h-auto text-sm bg-transparent text-green-600 border-2 border-green-600 hover:bg-green-50 hover:text-green-600"
         >
           <Link to="/login" search={{ redirect: "/onboarding" }}>
             <i className="fa-solid fa-desktop mr-2"></i> Entrar Web
@@ -36,7 +36,7 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
         </Button>
         <Button
           asChild
-          className="btn btn-primario rounded-full px-5 py-2 h-auto text-sm bg-[#2e9e5b] text-white hover:bg-[#218349]"
+          className="btn btn-primario rounded-full px-5 py-2 h-auto text-sm bg-green-600 text-white hover:bg-green-700"
         >
           <a href="#">
             <i className="fa-solid fa-download mr-2"></i> Descargar APK

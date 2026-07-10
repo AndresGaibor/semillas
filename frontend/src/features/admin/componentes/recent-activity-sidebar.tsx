@@ -19,36 +19,16 @@ export function RecentActivitySidebar({
   const getIconConfig = (tipo: string) => {
     switch (tipo) {
       case "tema":
-        return {
-          icon: "fa-leaf",
-          color: "text-[#2E9E5B]",
-          bg: "bg-[#2E9E5B]/10",
-        };
+        return { icon: "fa-leaf", color: "text-green-600", bg: "bg-green-100" };
       case "actividad":
-        return {
-          icon: "fa-pen-to-square",
-          color: "text-[#E9A23B]",
-          bg: "bg-[#E9A23B]/10",
-        };
+        return { icon: "fa-pen-to-square", color: "text-amber-500", bg: "bg-amber-100" };
       case "club":
-        return {
-          icon: "fa-people-group",
-          color: "text-[#8b5cf6]",
-          bg: "bg-[#8b5cf6]/10",
-        };
+        return { icon: "fa-people-group", color: "text-violet-500", bg: "bg-violet-100" };
       case "recurso":
-        return {
-          icon: "fa-cloud-arrow-up",
-          color: "text-[#3d8bd4]",
-          bg: "bg-[#3d8bd4]/10",
-        };
+        return { icon: "fa-cloud-arrow-up", color: "text-blue-500", bg: "bg-blue-100" };
       case "aprobacion":
       default:
-        return {
-          icon: "fa-circle-check",
-          color: "text-[#E9A23B]",
-          bg: "bg-[#E9A23B]/10",
-        };
+        return { icon: "fa-circle-check", color: "text-amber-500", bg: "bg-amber-100" };
     }
   };
 

@@ -16,7 +16,7 @@ type UseTemasPageOptions = {
 };
 
 export function useTemasPage({ searchSenda }: UseTemasPageOptions = {}) {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: "/app/temas/" });
   const [filtroTab, setFiltroTab] = useState<FiltroTab>("todos");
   const [busqueda, setBusqueda] = useState("");
   const [favoritosLocales, setFavoritosLocales] = useState<Record<string, boolean>>(leerFavoritos);

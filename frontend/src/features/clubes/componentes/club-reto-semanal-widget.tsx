@@ -15,7 +15,7 @@ export const ClubRetoSemanalWidget: React.FC<ClubRetoSemanalWidgetProps> = ({
   return (
     <Card sombra="sm" className="p-6 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 rounded-full bg-[#EDE7F6] text-[#7E57C2] flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">
           <Target size={16} />
         </div>
         <div className="text-left">
@@ -24,12 +24,10 @@ export const ClubRetoSemanalWidget: React.FC<ClubRetoSemanalWidgetProps> = ({
         </div>
       </div>
 
-      {/* Progreso del Reto */}
       <div className="flex flex-col items-center mb-4">
-        <span className="text-3xl font-black text-[#7E57C2]">{completadas} / {meta}</span>
+        <span className="text-3xl font-black text-violet-600">{completadas} / {meta}</span>
       </div>
 
-      {/* Barra */}
       <BarraProgreso valor={completadas} maximo={meta} color="morado" mostrarEtiquetas={false} />
     </Card>
   );

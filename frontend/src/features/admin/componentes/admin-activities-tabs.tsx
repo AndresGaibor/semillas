@@ -21,17 +21,17 @@ export function AdminActivitiesTabs({ activeTab, onTabChange, tabCounts }: Admin
       <Boton
         onClick={() => onTabChange("todos")}
         className={`flex items-center gap-2 pb-3 font-bold text-[13px] border-b-2 transition-colors cursor-pointer outline-none ${
-          activeTab === "todos" ? "border-[#2e9e5b] text-[#2e9e5b]" : "border-transparent text-slate-500 hover:text-slate-700"
+          activeTab === "todos" ? "border-green-600 text-green-600" : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
         variante="texto"
       >
-        <i className="fa-solid fa-square-check text-[#2e9e5b]" />
+        <i className="fa-solid fa-square-check text-green-600" />
         Todas
       </Boton>
       <Boton
         onClick={() => onTabChange("quiz")}
         className={`flex items-center gap-2 pb-3 font-bold text-[13px] border-b-2 transition-colors cursor-pointer outline-none ${
-          activeTab === "quiz" ? "border-[#2e9e5b] text-[#2e9e5b]" : "border-transparent text-slate-500 hover:text-slate-700"
+          activeTab === "quiz" ? "border-green-600 text-green-600" : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
         variante="texto"
       >
@@ -42,7 +42,7 @@ export function AdminActivitiesTabs({ activeTab, onTabChange, tabCounts }: Admin
       <Boton
         onClick={() => onTabChange("flashcard")}
         className={`flex items-center gap-2 pb-3 font-bold text-[13px] border-b-2 transition-colors cursor-pointer outline-none ${
-          activeTab === "flashcard" ? "border-[#2e9e5b] text-[#2e9e5b]" : "border-transparent text-slate-500 hover:text-slate-700"
+          activeTab === "flashcard" ? "border-green-600 text-green-600" : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
         variante="texto"
       >
@@ -53,7 +53,7 @@ export function AdminActivitiesTabs({ activeTab, onTabChange, tabCounts }: Admin
       <Boton
         onClick={() => onTabChange("completar")}
         className={`flex items-center gap-2 pb-3 font-bold text-[13px] border-b-2 transition-colors cursor-pointer outline-none ${
-          activeTab === "completar" ? "border-[#2e9e5b] text-[#2e9e5b]" : "border-transparent text-slate-500 hover:text-slate-700"
+          activeTab === "completar" ? "border-green-600 text-green-600" : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
         variante="texto"
       >
@@ -63,7 +63,7 @@ export function AdminActivitiesTabs({ activeTab, onTabChange, tabCounts }: Admin
       <Boton
         onClick={() => onTabChange("verdadero-falso")}
         className={`flex items-center gap-2 pb-3 font-bold text-[13px] border-b-2 transition-colors cursor-pointer outline-none ${
-          activeTab === "verdadero-falso" ? "border-[#2e9e5b] text-[#2e9e5b]" : "border-transparent text-slate-500 hover:text-slate-700"
+          activeTab === "verdadero-falso" ? "border-green-600 text-green-600" : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
         variante="texto"
       >
@@ -73,7 +73,7 @@ export function AdminActivitiesTabs({ activeTab, onTabChange, tabCounts }: Admin
       <Boton
         onClick={() => onTabChange("sopa")}
         className={`flex items-center gap-2 pb-3 font-bold text-[13px] border-b-2 transition-colors cursor-pointer outline-none ${
-          activeTab === "sopa" ? "border-[#2e9e5b] text-[#2e9e5b]" : "border-transparent text-slate-500 hover:text-slate-700"
+          activeTab === "sopa" ? "border-green-600 text-green-600" : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
         variante="texto"
       >

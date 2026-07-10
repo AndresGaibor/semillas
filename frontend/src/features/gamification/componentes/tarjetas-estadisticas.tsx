@@ -18,8 +18,8 @@ function TarjetaEstadistica({ etiqueta, valor, subtitulo, colorSubtitulo, icono,
     <Card sombra="sm" className="p-4 flex items-start gap-3">
       {icono}
       <div className="flex-1">
-        <span className="text-[10px] text-gray-400 font-extrabold block uppercase leading-none mb-1">{etiqueta}</span>
-        <h3 className="text-lg font-black text-gray-800 leading-none">{valor}</h3>
+        <span className="text-[10px] text-slate-400 font-extrabold block uppercase leading-none mb-1">{etiqueta}</span>
+        <h3 className="text-lg font-black text-slate-800 leading-none">{valor}</h3>
         <p className={`text-[11px] font-bold mt-1 ${colorSubtitulo}`}>{subtitulo}</p>
         {hijos && <div className="mt-3">{hijos}</div>}
       </div>
@@ -34,7 +34,7 @@ export const TarjetasEstadisticas: React.FC = () => {
         etiqueta="Nivel actual"
         valor="7"
         subtitulo="Explorador"
-        colorSubtitulo="text-[#6C3AED]"
+        colorSubtitulo="text-violet-600"
         icono={
           <EscudoEstadistica
             colorBg="linear-gradient(135deg, #6C3AED, #5B30C8)"
@@ -45,7 +45,7 @@ export const TarjetasEstadisticas: React.FC = () => {
         hijos={
           <>
             <BarraProgreso valor={550} maximo={1000} mostrarEtiquetas={false} color="morado" />
-            <span className="text-[9px] text-gray-400 font-bold mt-1 block">550 XP para el nivel 8</span>
+            <span className="text-[9px] text-slate-400 font-bold mt-1 block">550 XP para el nivel 8</span>
           </>
         }
       />
@@ -54,41 +54,44 @@ export const TarjetasEstadisticas: React.FC = () => {
         etiqueta="XP total"
         valor="1,250"
         subtitulo="Experiencia acumulada"
-        colorSubtitulo="text-gray-500"
+        colorSubtitulo="text-slate-500"
         icono={
-          <div className="w-12 h-12 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-[#3D8BD4] to-[#2563EB]">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-blue-500 to-blue-700">
             <Star className="size-6 text-white fill-white" />
           </div>
         }
       />
 
-      <Card sombra="sm" className="p-4 flex items-start gap-3">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-[#EE6C4D] to-[#C2410C]">
-          <Flame className="size-6 text-white fill-white" />
-        </div>
-        <div className="flex-1">
-          <span className="text-[10px] text-gray-400 font-extrabold block uppercase leading-none mb-1">Racha actual</span>
-          <h3 className="text-lg font-black text-gray-800 leading-none">12 días</h3>
-          <p className="text-[11px] text-[#EE6C4D] font-bold mt-1">¡Sigue así!</p>
+      <TarjetaEstadistica
+        etiqueta="Racha actual"
+        valor="12 días"
+        subtitulo="¡Sigue así!"
+        colorSubtitulo="text-orange-500"
+        icono={
+          <div className="w-12 h-12 rounded-full flex items-center justify-center text-white bg-gradient-to-br from-orange-500 to-orange-700">
+            <Flame className="size-6 text-white fill-white" />
+          </div>
+        }
+        hijos={
           <div className="flex gap-1 mt-3">
             {[1, 2, 3, 4, 5, 6].map((d) => (
               <span
                 key={d}
-                className="size-3.5 rounded-full flex items-center justify-center text-white text-[8px] font-bold bg-[#EE6C4D]"
+                className="size-3.5 rounded-full flex items-center justify-center text-white text-[8px] font-bold bg-orange-500"
               >
                 ✓
               </span>
             ))}
-            <span className="size-3.5 rounded-full border border-gray-300 bg-white" />
+            <span className="size-3.5 rounded-full border border-slate-300 bg-white" />
           </div>
-        </div>
-      </Card>
+        }
+      />
 
       <TarjetaEstadistica
         etiqueta="Insignias"
         valor="8 / 16"
         subtitulo="50% completado"
-        colorSubtitulo="text-[#2E9E5B]"
+        colorSubtitulo="text-green-600"
         icono={
           <EscudoEstadistica
             colorBg="linear-gradient(135deg, #2E9E5B, #123B2C)"

@@ -3,18 +3,6 @@ import { useState, useMemo, useRef, type ChangeEvent } from "react";
 import { obtenerRecursosMultimedia, eliminarRecursoMultimedia, subirArchivo } from "../../media/media.api";
 import type { TipoMedia } from "../componentes/admin-media-type-tabs";
 import type { MediaCardItem } from "../__mocks__/medios.mock";
-import { mockupMedias } from "../__mocks__/medios.mock";
-
-import imgSemilla from "@/assets/images/Ilustraciones/Semilla.png";
-import imgIn1 from "@/assets/images/Ilustraciones/in1.png";
-import imgVersiculo from "@/assets/images/Ilustraciones/Versiculo del dia.png";
-import imgIn2 from "@/assets/images/Ilustraciones/in2.png";
-import imgTema2 from "@/assets/images/Ilustraciones/Tema2.png";
-import imgTema3 from "@/assets/images/Ilustraciones/Tema3.png";
-import imgExploradores from "@/assets/images/Ilustraciones/Exploradores.png";
-import imgEmbajadores from "@/assets/images/Ilustraciones/Embajadores.png";
-
-const poolImgs = [imgSemilla, imgIn1, imgVersiculo, imgIn2, imgTema2, imgTema3, imgExploradores, imgEmbajadores];
 
 interface UseAdminMediaPageReturn {
   selectedId: string;
@@ -65,13 +53,13 @@ export function useAdminMediaPage(): UseAdminMediaPageReturn {
     const dbAssets = mediaQuery.data ?? [];
 
     if (!dbAssets.length) {
-      return mockupMedias;
+      return [];
     }
 
     return dbAssets.map((asset, index) => {
       const format = asset.tipo_mime?.split("/")[1]?.toUpperCase() ?? "JPG";
       const sizeMB = (asset.tamano_bytes / (1024 * 1024)).toFixed(1) + " MB";
-      const imgUrl = asset.url_publica || poolImgs[index % poolImgs.length]!;
+      const imgUrl = asset.url_publica || "";
       const fecha = new Date(asset.creado_en).toLocaleDateString("es-EC", {
         day: "numeric",
         month: "short",

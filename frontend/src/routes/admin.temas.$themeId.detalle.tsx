@@ -1,16 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { obtenerTemaAdmin, obtenerPasosAdmin } from "../features/admin/admin.api";
-import { obtenerActividades } from "../features/themes/themes.api";
 import { Loader } from "lucide-react";
-import { BadgeEstado } from "../componentes/ui/badge-estado";
-import { AdminTemaDetalleHeader } from "../features/admin/componentes/admin-tema-detalle-header";
-import { ThemeStatsGrid } from "../features/admin/componentes/theme-stats-grid";
-import { ThemeObjetivoCard } from "../features/admin/componentes/theme-objetivo-card";
-import { CrecerStepsCard } from "../features/admin/componentes/crecer-steps-card";
-import { ThemeActionsCard } from "../features/admin/componentes/theme-actions-card";
-import { ThemeMetadataCard } from "../features/admin/componentes/theme-metadata-card";
-import type { Actividad } from "../shared/api/api";
+import { BadgeEstado } from "@/componentes/ui/badge-estado";
+import { AdminTemaDetalleHeader } from "@/features/admin/componentes/admin-tema-detalle-header";
+import { ThemeStatsGrid } from "@/features/admin/componentes/theme-stats-grid";
+import { ThemeObjetivoCard } from "@/features/admin/componentes/theme-objetivo-card";
+import { CrecerStepsCard } from "@/features/admin/componentes/crecer-steps-card";
+import { ThemeActionsCard } from "@/features/admin/componentes/theme-actions-card";
+import { ThemeMetadataCard } from "@/features/admin/componentes/theme-metadata-card";
+import { useAdminThemeDetalle } from "@/features/admin/hooks/use-admin-theme-detalle";
+import type { Actividad } from "@/shared/api/api";
 
 export const Route = createFileRoute("/admin/temas/$themeId/detalle")({
   component: AdminThemeDetallePage,
@@ -18,23 +16,8 @@ export const Route = createFileRoute("/admin/temas/$themeId/detalle")({
 
 function AdminThemeDetallePage() {
   const { themeId } = Route.useParams();
-
-  const themeQuery = useQuery({
-    queryKey: ["admin", "theme", themeId],
-    queryFn: () => obtenerTemaAdmin(themeId),
-  });
-
-  const stepsQuery = useQuery({
-    queryKey: ["admin", "theme", themeId, "steps"],
-    queryFn: () => obtenerPasosAdmin(themeId),
-  });
-
-  const activitiesQuery = useQuery({
-    queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () => obtenerActividades(themeId),
-  });
-
-  const theme = themeQuery.data;
+  const { themeQuery, stepsQuery, activitiesQuery, theme } = useAdminThemeDetalle({ themeId });
+  const actividades = (activitiesQuery.data ?? []) as Actividad[];
 
   return (
     <div>
@@ -81,16 +64,16 @@ function AdminThemeDetallePage() {
 
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h3 className="font-bold text-slate-800 mb-3">
-                Actividades ({(activitiesQuery.data as Actividad[] | undefined)?.length ?? 0})
+                Actividades ({actividades.length})
               </h3>
               {activitiesQuery.isLoading && (
                 <Loader className="animate-spin text-[#2e9e5b]" size={16} />
               )}
-              {(!activitiesQuery.data || (activitiesQuery.data as Actividad[]).length === 0) && !activitiesQuery.isLoading && (
+              {actividades.length === 0 && !activitiesQuery.isLoading && (
                 <p className="text-sm text-slate-500">Sin actividades aún.</p>
               )}
               <div className="grid gap-2">
-                {(activitiesQuery.data as Actividad[] | undefined)?.map((act) => (
+                {actividades.map((act) => (
                   <div key={act.id} className="flex items-center justify-between rounded-xl p-3 border border-slate-100">
                     <div>
                       <p className="font-semibold text-sm text-slate-800">{act.titulo}</p>

@@ -47,7 +47,7 @@ function ClubItem({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="rounded-md border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] w-4.5 h-4.5 cursor-pointer"
+        className="rounded-md border-slate-300 text-green-600 focus:ring-green-600 w-4.5 h-4.5 cursor-pointer"
       />
     </label>
   );
@@ -93,7 +93,7 @@ export function ClubVisibilitySelector({
         <ClubItem
           icon="fa-users"
           iconBgColor="bg-slate-100"
-          iconTextColor="text-slate-550"
+          iconTextColor="text-slate-500"
           nombre="Todos los clubes"
           descripcion="Visible en todos los clubes"
           checked={clubVisibilities.todos}
@@ -102,8 +102,8 @@ export function ClubVisibilitySelector({
 
         <ClubItem
           icon="fa-leaf"
-          iconBgColor="bg-[#eefcf4]"
-          iconTextColor="text-[#2e9e5b]"
+          iconBgColor="bg-green-50"
+          iconTextColor="text-green-600"
           nombre="Semillitas de Luz"
           descripcion="Club 8-10 anos"
           checked={clubVisibilities.semillitas}
@@ -112,8 +112,8 @@ export function ClubVisibilitySelector({
 
         <ClubItem
           icon="fa-feather"
-          iconBgColor="bg-[#3d8bd4]/10"
-          iconTextColor="text-[#3d8bd4]"
+          iconBgColor="bg-blue-50"
+          iconTextColor="text-blue-500"
           nombre="Guardianes de Paz"
           descripcion="Club 8-10 anos"
           checked={clubVisibilities.guardianes}
@@ -122,8 +122,8 @@ export function ClubVisibilitySelector({
 
         <ClubItem
           icon="fa-heart"
-          iconBgColor="bg-[#ee6c4d]/10"
-          iconTextColor="text-[#ee6c4d]"
+          iconBgColor="bg-red-50"
+          iconTextColor="text-red-500"
           nombre="Corazones Valientes"
           descripcion="Club 11-13 anos"
           checked={clubVisibilities.corazones}
@@ -132,8 +132,8 @@ export function ClubVisibilitySelector({
 
         <ClubItem
           icon="fa-mountain"
-          iconBgColor="bg-[#17a398]/10"
-          iconTextColor="text-[#17a398]"
+          iconBgColor="bg-teal-50"
+          iconTextColor="text-teal-600"
           nombre="Jovenes en Mision"
           descripcion="Club 14+ anos"
           checked={clubVisibilities.jovenes}
@@ -141,7 +141,7 @@ export function ClubVisibilitySelector({
         />
       </div>
 
-      <div className="mt-2 bg-[#eefcf4] border border-[#eefcf4]/10 rounded-2xl p-4 flex items-center gap-3 text-[#2e9e5b]">
+      <div className="mt-2 bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 text-green-600">
         <i className="fa-solid fa-leaf text-xs shrink-0" />
         <span className="text-[11px] font-bold leading-relaxed">
           Puedes cambiar la visibilidad mas tarde desde la configuracion del tema.

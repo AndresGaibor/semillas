@@ -1,5 +1,6 @@
 import { FilaListaCompacta } from "@/componentes/ui/fila-lista-compacta";
 import { Boton } from "@/componentes/ui/boton";
+import { AdminWidgetCard } from "./admin-widget-card";
 
 type SummaryCounts = {
   total: number;
@@ -26,24 +27,24 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
       count: counts.publicados,
       percentage: getPercentage(counts.publicados),
       icon: "fa-circle-check",
-      iconColor: "text-[#2E9E5B]",
-      iconBg: "bg-[#2E9E5B]/10",
+      iconColor: "text-green-600",
+      iconBg: "bg-green-100",
     },
     {
       label: "En revisión",
       count: counts.revision,
       percentage: getPercentage(counts.revision),
       icon: "fa-clock",
-      iconColor: "text-[#6C3AED]",
-      iconBg: "bg-[#6C3AED]/10",
+      iconColor: "text-violet-600",
+      iconBg: "bg-violet-100",
     },
     {
       label: "Borradores",
       count: counts.borradores,
       percentage: getPercentage(counts.borradores),
       icon: "fa-pen-to-square",
-      iconColor: "text-[#F4B740]",
-      iconBg: "bg-[#F4B740]/15",
+      iconColor: "text-amber-500",
+      iconBg: "bg-amber-100",
     },
     {
       label: "Archivados",
@@ -56,14 +57,11 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col text-left select-none">
-      <h3 className="text-base md:text-lg font-black text-slate-800 mb-1">Resumen por estado</h3>
-      <span className="text-xs text-slate-400 font-bold">Total de temas</span>
+    <AdminWidgetCard title="Resumen por estado" subtitle="Total de temas">
+      <div className="text-5xl font-black text-violet-600 my-4 leading-none select-none">
+        {counts.total}
+      </div>
 
-      {/* Big Total */}
-      <div className="text-5xl font-black text-[#6C3AED] my-4 leading-none">{counts.total}</div>
-
-      {/* Breakdown Rows */}
       <div className="flex flex-col gap-4 mt-2">
         {items.map((item) => (
           <FilaListaCompacta
@@ -88,16 +86,17 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
         ))}
       </div>
 
-      {/* Button link */}
-      <Boton
-        type="button"
-        onClick={onVerReportes}
-        className="mt-6 flex items-center justify-between w-full rounded-2xl bg-[#eefcf4] hover:bg-[#e1f9ea] text-[#2E9E5B] py-3 px-4 text-xs font-bold transition-all border border-transparent shadow-xs cursor-pointer"
-        variante="texto"
-      >
-        <span>Ver reportes de temas</span>
-        <i className="fa-solid fa-chevron-right text-[10px]" />
-      </Boton>
-    </div>
+      {onVerReportes && (
+        <Boton
+          type="button"
+          onClick={onVerReportes}
+          className="mt-6 flex items-center justify-between w-full rounded-2xl bg-green-50 hover:bg-green-100 text-green-600 py-3 px-4 text-xs font-bold transition-all border border-transparent shadow-xs cursor-pointer"
+          variante="texto"
+        >
+          <span>Ver reportes de temas</span>
+          <i className="fa-solid fa-chevron-right text-[10px]" />
+        </Boton>
+      )}
+    </AdminWidgetCard>
   );
 }

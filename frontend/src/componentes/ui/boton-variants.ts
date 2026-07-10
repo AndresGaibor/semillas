@@ -7,7 +7,9 @@ export type VarianteBoton =
   | "contorno"
   | "texto"
   | "peligro"
-  | "peligroContorno";
+  | "peligroContorno"
+  | "violeta"
+  | "violetaContorno";
 
 export type TamanoBoton =
   | "grande"
@@ -86,6 +88,21 @@ const variantesBoton = cva(
           "focus-visible:ring-red-500",
           "disabled:border-red-100 disabled:bg-red-50 disabled:text-red-300",
         ],
+        violeta: [
+          "bg-[#7E57C2] text-white",
+          "shadow-[0_2px_8px_rgba(126,87,194,0.25)]",
+          "hover:bg-[#6A4BBF]",
+          "active:bg-[#5A3CAF]",
+          "focus-visible:ring-violet-400",
+          "disabled:bg-violet-200 disabled:text-violet-300 disabled:shadow-none",
+        ],
+        violetaContorno: [
+          "border border-[#7E57C2] bg-white text-[#7E57C2]",
+          "hover:bg-violet-50",
+          "active:bg-violet-100",
+          "focus-visible:ring-violet-400",
+          "disabled:border-slate-300 disabled:bg-white disabled:text-slate-300",
+        ],
       },
       tamano: {
         grande: "h-14 px-7 text-base rounded-2xl",
@@ -146,6 +163,14 @@ const clasesEstadoVisual: Record<
   peligroContorno: {
     encima: "!bg-red-50",
     presionado: "!bg-red-100 scale-[0.98]",
+  },
+  violeta: {
+    encima: "!bg-[#6A4BBF]",
+    presionado: "!bg-[#5A3CAF] scale-[0.98]",
+  },
+  violetaContorno: {
+    encima: "!bg-violet-50",
+    presionado: "!bg-violet-100 scale-[0.98]",
   },
 };
 

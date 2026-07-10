@@ -6,8 +6,8 @@ export type EstadoUsuario = "activo" | "pendiente" | "bloqueado";
 const CONFIG_ESTADO: Record<EstadoUsuario, { etiqueta: string; puntoColor: string; textoColor: string }> = {
   activo: {
     etiqueta: "Activo",
-    puntoColor: "bg-[#2e9e5b]",
-    textoColor: "text-[#2e9e5b]",
+    puntoColor: "bg-green-600",
+    textoColor: "text-green-600",
   },
   pendiente: {
     etiqueta: "Pendiente",

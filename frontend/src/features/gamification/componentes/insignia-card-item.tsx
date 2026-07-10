@@ -46,7 +46,7 @@ export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
         <h3 className="mb-1 text-base font-extrabold leading-tight text-slate-800 sm:text-lg">
           {nombre}
         </h3>
-        <p className="text-xs font-semibold text-[#7E57C2] mb-3">
+        <p className="text-xs font-semibold text-violet-600 mb-3">
           +{bono_xp} XP • {criterio}
         </p>
         <p className="text-xs text-slate-500 leading-relaxed mb-4 flex-1">

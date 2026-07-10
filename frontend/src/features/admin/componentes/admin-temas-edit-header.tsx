@@ -9,13 +9,13 @@ export function AdminTemasEditHeader({ title, onNavigate }: AdminTemasEditHeader
   return (
     <>
       <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 select-none">
-        <span className="hover:text-slate-650 cursor-pointer" onClick={() => onNavigate("/admin")}>Inicio</span>
+        <span className="hover:text-slate-600 cursor-pointer" onClick={() => onNavigate("/admin")}>Inicio</span>
         <i className="fa-solid fa-chevron-right text-[8px]" />
-        <span className="hover:text-slate-650 cursor-pointer" onClick={() => onNavigate("/admin/temas")}>Temas</span>
+        <span className="hover:text-slate-600 cursor-pointer" onClick={() => onNavigate("/admin/temas")}>Temas</span>
         <i className="fa-solid fa-chevron-right text-[8px]" />
         <span className="text-slate-600 truncate max-w-[120px]">{title || "Dios me cuida"}</span>
         <i className="fa-solid fa-chevron-right text-[8px]" />
-        <span className="text-[#2e9e5b]">Editar</span>
+        <span className="text-green-600">Editar</span>
       </div>
 
       <div className="flex items-center gap-4 bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">

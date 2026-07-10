@@ -118,7 +118,7 @@ function AdminThemeActivitiesPage() {
                     <button
                       type="button"
                       onClick={() => navigate({ search: { form: "editar", actividadId: activity.id } })}
-                      className="p-2 text-[#3d8bd4] hover:bg-[#3d8bd4]/10 rounded-lg transition-colors"
+                      className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Editar"
                     >
                       <i className="fa-solid fa-pencil" />
@@ -126,7 +126,7 @@ function AdminThemeActivitiesPage() {
                     <button
                       type="button"
                       onClick={() => deleteMutation.mutate(activity.id)}
-                      className="p-2 text-[#ee6c4d] hover:bg-[#ee6c4d]/10 rounded-lg transition-colors"
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Eliminar"
                     >
                       <i className="fa-solid fa-trash" />

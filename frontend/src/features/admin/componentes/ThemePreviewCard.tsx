@@ -23,16 +23,16 @@ export function ThemePreviewCard({
   previewImageUrl,
 }: ThemePreviewCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-100/70 p-4 bg-[#eefcf4]/50 flex flex-col sm:flex-row items-center gap-5">
+    <div className="rounded-2xl border border-slate-100/70 p-4 bg-green-50/50 flex flex-col sm:flex-row items-center gap-5">
       <div className="w-44 h-28 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-100 relative shadow-xs">
         <img src={previewImageUrl ?? imgBoySheep} alt={title || "Vista previa del tema"} className="w-full h-full object-cover" />
       </div>
       <div className="flex flex-col gap-2 min-w-0 text-left">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-[#6c3aed]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#6c3aed]">
+          <span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-violet-600">
             {category || "confianza"}
           </span>
-          <span className="inline-flex items-center rounded-full bg-[#2e9e5b]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#2e9e5b]">
+          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-green-600">
             {targetAudience}
           </span>
         </div>
@@ -45,8 +45,8 @@ export function ThemePreviewCard({
         </p>
         <div className="flex items-center gap-3.5 mt-1 text-[10.5px] text-slate-400 font-bold">
           <div className="flex items-center gap-1">
-            <i className="fa-solid fa-bookmark text-[#6c3aed]" />
-            <span className="text-[#6c3aed]">{keyVerse}</span>
+            <i className="fa-solid fa-bookmark text-violet-600" />
+            <span className="text-violet-600">{keyVerse}</span>
           </div>
           <div className="flex items-center gap-1">
             <i className="fa-solid fa-user-group" />

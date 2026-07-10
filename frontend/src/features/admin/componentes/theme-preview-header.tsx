@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Clock3, Trophy, LayoutGrid, Users, Sparkles, BookOpenText, BadgeInfo } from "lucide-react";
+import { Clock3, Trophy, LayoutGrid, Users, Sparkles, BookOpenText } from "lucide-react";
 
 export interface ThemePreviewHeaderProps {
   theme?: {
@@ -37,8 +37,6 @@ export function ThemePreviewHeader({
   estado,
   formatDate,
   formatDateTime,
-  onEdit,
-  onViewDetail,
 }: ThemePreviewHeaderProps) {
   return (
     <section className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm">
@@ -83,7 +81,7 @@ export function ThemePreviewHeader({
                   <p className="text-sm leading-7 text-slate-600">
                     "{theme.versiculo_clave.texto}"
                   </p>
-                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-[#2e9e5b]">
+                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-green-600">
                     {theme.versiculo_clave.libro_id}:{theme.versiculo_clave.capitulo}:{theme.versiculo_clave.versiculo}
                   </p>
                 </>
@@ -94,13 +92,13 @@ export function ThemePreviewHeader({
           </div>
         </div>
 
-        <div className="border-t border-slate-100 bg-[#faf8f2] p-6 lg:border-l lg:border-t-0 lg:p-8">
+        <div className="border-t border-slate-100 bg-amber-50/30 p-6 lg:border-l lg:border-t-0 lg:p-8">
           <div className="overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white shadow-sm">
             {portadaUrl ? (
               <img src={portadaUrl} alt={`Portada de ${theme?.titulo ?? "tema"}`} className="aspect-[4/3] w-full object-cover" />
             ) : (
               <div className="flex aspect-[4/3] flex-col items-center justify-center gap-3 px-6 text-center text-slate-400">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eefcf4] text-[#2e9e5b]">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-green-600">
                   <LayoutGrid size={24} />
                 </div>
                 <p className="text-sm font-bold text-slate-600">Sin portada todavía</p>
@@ -137,9 +135,9 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 function MetricMini({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div className="rounded-[1.25rem] border border-slate-100 bg-[#faf8f2] p-3">
+    <div className="rounded-[1.25rem] border border-slate-100 bg-amber-50/30 p-3">
       <div className="flex items-center gap-2 text-slate-500">
-        <Icon size={14} className="text-[#2e9e5b]" />
+        <Icon size={14} className="text-green-600" />
         <p className="text-[10px] font-bold uppercase tracking-[0.22em]">{label}</p>
       </div>
       <p className="mt-2 text-sm font-black text-slate-800">{value}</p>
@@ -149,9 +147,9 @@ function MetricMini({ icon: Icon, label, value }: { icon: LucideIcon; label: str
 
 function SubPanel({ title, icon: Icon, children }: { title: string; icon: LucideIcon; children: React.ReactNode }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-100 bg-[#faf8f2] p-4">
+    <div className="rounded-[1.5rem] border border-slate-100 bg-amber-50/30 p-4">
       <div className="mb-3 flex items-center gap-2 text-slate-700">
-        <Icon size={16} className="text-[#2e9e5b]" />
+        <Icon size={16} className="text-green-600" />
         <h3 className="text-sm font-black">{title}</h3>
       </div>
       {children}

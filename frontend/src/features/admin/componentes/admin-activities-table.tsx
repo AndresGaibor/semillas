@@ -55,7 +55,7 @@ const ENCABEZADOS: EncabezadoTabla[] = [
       <input
         type="checkbox"
         aria-label="Seleccionar todas las actividades"
-        className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer"
+        className="rounded border-slate-300 text-green-600 focus:ring-green-600 cursor-pointer"
       />
     ),
     className: "w-[40px] text-center",
@@ -90,7 +90,7 @@ export function AdminActivitiesTable({
         </span>
         <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
           <span>Ordenar por:</span>
-          <select className="border border-slate-100 rounded-lg px-2.5 py-1 bg-slate-50 font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/20 cursor-pointer">
+          <select className="border border-slate-100 rounded-lg px-2.5 py-1 bg-slate-50 font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-green-600/20 cursor-pointer">
             <option>Más recientes</option>
             <option>Mayor XP</option>
             <option>Por orden de lección</option>

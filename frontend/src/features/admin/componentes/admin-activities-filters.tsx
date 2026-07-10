@@ -44,7 +44,7 @@ export function AdminActivitiesFilters({
           placeholder="Buscar actividades..."
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
+          className="w-full pl-11 pr-4 py-2.5 rounded-full border border-slate-100 bg-slate-50/50 font-semibold text-[13px] text-slate-800 placeholder-slate-400 focus:border-green-600 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-green-600/10 transition-all"
         />
       </div>
 

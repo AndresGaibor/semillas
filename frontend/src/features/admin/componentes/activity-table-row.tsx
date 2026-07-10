@@ -25,7 +25,7 @@ export function FilaActividad({ act, navigate, onEliminar }: FilaActividadProps)
             <i className={`fa-solid ${act.tipoIcon} text-xs ${act.tipoIconColor}`} />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-[#2e9e5b] transition-colors sm:text-sm">
+            <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-green-600 transition-colors sm:text-sm">
               {act.titulo}
             </span>
             <span className="text-xs text-slate-400 truncate mt-0.5">
@@ -55,7 +55,7 @@ export function FilaActividad({ act, navigate, onEliminar }: FilaActividadProps)
         </div>
       </td>
 
-      <td className="py-4 px-2 text-center font-black text-[#2e9e5b] text-xs whitespace-nowrap">
+      <td className="py-4 px-2 text-center font-black text-green-600 text-xs whitespace-nowrap">
         {act.xpText}
       </td>
 

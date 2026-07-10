@@ -57,7 +57,7 @@ export function TabGeneral({
                 type="text"
                 value={title}
                 onChange={(e) => onTitleChange(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-green-600 focus:outline-hidden focus:ring-2 focus:ring-green-600/10 transition-all"
               />
             </div>
           </Field>
@@ -71,7 +71,7 @@ export function TabGeneral({
               <select
                 value={targetAudience}
                 onChange={(e) => onTargetAudienceChange(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-[#2e9e5b] focus:outline-hidden cursor-pointer"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-green-600 focus:outline-hidden cursor-pointer"
               >
                 <option value="Niños de 6 a 10 años">Niños de 6 a 10 años</option>
                 <option value="Adolescentes de 11 a 15 años">Adolescentes de 11 a 15 años</option>
@@ -88,19 +88,19 @@ export function TabGeneral({
               onChange={(e) => onShortDescChange(e.target.value)}
               maxLength={120}
               rows={3}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all resize-none"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-green-600 focus:outline-hidden transition-all resize-none"
             />
           </Field>
 
           <Field label="Categoría" required help="Selecciona la categoría principal del tema.">
             <div className="relative">
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-[#2e9e5b] focus:outline-hidden cursor-pointer">
+              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 appearance-none focus:border-green-600 focus:outline-hidden cursor-pointer">
                 <option value="confianza">Confianza en Dios</option>
               </select>
               <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none" />
 
               <div className="flex flex-wrap gap-1.5 mt-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#6c3aed]/10 bg-[#6c3aed]/5 text-[11px] font-extrabold text-[#6c3aed]">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-200 bg-violet-50 text-[11px] font-extrabold text-violet-600">
                   {category}
                   <Boton
                     variante="texto"
@@ -122,7 +122,7 @@ export function TabGeneral({
               type="text"
               value={keyVerse}
               onChange={(e) => onKeyVerseChange(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-green-600 focus:outline-hidden transition-all"
             />
           </Field>
 
@@ -132,7 +132,7 @@ export function TabGeneral({
                 type="number"
                 value={duration}
                 onChange={(e) => onDurationChange(Number(e.target.value))}
-                className="w-full pl-4 pr-16 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
+                className="w-full pl-4 pr-16 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-green-600 focus:outline-hidden transition-all"
               />
               <span className="absolute right-4 text-[11px] text-slate-400 font-bold">minutos</span>
             </div>
@@ -144,7 +144,7 @@ export function TabGeneral({
             value={mainMessage}
             onChange={(e) => onMainMessageChange(e.target.value)}
             rows={3}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all resize-none"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-green-600 focus:outline-hidden transition-all resize-none"
           />
         </Field>
 

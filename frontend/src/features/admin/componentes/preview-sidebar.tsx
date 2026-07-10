@@ -118,7 +118,7 @@ function ActionButton({ children, onClick, secondary = false }: { children: Reac
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition-colors ${secondary ? "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50" : "bg-[#2e9e5b] text-white hover:opacity-95"}`}
+      className={`rounded-2xl px-4 py-3 text-left text-sm font-bold transition-colors ${secondary ? "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50" : "bg-green-600 text-white hover:opacity-95"}`}
     >
       {children}
     </button>

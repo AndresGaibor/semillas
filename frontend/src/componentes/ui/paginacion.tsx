@@ -55,7 +55,7 @@ export function Paginacion({
   return (
     <div
       className={unirClases(
-        "flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-[#5c5c5c] select-none",
+        "flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500 select-none",
         className,
       )}
     >
@@ -84,7 +84,7 @@ export function Paginacion({
               className={unirClases(
                 "w-8 h-8 rounded-lg flex items-center justify-center transition-colors font-bold cursor-pointer",
                 p === paginaActual
-                  ? "bg-[#2e9e5b] text-white"
+                  ? "bg-green-600 text-white"
                   : "border border-slate-200 bg-white hover:bg-slate-50",
               )}
             >

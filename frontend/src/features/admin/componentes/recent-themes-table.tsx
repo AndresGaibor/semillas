@@ -69,7 +69,7 @@ export function RecentThemesTable({ temas, onVerTodos, onEditarTema }: RecentThe
           >
             <td className="max-w-[240px] truncate py-3.5 pl-2 font-bold">
               <div className="flex max-w-[240px] items-center gap-2 truncate">
-                <span className="text-base text-[#2e9e5b]">🌱</span>
+                <span className="text-base text-green-600">🌱</span>
                 <span className="truncate transition-colors group-hover:text-primario">{tema.titulo}</span>
               </div>
             </td>

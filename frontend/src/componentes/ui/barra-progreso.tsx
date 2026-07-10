@@ -37,10 +37,10 @@ export const BarraProgreso: React.FC<PropiedadesBarraProgreso> = ({
           <span className="tabular-nums">{maximo ? `${valor}/${maximo}` : `${Math.round(porcentaje)}%`}</span>
         </div>
       )}
-      <div className="w-full h-2 bg-[#F1F5F9] rounded-full overflow-hidden" style={{ backgroundColor: "#F1F5F9", height: "8px" }}>
+      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-300 ease-out"
-          style={{ width: `${porcentaje}%`, backgroundColor: coloresBarraHex[color], height: "100%" }}
+          style={{ width: `${porcentaje}%`, backgroundColor: coloresBarraHex[color] }}
         />
       </div>
     </div>

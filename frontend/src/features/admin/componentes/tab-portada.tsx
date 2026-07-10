@@ -34,7 +34,7 @@ export function TabPortada({
             type="button"
             onClick={onChangePortada}
             disabled={isUploading}
-            className="rounded-xl bg-[#2e9e5b] px-4 py-2 text-xs font-bold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-green-600 px-4 py-2 text-xs font-bold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isUploading ? "Subiendo…" : portadaUrl ? "Cambiar portada" : "Subir portada"}
           </button>

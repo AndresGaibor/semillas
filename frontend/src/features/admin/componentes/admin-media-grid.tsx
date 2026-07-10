@@ -54,8 +54,8 @@ export function AdminMediaGrid({
                 hoverEffect="none"
                 className={`p-3 flex flex-col text-left transition-all relative cursor-pointer select-none group ${
                   isSelected
-                    ? "border-2 border-[#2e9e5b] shadow-md shadow-[#2e9e5b]/5"
-                    : "border-slate-100 hover:border-[#2e9e5b]/40 hover:shadow-sm"
+                    ? "border-2 border-green-600 shadow-md shadow-green-600/20"
+                    : "border-slate-100 hover:border-green-400 hover:shadow-sm"
                 }`}
               >
                 <div className="w-full h-32 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/50 relative flex items-center justify-center shrink-0">
@@ -69,14 +69,14 @@ export function AdminMediaGrid({
                   </div>
 
                   {isSelected && (
-                    <div className="absolute left-2.5 top-2.5 w-6 h-6 rounded-full bg-[#2e9e5b] flex items-center justify-center text-white text-[10px] shadow-sm">
+                    <div className="absolute left-2.5 top-2.5 w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-white text-[10px] shadow-sm">
                       <i className="fa-solid fa-check" />
                     </div>
                   )}
                 </div>
 
                 <div className="flex flex-col mt-3.5 min-w-0">
-                  <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-[#2e9e5b] transition-colors sm:text-sm">
+                  <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-green-600 transition-colors sm:text-sm">
                     {item.nombre}
                   </span>
 
