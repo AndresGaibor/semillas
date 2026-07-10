@@ -1,11 +1,21 @@
 import type { ErrorHandler } from "hono";
 import { HttpError } from "../errors/http-error";
+import { ErrorAplicacion } from "../errores/error-aplicacion";
 import { responderError } from "../http/respuesta";
 
 export const errorHandler: ErrorHandler = (err, c) => {
   console.error(err);
 
   if (err instanceof HttpError) {
+    return responderError(
+      err.message,
+      err.code,
+      err.status as 400 | 401 | 403 | 404 | 500,
+      err.details
+    );
+  }
+
+  if (err instanceof ErrorAplicacion) {
     return responderError(
       err.message,
       err.code,

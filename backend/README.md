@@ -51,6 +51,39 @@ Variables principales de entorno:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_PROJECT_REF`
 
+### Drizzle con Hyperdrive en local
+
+Si el backend usa Drizzle, el flujo correcto en desarrollo es:
+
+1. Tener `[[hyperdrive]]` en `backend/wrangler.toml` con el binding `HYPERDRIVE`.
+2. Definir `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` en `backend/.dev.vars`.
+3. Reiniciar `bun run dev` para que `scripts/dev.ts` cargue `.dev.vars` y lo pase a `wrangler dev`.
+4. Confirmar en consola que Wrangler muestra `env.HYPERDRIVE (...) Hyperdrive Config local`.
+5. Probar `GET /catalogo/grupos-etarios` y `PATCH /perfil/actualizar`.
+
+Si ves `proxy request failed` o `EHOSTUNREACH`, revisa la URL local de Postgres usada por Hyperdrive. Debe ser accesible desde tu máquina y llevar `sslmode=require`.
+
+#### Comandos para replicarlo
+
+```bash
+cd backend
+bunx wrangler hyperdrive create semillas-db --connection-string "postgresql://postgres:..."
+wrangler hyperdrive list
+bun run dev
+```
+
+#### En Cloudflare
+
+1. Crear o reutilizar el Hyperdrive.
+2. Copiar el id y dejarlo en `backend/wrangler.toml`.
+3. Confirmar que el binding se llame `HYPERDRIVE`.
+
+#### En Supabase
+
+1. Ir a `Settings -> Database -> Connection string`.
+2. Copiar la URL de Postgres que sí sea accesible desde tu red.
+3. Usar `sslmode=require`.
+
 ## Estructura
 
 ```text

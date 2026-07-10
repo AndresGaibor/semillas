@@ -52,11 +52,13 @@ import * as schema from "./schema";
  */
 
 export function crearDb(env: Env) {
-  if (!env.HYPERDRIVE) {
+  const connectionString = env.HYPERDRIVE?.connectionString;
+
+  if (!connectionString) {
     throw new Error("El binding HYPERDRIVE es obligatorio para crear el cliente Drizzle.");
   }
 
-  const clientePostgres = postgres(env.HYPERDRIVE.connectionString, {
+  const clientePostgres = postgres(connectionString, {
     prepare: false
   });
 

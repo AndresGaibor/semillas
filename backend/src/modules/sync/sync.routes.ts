@@ -1,29 +1,32 @@
 import { Hono } from "hono";
-import type { MiddlewareHandler } from "hono";
+import type { Context } from "hono";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
-import { responderExito, responderError } from "../../shared/http/respuesta";
+import { responderExito } from "../../shared/http/respuesta";
 import { syncPullQuerySchema, syncPushBodySchema } from "./sync.schemas";
-import { db as dbPredeterminado, type DbClient } from "../../db/client";
 import { crearSyncRepository, type SyncRepository } from "./sync.repository";
 import { crearCasoObtenerSyncPull } from "./casos-uso/obtener-sync-pull";
 import { crearCasoProcesarSyncPush } from "./casos-uso/procesar-sync-push";
+import type { ModuloDependencias } from "../../shared/types/modulo";
 
-type Dependencias = {
-  db?: DbClient;
-  authMiddleware?: MiddlewareHandler<AppBindings>;
+type SyncDependencias = ModuloDependencias & {
   repositorio?: SyncRepository;
 };
 
 export function crearModuloSync({
-  db = dbPredeterminado,
+  db,
   authMiddleware: middlewareAutenticacion = authMiddleware,
-  repositorio = crearSyncRepository({ db })
-}: Dependencias = {}) {
+  repositorio
+}: SyncDependencias = {}) {
   const syncRoutes = new Hono<AppBindings>();
-  const obtenerSyncPull = crearCasoObtenerSyncPull({ repositorio });
-  const procesarSyncPush = crearCasoProcesarSyncPush({ repositorio });
+
+  function obtenerRepositorio(c: Context<AppBindings>) {
+    if (repositorio) return repositorio;
+    const cliente = db ?? c.get("drizzle");
+    if (!cliente) throw new Error("Cliente Drizzle no disponible");
+    return crearSyncRepository({ db: cliente });
+  }
 
   syncRoutes.use("*", middlewareAutenticacion);
 
@@ -33,6 +36,8 @@ export function crearModuloSync({
     async (c) => {
       const user = c.get("user");
       const { since } = c.req.valid("query");
+      const repo = obtenerRepositorio(c);
+      const obtenerSyncPull = crearCasoObtenerSyncPull({ repositorio: repo });
       const datos = await obtenerSyncPull(user.id, since);
 
       return responderExito(datos);
@@ -45,6 +50,8 @@ export function crearModuloSync({
     async (c) => {
       const user = c.get("user");
       const { eventos } = c.req.valid("json");
+      const repo = obtenerRepositorio(c);
+      const procesarSyncPush = crearCasoProcesarSyncPush({ repositorio: repo });
       const resultado = await procesarSyncPush(user.id, eventos);
 
       return responderExito(resultado, resultado.procesados > 0 ? 201 : 200);

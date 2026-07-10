@@ -1,37 +1,36 @@
 import { Hono } from "hono";
-import type { MiddlewareHandler } from "hono";
+import type { Context } from "hono";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
-import { responderError, responderExito } from "../../shared/http/respuesta";
+import { responderExito } from "../../shared/http/respuesta";
 import { serializarPerfil } from "../../shared/serializers/perfil.serializer";
 import { serializarUsuario } from "../../shared/serializers/usuario.serializer";
 import { updateProfileSchema } from "./users.schemas";
-import { db as dbPredeterminado, type DbClient } from "../../db/client";
 import { crearUsuarioRepository } from "./usuario.repository";
 import { crearCasoObtenerPerfil } from "./casos-uso/obtener-perfil";
 import { crearCasoActualizarPerfil } from "./casos-uso/actualizar-perfil";
 import { crearCasoVincularCuenta } from "./casos-uso/vincular-cuenta";
-
-type Dependencias = {
-  db?: DbClient;
-  authMiddleware?: MiddlewareHandler<AppBindings>;
-};
+import type { ModuloDependencias } from "../../shared/types/modulo";
 
 export function crearModuloUsuarios({
-  db = dbPredeterminado,
+  db,
   authMiddleware: middlewareAutenticacion = authMiddleware
-}: Dependencias = {}) {
+}: ModuloDependencias = {}) {
   const usersRoutes = new Hono<AppBindings>();
-  const usuarios = crearUsuarioRepository(db);
-  const obtenerPerfil = crearCasoObtenerPerfil({ usuarios });
-  const actualizarPerfil = crearCasoActualizarPerfil({ usuarios });
-  const vincularCuenta = crearCasoVincularCuenta({ usuarios });
+
+  function obtenerRepositorio(c: Context<AppBindings>) {
+    const cliente = db ?? c.get("drizzle");
+    if (!cliente) throw new Error("Cliente Drizzle no disponible");
+    return crearUsuarioRepository(cliente);
+  }
 
   usersRoutes.use("*", middlewareAutenticacion);
 
   usersRoutes.get("/", async (c) => {
     const user = c.get("user");
+    const usuarios = obtenerRepositorio(c);
+    const obtenerPerfil = crearCasoObtenerPerfil({ usuarios });
     const profile = await obtenerPerfil(user.id);
 
     return responderExito({
@@ -63,6 +62,8 @@ export function crearModuloUsuarios({
     async (c) => {
       const user = c.get("user");
       const body = c.req.valid("json");
+      const usuarios = obtenerRepositorio(c);
+      const actualizarPerfil = crearCasoActualizarPerfil({ usuarios });
       const data = await actualizarPerfil(user.id, body);
 
       return responderExito(
@@ -83,6 +84,8 @@ export function crearModuloUsuarios({
   usersRoutes.post("/vincular-cuenta", async (c) => {
     const user = c.get("user");
     const authSessionUser = c.get("authSessionUser");
+    const usuarios = obtenerRepositorio(c);
+    const vincularCuenta = crearCasoVincularCuenta({ usuarios });
     const resultado = await vincularCuenta(user, authSessionUser);
 
     return responderExito({

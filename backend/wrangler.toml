@@ -27,5 +27,9 @@ vars = { APP_ENV = "staging", CORS_ORIGIN = "https://staging.semillas.pages.dev"
 [env.preview]
 vars = { APP_ENV = "preview", CORS_ORIGIN = "https://{branch}.semillas.pages.dev" }
 
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "297d244456374dc3a12cef0c4ddb7795"
+
 # Secrets se configuran desde el dashboard (Workers → Settings → Variables)
 # SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY

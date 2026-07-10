@@ -22,7 +22,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import type { AppBindings } from "./config/env";
 import { APP_NAME, APP_VERSION } from "./config/constants";
-import { createSupabaseAdmin } from "./db/client";
+import { createSupabaseAdmin, crearDb } from "./db/client";
 import { openApiSpec } from "./openapi/spec";
 import { errorHandler } from "./shared/middleware/error-handler";
 import { requestIdMiddleware } from "./shared/middleware/request-id.middleware";
@@ -31,18 +31,18 @@ import { requestIdMiddleware } from "./shared/middleware/request-id.middleware";
  * Rutas de la API
  * Cada módulo maneja un grupo de endpoints relacionados
  */
-import { authRoutes } from "./modules/auth/auth.routes";
-import { crearModuloCatalogo } from "./modules/catalog/catalog.routes";
-import { crearModuloSendas } from "./modules/sendas/sendas.routes";
-import { themesRoutes } from "./modules/themes/themes.routes";
-import { crearModuloUsuarios } from "./modules/users/users.routes";
-import { progressRoutes } from "./modules/progress/progress.routes";
-import { activitiesRoutes } from "./modules/activities/activities.routes";
-import { adminRoutes } from "./modules/admin/admin.routes";
-import { clubsRoutes } from "./modules/clubs/clubs.routes";
-import { gamificationRoutes } from "./modules/gamification/gamification.routes";
-import { mediaRoutes } from "./modules/media/media.routes";
-import { crearModuloSync } from "./modules/sync/sync.routes";
+import { authRoutes } from "./modules/auth";
+import { crearModuloCatalogo } from "./modules/catalog";
+import { crearModuloSendas } from "./modules/sendas";
+import { themesRoutes } from "./modules/themes";
+import { crearModuloUsuarios } from "./modules/users";
+import { progressRoutes } from "./modules/progress";
+import { activitiesRoutes } from "./modules/activities";
+import { adminRoutes } from "./modules/admin";
+import { clubsRoutes } from "./modules/clubs";
+import { gamificationRoutes } from "./modules/gamification";
+import { mediaRoutes } from "./modules/media";
+import { crearModuloSync } from "./modules/sync";
 
 /**
  * Aplicación principal de Hono
@@ -94,6 +94,9 @@ app.use(
  */
 app.use("*", async (c, next) => {
   c.set("db", createSupabaseAdmin(c.env));
+  if (c.env.HYPERDRIVE) {
+    c.set("drizzle", crearDb(c.env));
+  }
   await next();
 });
 

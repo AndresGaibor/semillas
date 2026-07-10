@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../db/database.types";
+import type { DbClient } from "../db/client";
 
 export type UserRole = "administrador" | "usuario" | "invitado" | "padre";
 export type AuthProvider = Database["public"]["Enums"]["proveedor_autenticacion"];
@@ -27,6 +28,8 @@ export type Env = {
     connectionString: string;
   };
 
+  SUPABASE_DATABASE_URL?: string;
+
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
@@ -35,6 +38,7 @@ export type Env = {
 
 export type Variables = {
   db: SupabaseClient<Database>;
+  drizzle?: DbClient;
   user: AuthUser;
   authSessionUser?: AuthSessionUser;
   guestUserId?: string | null;
