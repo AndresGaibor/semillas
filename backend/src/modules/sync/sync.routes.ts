@@ -1,14 +1,58 @@
 import { Hono } from "hono";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { AppBindings } from "../../config/env";
-import type { Database, Json } from "../../db/database.types";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { responderExito, responderError } from "../../shared/http/respuesta";
 import { syncPullQuerySchema, syncPushBodySchema } from "./sync.schemas";
 import type { SyncPushEvent } from "./sync.schemas";
+import { db, schema } from "../../db/client";
 
 export const syncRoutes = new Hono<AppBindings>();
+
+function serializarEvento(fila: typeof schema.eventoProgreso.$inferSelect) {
+  return {
+    id: fila.id,
+    usuario_id: fila.usuarioId,
+    id_evento_cliente: fila.idEventoCliente,
+    tipo_evento: fila.tipoEvento,
+    tema_id: fila.temaId,
+    paso_id: fila.pasoId,
+    actividad_id: fila.actividadId,
+    correcta: fila.correcta,
+    puntaje: fila.puntaje,
+    xp_otorgada: fila.xpOtorgada,
+    datos: fila.datos,
+    ocurrido_en_cliente: fila.ocurridoEnCliente.toISOString(),
+    dispositivo_id: fila.dispositivoId,
+    recibido_en_servidor: fila.recibidoEnServidor.toISOString()
+  };
+}
+
+function serializarProgresoTema(fila: typeof schema.progresoTemaUsuario.$inferSelect) {
+  return {
+    usuario_id: fila.usuarioId,
+    tema_id: fila.temaId,
+    estado: fila.estado,
+    porcentaje: fila.porcentaje,
+    iniciado_en: fila.iniciadoEn ? fila.iniciadoEn.toISOString() : null,
+    completado_en: fila.completadoEn ? fila.completadoEn.toISOString() : null,
+    ultimo_paso_id: fila.ultimoPasoId,
+    actualizado_en: fila.actualizadoEn.toISOString()
+  };
+}
+
+function serializarProgresoActividad(fila: typeof schema.progresoActividadUsuario.$inferSelect) {
+  return {
+    usuario_id: fila.usuarioId,
+    actividad_id: fila.actividadId,
+    intentos: fila.intentos,
+    mejor_puntaje: fila.mejorPuntaje,
+    completado: fila.completado,
+    completado_en: fila.completadoEn ? fila.completadoEn.toISOString() : null,
+    actualizado_en: fila.actualizadoEn.toISOString()
+  };
+}
 
 syncRoutes.use("*", authMiddleware);
 
@@ -16,40 +60,34 @@ syncRoutes.get(
   "/pull",
   zValidator("query", syncPullQuerySchema),
   async (c) => {
-    const db = c.get("db");
     const user = c.get("user");
     const { since } = c.req.valid("query");
 
     let query = db
-      .from("evento_progreso")
-      .select("*")
-      .eq("usuario_id", user.id)
-      .order("recibido_en_servidor", { ascending: false });
+      .select()
+      .from(schema.eventoProgreso)
+      .where(eq(schema.eventoProgreso.usuarioId, user.id))
+      .orderBy(desc(schema.eventoProgreso.recibidoEnServidor));
 
     if (since) {
-      query = query.gte("recibido_en_servidor", since);
+      query = db
+        .select()
+        .from(schema.eventoProgreso)
+        .where(and(eq(schema.eventoProgreso.usuarioId, user.id), sql`${schema.eventoProgreso.recibidoEnServidor} >= ${new Date(since)}`))
+        .orderBy(desc(schema.eventoProgreso.recibidoEnServidor));
     }
 
-    const { data: eventos, error: eventosError } = await query;
-    if (eventosError) throw eventosError;
-
-    const { data: temas, error: temasError } = await db
-      .from("progreso_tema_usuario")
-      .select("*")
-      .eq("usuario_id", user.id);
-    if (temasError) throw temasError;
-
-    const { data: actividades, error: actividadesError } = await db
-      .from("progreso_actividad_usuario")
-      .select("*")
-      .eq("usuario_id", user.id);
-    if (actividadesError) throw actividadesError;
+    const [eventos, temas, actividades] = await Promise.all([
+      query,
+      db.select().from(schema.progresoTemaUsuario).where(eq(schema.progresoTemaUsuario.usuarioId, user.id)),
+      db.select().from(schema.progresoActividadUsuario).where(eq(schema.progresoActividadUsuario.usuarioId, user.id))
+    ]);
 
     return responderExito({
-      eventos: eventos ?? [],
+      eventos: eventos.map(serializarEvento),
       progreso: {
-        temas: temas ?? [],
-        actividades: actividades ?? []
+        temas: temas.map(serializarProgresoTema),
+        actividades: actividades.map(serializarProgresoActividad)
       }
     });
   }
@@ -59,7 +97,6 @@ syncRoutes.post(
   "/push",
   zValidator("json", syncPushBodySchema),
   async (c) => {
-    const db = c.get("db");
     const user = c.get("user");
     const { eventos } = c.req.valid("json");
 
@@ -68,58 +105,39 @@ syncRoutes.post(
     const errores: { evento_id_cliente: string; error: string }[] = [];
 
     for (const evento of eventos) {
-      try {
-        const { data: existente } = await db
-          .from("evento_progreso")
-          .select("id")
-          .eq("id_evento_cliente", evento.evento_id_cliente)
-          .eq("usuario_id", user.id)
-          .maybeSingle();
+        try {
+          const [nuevo] = await db
+            .insert(schema.eventoProgreso)
+            .values({
+              usuarioId: user.id,
+              idEventoCliente: evento.evento_id_cliente,
+              tipoEvento: evento.tipo_evento,
+              temaId: evento.tema_id ?? null,
+              pasoId: evento.paso_id ?? null,
+              actividadId: evento.actividad_id ?? null,
+              correcta: evento.correcta ?? null,
+              puntaje: evento.puntaje ?? null,
+              xpOtorgada: evento.xp_otorgada,
+              datos: evento.datos,
+              ocurridoEnCliente: evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : new Date(),
+              dispositivoId: evento.dispositivo_id ?? null
+            })
+            .onConflictDoNothing({ target: schema.eventoProgreso.idEventoCliente })
+            .returning();
 
-        if (existente) {
-          omitidos++;
-          continue;
-        }
-
-        const { data: nuevo, error: insertError } = await db
-          .from("evento_progreso")
-          .insert({
-            usuario_id: user.id,
-            id_evento_cliente: evento.evento_id_cliente,
-            tipo_evento: evento.tipo_evento,
-            tema_id: evento.tema_id ?? null,
-            paso_id: evento.paso_id ?? null,
-            actividad_id: evento.actividad_id ?? null,
-            correcta: evento.correcta ?? null,
-            puntaje: evento.puntaje ?? null,
-            xp_otorgada: evento.xp_otorgada,
-            datos: evento.datos as Json,
-            ocurrido_en_cliente: evento.creado_en_cliente ?? new Date().toISOString(),
-            dispositivo_id: evento.dispositivo_id ?? null
-          })
-          .select("*")
-          .single();
-
-        if (insertError) {
-          if (insertError.code === "23505") {
+          if (!nuevo) {
             omitidos++;
             continue;
           }
-          errores.push({
-            evento_id_cliente: evento.evento_id_cliente,
-            error: insertError.message
-          });
-          continue;
-        }
 
-        procesados++;
+          procesados++;
 
         if (evento.tema_id) {
-          await actualizarProgresoTema(db, user.id, evento);
+          await actualizarProgresoTema(user.id, evento);
         }
 
         if (evento.actividad_id) {
-          await actualizarProgresoActividad(db, user.id, evento);
+          await actualizarProgresoActividad(user.id, evento);
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Error desconocido";
@@ -139,39 +157,35 @@ syncRoutes.post(
 );
 
 async function actualizarProgresoTema(
-  db: SupabaseClient<Database>,
   usuarioId: string,
   evento: SyncPushEvent
 ) {
-  const now = new Date().toISOString();
+  const now = new Date();
 
-  const { data: existing } = await db
-    .from("progreso_tema_usuario")
-    .select("*")
-    .eq("usuario_id", usuarioId)
-    .eq("tema_id", evento.tema_id!)
-    .maybeSingle();
+  const [existing] = await db
+    .select()
+    .from(schema.progresoTemaUsuario)
+    .where(and(eq(schema.progresoTemaUsuario.usuarioId, usuarioId), eq(schema.progresoTemaUsuario.temaId, evento.tema_id!)))
+    .limit(1);
 
   if (existing) {
-    if (evento.tipo_evento === "tema_iniciado" && !existing.iniciado_en) {
+    if (evento.tipo_evento === "tema_iniciado" && !existing.iniciadoEn) {
       await db
-        .from("progreso_tema_usuario")
-        .update({ iniciado_en: evento.creado_en_cliente ?? now, actualizado_en: now })
-        .eq("usuario_id", usuarioId)
-        .eq("tema_id", evento.tema_id!);
+        .update(schema.progresoTemaUsuario)
+        .set({ iniciadoEn: evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : now, actualizadoEn: now })
+        .where(and(eq(schema.progresoTemaUsuario.usuarioId, usuarioId), eq(schema.progresoTemaUsuario.temaId, evento.tema_id!)));
     }
 
     if (evento.tipo_evento === "tema_completado") {
       await db
-        .from("progreso_tema_usuario")
-        .update({
+        .update(schema.progresoTemaUsuario)
+        .set({
           estado: "completado",
           porcentaje: 100,
-          completado_en: evento.creado_en_cliente ?? now,
-          actualizado_en: now
+          completadoEn: evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : now,
+          actualizadoEn: now
         })
-        .eq("usuario_id", usuarioId)
-        .eq("tema_id", evento.tema_id!);
+        .where(and(eq(schema.progresoTemaUsuario.usuarioId, usuarioId), eq(schema.progresoTemaUsuario.temaId, evento.tema_id!)));
     }
 
     if (
@@ -184,73 +198,69 @@ async function actualizarProgresoTema(
       // Incrementar aproximadamente 16% por fase visitada/iniciada
       const nuevoPorcentaje = Math.min(existing.porcentaje + 16, 99);
       await db
-        .from("progreso_tema_usuario")
-        .update({ porcentaje: nuevoPorcentaje, actualizado_en: now })
-        .eq("usuario_id", usuarioId)
-        .eq("tema_id", evento.tema_id!);
+        .update(schema.progresoTemaUsuario)
+        .set({ porcentaje: nuevoPorcentaje, actualizadoEn: now })
+        .where(and(eq(schema.progresoTemaUsuario.usuarioId, usuarioId), eq(schema.progresoTemaUsuario.temaId, evento.tema_id!)));
     }
   } else {
     await db
-      .from("progreso_tema_usuario")
-      .insert({
-        usuario_id: usuarioId,
-        tema_id: evento.tema_id!,
+      .insert(schema.progresoTemaUsuario)
+      .values({
+        usuarioId,
+        temaId: evento.tema_id!,
         estado: evento.tipo_evento === "tema_completado" ? "completado" : "en_progreso",
-        porcentaje: evento.tipo_evento === "tema_completado" ? 100 : (evento.tipo_evento === "tema_iniciado" || evento.tipo_evento === "bloque_iniciado" ? 16 : 0),
-        iniciado_en: evento.creado_en_cliente ?? now,
-        completado_en: evento.tipo_evento === "tema_completado" ? (evento.creado_en_cliente ?? now) : null,
-        actualizado_en: now
+        porcentaje: evento.tipo_evento === "tema_completado" ? 100 : evento.tipo_evento === "tema_iniciado" || evento.tipo_evento === "bloque_iniciado" ? 16 : 0,
+        iniciadoEn: evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : now,
+        completadoEn: evento.tipo_evento === "tema_completado" ? (evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : now) : null,
+        actualizadoEn: now
       });
   }
 }
 
 async function actualizarProgresoActividad(
-  db: SupabaseClient<Database>,
   usuarioId: string,
   evento: SyncPushEvent
 ) {
-  const now = new Date().toISOString();
+  const now = new Date();
 
-  const { data: existing } = await db
-    .from("progreso_actividad_usuario")
-    .select("*")
-    .eq("usuario_id", usuarioId)
-    .eq("actividad_id", evento.actividad_id!)
-    .maybeSingle();
+  const [existing] = await db
+    .select()
+    .from(schema.progresoActividadUsuario)
+    .where(and(eq(schema.progresoActividadUsuario.usuarioId, usuarioId), eq(schema.progresoActividadUsuario.actividadId, evento.actividad_id!)))
+    .limit(1);
 
   if (existing) {
     const nuevoMejorPuntaje =
-      evento.puntaje !== undefined && evento.puntaje > existing.mejor_puntaje
+      evento.puntaje !== undefined && evento.puntaje > existing.mejorPuntaje
         ? evento.puntaje
-        : existing.mejor_puntaje;
+        : existing.mejorPuntaje;
 
     const nuevoCompletado =
       (evento.tipo_evento === "actividad_completada" || evento.correcta === true) && !existing.completado;
 
     await db
-      .from("progreso_actividad_usuario")
-      .update({
+      .update(schema.progresoActividadUsuario)
+      .set({
         intentos: existing.intentos + 1,
-        mejor_puntaje: nuevoMejorPuntaje,
+        mejorPuntaje: nuevoMejorPuntaje,
         completado: nuevoCompletado ? true : existing.completado,
-        completado_en: nuevoCompletado ? now : existing.completado_en,
-        actualizado_en: now
+        completadoEn: nuevoCompletado ? now : existing.completadoEn,
+        actualizadoEn: now
       })
-      .eq("usuario_id", usuarioId)
-      .eq("actividad_id", evento.actividad_id!);
+      .where(and(eq(schema.progresoActividadUsuario.usuarioId, usuarioId), eq(schema.progresoActividadUsuario.actividadId, evento.actividad_id!)));
   } else {
     const completado = evento.correcta === true || evento.tipo_evento === "actividad_completada";
 
     await db
-      .from("progreso_actividad_usuario")
-      .insert({
-        usuario_id: usuarioId,
-        actividad_id: evento.actividad_id!,
+      .insert(schema.progresoActividadUsuario)
+      .values({
+        usuarioId,
+        actividadId: evento.actividad_id!,
         intentos: 1,
-        mejor_puntaje: evento.puntaje ?? 0,
+        mejorPuntaje: evento.puntaje ?? 0,
         completado,
-        completado_en: completado ? now : null,
-        actualizado_en: now
+        completadoEn: completado ? now : null,
+        actualizadoEn: now
       });
   }
 }

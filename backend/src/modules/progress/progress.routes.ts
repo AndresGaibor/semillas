@@ -1,77 +1,85 @@
 import { Hono } from "hono";
+import { eq } from "drizzle-orm";
 import type { AppBindings } from "../../config/env";
-import type { Json } from "../../db/database.types";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { responderExito } from "../../shared/http/respuesta";
 import { serializarProgresoActividad, serializarProgresoTema } from "../../shared/serializers/progreso.serializer";
 import { progressEventSchema } from "./progress.schemas";
+import { db, schema } from "../../db/client";
 
 export const progressRoutes = new Hono<AppBindings>();
 
 progressRoutes.use("*", authMiddleware);
 
 progressRoutes.get("/mi", async (c) => {
-  const db = c.get("db");
   const user = c.get("user");
 
-  const { data: themes, error: themesError } = await db
-    .from("progreso_tema_usuario")
-    .select("*")
-    .eq("usuario_id", user.id);
+  const themes = await db
+    .select()
+    .from(schema.progresoTemaUsuario)
+    .where(eq(schema.progresoTemaUsuario.usuarioId, user.id));
 
-  if (themesError) {
-    throw themesError;
-  }
-
-  const { data: activities, error: activitiesError } = await db
-    .from("progreso_actividad_usuario")
-    .select("*")
-    .eq("usuario_id", user.id);
-
-  if (activitiesError) {
-    throw activitiesError;
-  }
+  const activities = await db
+    .select()
+    .from(schema.progresoActividadUsuario)
+    .where(eq(schema.progresoActividadUsuario.usuarioId, user.id));
 
   return responderExito({
-    progresos_tema: (themes ?? []).map((tema) => serializarProgresoTema(tema as Parameters<typeof serializarProgresoTema>[0])),
-    progresos_actividad: (activities ?? []).map((actividad) => serializarProgresoActividad(actividad as Parameters<typeof serializarProgresoActividad>[0]))
+    progresos_tema: themes.map((tema) =>
+      serializarProgresoTema({
+        usuario_id: tema.usuarioId,
+        tema_id: tema.temaId,
+        estado: tema.estado,
+        porcentaje: tema.porcentaje,
+        iniciado_en: tema.iniciadoEn ? tema.iniciadoEn.toISOString() : null,
+        completado_en: tema.completadoEn ? tema.completadoEn.toISOString() : null,
+        ultimo_paso_id: tema.ultimoPasoId,
+        actualizado_en: tema.actualizadoEn.toISOString()
+      })
+    ),
+    progresos_actividad: activities.map((actividad) =>
+      serializarProgresoActividad({
+        usuario_id: actividad.usuarioId,
+        actividad_id: actividad.actividadId,
+        intentos: actividad.intentos,
+        mejor_puntaje: actividad.mejorPuntaje,
+        completado: actividad.completado,
+        completado_en: actividad.completadoEn ? actividad.completadoEn.toISOString() : null,
+        actualizado_en: actividad.actualizadoEn.toISOString()
+      })
+    )
   });
 });
 
 progressRoutes.post(
   "/eventos",
   zValidator("json", progressEventSchema),
-  async (c) => {
-    const db = c.get("db");
+async (c) => {
     const user = c.get("user");
     const body = c.req.valid("json");
 
-    const { data, error } = await db
-      .from("evento_progreso")
-      .insert({
-        usuario_id: user.id,
-        id_evento_cliente: body.evento_id_cliente,
-        tipo_evento: body.tipo_evento,
-        tema_id: body.tema_id ?? null,
-        paso_id: body.paso_id ?? null,
-        actividad_id: body.actividad_id ?? null,
+    const [data] = await db
+      .insert(schema.eventoProgreso)
+      .values({
+        usuarioId: user.id,
+        idEventoCliente: body.evento_id_cliente,
+        tipoEvento: body.tipo_evento,
+        temaId: body.tema_id ?? null,
+        pasoId: body.paso_id ?? null,
+        actividadId: body.actividad_id ?? null,
         correcta: body.correcta ?? null,
         puntaje: body.puntaje ?? null,
-        xp_otorgada: body.xp_otorgada,
-        datos: body.datos as Json,
-        ocurrido_en_cliente: body.ocurrido_en_cliente ?? new Date().toISOString(),
-        dispositivo_id: body.dispositivo_id ?? null
+        xpOtorgada: body.xp_otorgada,
+        datos: body.datos,
+        ocurridoEnCliente: body.ocurrido_en_cliente ? new Date(body.ocurrido_en_cliente) : new Date(),
+        dispositivoId: body.dispositivo_id ?? null
       })
-      .select("*")
-      .single();
+      .onConflictDoNothing({ target: schema.eventoProgreso.idEventoCliente })
+      .returning();
 
-    if (error) {
-      if (error.code === "23505") {
-        return responderExito({ duplicado: true, mensaje: "Evento ya procesado" });
-      }
-
-      throw error;
+    if (!data) {
+      return responderExito({ duplicado: true, mensaje: "Evento ya procesado" });
     }
 
     return responderExito({ duplicado: false, evento: data }, 201);

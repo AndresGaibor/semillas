@@ -1,3 +1,21 @@
+/**
+ * ============================================================
+ * PUNTO DE ENTRADA DE LA API - SEMILLAS
+ * ============================================================
+ *
+ * Este archivo configura la aplicación Hono con:
+ * - Middlewares (CORS, logger, manejo de errores)
+ * - Rutas de la API
+ * - Documentación OpenAPI con Scalar
+ * - Health check
+ *
+ * La API sigue el patrón de respuestas:
+ * - Éxito: { exito: true, datos: {...} }
+ * - Error: { exito: false, error: {...} }
+ *
+ * @module app
+ */
+
 import { Hono } from "hono";
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
@@ -8,6 +26,10 @@ import { createSupabaseAdmin } from "./db/client";
 import { openApiSpec } from "./openapi/spec";
 import { errorHandler } from "./shared/middleware/error-handler";
 
+/**
+ * Rutas de la API
+ * Cada módulo maneja un grupo de endpoints relacionados
+ */
 import { authRoutes } from "./modules/auth/auth.routes";
 import { catalogRoutes } from "./modules/catalog/catalog.routes";
 import { sendasRoutes } from "./modules/sendas/sendas.routes";
@@ -21,9 +43,28 @@ import { gamificationRoutes } from "./modules/gamification/gamification.routes";
 import { mediaRoutes } from "./modules/media/media.routes";
 import { syncRoutes } from "./modules/sync/sync.routes";
 
+/**
+ * Aplicación principal de Hono
+ * @see https://hono.dev/
+ */
 const app = new Hono<AppBindings>();
 
+/**
+ * ============================================================
+ * MIDDLEWARES GLOBALES
+ * ============================================================
+ */
+
+/**
+ * Logger para todas las peticiones
+ * Muestra método, ruta, status y tiempo de respuesta
+ */
 app.use("*", logger());
+
+/**
+ * Configuración de CORS
+ * Permite peticiones desde el frontend y apps móviles
+ */
 app.use(
   "*",
   cors({
@@ -39,11 +80,32 @@ app.use(
   })
 );
 
+/**
+ * Middleware que inyecta el cliente de Supabase en el contexto
+ * Usado por los módulos legacy que aún usan Supabase JS directamente
+ *
+ * NOTA: Los nuevos módulos deben usar Drizzle importando `db` desde db/client.ts
+ * Este cliente de Supabase se mantiene para:
+ * - Auth (crear usuarios, etc.)
+ * - Storage (subir archivos)
+ * - Edge functions de Supabase
+ */
 app.use("*", async (c, next) => {
   c.set("db", createSupabaseAdmin(c.env));
   await next();
 });
 
+/**
+ * ============================================================
+ * ENDPOINTS PÚBLICOS
+ * ============================================================
+ */
+
+/**
+ * GET /
+ *
+ * Información básica de la API
+ */
 app.get("/", (c) => {
   return c.json({
     exito: true,
@@ -54,10 +116,22 @@ app.get("/", (c) => {
   });
 });
 
+/**
+ * GET /openapi.json
+ *
+ * Especificación OpenAPI 3.0 en formato JSON
+ * Usada por Scalar para generar la documentación
+ */
 app.get("/openapi.json", (c) => {
   return c.json(openApiSpec);
 });
 
+/**
+ * GET /docs
+ *
+ * Documentación interactiva de la API usando Scalar
+ * Accesible desde el navegador en entorno de desarrollo
+ */
 app.get(
   "/docs",
   Scalar({
@@ -69,6 +143,12 @@ app.get(
   })
 );
 
+/**
+ * GET /health
+ *
+ * Endpoint de salud para verificar que el servicio está activo
+ * Útil para load balancers y monitoring
+ */
 app.get("/health", (c) => {
   return c.json({
     exito: true,
@@ -78,6 +158,25 @@ app.get("/health", (c) => {
     }
   });
 });
+
+/**
+ * ============================================================
+ * REGISTRO DE RUTAS
+ * ============================================================
+ * Cada módulo se monta en una ruta base:
+ * - /autenticacion - Login y registro
+ * - /catalogo - Catálogos estáticos (grupos de edad, tipos de actividad, etc.)
+ * - /sendas - Sendas espirituales (Padre, Hijo, Espíritu Santo)
+ * - /temas - Temas bíblicos
+ * - /perfil - Perfil del usuario
+ * - /progreso - Progreso y eventos
+ * - /actividades - Actividades y quiz
+ * - /administracion - CMS para admins
+ * - /clubes - Clubes y retos cooperativos
+ * - /gamificacion - Logros, niveles y XP
+ * - /media - Carga y gestión de archivos
+ * - /sync - Sincronización offline
+ */
 
 app.route("/autenticacion", authRoutes);
 app.route("/catalogo", catalogRoutes);
@@ -92,6 +191,13 @@ app.route("/gamificacion", gamificationRoutes);
 app.route("/media", mediaRoutes);
 app.route("/sync", syncRoutes);
 
+/**
+ * ============================================================
+ * MANEJO DE ERRORES
+ * ============================================================
+ * El handler de errores captura excepciones y las convierte
+ * a respuestas JSON consistentes
+ */
 app.onError(errorHandler);
 
 export default app;

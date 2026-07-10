@@ -1,8 +1,10 @@
 import { Hono } from "hono";
+import { eq, sql } from "drizzle-orm";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { responderExito } from "../../shared/http/respuesta";
 import { serializarNivelUsuario } from "../../shared/serializers/progreso.serializer";
+import { db, schema } from "../../db/client";
 
 function serializarLogro(logro: Record<string, unknown>) {
   return {
@@ -35,37 +37,50 @@ export const gamificationRoutes = new Hono<AppBindings>();
 gamificationRoutes.use("*", authMiddleware);
 
 gamificationRoutes.get("/mi", async (c) => {
-  const db = c.get("db");
   const user = c.get("user");
 
-  const { data: level, error: levelError } = await db
-    .from("v_nivel_usuario")
-    .select("*")
-    .eq("usuario_id", user.id)
-    .single();
+  // La vista todavía no está declarada en el schema, así que la consultamos con SQL explícito.
+  const level = await db.execute(sql`
+    select usuario_id, xp_total, numero_nivel, nombre_nivel
+    from v_nivel_usuario
+    where usuario_id = ${user.id}
+    limit 1
+  `);
 
-  if (levelError) {
-    throw levelError;
-  }
+  const logros = await db
+    .select({
+      usuario_id: schema.logroUsuario.usuarioId,
+      logro_id: schema.logroUsuario.logroId,
+      ganado_en: schema.logroUsuario.ganadoEn,
+      logro: schema.logro
+    })
+    .from(schema.logroUsuario)
+    .leftJoin(schema.logro, eq(schema.logroUsuario.logroId, schema.logro.id))
+    .where(eq(schema.logroUsuario.usuarioId, user.id));
 
-  const { data: logros, error: logrosError } = await db
-    .from("logro_usuario")
-    .select("*, logro(*)")
-    .eq("usuario_id", user.id);
-
-  if (logrosError) {
-    throw logrosError;
-  }
+  const filaNivel = Array.isArray(level) ? level[0] : (level as unknown as Array<Record<string, unknown>>)[0];
 
   return responderExito({
-    nivel: level
+    nivel: filaNivel
       ? serializarNivelUsuario({
-          usuario_id: String(level.usuario_id ?? ""),
-          xp_total: Number(level.xp_total ?? 0),
-          numero_nivel: Number(level.numero_nivel ?? 0),
-          nombre_nivel: String(level.nombre_nivel ?? "")
+          usuario_id: String(filaNivel.usuario_id ?? ""),
+          xp_total: Number(filaNivel.xp_total ?? 0),
+          numero_nivel: Number(filaNivel.numero_nivel ?? 0),
+          nombre_nivel: String(filaNivel.nombre_nivel ?? "")
         })
       : null,
-    logros: (logros ?? []).map((logroUsuario) => serializarLogroUsuario(logroUsuario as Record<string, unknown>))
+    logros: logros.map((logroUsuario) =>
+      serializarLogroUsuario({
+        usuario_id: logroUsuario.usuario_id,
+        logro_id: logroUsuario.logro_id,
+        ganado_en: logroUsuario.ganado_en.toISOString(),
+        logro: logroUsuario.logro
+          ? {
+              ...logroUsuario.logro,
+              creado_en: logroUsuario.logro.creadoEn.toISOString()
+            }
+          : null
+      })
+    )
   });
 });

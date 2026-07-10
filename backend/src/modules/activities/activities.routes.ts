@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { asc, eq, sql } from "drizzle-orm";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
@@ -6,6 +7,7 @@ import { NotFoundError } from "../../shared/errors/http-error";
 import { responderExito } from "../../shared/http/respuesta";
 import { serializarActividad } from "../../shared/serializers/actividad.serializer";
 import { responderActividadSchema } from "./activities.schemas";
+import { db, schema } from "../../db/client";
 
 export const activitiesRoutes = new Hono<AppBindings>();
 
@@ -42,131 +44,219 @@ function mapearActividad(actividad: Record<string, unknown>) {
   });
 }
 
+// Convierte filas Drizzle a la forma exacta que espera el serializador existente.
+function serializarActividadDesdeDrizzle(
+  actividad: typeof schema.actividad.$inferSelect,
+  tipoActividad: typeof schema.tipoActividad.$inferSelect | null,
+  opciones: Array<typeof schema.opcionActividad.$inferSelect>
+) {
+  return mapearActividad({
+    id: actividad.id,
+    tema_id: actividad.temaId,
+    paso_id: actividad.pasoId,
+    grupo_edad_id: actividad.grupoEdadId,
+    tipo_actividad_id: actividad.tipoActividadId,
+    titulo: actividad.titulo,
+    consigna: actividad.consigna,
+    orden: actividad.orden,
+    xp_recompensa: actividad.xpRecompensa,
+    dificultad: actividad.dificultad,
+    limite_tiempo_seg: actividad.limiteTiempoSeg,
+    obligatorio: actividad.obligatorio,
+    retroalimentacion: actividad.retroalimentacion,
+    configuracion: actividad.configuracion ?? {},
+    creado_en: actividad.creadoEn.toISOString(),
+    actualizado_en: actividad.actualizadoEn.toISOString(),
+    tipo_actividad: tipoActividad
+      ? {
+          id: tipoActividad.id,
+          codigo: tipoActividad.codigo,
+          nombre: tipoActividad.nombre,
+          descripcion: tipoActividad.descripcion,
+          es_juego: tipoActividad.esJuego
+        }
+      : null,
+    opciones
+  });
+}
+
 activitiesRoutes.get("/", async (c) => {
-  const db = c.get("db");
+  const actividades = await db
+    .select()
+    .from(schema.actividad)
+    .orderBy(asc(schema.actividad.orden));
 
-  const { data, error } = await db
-    .from("actividad")
-    .select("*, tipo_actividad:tipo_actividad_id(*), opciones:opcion_actividad(*)")
-    .order("orden", { ascending: true });
+  const tipos = await db.select().from(schema.tipoActividad);
+  const opciones = await db.select().from(schema.opcionActividad);
 
-  if (error) {
-    throw error;
-  }
+  const tipoPorId = new Map(tipos.map((tipo) => [tipo.id, tipo]));
+  const opcionesPorActividad = opciones.reduce<Map<string, Array<typeof schema.opcionActividad.$inferSelect>>>(
+    (mapa, opcion) => {
+      const actuales = mapa.get(opcion.actividadId) ?? [];
+      mapa.set(opcion.actividadId, [...actuales, opcion]);
+      return mapa;
+    },
+    new Map()
+  );
 
-  return responderExito((data ?? []).map((actividad) => mapearActividad(actividad as Record<string, unknown>)));
+  return responderExito(
+    actividades.map((actividad: typeof schema.actividad.$inferSelect) =>
+      serializarActividadDesdeDrizzle(
+        actividad,
+        tipoPorId.get(actividad.tipoActividadId) ?? null,
+        opcionesPorActividad.get(actividad.id) ?? []
+      )
+    )
+  );
 });
 
 activitiesRoutes.get("/:actividad_id", async (c) => {
-  const db = c.get("db");
   const actividadId = c.req.param("actividad_id");
 
-  const { data, error } = await db
-    .from("actividad")
-    .select("*, tipo_actividad:tipo_actividad_id(*), opciones:opcion_actividad(*)")
-    .eq("id", actividadId)
-    .single();
+  const [actividad] = await db
+    .select()
+    .from(schema.actividad)
+    .where(eq(schema.actividad.id, actividadId))
+    .limit(1);
 
-  if (error || !data) {
+  if (!actividad) {
     throw new NotFoundError("Actividad no encontrada");
   }
 
-  return responderExito(mapearActividad(data as Record<string, unknown>));
+  const [tipoActividad] = await db
+    .select()
+    .from(schema.tipoActividad)
+    .where(eq(schema.tipoActividad.id, actividad.tipoActividadId))
+    .limit(1);
+
+  const opciones = await db
+    .select()
+    .from(schema.opcionActividad)
+    .where(eq(schema.opcionActividad.actividadId, actividad.id))
+    .orderBy(asc(schema.opcionActividad.orden));
+
+  return responderExito(serializarActividadDesdeDrizzle(actividad, tipoActividad ?? null, opciones));
 });
 
 activitiesRoutes.post(
   "/:actividad_id/responder",
   authMiddleware,
   zValidator("json", responderActividadSchema),
-  async (c) => {
-    const db = c.get("db");
+async (c) => {
     const user = c.get("user");
     const actividadId = c.req.param("actividad_id");
     const body = c.req.valid("json");
 
-    const { data: actividad, error: actividadError } = await db
-      .from("actividad")
-      .select("id, tema_id, xp_recompensa")
-      .eq("id", actividadId)
-      .single();
+    const [actividad] = await db
+      .select({
+        id: schema.actividad.id,
+        temaId: schema.actividad.temaId,
+        xpRecompensa: schema.actividad.xpRecompensa
+      })
+      .from(schema.actividad)
+      .where(eq(schema.actividad.id, actividadId))
+      .limit(1);
 
-    if (actividadError || !actividad) {
+    if (!actividad) {
       throw new NotFoundError("Actividad no encontrada");
     }
 
     let correcta = false;
 
     if (body.opcion_id_seleccionada) {
-      const { data: opcion, error: opcionError } = await db
-        .from("opcion_actividad")
-        .select("id, correcta")
-        .eq("id", body.opcion_id_seleccionada)
-        .eq("actividad_id", actividadId)
-        .single();
+      const [opcion] = await db
+        .select({ id: schema.opcionActividad.id, correcta: schema.opcionActividad.correcta })
+        .from(schema.opcionActividad)
+        .where(
+          sql`${schema.opcionActividad.id} = ${body.opcion_id_seleccionada} and ${schema.opcionActividad.actividadId} = ${actividadId}`
+        )
+        .limit(1);
 
-      if (opcionError || !opcion) {
+      if (!opcion) {
         throw new NotFoundError("Opción no encontrada");
       }
 
       correcta = Boolean(opcion.correcta);
     }
 
-    const xpOtorgada = correcta ? Number(actividad.xp_recompensa ?? 0) : 0;
+    const xpOtorgada = correcta ? Number(actividad.xpRecompensa ?? 0) : 0;
 
-    const { error: eventoError } = await db.from("evento_progreso").insert({
-      usuario_id: user.id,
-      id_evento_cliente: body.evento_id_cliente,
-      tipo_evento: "actividad_respondida",
-      tema_id: actividad.tema_id,
-      actividad_id: actividadId,
-      correcta,
-      puntaje: correcta ? 100 : 0,
-      xp_otorgada: xpOtorgada,
-      datos: {
-        opcion_id_seleccionada: body.opcion_id_seleccionada ?? null,
-        texto_respuesta: body.texto_respuesta ?? null
-      },
-      ocurrido_en_cliente: body.ocurrido_en_cliente ?? new Date().toISOString(),
-      dispositivo_id: body.dispositivo_id ?? null
-    });
+    const [evento] = await db
+      .insert(schema.eventoProgreso)
+      .values({
+        usuarioId: user.id,
+        idEventoCliente: body.evento_id_cliente,
+        tipoEvento: "actividad_respondida",
+        temaId: actividad.temaId,
+        actividadId: actividadId,
+        correcta,
+        puntaje: correcta ? 100 : 0,
+        xpOtorgada,
+        datos: {
+          opcion_id_seleccionada: body.opcion_id_seleccionada ?? null,
+          texto_respuesta: body.texto_respuesta ?? null
+        },
+        ocurridoEnCliente: body.ocurrido_en_cliente ? new Date(body.ocurrido_en_cliente) : new Date(),
+        dispositivoId: body.dispositivo_id ?? null
+      })
+      .onConflictDoNothing({ target: schema.eventoProgreso.idEventoCliente })
+      .returning();
 
-    if (eventoError) {
-      if (eventoError.code === "23505") {
-        return responderExito(
-          {
-            resultado: {
-              correcta,
-              xp_otorgada: 0
-            },
-            duplicado: true,
+    if (!evento) {
+      return responderExito(
+        {
+          resultado: {
             correcta,
             xp_otorgada: 0
           },
-          200
-        );
-      }
-
-      throw eventoError;
+          duplicado: true,
+          correcta,
+          xp_otorgada: 0
+        },
+        200
+      );
     }
 
-    await db.from("progreso_actividad_usuario").upsert({
-      usuario_id: user.id,
-      actividad_id: actividadId,
-      intentos: 1,
-      mejor_puntaje: correcta ? 100 : 0,
-      completado: correcta,
-      completado_en: correcta ? new Date().toISOString() : null,
-      actualizado_en: new Date().toISOString()
-    });
+    await db
+      .insert(schema.progresoActividadUsuario)
+      .values({
+        usuarioId: user.id,
+        actividadId,
+        intentos: 1,
+        mejorPuntaje: correcta ? 100 : 0,
+        completado: correcta,
+        completadoEn: correcta ? new Date() : null,
+        actualizadoEn: new Date()
+      })
+      .onConflictDoUpdate({
+        target: [schema.progresoActividadUsuario.usuarioId, schema.progresoActividadUsuario.actividadId],
+        set: {
+          intentos: sql`${schema.progresoActividadUsuario.intentos} + 1`,
+          mejorPuntaje: sql`greatest(${schema.progresoActividadUsuario.mejorPuntaje}, ${correcta ? 100 : 0})`,
+          completado: correcta,
+          completadoEn: correcta ? new Date() : sql`${schema.progresoActividadUsuario.completadoEn}`,
+          actualizadoEn: new Date()
+        }
+      });
 
     if (correcta) {
-      await db.from("progreso_tema_usuario").upsert({
-        usuario_id: user.id,
-        tema_id: String(actividad.tema_id ?? ""),
-        estado: "en_progreso",
-        porcentaje: 0,
-        actualizado_en: new Date().toISOString()
-      });
+      await db
+        .insert(schema.progresoTemaUsuario)
+        .values({
+          usuarioId: user.id,
+          temaId: actividad.temaId,
+          estado: "en_progreso",
+          porcentaje: 0,
+          actualizadoEn: new Date()
+        })
+        .onConflictDoUpdate({
+          target: [schema.progresoTemaUsuario.usuarioId, schema.progresoTemaUsuario.temaId],
+          set: {
+            estado: "en_progreso",
+            porcentaje: 0,
+            actualizadoEn: new Date()
+          }
+        });
     }
 
     return responderExito(

@@ -1,6 +1,20 @@
 # Semillas API
 
-API base de Semillas construida con Hono para Cloudflare Workers.
+API Hono de Semillas para Cloudflare Workers.
+
+## Proposito
+
+Esta carpeta contiene la API que centraliza:
+
+- autenticacion
+- perfiles
+- catalogos
+- sendas, temas y actividades
+- progreso y sincronizacion offline
+- gamificacion
+- clubes
+- CMS y administracion
+- media
 
 ## Stack
 
@@ -9,44 +23,76 @@ API base de Semillas construida con Hono para Cloudflare Workers.
 - TypeScript
 - Cloudflare Workers
 - Wrangler
+- Zod
+- Supabase JS
 
-## Instalación
+## Comandos
 
 ```bash
 bun install
-```
-
-## Desarrollo
-
-```bash
-bun run start:dev
-```
-
-Para ejecutar localmente con Bun:
-
-```bash
-bun run start
-```
-
-Por defecto la API local escucha en `http://localhost:8787`.
-
-## Pruebas
-
-```bash
+bun run dev
+bun run build
+bun run lint
 bun run test
 bun run test:e2e
-```
-
-## Build
-
-```bash
-bun run build
-```
-
-## Deploy
-
-```bash
 bun run deploy
 ```
 
-La entrada del Worker es `src/index.ts` y la configuración está en `wrangler.jsonc`.
+## Desarrollo local
+
+La API corre por defecto en `http://localhost:8787` con `wrangler dev`.
+
+Variables principales de entorno:
+
+- `APP_ENV`
+- `CORS_ORIGIN`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_PROJECT_REF`
+
+## Estructura
+
+```text
+backend/src/
+├─ app.ts
+├─ index.ts
+├─ config/
+├─ db/
+├─ modules/
+├─ openapi/
+└─ shared/
+```
+
+## Rutas clave
+
+- `GET /health`
+- `POST /autenticacion/invitado`
+- `GET /perfil`
+- `GET /catalogo/grupos-etarios`
+- `GET /sendas`
+- `GET /temas`
+- `GET /temas/:tema_id/pasos`
+- `GET /temas/:tema_id/actividades`
+- `POST /actividades/:actividad_id/responder`
+- `POST /progreso/eventos`
+- `GET /sync/pull`
+- `POST /sync/push`
+- `GET /administracion/resumen`
+- `POST /administracion/temas`
+- `POST /administracion/temas/:tema_id/publicar`
+- `POST /media/subir`
+
+## Estado actual
+
+El backend ya tiene una base funcional amplia, pero el trabajo pendiente mas importante es:
+
+- reactivar la seguridad real en admin y media
+- cerrar la sincronizacion offline end-to-end
+- alinear la documentacion con el contrato real de la API
+
+Revisa tambien:
+
+- `../README.md`
+- `../docs/estado-proyecto/README.md`
+- `../docs/backend-api.md`
