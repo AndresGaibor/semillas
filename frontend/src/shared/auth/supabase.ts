@@ -10,8 +10,12 @@ import {
   sincronizarSesionAutenticadaConCliente,
 } from "./supabase.helpers";
 
-const supabaseUrl = env.supabaseUrl || "http://localhost:54321";
-const supabaseAnonKey = env.supabaseAnonKey || "test-anon-key";
+const supabaseUrl = env.supabaseUrl;
+const supabaseAnonKey = env.supabaseAnonKey;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("[semillas] Faltan variables de entorno: VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY");
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
