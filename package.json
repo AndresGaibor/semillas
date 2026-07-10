@@ -17,6 +17,21 @@
     "deploy:backend": "bun run --cwd backend deploy",
     "deploy:backend:staging": "bun run --cwd backend deploy --env staging",
     "preview:backend": "bun run --cwd backend dev --remote",
-    "check": "bun run --cwd backend lint && bun run --cwd backend test && bun run --cwd backend test:e2e && bun run build"
+    "check": "bun run --cwd backend typecheck && bun run --cwd frontend typecheck && bun run test && bun run test:e2e && bun run build",
+    "test": "bun run test:backend && bun run test:frontend && bun run test:contrato",
+    "test:backend": "bun run --cwd backend test",
+    "test:frontend": "bun run --cwd frontend test",
+    "test:contrato": "bun test tests/contrato-publico.test.ts",
+    "test:e2e": "bun run --cwd backend test:e2e",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:migrate": "supabase db push",
+    "db:lint": "supabase db lint --level warning",
+    "db:types": "supabase gen types typescript --local > backend/src/db/database.types.ts",
+    "storybook": "bun run --cwd frontend storybook",
+    "storybook:build": "bun run --cwd frontend build-storybook",
+    "storybook:coverage": "bun run --cwd frontend storybook:coverage",
+    "storybook:check": "bun run --cwd frontend storybook:check"
   }
 }
