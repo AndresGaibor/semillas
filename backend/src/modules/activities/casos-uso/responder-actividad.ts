@@ -1,0 +1,81 @@
+import type { AuthUser } from "../../../config/env";
+import { NotFoundError } from "../../../shared/errors/http-error";
+import type { ActivitiesRepository } from "../activities.repository";
+
+type Dependencias = {
+  actividades: ActivitiesRepository;
+};
+
+type EntradaResponderActividad = {
+  evento_id_cliente: string;
+  opcion_id_seleccionada?: string;
+  texto_respuesta?: string;
+  ocurrido_en_cliente?: string;
+  dispositivo_id?: string;
+};
+
+export function crearCasoResponderActividad({ actividades }: Dependencias) {
+  return async function responderActividad(
+    usuario: AuthUser,
+    actividadId: string,
+    entrada: EntradaResponderActividad
+  ) {
+    const actividad = await actividades.obtenerActividadParaRespuesta(actividadId);
+
+    if (!actividad) {
+      throw new NotFoundError("Actividad no encontrada");
+    }
+
+    let correcta = false;
+
+    if (entrada.opcion_id_seleccionada) {
+      const opcion = await actividades.obtenerOpcionDeActividad(actividadId, entrada.opcion_id_seleccionada);
+
+      if (!opcion) {
+        throw new NotFoundError("Opción no encontrada");
+      }
+
+      correcta = Boolean(opcion.correcta);
+    }
+
+    const xpOtorgada = correcta ? Number(actividad.xpRecompensa ?? 0) : 0;
+
+    const evento = await actividades.registrarEventoProgreso({
+      usuarioId: usuario.id,
+      idEventoCliente: entrada.evento_id_cliente,
+      actividadId,
+      temaId: actividad.temaId,
+      correcta,
+      xpOtorgada,
+      puntaje: correcta ? 100 : 0,
+      datos: {
+        opcion_id_seleccionada: entrada.opcion_id_seleccionada ?? null,
+        texto_respuesta: entrada.texto_respuesta ?? null
+      },
+      ocurridoEnCliente: entrada.ocurrido_en_cliente ? new Date(entrada.ocurrido_en_cliente) : new Date(),
+      dispositivoId: entrada.dispositivo_id ?? null
+    });
+
+    if (!evento) {
+      return {
+        resultado: { correcta, xp_otorgada: 0 },
+        duplicado: true,
+        correcta,
+        xp_otorgada: 0,
+      };
+    }
+
+    await actividades.upsertProgresoActividad(usuario.id, actividadId, correcta);
+
+    if (correcta) {
+      await actividades.upsertProgresoTema(usuario.id, actividad.temaId);
+    }
+
+    return {
+      resultado: { correcta, xp_otorgada: xpOtorgada },
+      duplicado: false,
+      correcta,
+      xp_otorgada: xpOtorgada,
+    };
+  };
+}

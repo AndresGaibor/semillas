@@ -1,0 +1,134 @@
+import { asc, and, eq } from "drizzle-orm";
+import type { DbClient } from "../../db/client";
+import { schema } from "../../db/client";
+
+type TemaFila = typeof schema.tema.$inferSelect;
+type SendaFila = typeof schema.enda.$inferSelect | null;
+type PortadaFila = typeof schema.recursoMultimedia.$inferSelect | null;
+
+export type TemaListadoRepo = {
+  tema: TemaFila;
+  enda: SendaFila;
+  portada: PortadaFila;
+};
+
+export function crearThemesRepository(db: DbClient) {
+  return {
+    async listarTemasPublicos(sendaId?: string): Promise<TemaListadoRepo[]> {
+      if (sendaId) {
+        return db
+          .select({
+            tema: schema.tema,
+            enda: schema.enda,
+            portada: schema.recursoMultimedia
+          })
+          .from(schema.tema)
+          .leftJoin(schema.enda, eq(schema.tema.endaId, schema.enda.id))
+          .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
+          .where(and(eq(schema.tema.estado, "publicado"), eq(schema.tema.endaId, sendaId)))
+          .orderBy(asc(schema.tema.publicadoEn)) as never;
+      }
+
+      return db
+        .select({
+          tema: schema.tema,
+          enda: schema.enda,
+          portada: schema.recursoMultimedia
+        })
+        .from(schema.tema)
+        .leftJoin(schema.enda, eq(schema.tema.endaId, schema.enda.id))
+        .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
+        .where(eq(schema.tema.estado, "publicado"))
+        .orderBy(asc(schema.tema.publicadoEn)) as never;
+    },
+
+    async obtenerTemaPublico(temaId: string): Promise<TemaListadoRepo | null> {
+      const [resultado] = await db
+        .select({
+          tema: schema.tema,
+          enda: schema.enda,
+          portada: schema.recursoMultimedia
+        })
+        .from(schema.tema)
+        .leftJoin(schema.enda, eq(schema.tema.endaId, schema.enda.id))
+        .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
+        .where(eq(schema.tema.id, temaId))
+        .limit(1);
+
+      return resultado ?? null;
+    },
+
+    async obtenerPortadaTema(temaId: string) {
+      const [tema] = await db
+        .select({
+          estado: schema.tema.estado,
+          portada: schema.recursoMultimedia
+        })
+        .from(schema.tema)
+        .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
+        .where(and(eq(schema.tema.id, temaId), eq(schema.tema.estado, "publicado")))
+        .limit(1);
+
+      return tema ?? null;
+    },
+
+    async listarPasosTema(temaId: string, grupoEdadId?: string) {
+      const pasos = await db
+        .select({ paso: schema.pasoTema, tipoPaso: schema.tipoPasoCrecer })
+        .from(schema.pasoTema)
+        .leftJoin(schema.tipoPasoCrecer, eq(schema.pasoTema.tipoPasoId, schema.tipoPasoCrecer.id))
+        .where(eq(schema.pasoTema.temaId, temaId))
+        .orderBy(asc(schema.pasoTema.orden));
+
+      return Promise.all(
+        pasos.map(async (registro) => {
+          let contenidos = await db
+            .select()
+            .from(schema.contenidoPasoTema)
+            .where(eq(schema.contenidoPasoTema.pasoId, registro.paso.id));
+
+          let preguntas = await db
+            .select()
+            .from(schema.preguntaReflexion)
+            .where(eq(schema.preguntaReflexion.pasoId, registro.paso.id));
+
+          if (grupoEdadId) {
+            contenidos = contenidos.filter((contenido) => contenido.grupoEdadId === grupoEdadId);
+            preguntas = preguntas.filter((pregunta) => pregunta.grupoEdadId === grupoEdadId);
+          }
+
+          return { paso: registro.paso, tipoPaso: registro.tipoPaso, contenidos, preguntas };
+        })
+      );
+    },
+
+    async listarActividadesTema(temaId: string, grupoEdadId?: string) {
+      const actividades = grupoEdadId
+        ? await db
+            .select({ actividad: schema.actividad, tipoActividad: schema.tipoActividad })
+            .from(schema.actividad)
+            .leftJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
+            .where(and(eq(schema.actividad.temaId, temaId), eq(schema.actividad.grupoEdadId, grupoEdadId)))
+            .orderBy(asc(schema.actividad.orden))
+        : await db
+            .select({ actividad: schema.actividad, tipoActividad: schema.tipoActividad })
+            .from(schema.actividad)
+            .leftJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
+            .where(eq(schema.actividad.temaId, temaId))
+            .orderBy(asc(schema.actividad.orden));
+
+      return Promise.all(
+        actividades.map(async (registro) => {
+          const opciones = await db
+            .select()
+            .from(schema.opcionActividad)
+            .where(eq(schema.opcionActividad.actividadId, registro.actividad.id));
+
+          return { actividad: registro.actividad, tipoActividad: registro.tipoActividad, opciones };
+        })
+      );
+    }
+  };
+}
+
+export type ThemesRepository = ReturnType<typeof crearThemesRepository>;

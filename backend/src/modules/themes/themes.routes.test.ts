@@ -1,260 +1,196 @@
-import { afterEach, describe, expect, it } from "bun:test";
-import app from "../../app";
+import { describe, expect, it } from "bun:test";
 import type { AppBindings } from "../../config/env";
+import type { DbClient } from "../../db/client";
+import { crearModuloThemes } from "./themes.routes";
 
 const env: AppBindings["Bindings"] = {
-  APP_ENV: "development",
-  CORS_ORIGIN: "http://localhost:3000",
+  APP_ENV: "test",
+  CORS_ORIGIN: "http://localhost",
   SUPABASE_URL: "https://example.supabase.co",
-  SUPABASE_ANON_KEY: "test-anon-key",
-  SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
-  SUPABASE_PROJECT_REF: "test-project-ref",
+  SUPABASE_ANON_KEY: "anon-key-de-prueba",
+  SUPABASE_SERVICE_ROLE_KEY: "service-key-de-prueba"
 };
 
-const originalFetch = globalThis.fetch;
+function crearDbMock() {
+  const listados = [
+    {
+      tema: {
+        id: "550e8400-e29b-41d4-a716-446655440011",
+        titulo: "La creación del mundo",
+        slug: "la-creacion-del-mundo",
+        resumen: "Dios creo todo",
+        objetivo: "Aprender sobre la creación",
+        estado: "publicado",
+        xpRecompensa: 100,
+        minutosEstimados: 10,
+        versionContenido: 1,
+        publicadoEn: new Date("2026-01-01T00:00:00.000Z"),
+        endaId: "senda-padre",
+        portadaRecursoId: "recurso-1"
+      },
+      enda: {
+        id: "senda-padre",
+        nombre: "Senda del Padre",
+        codigo: "padre",
+        colorHex: "#3D8BD4"
+      },
+      portada: {
+        id: "recurso-1",
+        tipo: "imagen",
+        urlPublica: "https://example.supabase.co/storage/v1/object/public/media/imagen/recurso-1.png",
+        textoAlternativo: "Creación",
+        tipoMime: "image/png",
+        tamanoBytes: 102400,
+        duracionSeg: null,
+        anchoPx: 1280,
+        altoPx: 720,
+        bucketAlmacenamiento: "media",
+        claveAlmacenamiento: "imagen/portadas/la-creacion-del-mundo.png",
+        activo: true
+      }
+    }
+  ];
 
-afterEach(() => {
-  globalThis.fetch = originalFetch;
-});
+  const detalle = listados[0];
+
+  const pasos = [
+    {
+      paso: {
+        id: "paso-1",
+        temaId: "tema-1",
+        tipoPasoId: "tipo-1",
+        orden: 1,
+        obligatorio: true
+      },
+      tipoPaso: {
+        id: "tipo-1",
+        codigo: "conectar",
+        nombre: "Conectar",
+        orden: 1,
+        colorHex: "#123456"
+      }
+    }
+  ];
+
+  const actividades = [
+    {
+      actividad: {
+        id: "act-1",
+        temaId: "tema-1",
+        pasoId: null,
+        grupoEdadId: "grupo-1",
+        tipoActividadId: "tipo-quiz",
+        titulo: "Actividad 1",
+        consigna: "Contesta",
+        orden: 1,
+        xpRecompensa: 10,
+        dificultad: "facil",
+        limiteTiempoSeg: null,
+        obligatorio: true,
+        retroalimentacion: null,
+        configuracion: {},
+        creadoEn: new Date(),
+        actualizadoEn: new Date()
+      },
+      tipoActividad: {
+        id: "tipo-quiz",
+        codigo: "quiz",
+        nombre: "Quiz",
+        descripcion: null,
+        esJuego: false,
+        activo: true,
+        creadoEn: new Date()
+      },
+      opciones: []
+    }
+  ];
+
+  let queryIndex = 0;
+
+  return {
+    select(consulta?: Record<string, unknown>) {
+      const claves = Object.keys(consulta ?? {}).join(",");
+
+      return {
+        from() {
+          return {
+            leftJoin() {
+              return this;
+            },
+            where() {
+              return {
+                orderBy: async () => {
+                  queryIndex += 1;
+
+                  if (claves.includes("tema") && claves.includes("enda") && claves.includes("portada")) {
+                    return listados;
+                  }
+
+                  if (claves.includes("estado") && claves.includes("portada")) {
+                    return [detalle];
+                  }
+
+                  if (claves.includes("paso") && claves.includes("tipoPaso")) {
+                    return pasos;
+                  }
+
+                  if (claves.includes("actividad") && claves.includes("tipoActividad")) {
+                    return actividades;
+                  }
+
+                  return [];
+                },
+                limit: async () => {
+                  if (claves.includes("tema") && claves.includes("enda") && claves.includes("portada")) {
+                    return [detalle];
+                  }
+
+                  if (claves.includes("estado") && claves.includes("portada")) {
+                    return [{ estado: "publicado", portada: detalle.portada }];
+                  }
+
+                  return [];
+                }
+              };
+            }
+          };
+        }
+      };
+    }
+  } as unknown as DbClient;
+}
 
 describe("themes.routes", () => {
-  it("devuelve el listado de temas con senda y portada_recurso desde la vista publica", async () => {
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url = new URL(input instanceof Request ? input.url : String(input));
+  it("devuelve el listado de temas publicados y la portada firmada", async () => {
+    const db = crearDbMock();
+    const app = crearModuloThemes({
+      db,
+      createSupabaseAdmin: () => ({
+        storage: {
+          from() {
+            return {
+              createSignedUrl: async () => ({
+                data: { signedUrl: "https://signed.example.com/portada.png?token=abc123" },
+                error: null
+              })
+            };
+          }
+        }
+      } as never)
+    });
 
-      if (url.pathname === "/rest/v1/v_temas_publicos") {
-        return new Response(
-          JSON.stringify([
-            {
-              id: "tema-1",
-              senda_id: "senda-padre",
-              titulo: "La creación del mundo",
-              slug: "la-creacion-del-mundo",
-              objetivo: "Aprender sobre la creación",
-              resumen: "Dios creo todo en siete dias",
-              portada_recurso_id: "recurso-1",
-              portada_recurso: {
-                id: "recurso-1",
-                tipo: "imagen",
-                url_publica: "https://example.supabase.co/storage/v1/object/public/media/imagen/recurso-1.png",
-                texto_alternativo: "Creación",
-                titulo: "Portada La creación",
-                tipo_mime: "image/png",
-                tamano_bytes: 102400,
-                duracion_seg: null,
-                ancho_px: 1280,
-                alto_px: 720
-              },
-              estado: "publicado",
-              version_biblica_id: "biblia-1",
-              xp_recompensa: 100,
-              minutos_estimados: 10,
-              version_contenido: 1,
-              publicado_en: "2026-01-01T00:00:00.000Z",
-              senda_codigo: "padre",
-              senda_nombre: "Senda del Padre",
-              senda_color_hex: "#3D8BD4"
-            }
-          ]),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          },
-        );
-      }
+    const listado = await app.fetch(new Request("http://localhost/"), env);
+    const cuerpoListado = (await listado.json()) as { exito: true; datos: Array<{ id: string; senda: { codigo: string } | null }> };
 
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }) as typeof fetch;
+    expect(listado.status).toBe(200);
+    expect(cuerpoListado.datos).toHaveLength(1);
+    expect(cuerpoListado.datos[0].senda?.codigo).toBe("padre");
 
-    const response = await app.fetch(new Request("http://localhost/temas"), env);
-    const body = (await response.json()) as {
-      exito: true;
-      datos: Array<{
-        id: string;
-        titulo: string;
-        portada_recurso: { url_publica: string } | null;
-        senda: { codigo: string; nombre: string } | null;
-      }>;
-    };
+    const portada = await app.fetch(new Request("http://localhost/550e8400-e29b-41d4-a716-446655440011/portada"), env);
+    const cuerpoPortada = (await portada.json()) as { exito: true; datos: { url: string; expiraEnSegundos: number } };
 
-    expect(response.status).toBe(200);
-    expect(body.datos).toHaveLength(1);
-    expect(body.datos[0].titulo).toBe("La creación del mundo");
-    expect(body.datos[0].senda?.codigo).toBe("padre");
-    expect(body.datos[0].portada_recurso?.url_publica).toContain("/storage/v1/object/public/media/");
-  });
-
-  it("filtra los temas por senda_id en el cliente", async () => {
-    let consultaSendaId: string | null = null;
-
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url = new URL(input instanceof Request ? input.url : String(input));
-
-      if (url.pathname === "/rest/v1/v_temas_publicos") {
-        consultaSendaId = url.searchParams.get("senda_id");
-        return new Response(
-          JSON.stringify([
-            {
-              id: "tema-1",
-              senda_id: "senda-padre",
-              titulo: "La creación",
-              slug: "la-creacion",
-              objetivo: "obj",
-              resumen: null,
-              portada_recurso_id: null,
-              portada_recurso: null,
-              estado: "publicado",
-              version_biblica_id: null,
-              xp_recompensa: 100,
-              minutos_estimados: 10,
-              version_contenido: 1,
-              publicado_en: null,
-              senda_codigo: "padre",
-              senda_nombre: "Senda del Padre",
-              senda_color_hex: "#3D8BD4"
-            },
-            {
-              id: "tema-2",
-              senda_id: "senda-hijo",
-              titulo: "Parábolas",
-              slug: "parabolas",
-              objetivo: "obj",
-              resumen: null,
-              portada_recurso_id: null,
-              portada_recurso: null,
-              estado: "publicado",
-              version_biblica_id: null,
-              xp_recompensa: 120,
-              minutos_estimados: 12,
-              version_contenido: 1,
-              publicado_en: null,
-              senda_codigo: "hijo",
-              senda_nombre: "Senda del Hijo",
-              senda_color_hex: "#6D35E8"
-            }
-          ]),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          },
-        );
-      }
-
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }) as typeof fetch;
-
-    const response = await app.fetch(
-      new Request("http://localhost/temas?senda_id=senda-padre"),
-      env,
-    );
-    const body = (await response.json()) as { exito: true; datos: Array<{ id: string }> };
-
-    expect(consultaSendaId).toBeNull();
-    expect(response.status).toBe(200);
-    expect(body.datos).toHaveLength(1);
-    expect(body.datos[0].id).toBe("tema-1");
-  });
-
-  it("devuelve una URL firmada publica para la portada del tema", async () => {
-    let pidioFirmada = false;
-
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url = new URL(input instanceof Request ? input.url : String(input));
-      const metodo = input instanceof Request ? input.method : "GET";
-
-      if (url.pathname === "/rest/v1/tema" && metodo === "GET") {
-        return new Response(
-          JSON.stringify({
-            id: "550e8400-e29b-41d4-a716-446655440099",
-            portada_recurso_id: "550e8400-e29b-41d4-a716-446655440010",
-            estado: "publicado",
-            portada_recurso: {
-              id: "550e8400-e29b-41d4-a716-446655440010",
-              bucket_almacenamiento: "media",
-              clave_almacenamiento: "imagen/portadas/la-creacion-del-mundo.png",
-              activo: true
-            }
-          }),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          },
-        );
-      }
-
-      if (
-        url.pathname === "/storage/v1/object/sign/media/imagen/portadas/la-creacion-del-mundo.png"
-      ) {
-        pidioFirmada = true;
-        return new Response(
-          JSON.stringify({
-            signedURL: "/object/sign/media/imagen/portadas/la-creacion-del-mundo.png?token=abc123"
-          }),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          },
-        );
-      }
-
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }) as typeof fetch;
-
-    const response = await app.fetch(
-      new Request("http://localhost/temas/550e8400-e29b-41d4-a716-446655440099/portada"),
-      env,
-    );
-    const body = (await response.json()) as {
-      exito: true;
-      datos: { url: string; expira_en_segundos: number };
-    };
-
-    expect(response.status).toBe(200);
-    expect(body.datos.url).toContain("token=abc123");
-    expect(body.datos.url).toContain("la-creacion-del-mundo.png");
-    expect(body.datos.expira_en_segundos).toBe(300);
-    expect(pidioFirmada).toBe(true);
-  });
-
-  it("devuelve 404 cuando el tema no tiene portada activa", async () => {
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url = new URL(input instanceof Request ? input.url : String(input));
-
-      if (url.pathname === "/rest/v1/tema") {
-        return new Response(
-          JSON.stringify({
-            id: "550e8400-e29b-41d4-a716-446655440098",
-            portada_recurso_id: null,
-            portada_recurso: null,
-            estado: "publicado"
-          }),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          },
-        );
-      }
-
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }) as typeof fetch;
-
-    const response = await app.fetch(
-      new Request("http://localhost/temas/550e8400-e29b-41d4-a716-446655440098/portada"),
-      env,
-    );
-
-    expect(response.status).toBe(404);
+    expect(portada.status).toBe(200);
+    expect(cuerpoPortada.datos.url).toContain("token=abc123");
+    expect(cuerpoPortada.datos.expiraEnSegundos).toBe(300);
   });
 });

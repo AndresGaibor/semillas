@@ -35,14 +35,14 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { crearModuloCatalogo } from "./modules/catalog/catalog.routes";
 import { crearModuloSendas } from "./modules/sendas/sendas.routes";
 import { themesRoutes } from "./modules/themes/themes.routes";
-import { usersRoutes } from "./modules/users/users.routes";
+import { crearModuloUsuarios } from "./modules/users/users.routes";
 import { progressRoutes } from "./modules/progress/progress.routes";
 import { activitiesRoutes } from "./modules/activities/activities.routes";
 import { adminRoutes } from "./modules/admin/admin.routes";
 import { clubsRoutes } from "./modules/clubs/clubs.routes";
 import { gamificationRoutes } from "./modules/gamification/gamification.routes";
 import { mediaRoutes } from "./modules/media/media.routes";
-import { syncRoutes } from "./modules/sync/sync.routes";
+import { crearModuloSync } from "./modules/sync/sync.routes";
 
 /**
  * Aplicación principal de Hono
@@ -184,14 +184,14 @@ app.route("/autenticacion", authRoutes);
 app.route("/catalogo", crearModuloCatalogo());
 app.route("/sendas", crearModuloSendas());
 app.route("/temas", themesRoutes);
-app.route("/perfil", usersRoutes);
+app.route("/perfil", crearModuloUsuarios());
 app.route("/progreso", progressRoutes);
 app.route("/actividades", activitiesRoutes);
 app.route("/administracion", adminRoutes);
 app.route("/clubes", clubsRoutes);
 app.route("/gamificacion", gamificationRoutes);
 app.route("/media", mediaRoutes);
-app.route("/sync", syncRoutes);
+app.route("/sync", crearModuloSync());
 
 /**
  * ============================================================

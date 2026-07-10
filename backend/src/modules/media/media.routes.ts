@@ -95,8 +95,7 @@ function validarUuid(id: string) {
   return UUID_REGEX.test(id);
 }
 
-// Seguridad deshabilitada temporalmente para pruebas
-mediaRoutes.post("/subir", async (c) => {
+mediaRoutes.post("/subir", authMiddleware, requireRole("administrador"), async (c) => {
   const db = c.get("db");
   const user = c.get("user");
 

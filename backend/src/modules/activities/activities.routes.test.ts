@@ -1,104 +1,128 @@
-import { afterEach, describe, expect, it } from "bun:test";
-import app from "../../app";
+import { describe, expect, it } from "bun:test";
+import { createMiddleware } from "hono/factory";
 import type { AppBindings } from "../../config/env";
-
-const env: AppBindings["Bindings"] = {
-  APP_ENV: "development",
-  CORS_ORIGIN: "http://localhost:3000",
-  SUPABASE_URL: "https://example.supabase.co",
-  SUPABASE_ANON_KEY: "test-anon-key",
-  SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
-  SUPABASE_PROJECT_REF: "test-project-ref"
-};
-
-const usuarioInvitado = {
-  id: "550e8400-e29b-41d4-a716-446655440010",
-  rol: "invitado",
-  proveedor: "invitado",
-  nombre_visible: "Semillero",
-  correo: null
-};
-
-const actividadId = "550e8400-e29b-41d4-a716-446655440020";
-const opcionId = "550e8400-e29b-41d4-a716-446655440030";
-
-const originalFetch = globalThis.fetch;
-
-afterEach(() => {
-  globalThis.fetch = originalFetch;
-});
+import type { DbClient } from "../../db/client";
+import { crearModuloActivities } from "./activities.routes";
 
 describe("activities.routes", () => {
-  it("restaura el upsert de progreso_tema_usuario al responder correctamente", async () => {
-    const solicitudes: Array<{ metodo: string; ruta: string }> = [];
+  it("registra progreso al responder correctamente", async () => {
+    const llamadas: string[] = [];
 
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-      const request = input instanceof Request ? input : new Request(String(input), init);
-      const url = new URL(request.url);
+    const dbMock = {
+      select(consulta?: Record<string, unknown>) {
+        return {
+          from() {
+            return {
+              where() {
+                return {
+                  limit: async () => {
+                    const columnas = Object.keys(consulta ?? {}).join(",");
+                    llamadas.push(`select:${columnas}`);
 
-      solicitudes.push({ metodo: request.method.toUpperCase(), ruta: url.pathname });
+                    if (columnas.includes("xpRecompensa")) {
+                      return [{ id: "act-1", temaId: "tema-1", xpRecompensa: 10 }];
+                    }
 
-      if (url.pathname.includes("/rest/v1/usuario_app")) {
-        return new Response(JSON.stringify(usuarioInvitado), {
-          status: 200,
-          headers: { "content-type": "application/json" }
-        });
-      }
+                    if (columnas.includes("correcta")) {
+                      return [{ id: "opc-1", correcta: true }];
+                    }
 
-      if (url.pathname.includes("/rest/v1/actividad") && request.method === "GET") {
-        return new Response(
-          JSON.stringify({
-            id: actividadId,
-            tema_id: "550e8400-e29b-41d4-a716-446655440040",
-            xp_recompensa: 10
-          }),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" }
+                    if (columnas.includes("actividadId") && columnas.includes("tipoActividadId")) {
+                      return [{
+                        id: "act-1",
+                        temaId: "tema-1",
+                        pasoId: null,
+                        grupoEdadId: "grupo-1",
+                        tipoActividadId: "tipo-1",
+                        titulo: "Actividad",
+                        consigna: "Contesta",
+                        orden: 1,
+                        xpRecompensa: 10,
+                        dificultad: "facil",
+                        limiteTiempoSeg: null,
+                        obligatorio: true,
+                        retroalimentacion: null,
+                        configuracion: {},
+                        creadoEn: new Date(),
+                        actualizadoEn: new Date()
+                      }];
+                    }
+
+                    return [
+                      {
+                        id: "act-1",
+                        temaId: "tema-1",
+                        pasoId: null,
+                        grupoEdadId: "grupo-1",
+                        tipoActividadId: "tipo-1",
+                        titulo: "Actividad",
+                        consigna: "Contesta",
+                        orden: 1,
+                        xpRecompensa: 10,
+                        dificultad: "facil",
+                        limiteTiempoSeg: null,
+                        obligatorio: true,
+                        retroalimentacion: null,
+                        configuracion: {},
+                        creadoEn: new Date(),
+                        actualizadoEn: new Date()
+                      }
+                    ];
+                  },
+                  orderBy: async () => []
+                };
+              },
+              orderBy: async () => []
+            };
           }
-        );
-      }
-
-      if (url.pathname.includes("/rest/v1/opcion_actividad")) {
-        return new Response(
-          JSON.stringify({
-            id: opcionId,
-            correcta: true
-          }),
-          {
-            status: 200,
-            headers: { "content-type": "application/json" }
+        };
+      },
+      insert() {
+        return {
+          values() {
+            return {
+              onConflictDoNothing() {
+                llamadas.push("insert:evento");
+                return {
+                  returning: async () => [{ id: "evento-1" }]
+                };
+              },
+              onConflictDoUpdate() {
+                llamadas.push("upsert:progreso");
+                return Promise.resolve(undefined);
+              }
+            };
           }
-        );
+        };
       }
+    } as unknown as DbClient;
 
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { "content-type": "application/json" }
+    const authStub = createMiddleware<AppBindings>(async (c, next) => {
+      c.set("user", {
+        id: "usuario-1",
+        role: "invitado",
+        displayName: "Semillero",
+        email: null,
+        provider: "invitado"
       });
-    }) as typeof fetch;
+
+      await next();
+    });
+
+    const app = crearModuloActivities({ db: dbMock, authMiddleware: authStub });
 
     const response = await app.fetch(
-      new Request(`http://localhost/actividades/${actividadId}/responder`, {
+      new Request("http://localhost/act-1/responder", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-guest-user-id": usuarioInvitado.id
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           evento_id_cliente: "550e8400-e29b-41d4-a716-446655440000",
-          opcion_id_seleccionada: opcionId
+          opcion_id_seleccionada: "550e8400-e29b-41d4-a716-446655440030"
         })
-      }),
-      env
+      })
     );
 
     expect(response.status).toBe(201);
-    expect(solicitudes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ ruta: "/rest/v1/progreso_actividad_usuario", metodo: "POST" }),
-        expect.objectContaining({ ruta: "/rest/v1/progreso_tema_usuario", metodo: "POST" })
-      ])
-    );
+    expect(llamadas).toEqual(expect.arrayContaining(["insert:evento", "upsert:progreso"]));
   });
 });
