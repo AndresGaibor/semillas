@@ -71,20 +71,20 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
       <Button
         type="button"
         variant="ghost"
-        className="flex h-auto items-center gap-3 border-l border-[#e5e7eb] pl-5 text-left hover:bg-transparent cursor-pointer"
+        className="flex min-h-11 items-center gap-2 rounded-full border-0 p-1 text-left hover:bg-slate-100 sm:gap-3 md:rounded-none md:border-l md:border-[#e5e7eb] md:pl-5 md:pr-0 md:hover:bg-transparent"
         aria-label="Abrir menú de cuenta"
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={toggleMenu}
       >
-        <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primario bg-orange-200">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-primario bg-orange-200">
           <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
         </div>
-        <div className="flex flex-col text-left max-sm:hidden">
+        <div className="hidden flex-col text-left md:flex">
           <span className="text-[13.6px] font-bold text-foreground">{nombreVisible}</span>
           <span className="text-xs text-neutro">{nivelTexto}</span>
         </div>
-        <i className="fa-solid fa-chevron-down ml-2 text-xs text-neutro"></i>
+        <i className="fa-solid fa-chevron-down ml-1 hidden text-xs text-neutro md:block"></i>
       </Button>
  
       {isRendered && (
@@ -92,7 +92,7 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
           role="menu"
           aria-label="Menú de cuenta"
           sombra="lg"
-          className={`absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-2xl border border-[#e5e7eb] p-2 transition-all duration-200 ease-out motion-reduce:transition-none before:content-[''] before:absolute before:-top-1.5 before:right-6 before:w-3 before:h-3 before:bg-white before:rotate-45 before:border-l before:border-t before:border-[#e5e7eb] ${
+          className={`absolute right-0 top-full z-[160] mt-2 w-56 origin-top-right rounded-2xl border border-[#e5e7eb] p-2 transition-all duration-200 ease-out motion-reduce:transition-none before:content-[''] before:absolute before:-top-1.5 before:right-6 before:w-3 before:h-3 before:bg-white before:rotate-45 before:border-l before:border-t before:border-[#e5e7eb] ${
             isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-1 scale-95 opacity-0"
           }`}
         >

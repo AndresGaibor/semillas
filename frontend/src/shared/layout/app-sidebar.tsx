@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 
-import { Boton } from "@/componentes/ui/boton";
 import { Button } from "@/componentes/ui/button";
 import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
@@ -57,19 +56,31 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout, v
 
   return (
     <>
-      <div
-        className={`fixed inset-0 z-[100] bg-black/45 transition-opacity duration-300 ease-out motion-reduce:transition-none md:hidden ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+      <button
+        type="button"
+        aria-label="Cerrar menú principal"
+        className={`fixed inset-0 z-[100] border-0 bg-black/45 p-0 transition-opacity duration-300 ease-out motion-reduce:transition-none md:hidden ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
         onClick={onClose}
       />
 
       <aside
-        className={`fixed left-0 top-0 z-[110] hidden h-screen w-[260px] max-w-[82vw] flex-col border-r border-[#e5e7eb] bg-slate-50 px-4 py-5 shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:flex md:w-[248px] md:translate-x-0 md:opacity-100 md:px-4 md:py-5 ${
+        className={`fixed left-0 top-0 z-[110] flex h-[100dvh] w-[280px] max-w-[82vw] flex-col border-r border-[#e5e7eb] overflow-y-auto overscroll-contain bg-slate-50 px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+1.25rem)] shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:flex md:w-[248px] md:translate-x-0 md:opacity-100 md:px-4 md:py-5 ${
           isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 md:translate-x-0 md:opacity-100"
         }`}
       >
         <div className="flex items-center gap-2.5 py-1">
           <img src={logoImg} alt="Semillas Logo" className="h-9 md:h-10" />
           <span className="text-[1.45rem] font-black leading-none text-primario md:text-[1.55rem]">Semillas</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="ml-auto rounded-full md:hidden"
+            aria-label="Cerrar menú"
+            onClick={onClose}
+          >
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </Button>
         </div>
 
         <div className="mb-5 ml-[48px] max-w-[150px] text-[10px] font-semibold leading-snug text-neutro md:mb-6 md:ml-[50px] md:text-[11px]">Crecer en la Palabra, vivir su verdad</div>
@@ -83,7 +94,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout, v
                   key={item.to}
                   to={item.to as any}
                   onClick={onClose}
-                  className={`flex h-10 items-center gap-3 rounded-xl px-3.5 text-[13px] font-semibold text-neutro transition-all hover:bg-black/5 hover:text-neutro-oscuro-max ${
+                  className={`flex min-h-12 items-center gap-3 rounded-xl px-3.5 text-[13px] font-semibold text-neutro transition-all hover:bg-black/5 hover:text-neutro-oscuro-max ${
                     item.match(activePage) ? "bg-primario-palido text-primario hover:bg-primario-palido hover:text-primario" : ""
                   }`}
                 >
@@ -102,9 +113,7 @@ export function AppSidebar({ activePage, isOffline, isOpen, onClose, onLogout, v
                 <i className="fa-solid fa-circle-check text-primario"></i> Estás sin conexión
               </div>
               <p className="mb-2.5 text-[11px] leading-normal text-neutro">Tu progreso se sincronizará cuando vuelva internet.</p>
-              <Boton variante="exito" tamano="pequeno" anchoCompleto className="shadow-none">
-                Ver estado
-              </Boton>
+              <p className="text-[10px] font-bold text-primario">Sincronización automática activada</p>
             </Card>
           )}
 

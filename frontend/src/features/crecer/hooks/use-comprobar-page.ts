@@ -56,19 +56,17 @@ export function useComprobarPage({ themeId }: { themeId: string }) {
     }
   }, [isLoading, isError, temaDbId, pasoActual, eventMutation]);
 
-  const handleSelectOption = (actividadId: string, _opcionId: string, esCorrecta: boolean, xpRecompensa?: number) => {
-    playSound(esCorrecta ? 'acertado' : 'error');
+  const handleLegacyComplete = (actividadId: string) => {
+    playSound("insignia");
 
     if (temaDbId) {
       const evento: EventoProgreso = {
         evento_id_cliente: crypto.randomUUID(),
-        tipo_evento: "actividad_respondida",
+        tipo_evento: "actividad_completada",
         tema_id: temaDbId,
         actividad_id: actividadId,
-        correcta: esCorrecta,
-        puntaje: esCorrecta ? 100 : 0,
-        xp_otorgada: esCorrecta && xpRecompensa ? xpRecompensa : 0,
-        ocurrido_en_cliente: new Date().toISOString()
+        ocurrido_en_cliente: new Date().toISOString(),
+        datos: { origen: "juego_configuracion_cliente" }
       };
       eventMutation.mutate([evento]);
     }
@@ -90,6 +88,6 @@ export function useComprobarPage({ themeId }: { themeId: string }) {
     isLoading,
     isError,
     botonesAccion,
-    handleSelectOption,
+    handleLegacyComplete,
   };
 }

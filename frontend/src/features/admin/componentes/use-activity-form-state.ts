@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { obtenerActividad } from "../../activities/activities.api";
 import { obtenerGruposEdad } from "../../catalog/catalog.api";
 import { obtenerActividades } from "../../themes/themes.api";
-import { obtenerPasosAdmin } from "../admin.api";
+import { obtenerActividadAdmin, obtenerPasosAdmin } from "../admin.api";
 import { obtenerTiposActividad } from "../../catalog/catalog.api";
 import type { Actividad, Paso } from "@/shared/api/api";
+import type { ActividadAdmin } from "../admin.api";
 
 export interface Opcion {
   etiqueta: string;
@@ -50,7 +50,7 @@ interface UseActivityFormStateReturn {
   setOptions: React.Dispatch<React.SetStateAction<Opcion[]>>;
   resetForm: () => void;
   ageGroupsQuery: ReturnType<typeof useQuery<Array<{ id: string; nombre?: string | null }>, Error, Array<{ id: string; nombre?: string | null }>, ["catalog", "age-groups"]>>;
-  activityToEditQuery: ReturnType<typeof useQuery<ActividadParaEditar, Error, ActividadParaEditar, ["admin", "activity", string | undefined]>>;
+  activityToEditQuery: ReturnType<typeof useQuery<ActividadAdmin, Error, ActividadAdmin, ["admin", "activity", string | undefined]>>;
   activitiesQuery: ReturnType<typeof useQuery<Actividad[], Error, Actividad[], ["admin", "theme", string, "activities", string]>>;
   stepsQuery: ReturnType<typeof useQuery<Paso[], Error, Paso[], ["admin", "theme", string, "steps"]>>;
   activityTypesQuery: ReturnType<typeof useQuery<Array<{ id: string; nombre?: string | null }>, Error, Array<{ id: string; nombre?: string | null }>, ["catalog", "activity-types"]>>;
@@ -84,7 +84,7 @@ export function useActivityFormState({
 
   const activityToEditQuery = useQuery({
     queryKey: ["admin", "activity", actividadId],
-    queryFn: () => obtenerActividad(actividadId!),
+    queryFn: () => obtenerActividadAdmin(actividadId!),
     enabled: !!actividadId,
   });
 
@@ -101,7 +101,7 @@ export function useActivityFormState({
         setOptions(act.opciones.map((opt, idx) => ({
           etiqueta: opt.etiqueta || String.fromCharCode(65 + idx),
           texto: opt.texto || "",
-          correcta: opt.correcta || false,
+          correcta: opt.correcta ?? false,
           orden: idx + 1
         })));
       }

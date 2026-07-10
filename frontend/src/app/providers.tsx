@@ -22,7 +22,7 @@ async function vincularCuentaPendiente() {
   }
 
   await reclamarCuentaInvitada();
-  sessionStorageApi.clearGuestUserId();
+  sessionStorageApi.clearGuestSession();
   await queryClient.invalidateQueries();
 }
 

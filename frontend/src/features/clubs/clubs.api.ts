@@ -4,78 +4,82 @@ export type Club = {
   id: string;
   nombre: string;
   descripcion: string | null;
-  codigo_acceso: string;
-  creador_id: string;
+  codigo_invitacion: string;
+  creado_por: string;
+  activo: boolean;
   creado_en: string;
+  member_count?: number;
 };
 
-export type MiembroClub = {
+export type ClubPublico = Omit<Club, "codigo_invitacion">;
+
+export type MiembroRankingClub = {
+  club_id: string;
   usuario_id: string;
   apodo: string;
-  url_avatar: string | null;
-  xp_aportada: number;
-  rango: string;
+  numero_ranking: number;
+  xp_total: number;
 };
 
 export type RetoCooperativo = {
   id: string;
-  club_id: string;
-  titulo: string;
-  meta_xp: number;
-  xp_acumulada: number;
-  activo: boolean;
-  finaliza_en: string;
+  club_id: string | null;
+  nombre: string;
+  descripcion: string | null;
+  codigo_metrica: string;
+  valor_objetivo: number;
+  xp_reto: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  creado_por: string | null;
+  creado_en: string;
 };
 
-/**
- * Crea un nuevo club de aprendizaje (clubes lúdicos moderados para menores).
- * 
- * HTTP Verb: POST
- * Endpoint: /clubes
- * Auth: Requerido (rol admin/moderador o usuario)
- */
+export function listarClubes() {
+  return peticion<ClubPublico[]>(RUTAS_API.CLUBES.LISTAR);
+}
+
+export function listarMisClubes() {
+  return peticion<Club[]>(RUTAS_API.CLUBES.MIOS);
+}
+
 export function crearClub(datos: { nombre: string; descripcion?: string }) {
-  return peticion<Club>(RUTAS_API.CLUBES.CREAR, {
-    metodo: "POST",
-    cuerpo: datos,
-  });
+  return peticion<Club>(RUTAS_API.CLUBES.CREAR, { metodo: "POST", cuerpo: datos });
 }
 
-/**
- * Permite a un menor unirse a un club existente ingresando un código de acceso único.
- * 
- * HTTP Verb: POST
- * Endpoint: /clubes/unirse
- * Auth: Requerido
- */
 export function unirseAClub(datos: { codigo_acceso: string }) {
-  return peticion<{ club: Club; exito: boolean }>(RUTAS_API.CLUBES.UNIRSE, {
+  return peticion<{ unido: boolean; ya_era_miembro: boolean; club: Club }>(RUTAS_API.CLUBES.UNIRSE, {
     metodo: "POST",
-    cuerpo: datos,
+    cuerpo: datos
   });
 }
 
-/**
- * Obtiene la clasificación y ranking de XP de los miembros pertenecientes a un club.
- * 
- * HTTP Verb: GET
- * Endpoint: /clubes/:id/clasificacion
- * Auth: Requerido
- */
-export function obtenerClasificacionClub(idClub: string) {
-  return peticion<MiembroClub[]>(RUTAS_API.CLUBES.CLASIFICACION(idClub));
+export function salirDeClub(idClub: string) {
+  return peticion<{ left: true }>(RUTAS_API.CLUBES.SALIR(idClub), { metodo: "POST" });
 }
 
-/**
- * Crea o aporta a un reto cooperativo conjunto dentro del club.
- * 
- * HTTP Verb: POST
- * Endpoint: /clubes/:id/retos
- * Auth: Requerido
- */
-export function crearRetoCooperativo(idClub: string, datos: { titulo: string; meta_xp: number; finaliza_en: string }) {
+export function obtenerRankingClub(idClub: string) {
+  return peticion<MiembroRankingClub[]>(RUTAS_API.CLUBES.RANKING(idClub));
+}
+
+export function listarRetosClub(idClub: string) {
+  return peticion<RetoCooperativo[]>(RUTAS_API.CLUBES.RETOS(idClub));
+}
+
+export function crearRetoCooperativo(
+  idClub: string,
+  datos: {
+    nombre: string;
+    descripcion?: string;
+    codigo_metrica: string;
+    valor_objetivo: number;
+    xp_reto?: number;
+    fecha_inicio: string;
+    fecha_fin: string;
+  }
+) {
   return peticion<RetoCooperativo>(RUTAS_API.CLUBES.RETOS(idClub), {
     metodo: "POST",
-    cuerpo: datos,
+    cuerpo: { xp_reto: 100, ...datos }
   });
 }

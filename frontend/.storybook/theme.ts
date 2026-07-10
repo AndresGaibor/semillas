@@ -1,10 +1,9 @@
-import { create } from "@storybook/theming/create";
+import { create } from "storybook/theming/create";
 
 export default create({
   base: "light",
   brandTitle: "🌱 Semillas - Sistema de Diseño",
-  brandUrl: "https://semillas.org",
-  brandImage: "https://api.dicebear.com/6.x/avataaars/svg?seed=SemillasLogo", // Placeholder amigable para el logo
+  brandUrl: "/",
   brandTarget: "_self",
 
   // Colores principales de Semillas

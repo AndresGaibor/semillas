@@ -2,7 +2,7 @@ import arkImg from "@/assets/images/Ilustraciones/Tema1.png";
 import prayerImg from "@/assets/images/Ilustraciones/Versiculo del dia.png";
 import davidImg from "@/assets/images/Ilustraciones/Exploradores.png";
 import mazeImg from "@/assets/images/Ilustraciones/Tema3.png";
-import jesusKidsImg from "@/assets/images/Ilustraciones/Ninños 2.png";
+import jesusKidsImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 import versesImg from "@/assets/images/Ilustraciones/Tema4.png";
 
 export type TipoRecurso = "Historia" | "Actividad" | "Imprimible" | "Canción";

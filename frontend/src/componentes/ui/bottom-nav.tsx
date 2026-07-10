@@ -21,7 +21,7 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
   clase,
 }) => {
   return (
-    <div className={unirClases("flex items-center justify-around bg-white border-t border-gray-100 py-2.5 px-4 shadow-md w-full", clase)}>
+    <div className={unirClases("bottom-nav", clase)}>
       {opciones.map((op) => {
         const esActivo = op.id === activo;
         return (
@@ -29,27 +29,26 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
             key={op.id}
             type="button"
             onClick={() => onCambiar(op.id)}
-            className="flex flex-col items-center gap-1 focus:outline-none group relative"
+            className={unirClases("bottom-nav__item", esActivo && "bottom-nav__item--active")}
+            aria-current={esActivo ? "page" : undefined}
           >
             <span
               className={unirClases(
-                "transition-all duration-200",
-                esActivo ? "text-[#6C3AED] scale-110" : "text-gray-400 group-hover:text-gray-600"
+                "bottom-nav__icon",
+                esActivo ? "text-[#6C3AED]" : "text-slate-400"
               )}
             >
               {op.icono}
             </span>
             <span
               className={unirClases(
-                "text-[10px] font-bold transition-colors duration-200",
-                esActivo ? "text-[#6C3AED]" : "text-gray-400 group-hover:text-gray-600"
+                "bottom-nav__label",
+                esActivo ? "text-[#6C3AED]" : "text-slate-400"
               )}
             >
               {op.etiqueta}
             </span>
-            {esActivo && (
-              <span className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#6C3AED] rounded-t-full" />
-            )}
+
           </button>
         );
       })}

@@ -13,7 +13,7 @@ export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormN
       <Boton
         variante="secundario"
         onClick={onBack}
-        clase="bg-transparent border-[1.5px] border-[#9E9E9E] text-[#2E2E2E] px-6 py-3 rounded-lg font-bold text-base"
+        clase="onboarding-actions__secondary bg-transparent border-[1.5px] border-[#9E9E9E] text-[#2E2E2E] px-6 py-3 rounded-lg font-bold text-base"
       >
         ← Atrás
       </Boton>
@@ -22,7 +22,7 @@ export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormN
         onClick={onFinish}
         disabled={!isEnabled}
         cargando={isLoading}
-        clase="px-8 py-3 rounded-lg font-bold text-base"
+        clase="onboarding-actions__primary px-8 py-3 rounded-lg font-bold text-base"
       >
         {isLoading ? "Finalizando..." : "Finalizar →"}
       </Boton>

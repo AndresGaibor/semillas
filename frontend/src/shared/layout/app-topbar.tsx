@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/componentes/ui/button";
-import { CampoBusqueda } from "@/componentes/ui/campo-busqueda";
 import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/profile/profile.api";
 
@@ -9,7 +8,7 @@ import { MAPA_AVATARES } from "@/shared/constants/avatares";
 
 type AppTopbarProps = {
   title: string;
-  subtitle: string; // Keep for compatibility, though not used in new design
+  subtitle: string;
   onOpenSidebar: () => void;
   onLogout: () => void;
   showMenuButton?: boolean;
@@ -24,60 +23,52 @@ export function obtenerDatosCuentaTopbar(perfil?: Perfil, usuario?: Usuario) {
   return { nombre, nivelTexto, avatarUrl };
 }
 
-export function AppTopbar({ title, onOpenSidebar, onLogout, showMenuButton = true }: AppTopbarProps) {
+export function AppTopbar({
+  title,
+  subtitle,
+  onOpenSidebar,
+  onLogout,
+  showMenuButton = true,
+}: AppTopbarProps) {
   const meQuery = useQuery({
     queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
 
-  const perfil = meQuery.data?.perfil;
-  const usuario = meQuery.data?.usuario;
-  const cuenta = obtenerDatosCuentaTopbar(perfil, usuario);
+  const cuenta = obtenerDatosCuentaTopbar(meQuery.data?.perfil, meQuery.data?.usuario);
 
   return (
-    <header className="mb-5 flex items-center justify-between gap-4 max-sm:flex-wrap">
+    <header className="app-topbar">
       {showMenuButton ? (
         <Button
           type="button"
           variant="ghost"
-          size="icon-responsive"
-          className="hidden text-lg text-neutro hover:text-neutro-oscuro-max md:hidden max-md:flex shrink-0"
-          aria-label="Abrir menú"
+          size="icon-lg"
+          className="app-topbar__menu"
+          aria-label="Abrir menú principal"
           onClick={onOpenSidebar}
         >
-          <i className="fa-solid fa-bars"></i>
+          <i className="fa-solid fa-bars" aria-hidden="true" />
         </Button>
-      ) : null}
+      ) : (
+        <span className="app-topbar__mobile-spacer" aria-hidden="true" />
+      )}
 
-      <div className="flex items-center gap-3 text-left">
-        <span className="text-3xl leading-none">🌱</span>
-        <h1 className="text-xl font-black leading-tight tracking-tight text-slate-800 sm:text-2xl md:text-4xl">{title}</h1>
-      </div>
-
-      <div className="mx-0 hidden max-w-[460px] flex-1 sm:mx-6 sm:block max-md:order-3 max-md:w-full">
-        <div className="relative w-full">
-          <CampoBusqueda
-            valor=""
-            onChange={() => undefined}
-            placeholder="Buscar..."
-            contenedorClassName="w-full"
-            inputClassName="rounded-full py-2.5 pl-11 pr-10 text-xs font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400 focus:border-[#2E9E5B] focus:ring-2 focus:ring-[#2E9E5B]/20 sm:pr-12"
-          />
-          <div className="absolute right-3 top-1/2 hidden h-6 -translate-y-1/2 items-center justify-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 px-2 text-[10px] font-bold text-slate-400 select-none sm:flex">
-            <span className="text-[11px] font-medium font-sans">⌘</span>K
-          </div>
+      <div className="app-topbar__heading">
+        <span className="app-topbar__seed" aria-hidden="true">🌱</span>
+        <div className="min-w-0">
+          <h1 className="app-topbar__title">{title}</h1>
+          {subtitle ? <p className="app-topbar__subtitle">{subtitle}</p> : null}
         </div>
       </div>
 
-      <div className="ml-auto hidden shrink-0 items-center gap-3 md:ml-0 sm:gap-4 md:flex">
-        <Button type="button" variant="ghost" size="icon-responsive" className="relative text-lg text-slate-600 hover:text-slate-900 cursor-pointer sm:text-xl" aria-label="Notificaciones">
-          <i className="fa-regular fa-bell"></i>
-          <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-slate-50 bg-red-500 text-[9px] font-bold text-white">
-            3
-          </span>
-        </Button>
-
-        <AppAccountMenu nombreVisible={cuenta.nombre} nivelTexto={cuenta.nivelTexto} avatarUrl={cuenta.avatarUrl} onLogout={onLogout} />
+      <div className="app-topbar__account">
+        <AppAccountMenu
+          nombreVisible={cuenta.nombre}
+          nivelTexto={cuenta.nivelTexto}
+          avatarUrl={cuenta.avatarUrl}
+          onLogout={onLogout}
+        />
       </div>
     </header>
   );

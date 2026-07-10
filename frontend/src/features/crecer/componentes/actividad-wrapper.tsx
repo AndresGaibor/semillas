@@ -6,6 +6,7 @@ import { ManualidadActividad } from "../../../componentes/actividades/Manualidad
 import { Flashcards } from "../../../componentes/actividades/Flashcards";
 import { SopaLetrasActividad } from "../../../componentes/actividades/SopaLetrasActividad";
 import { Rompecabezas } from "../../../componentes/actividades/Rompecabezas";
+import { OpcionMultipleServidor } from "./opcion-multiple-servidor";
 
 interface ActividadCardProps {
   actividad: Actividad;
@@ -49,6 +50,12 @@ interface InnerActividadProps {
 
 function InnerActividad({ actividad, onComplete }: InnerActividadProps) {
   const { tipo_actividad } = actividad;
+
+  // Las actividades con opciones se verifican siempre en el backend. Así la
+  // respuesta correcta y el XP nunca dependen de datos enviados al navegador.
+  if (actividad.opciones.length > 0) {
+    return <OpcionMultipleServidor actividad={actividad} />;
+  }
 
   if (tipo_actividad?.codigo === "cuestionario") {
     return (

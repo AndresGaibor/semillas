@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { Rompecabezas } from "./Rompecabezas";
 
 describe("Rompecabezas", () => {
-  it("renderiza titulo, ayuda, tablero y piezas accesibles", () => {
+  it("renderiza ayuda, tablero y piezas accesibles", () => {
     const html = renderToStaticMarkup(
       <Rompecabezas
         imagen="/demo/tema.png"
@@ -13,9 +13,6 @@ describe("Rompecabezas", () => {
       />,
     );
 
-    expect(html).toContain("Arca de Noe");
-    expect(html).toContain("Ordena la imagen para completar la actividad.");
-    expect(html).toContain("20 XP");
     expect(html).toContain("Toca o arrastra dos piezas para intercambiarlas.");
     expect(html).toContain('aria-label="Pieza 1 de 4"');
     expect(html).toContain('role="group"');

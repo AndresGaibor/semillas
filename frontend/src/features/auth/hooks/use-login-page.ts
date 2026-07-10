@@ -20,6 +20,7 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
     mutationFn: crearSesionInvitado,
     onSuccess(data) {
       sessionStorageApi.setGuestUserId(data.autenticacion.valor);
+      sessionStorageApi.setGuestToken(data.autenticacion.token);
       navigate({ to: "/onboarding" });
     },
   });
@@ -32,7 +33,7 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
     await sincronizarSesionAutenticada();
     if (sessionStorageApi.getGuestUserId()) {
       await reclamarCuentaInvitada().catch(() => undefined);
-      sessionStorageApi.clearGuestUserId();
+      sessionStorageApi.clearGuestSession();
     }
     const perfilRespuesta = await obtenerMiPerfil();
     const rutaPostLogin = obtenerRutaPostLogin(perfilRespuesta.perfil, perfilRespuesta.usuario);

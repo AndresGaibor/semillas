@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useRef, type ChangeEvent } from "react";
 import { obtenerRecursosMultimedia, eliminarRecursoMultimedia, subirArchivo } from "../../media/media.api";
 import type { TipoMedia } from "../componentes/admin-media-type-tabs";
-import type { MediaCardItem } from "../__mocks__/medios.mock";
+import type { MediaCardItem } from "../admin-media.types";
 
 interface UseAdminMediaPageReturn {
   selectedId: string;
@@ -50,44 +50,46 @@ export function useAdminMediaPage(): UseAdminMediaPageReturn {
   });
 
   const mappedMedia = useMemo(() => {
-    const dbAssets = mediaQuery.data ?? [];
-
-    if (!dbAssets.length) {
-      return [];
-    }
-
-    return dbAssets.map((asset, index) => {
-      const format = asset.tipo_mime?.split("/")[1]?.toUpperCase() ?? "JPG";
-      const sizeMB = (asset.tamano_bytes / (1024 * 1024)).toFixed(1) + " MB";
-      const imgUrl = asset.url_publica || "";
-      const fecha = new Date(asset.creado_en).toLocaleDateString("es-EC", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
+    return (mediaQuery.data ?? []).map((asset) => {
+      const formato = asset.tipo_mime?.split("/")[1]?.toUpperCase() ?? "DESCONOCIDO";
+      const tamano = asset.tamano_bytes >= 1024 * 1024
+        ? `${(asset.tamano_bytes / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.max(1, Math.round(asset.tamano_bytes / 1024))} KB`;
+      const fechaDate = new Date(asset.creado_en);
+      const fechaTimestamp = Number.isNaN(fechaDate.getTime()) ? 0 : fechaDate.getTime();
+      const fechaSubido = fechaTimestamp
+        ? fechaDate.toLocaleString("es-EC", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Fecha no disponible";
 
       return {
         id: asset.id,
-        nombre: asset.titulo || `recurso_multimedia_${index + 1}.${format.toLowerCase()}`,
-        tipo: asset.tipo as "imagen" | "audio" | "video" | "documento",
+        nombre: asset.titulo || `recurso-${asset.id}`,
+        tipo: asset.tipo,
         tipoLabel: asset.tipo.charAt(0).toUpperCase() + asset.tipo.slice(1),
-        imgUrl,
-        usadoEnCount: 2 + (index % 4),
-        carpeta: asset.tipo === "documento" ? "Documentos" : "Ilustraciones",
-        subidoPor: "Ana Torres",
-        fechaSubido: fecha,
-        tamano: sizeMB,
-        formato: format,
-        resolucion: "1920 x 1080",
-        dimensiones: "16:9",
-        altText: asset.texto_alternativo || "Recurso multimedia de Semillas.",
-        etiquetas: ["creación", "aprendizaje", "multimedia"],
+        imgUrl: asset.url_publica,
+        usadoEnCount: null,
+        carpeta: asset.tipo === "imagen" ? "Ilustraciones" : asset.tipo === "audio" ? "Audios" : asset.tipo === "video" ? "Videos" : "Documentos",
+        subidoPor: asset.creado_por,
+        fechaSubido,
+        fechaTimestamp,
+        tamano,
+        formato,
+        resolucion: "No disponible",
+        dimensiones: "No disponible",
+        altText: asset.texto_alternativo || "Sin texto alternativo definido.",
+        etiquetas: [] as string[],
       } satisfies MediaCardItem;
     });
   }, [mediaQuery.data]);
 
   const filteredMedia = useMemo(() => {
-    return mappedMedia.filter((item) => {
+    const filtrados = mappedMedia.filter((item) => {
       if (activeTab && item.tipo !== activeTab) return false;
       if (
         searchValue &&
@@ -99,7 +101,11 @@ export function useAdminMediaPage(): UseAdminMediaPageReturn {
       if (selectedFolder && item.carpeta !== selectedFolder) return false;
       return true;
     });
-  }, [mappedMedia, activeTab, searchValue, selectedFolder]);
+
+    return [...filtrados].sort((a, b) => selectedSort === "antiguos"
+      ? a.fechaTimestamp - b.fechaTimestamp
+      : b.fechaTimestamp - a.fechaTimestamp);
+  }, [mappedMedia, activeTab, searchValue, selectedFolder, selectedSort]);
 
   const paginatedItems = useMemo(() => {
     const inicio = (paginaActual - 1) * porPagina;
@@ -135,7 +141,7 @@ export function useAdminMediaPage(): UseAdminMediaPageReturn {
 
     setIsUploading(true);
     try {
-      const recurso = await subirArchivo(archivo, tipo, archivo.name);
+      const recurso = await subirArchivo(archivo, tipo);
       queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
       setActiveTab(recurso.tipo as TipoMedia);
       setSelectedId(recurso.id);

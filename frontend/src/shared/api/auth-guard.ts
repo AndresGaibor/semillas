@@ -1,8 +1,9 @@
 import { sessionStorageApi } from "./session";
 
 export function hasSession() {
-  return Boolean(
-    sessionStorageApi.getGuestUserId() ||
-    sessionStorageApi.getAccessToken()
+  const guestCompleto = Boolean(
+    sessionStorageApi.getGuestUserId() && sessionStorageApi.getGuestToken()
   );
+
+  return guestCompleto || Boolean(sessionStorageApi.getAccessToken());
 }

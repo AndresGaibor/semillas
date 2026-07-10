@@ -38,9 +38,9 @@ export function useAppHomePage() {
   const diasRacha = 0;
 
   const insignias = useMemo(() => {
-    const logros = (gamificationQuery.data?.logros as Array<{ id: string; logro?: { codigo: string; nombre?: string } }>) || [];
+    const logros = gamificationQuery.data?.logros ?? [];
     return logros.map((l) => ({
-      id: l.id,
+      id: l.logro_id,
       nombre: l.logro?.nombre || "Insignia",
       imagenUrl: l.logro?.codigo === "primera_leccion" ? in1Img : in2Img,
     }));

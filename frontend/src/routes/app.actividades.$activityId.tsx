@@ -44,7 +44,7 @@ function ActivityPage() {
           {activity?.opciones?.map((option) => {
             const isSelected = selected === option.id;
             const isAnswered = !!result;
-            const isCorrectOption = option.correcta;
+            const isCorrectOption = result?.resultado.opcion_correcta_id === option.id;
 
             let bg = "bg-[#f7f4ec] hover:bg-[#e8e5dd]";
             if (isAnswered && isCorrectOption) bg = "bg-[#2e9e5b]/10 border-[#2e9e5b]";
@@ -88,7 +88,8 @@ function ActivityPage() {
               </strong>
             </div>
             <p className="text-sm text-[#123b2c]/60">
-              {result.resultado.correcta ? `Ganaste ${result.resultado.xp_otorgada} XP` : "Sigue practicando"}
+              {result.resultado.retroalimentacion
+                ?? (result.resultado.correcta ? `Ganaste ${result.resultado.xp_otorgada} XP` : "Sigue practicando")}
             </p>
           </div>
         )}

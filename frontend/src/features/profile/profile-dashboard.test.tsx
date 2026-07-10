@@ -22,7 +22,7 @@ describe("ProfileDashboard", () => {
           url_avatar: null,
           clave_avatar: null,
           prefiere_audio: true,
-          tamano_texto_preferido: "medium",
+          tamano_texto_preferido: "mediano",
         }}
         gamificacion={{
           nivel: {
@@ -107,7 +107,7 @@ describe("ProfileDashboard", () => {
           url_avatar: null,
           clave_avatar: null,
           prefiere_audio: false,
-          tamano_texto_preferido: "medium",
+          tamano_texto_preferido: "mediano",
         }}
         gamificacion={{ nivel: null, logros: [] }}
         progreso={{ progresos_tema: [], progresos_actividad: [] }}

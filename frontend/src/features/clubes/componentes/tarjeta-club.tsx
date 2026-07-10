@@ -1,7 +1,7 @@
 import { Copy, UserPlus, Share2, Shield, Edit2, Check } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
 import { Boton } from "@/componentes/ui/boton";
-import bannerKidsImg from "@/assets/images/Ilustraciones/Ninños 2.png";
+import bannerKidsImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 
 type PropsTarjetaClub = {
   nombre: string;
@@ -11,7 +11,7 @@ type PropsTarjetaClub = {
   onCopiarCodigo: () => void;
   onCompartirCodigo: () => void;
   onInvitar: () => void;
-  onEditar: () => void;
+  onEditar?: () => void;
   copiado: boolean;
 };
 
@@ -27,58 +27,65 @@ export function TarjetaClub({
   copiado,
 }: PropsTarjetaClub) {
   return (
-    <Card sombra="sm" className="p-6 relative overflow-hidden">
-      <div className="flex flex-col md:flex-row items-center gap-6">
-        <div className="w-full md:w-[42%] h-48 rounded-2xl overflow-hidden bg-crema relative flex items-center justify-center flex-shrink-0">
-          <img src={bannerKidsImg} alt={nombre} className="h-full object-cover" />
+    <Card sombra="sm" className="overflow-hidden p-4 sm:p-6">
+      <div className="flex flex-col items-stretch gap-5 md:flex-row md:items-center md:gap-6">
+        <div className="relative flex h-40 w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-crema sm:h-48 md:w-[42%]">
+          <img src={bannerKidsImg} alt={nombre} className="h-full w-full object-cover" />
         </div>
 
-        <div className="flex-1 text-left flex flex-col justify-center w-full">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <h2 className="text-2xl font-black text-indigo-950">{nombre}</h2>
-            <Boton
-              variante="texto"
-              tamano="iconoPequeno"
-              onClick={onEditar}
-              className="!p-1 hover:!bg-slate-100 !rounded-full !text-slate-400 hover:!text-slate-600"
-            >
-              <Edit2 size={16} />
-            </Boton>
+        <div className="flex min-w-0 flex-1 flex-col justify-center text-left">
+          <div className="mb-1.5 flex min-w-0 items-center gap-2.5">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violeta-oscuro text-white lg:hidden" aria-hidden="true">
+              <Shield size={20} className="fill-white/10" />
+            </span>
+            <h2 className="min-w-0 flex-1 truncate text-xl font-black text-indigo-950 sm:text-2xl">{nombre}</h2>
+            {onEditar ? (
+              <Boton
+                variante="texto"
+                tamano="iconoPequeno"
+                onClick={onEditar}
+                aria-label={`Editar club ${nombre}`}
+                className="!min-h-11 !min-w-11 !rounded-full !p-1 !text-slate-400 hover:!bg-slate-100 hover:!text-slate-600"
+              >
+                <Edit2 size={16} />
+              </Boton>
+            ) : null}
           </div>
-          <p className="text-sm font-semibold text-slate-400 mb-6">{descripcion}</p>
+          <p className="mb-5 text-sm font-semibold leading-relaxed text-slate-400 sm:mb-6">{descripcion}</p>
 
-          <div className="flex flex-wrap items-center gap-6 mb-6">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Código de invitación</span>
-              <div className="flex items-center gap-2 bg-violet-50 border border-violet-200 px-3.5 py-1.5 rounded-xl">
-                <span className="text-sm font-black text-violeta-oscuro tracking-wide">{codigoInvitacion}</span>
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-6">
+            <div className="min-w-0">
+              <span className="mb-1 block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Código de invitación</span>
+              <div className="flex min-h-11 min-w-0 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3.5 py-1.5">
+                <span className="min-w-0 flex-1 truncate text-sm font-black tracking-wide text-violeta-oscuro">{codigoInvitacion}</span>
                 <Boton
                   variante="texto"
                   tamano="iconoPequeno"
                   onClick={onCopiarCodigo}
-                  className="!p-0 !text-violeta-oscuro hover:!text-violet-900"
+                  className="!min-h-10 !min-w-10 !shrink-0 !p-0 !text-violeta-oscuro hover:!text-violet-900"
                   title="Copiar código"
+                  aria-label="Copiar código de invitación"
                 >
-                  {copiado ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                  {copiado ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
                 </Boton>
               </div>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Miembros</span>
-              <div className="flex items-center gap-2 py-1.5">
-                <i className="fa-solid fa-users text-slate-400 text-sm" />
+            <div>
+              <span className="mb-1 block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Miembros</span>
+              <div className="flex min-h-11 items-center gap-2 py-1.5">
+                <i className="fa-solid fa-users text-sm text-slate-400" aria-hidden="true" />
                 <span className="text-base font-black text-slate-700">{miembros}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 w-full">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
             <Boton
               variante="violetaContorno"
               tamano="pequeno"
               onClick={onCompartirCodigo}
-              className="flex-1 py-3 px-4 rounded-2xl text-xs font-bold shadow-sm min-w-[140px]"
+              className="w-full rounded-2xl px-4 py-3 text-xs font-bold shadow-sm"
             >
               <Share2 size={14} />
               Compartir código
@@ -87,7 +94,7 @@ export function TarjetaClub({
               variante="violeta"
               tamano="pequeno"
               onClick={onInvitar}
-              className="flex-1 py-3 px-4 rounded-2xl text-xs font-bold shadow-sm min-w-[140px]"
+              className="w-full rounded-2xl px-4 py-3 text-xs font-bold shadow-sm"
             >
               <UserPlus size={14} />
               Invitar
@@ -95,7 +102,7 @@ export function TarjetaClub({
           </div>
         </div>
 
-        <div className="absolute top-6 right-6 w-16 h-16 bg-violeta-oscuro rounded-2xl flex items-center justify-center text-white shadow-sm flex-shrink-0">
+        <div className="hidden size-16 shrink-0 items-center justify-center rounded-2xl bg-violeta-oscuro text-white shadow-sm lg:flex" aria-hidden="true">
           <Shield size={32} className="fill-white/10" />
         </div>
       </div>

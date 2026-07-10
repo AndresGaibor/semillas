@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { db } from "./db";
 import { getPendingCount, queueEventoProgreso } from "./outbox";
@@ -84,11 +85,7 @@ export function useProgresoLocal(temaLocalId: string) {
 export function useProgresosLocales() {
   return useQuery({
     queryKey: ["offline", "progresos"],
-    queryFn: () =>
-      db.progresoUsuario
-        .where("syncStatus")
-        .notEqual("deleted")
-        .toArray(),
+    queryFn: () => db.progresoUsuario.toArray(),
   });
 }
 
@@ -123,9 +120,13 @@ export function useRegistrarEventoProgreso() {
 }
 
 export function useAutoSync(enabled: boolean = true) {
-  if (enabled) {
+  useEffect(() => {
+    if (!enabled) {
+      stopAutoSync();
+      return;
+    }
+
     startAutoSync();
-  } else {
-    stopAutoSync();
-  }
+    return () => stopAutoSync();
+  }, [enabled]);
 }

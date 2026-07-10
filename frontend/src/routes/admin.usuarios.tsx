@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import logoKids from "@/assets/images/Ilustraciones/Ninños 2.png";
+import logoKids from "@/assets/images/Ilustraciones/Ninos 2.png";
 import { AdminUsersFilters } from "@/features/admin/componentes/admin-users-filters";
 import { AdminUsersTable } from "@/features/admin/componentes/admin-users-table";
 import { AdminUsersSummary } from "@/features/admin/componentes/admin-users-summary";

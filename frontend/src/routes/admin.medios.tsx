@@ -18,6 +18,7 @@ function AdminMediosPage() {
     activeTab,
     isUploading,
     mediaQuery,
+    filteredMedia,
     paginatedItems,
     selectedId,
     selectedResource,
@@ -45,7 +46,7 @@ function AdminMediosPage() {
         type="file"
         className="hidden"
         onChange={handleFileChange}
-        accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt"
+        accept="image/jpeg,image/png,image/webp,audio/mpeg,audio/aac,audio/ogg,audio/webm,video/mp4,video/webm,application/pdf"
       />
 
       <AdminMediaLoadingState isLoading={mediaQuery.isLoading} />
@@ -64,8 +65,14 @@ function AdminMediosPage() {
             selectedSort={selectedSort}
             onSortChange={setSelectedSort}
           />
+          {mediaQuery.isError ? (
+            <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+              No se pudieron cargar los recursos multimedia. Revisa tu conexión e inténtalo de nuevo.
+            </div>
+          ) : null}
           <AdminMediaGrid
             items={paginatedItems}
+            totalItems={filteredMedia.length}
             selectedId={selectedId}
             onSelect={setSelectedId}
             paginaActual={paginaActual}

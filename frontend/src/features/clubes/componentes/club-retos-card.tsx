@@ -2,7 +2,7 @@ import * as React from "react";
 import { Trophy } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
 import { BarraProgreso } from "@/componentes/ui/barra-progreso";
-import bannerKidsImg from "@/assets/images/Ilustraciones/Ninños 2.png";
+import bannerKidsImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 
 export interface ClubRetosCardProps {
   progresoPorcentaje: number;

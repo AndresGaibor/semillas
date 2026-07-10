@@ -1,36 +1,41 @@
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { useAdminLayout } from "../features/admin/hooks/use-admin-layout";
 import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { sessionStorageApi } from "../shared/api/session";
 import { resolverAccesoAdmin } from "../shared/auth/admin-access";
 import "./app.css";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     try {
       const { usuario } = await obtenerMiPerfil();
       const acceso = resolverAccesoAdmin(usuario);
+
       if (!acceso.permitido) {
-        throw redirect({ to: acceso.redireccion, search: acceso.redireccion === "/login" ? { redirect: "/admin" } : undefined });
+        if (acceso.redireccion === "/login") {
+          throw redirect({ to: "/login", search: { redirect: location.href } });
+        }
+        throw redirect({ to: "/app" });
       }
     } catch (error) {
-      if (error && typeof error === "object" && "isRedirect" in error) {
-        throw error;
-      }
-      throw redirect({ to: "/login", search: { redirect: "/admin" } });
+      if (isRedirect(error)) throw error;
+      sessionStorageApi.clearGuestSession();
+      sessionStorageApi.clearAccessToken();
+      throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
   component: AdminLayout,
 });
 
 function AdminLayout() {
-  const { sidebarOpen, closeSidebar, handleLogout, pageHeader } = useAdminLayout();
+  const { sidebarOpen, closeSidebar, openSidebar, handleLogout, pageHeader, activePage } = useAdminLayout();
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
+    <div className="app-shell app-shell--admin">
       <AppSidebar
-        activePage=""
+        activePage={activePage}
         variant="admin"
         isOffline={false}
         isOpen={sidebarOpen}
@@ -38,15 +43,16 @@ function AdminLayout() {
         onLogout={handleLogout}
       />
 
-      <main className="flex flex-1 flex-col overflow-y-auto p-6 md:p-8 lg:p-10">
+      <main className="app-shell__main app-shell__main--admin">
         <AppTopbar
           title={pageHeader.titulo}
           subtitle={pageHeader.subtitulo}
-          onOpenSidebar={() => {}}
+          onOpenSidebar={openSidebar}
           onLogout={handleLogout}
+          showMenuButton
         />
 
-        <div className="flex min-w-0 flex-col gap-6 md:gap-8">
+        <div className="app-shell__content app-shell__content--admin">
           <Outlet />
         </div>
       </main>

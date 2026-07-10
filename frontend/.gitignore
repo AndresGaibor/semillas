@@ -37,3 +37,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # generated
 .tanstack/
 debug-storybook.log
+
+# local test and inspection artifacts
+test-results/
+scratch/

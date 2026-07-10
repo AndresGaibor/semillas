@@ -15,8 +15,10 @@ export async function peticion<T>(
 
   if (opciones?.autenticar !== false) {
     const idInvitado = sessionStorageApi.getGuestUserId();
+    const tokenInvitado = sessionStorageApi.getGuestToken();
     const token = sessionStorageApi.getAccessToken();
     if (idInvitado) headers["X-Guest-User-Id"] = idInvitado;
+    if (tokenInvitado) headers["X-Guest-Token"] = tokenInvitado;
     if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
@@ -60,8 +62,10 @@ export interface Perfil {
 
 export interface Autenticacion {
   tipo: "invitado";
-  encabezado: string;
+  encabezado: "x-guest-user-id";
   valor: string;
+  encabezado_token: "x-guest-token";
+  token: string;
 }
 
 export interface Senda {
@@ -211,17 +215,19 @@ export interface Actividad {
     actividad_id: string;
     etiqueta: string | null;
     texto: string;
-    correcta: boolean;
     orden: number;
-    retroalimentacion: string | null;
   }>;
 }
 
 export const RUTAS_API = {
   CLUBES: {
+    LISTAR: "/clubes",
+    MIOS: "/clubes/mios",
     CREAR: "/clubes",
     UNIRSE: "/clubes/unirse",
-    CLASIFICACION: (id: string) => `/clubes/${id}/clasificacion`,
+    DETALLE: (id: string) => `/clubes/${id}`,
+    SALIR: (id: string) => `/clubes/${id}/salir`,
+    RANKING: (id: string) => `/clubes/${id}/ranking`,
     RETOS: (id: string) => `/clubes/${id}/retos`,
   },
   SYNC: {

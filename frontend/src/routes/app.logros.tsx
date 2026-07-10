@@ -4,7 +4,6 @@ import { Loader } from "lucide-react";
 import { LogrosTabsFilter } from "../features/gamification/componentes/logros-tabs-filter";
 import { InsigniaCardItem } from "../features/gamification/componentes/insignia-card-item";
 import { ProgresoXpWidget } from "../features/gamification/componentes/progreso-xp-widget";
-import { LogrosRachaWidget } from "../features/gamification/componentes/logros-racha-widget";
 import { CompartirInsigniaWidget } from "../features/gamification/componentes/compartir-insignia-widget";
 import { useLogrosPage } from "../features/logros/hooks/use-logros-page";
 
@@ -42,7 +41,13 @@ function AchievementsPage() {
             </div>
           )}
 
-          {!query.isLoading && (
+          {query.isError ? (
+            <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+              No se pudieron cargar tus logros. Revisa tu conexión e inténtalo de nuevo.
+            </div>
+          ) : null}
+
+          {!query.isLoading && !query.isError && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
               {insignias.map((insignia) => (
                 <InsigniaCardItem
@@ -77,17 +82,14 @@ function AchievementsPage() {
             onVerDetalles={handleVerDetalles}
           />
 
-          <LogrosRachaWidget
-            dias={3}
-            mensaje="¡Sigue así! Has estudiado 3 días seguidos."
-          />
-
-          <CompartirInsigniaWidget
-            nombreInsignia={primerLogroObtenido.nombre}
-            imagenInsignia={primerLogroObtenido.codigo.includes("primera") || primerLogroObtenido.codigo.includes("crecer") ? in1Img : in2Img}
-            onCompartir={() => handleShare(primerLogroObtenido.nombre)}
-            compartido={sharedBadge !== null}
-          />
+          {primerLogroObtenido ? (
+            <CompartirInsigniaWidget
+              nombreInsignia={primerLogroObtenido.nombre}
+              imagenInsignia={primerLogroObtenido.codigo.includes("primera") || primerLogroObtenido.codigo.includes("crecer") ? in1Img : in2Img}
+              onCompartir={() => void handleShare(primerLogroObtenido.nombre)}
+              compartido={sharedBadge !== null}
+            />
+          ) : null}
         </aside>
 
       </div>

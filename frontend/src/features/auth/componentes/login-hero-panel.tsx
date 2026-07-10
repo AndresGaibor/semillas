@@ -1,5 +1,5 @@
 import * as React from "react";
-import ninosImg from "@/assets/images/Ilustraciones/Ninños 2.png";
+import ninosImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 import progresoIcon from "@/assets/images/icons/progreso.png";
 import escudoIcon from "@/assets/images/icons/entorno_seguro.png";
 import candadoIcon from "@/assets/images/icons/candado.png";

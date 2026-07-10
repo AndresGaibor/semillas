@@ -3,7 +3,7 @@ import { describe, expect, it, mock } from "bun:test";
 const peticionMock = mock(async () => ({
   usuario: { id: "usuario-1" },
   perfil: { id: "perfil-1" },
-  autenticacion: { tipo: "invitado", encabezado: "x-guest-user-id", valor: "abc" },
+  autenticacion: { tipo: "invitado", encabezado: "x-guest-user-id", valor: "abc", encabezado_token: "x-guest-token", token: "secret" },
 }));
 
 mock.module("../../shared/api/api", () => ({
@@ -48,6 +48,7 @@ describe("auth.api", () => {
     expect(respuesta.usuario.id).toBe("usuario-1");
     expect(respuesta.perfil.id).toBe("perfil-1");
     expect(respuesta.autenticacion.encabezado).toBe("x-guest-user-id");
+    expect(respuesta.autenticacion.token).toBe("secret");
   });
 
   it("iniciarSesionGoogle delega al helper compartido", async () => {

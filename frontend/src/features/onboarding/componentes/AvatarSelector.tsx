@@ -19,7 +19,7 @@ export function AvatarSelector({ selectedAvatar, onSelect }: AvatarSelectorProps
           const avatarNum = index + 1;
           const isSelected = selectedAvatar === avatarNum;
           return (
-            <label key={avatarNum} className="cursor-pointer block relative">
+            <label key={avatarNum} className="onboarding-avatar-card relative block min-h-11 cursor-pointer touch-manipulation">
               <input
                 type="radio"
                 name="avatar"

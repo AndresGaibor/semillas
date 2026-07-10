@@ -1,12 +1,12 @@
 import { Paginacion } from "@/componentes/ui/paginacion";
-import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 import { ImageWithFallback } from "@/componentes/ui/image-with-fallback";
 import { MediaTypeBadge } from "./media-type-badge";
-import type { MediaCardItem } from "../__mocks__/medios.mock";
+import type { MediaCardItem } from "../admin-media.types";
 
 type Props = {
   items: MediaCardItem[];
+  totalItems: number;
   selectedId: string;
   onSelect: (id: string) => void;
   paginaActual: number;
@@ -17,6 +17,7 @@ type Props = {
 
 export function AdminMediaGrid({
   items,
+  totalItems,
   selectedId,
   onSelect,
   paginaActual,
@@ -24,15 +25,15 @@ export function AdminMediaGrid({
   onCambiarPagina,
   onCambiarPorPagina,
 }: Props) {
-  const total = items.length;
+  const visibleCount = items.length;
 
   return (
     <>
       <div className="text-xs text-slate-400 font-bold select-none">
-        {total} recursos encontrados
+        {totalItems} recursos encontrados
       </div>
 
-      {total === 0 ? (
+      {visibleCount === 0 ? (
         <Card sombra="sm" className="flex flex-col items-center justify-center py-20 text-center select-none">
           <i className="fa-regular fa-image text-slate-300 text-5xl mb-4" />
           <p className="text-sm text-slate-500 font-extrabold">
@@ -84,19 +85,8 @@ export function AdminMediaGrid({
                     <MediaTypeBadge tipo={item.tipo} />
                   </div>
 
-                  <div className="flex items-center justify-between mt-3 text-xs text-slate-400 font-bold">
-                    <span>Usado en {item.usadoEnCount} contenidos</span>
-
-                    <Boton
-                      variante="texto"
-                      tamano="iconoPequeno"
-                      forma="cuadrado"
-                      title="Opciones"
-                      className="text-slate-400 hover:text-slate-600"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <i className="fa-solid fa-ellipsis" />
-                    </Boton>
+                  <div className="mt-3 text-xs text-slate-400 font-bold">
+                    {item.usadoEnCount === null ? "Uso no calculado" : `Usado en ${item.usadoEnCount} contenidos`}
                   </div>
                 </div>
               </Card>
@@ -106,7 +96,7 @@ export function AdminMediaGrid({
       )}
 
       <Paginacion
-        total={total}
+        total={totalItems}
         paginaActual={paginaActual}
         porPagina={porPagina}
         onCambiarPagina={onCambiarPagina}

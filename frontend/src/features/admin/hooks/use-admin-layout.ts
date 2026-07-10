@@ -65,6 +65,7 @@ export function useAdminLayout() {
   const activePage = location.pathname.replace(/\/$/, "") || "";
 
   const closeSidebar = () => setSidebarOpen(false);
+  const openSidebar = () => setSidebarOpen(true);
 
   useEffect(() => {
     if (sidebarOpen) {
@@ -79,7 +80,7 @@ export function useAdminLayout() {
 
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
-    sessionStorageApi.clearGuestUserId();
+    sessionStorageApi.clearGuestSession();
     navigate({ to: "/login", search: { redirect: "/onboarding" } });
   };
 
@@ -88,6 +89,7 @@ export function useAdminLayout() {
   return {
     sidebarOpen,
     closeSidebar,
+    openSidebar,
     handleLogout,
     activePage,
     pageHeader,

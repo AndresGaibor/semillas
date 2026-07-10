@@ -22,7 +22,12 @@ export function responderActividad(
   }
 ) {
   return peticion<{
-    resultado: { correcta: boolean; xp_otorgada: number };
+    resultado: {
+      correcta: boolean;
+      xp_otorgada: number;
+      opcion_correcta_id: string | null;
+      retroalimentacion: string | null;
+    };
     duplicado: boolean;
   }>(`/actividades/${idActividad}/responder`, {
     metodo: "POST",

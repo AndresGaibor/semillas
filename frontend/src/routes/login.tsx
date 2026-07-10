@@ -15,10 +15,9 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const search = Route.useSearch();
-  const { tabActivo, setTabActivo, guestMutation, googleMutation, handleEmailSuccess } = useLoginPage({
+const { tabActivo, setTabActivo, guestMutation, googleMutation, handleEmailSuccess } = useLoginPage({
     redirectTo: search.redirect,
   });
-
   return (
     <div className="login-page">
       <header className="login-topbar" role="banner">

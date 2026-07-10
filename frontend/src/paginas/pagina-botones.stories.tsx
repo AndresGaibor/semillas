@@ -19,11 +19,7 @@ export const VistaCompleta: Story = {
 };
 
 export const VistaMovil: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: "mobile1"
-    }
-  },
+  globals: { viewport: { value: "movilApp", isRotated: false } },
   render: () => (
     <div className="mx-auto w-[390px] overflow-hidden rounded-[32px] border border-slate-200 shadow-2xl">
       <PaginaBotones />
@@ -32,10 +28,6 @@ export const VistaMovil: Story = {
 };
 
 export const VistaDesktop: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: "desktop"
-    }
-  },
+  globals: { viewport: { value: "escritorio", isRotated: false } },
   render: () => <PaginaBotones />
 };

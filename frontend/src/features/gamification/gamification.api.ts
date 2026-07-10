@@ -1,5 +1,25 @@
 import { peticion } from "../../shared/api/api";
 
+export type LogroGamificacion = {
+  id: string;
+  codigo: string;
+  nombre: string;
+  descripcion: string | null;
+  url_icono: string | null;
+  bono_xp: number;
+  codigo_criterio: string;
+  valor_criterio: number | null;
+  activo: boolean;
+  creado_en: string;
+};
+
+export type LogroUsuarioGamificacion = {
+  usuario_id: string;
+  logro_id: string;
+  ganado_en: string;
+  logro: LogroGamificacion | null;
+};
+
 export type GamificacionPropia = {
   nivel: {
     usuario_id: string | null;
@@ -7,7 +27,7 @@ export type GamificacionPropia = {
     numero_nivel: number;
     nombre_nivel: string;
   } | null;
-  logros: Array<unknown>;
+  logros: LogroUsuarioGamificacion[];
 };
 
 export function obtenerGamificacionPropia() {

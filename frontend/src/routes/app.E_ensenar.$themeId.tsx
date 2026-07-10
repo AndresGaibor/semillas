@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader } from "lucide-react";
-import imagenFase from "../assets/images/Ilustraciones/Enseñar.png";
+import imagenFase from "../assets/images/Ilustraciones/Ensenar.png";
 import { useEnsenarPage } from "../features/crecer/hooks/use-ensenar-page";
 import { playSound } from "../lib/audio";
 

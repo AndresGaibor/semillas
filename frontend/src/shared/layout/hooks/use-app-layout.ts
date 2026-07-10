@@ -44,6 +44,7 @@ export function useAppLayout() {
   const [isOffline, setIsOffline] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);
+  const openSidebar = () => setSidebarOpen(true);
 
   useEffect(() => {
     setIsOffline(!navigator.onLine);
@@ -59,11 +60,14 @@ export function useAppLayout() {
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [sidebarOpen]);
 
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
-    sessionStorageApi.clearGuestUserId();
+    sessionStorageApi.clearGuestSession();
     navigate({ to: "/login", search: { redirect: "/onboarding" } });
   };
 
@@ -81,7 +85,7 @@ export function useAppLayout() {
   return {
     sidebarOpen,
     closeSidebar,
-    setSidebarOpen,
+    openSidebar,
     isOffline,
     handleLogout,
     opcionesBottomNav,

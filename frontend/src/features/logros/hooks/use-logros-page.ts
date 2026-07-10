@@ -50,11 +50,11 @@ export function useLogrosPage() {
   });
 
   const nivel = query.data?.nivel;
-  const logrosObtenidos = (query.data?.logros as any[]) || [];
+  const logrosObtenidos = query.data?.logros ?? [];
 
   const xpInfo = useMemo(() => {
-    const xpTotal = nivel?.xp_total ?? 1250;
-    const numNivel = nivel?.numero_nivel ?? 7;
+    const xpTotal = nivel?.xp_total ?? 0;
+    const numNivel = nivel?.numero_nivel ?? 1;
     const xpEnNivel = xpTotal % 1000;
     const xpRestantes = 1000 - xpEnNivel;
     const porcentaje = Math.round((xpEnNivel / 1000) * 100);
@@ -62,7 +62,7 @@ export function useLogrosPage() {
     return {
       xpTotal,
       numNivel,
-      nombreNivel: nivel?.nombre_nivel || "Explorador",
+      nombreNivel: nivel?.nombre_nivel || "Semilla",
       xpEnNivel,
       xpRestantes,
       porcentaje,
@@ -87,13 +87,25 @@ export function useLogrosPage() {
     const primerObtenido = INSIGNIAS_CATALOGO.find((insignia) =>
       logrosObtenidos.some((l) => l.logro?.codigo === insignia.codigo)
     );
-    return (primerObtenido || INSIGNIAS_CATALOGO[0]) as typeof INSIGNIAS_CATALOGO[number];
+    return primerObtenido ?? null;
   }, [logrosObtenidos]);
 
-  const handleShare = (badgeNombre: string) => {
-    setSharedBadge(badgeNombre);
-    alert(`¡Insignia "${badgeNombre}" compartida con éxito en tu Club!`);
-    setTimeout(() => setSharedBadge(null), 2000);
+  const handleShare = async (badgeNombre: string) => {
+    const texto = `¡Obtuve la insignia "${badgeNombre}" en Semillas!`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Mi logro en Semillas", text: texto });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(texto);
+      } else {
+        throw new Error("Este navegador no permite compartir ni copiar al portapapeles");
+      }
+      setSharedBadge(badgeNombre);
+      setTimeout(() => setSharedBadge(null), 2000);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      console.error("No se pudo compartir la insignia", error);
+    }
   };
 
   const handleVerDetalles = () => {

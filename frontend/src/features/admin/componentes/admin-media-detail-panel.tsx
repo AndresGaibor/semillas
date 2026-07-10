@@ -1,4 +1,4 @@
-import type { MediaCardItem } from "../__mocks__/medios.mock";
+import type { MediaCardItem } from "../admin-media.types";
 import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 import { EmptyState } from "@/componentes/ui/empty-state";
@@ -18,15 +18,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
         <h3 className="font-extrabold text-slate-800 text-sm">
           Detalles del recurso
         </h3>
-        <Boton
-          variante="texto"
-          tamano="iconoPequeno"
-          forma="cuadrado"
-          title="Cerrar detalles"
-          clase="text-slate-400 hover:text-slate-700"
-        >
-          <i className="fa-solid fa-xmark text-xs" />
-        </Boton>
+
       </div>
 
       {!selectedResource ? (
@@ -56,7 +48,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
               <MediaTypeBadge tipo={selectedResource.tipo} />
             </div>
 
-            <DetailRow label="Usado en" value={`${selectedResource.usadoEnCount} contenidos`} className="mt-2" />
+            <DetailRow label="Usado en" value={selectedResource.usadoEnCount === null ? "No calculado" : `${selectedResource.usadoEnCount} contenidos`} className="mt-2" />
             <DetailRow label="Carpeta" value={selectedResource.carpeta} />
             <DetailRow label="Subido por" value={selectedResource.subidoPor} />
             <DetailRow label="Fecha de subida" value={selectedResource.fechaSubido} />
@@ -82,9 +74,11 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
               Etiquetas
             </h4>
             <div className="flex flex-wrap gap-1.5 select-none">
-              {selectedResource.etiquetas.map((t, idx) => (
+              {selectedResource.etiquetas.length === 0 ? (
+                <span className="text-xs font-semibold text-slate-400">Sin etiquetas</span>
+              ) : selectedResource.etiquetas.map((t) => (
                 <span
-                  key={idx}
+                  key={t}
                   className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100 text-xs font-extrabold text-slate-600"
                 >
                   {t}
@@ -93,16 +87,6 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
             </div>
 
             <div className="flex flex-col gap-2.5 mt-6 pt-5 border-t border-slate-50 select-none">
-              <Boton
-                variante="contorno"
-                tamano="mediano"
-                type="button"
-                clase="w-full text-xs"
-              >
-                <i className="fa-solid fa-pen text-[10px]" />
-                Editar informaci&oacute;n
-              </Boton>
-
               <Boton
                 variante="peligroContorno"
                 tamano="mediano"

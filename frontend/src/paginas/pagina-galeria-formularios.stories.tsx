@@ -98,11 +98,7 @@ export const VistaDesktop: Story = {
 };
 
 export const VistaMovil: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: "mobile1"
-    }
-  },
+  globals: { viewport: { value: "movilApp", isRotated: false } },
   render: () => (
     <div className="min-h-screen bg-[#F7F4EC] p-4">
       <div className="mx-auto w-[390px] max-w-full space-y-4 rounded-[32px] border border-slate-200 bg-white p-4 shadow-xl">

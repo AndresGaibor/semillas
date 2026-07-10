@@ -39,8 +39,10 @@ export async function subirArchivo(
 
   const headers: Record<string, string> = {};
   const idInvitado = sessionStorageApi.getGuestUserId();
+  const tokenInvitado = sessionStorageApi.getGuestToken();
   const token = sessionStorageApi.getAccessToken();
   if (idInvitado) headers["X-Guest-User-Id"] = idInvitado;
+  if (tokenInvitado) headers["X-Guest-Token"] = tokenInvitado;
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const res = await fetch(`${env.apiUrl}${RUTAS_API.MEDIA.SUBIR}`, {
@@ -63,10 +65,10 @@ export async function subirArchivo(
  * 
  * HTTP Verb: GET
  * Endpoint: /media/:id
- * Auth: No requerido
+ * Auth: Requerido (administrador)
  */
 export function obtenerRecursoMultimedia(id: string) {
-  return peticion<RecursoMultimedia>(RUTAS_API.MEDIA.VER(id), { autenticar: false });
+  return peticion<RecursoMultimedia>(RUTAS_API.MEDIA.VER(id));
 }
 
 export function obtenerUrlFirmadaRecurso(id: string) {

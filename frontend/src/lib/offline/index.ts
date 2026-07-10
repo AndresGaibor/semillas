@@ -16,7 +16,7 @@ export {
   getEventosFallidos,
   markEventoProcesado,
   getPendingCount,
-  clearEventosProcesados,
+  eliminarEventosFallidos,
 } from "./outbox";
 
 export {

@@ -24,7 +24,7 @@ function CComprobarPage() {
     isLoading,
     isError,
     botonesAccion,
-    handleSelectOption,
+    handleLegacyComplete,
   } = useComprobarPage({ themeId });
 
   return (
@@ -41,7 +41,7 @@ function CComprobarPage() {
             <ActividadWrapper
               key={actividad.id}
               actividad={actividad}
-              onComplete={(actId: string, xp?: number) => handleSelectOption(actId, 'completado', true, xp)}
+              onComplete={(actId: string) => handleLegacyComplete(actId)}
             />
           ))}
         </div>

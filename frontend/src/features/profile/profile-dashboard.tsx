@@ -147,7 +147,7 @@ export function ProfileDashboard({
           <dl className="mt-4 grid gap-3 text-sm">
             <Item label="Franja" value={perfil?.grupo_edad_id ?? "Sin definir"} />
             <Item label="Audio" value={perfil?.prefiere_audio ? "Sí" : "No"} />
-            <Item label="Texto" value={perfil?.tamano_texto_preferido ?? "medium"} />
+            <Item label="Texto" value={perfil?.tamano_texto_preferido ?? "mediano"} />
             <Item label="Correo" value={usuario?.correo ?? "No vinculado"} />
           </dl>
         </section>

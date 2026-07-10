@@ -1,5 +1,4 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 
 /* ── Variables (Tokens de diseño) ────────────────────────────
@@ -1402,4 +1401,141 @@ h6, .titulo-6 {
     width: 100%;
     margin-top: 12px;
   }
+}
+
+/* ── App shell moderno y comportamiento móvil tipo aplicación ───────────── */
+.app-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.app-shell__main {
+  min-width: 0;
+  flex: 1;
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 1rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
+  scrollbar-gutter: stable;
+}
+
+.app-shell__content {
+  display: flex;
+  width: min(100%, 1440px);
+  min-width: 0;
+  margin-inline: auto;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.app-shell__bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 120;
+  display: block;
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: .5rem;
+  min-height: calc(4.25rem + env(safe-area-inset-top));
+  margin: -1rem -1rem 1rem;
+  padding: calc(.65rem + env(safe-area-inset-top)) .75rem .65rem;
+  border-bottom: 1px solid rgba(226, 232, 240, .85);
+  background: rgba(248, 250, 252, .92);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.app-topbar__menu {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  color: #334155;
+}
+
+.app-topbar__mobile-spacer { width: 2.75rem; height: 2.75rem; }
+.app-topbar__heading { display: flex; min-width: 0; align-items: center; justify-content: center; gap: .55rem; text-align: center; }
+.app-topbar__seed { font-size: 1.4rem; line-height: 1; }
+.app-topbar__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.05rem; font-weight: 900; line-height: 1.2; letter-spacing: -.025em; color: #1e293b; }
+.app-topbar__subtitle { display: none; }
+.app-topbar__account { display: flex; justify-content: flex-end; }
+
+.bottom-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  width: 100%;
+  min-height: calc(4.25rem + env(safe-area-inset-bottom));
+  padding: .4rem .45rem calc(.4rem + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(226, 232, 240, .85);
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 -8px 30px rgba(15, 23, 42, .08);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.bottom-nav__item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 3.35rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: .2rem;
+  border-radius: 1rem;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.bottom-nav__item:focus-visible { box-shadow: 0 0 0 3px rgba(108, 58, 237, .22); }
+.bottom-nav__item--active { background: #f4f0ff; }
+.bottom-nav__icon { display: grid; place-items: center; transition: transform 180ms ease, color 180ms ease; }
+.bottom-nav__item--active .bottom-nav__icon { transform: translateY(-1px) scale(1.08); }
+.bottom-nav__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .65rem; font-weight: 800; line-height: 1; transition: color 180ms ease; }
+
+@media (min-width: 768px) {
+  .app-shell__main {
+    padding: 2rem;
+  }
+  .app-shell__main--admin { padding: 2rem; }
+  .app-shell__content { gap: 2rem; }
+  .app-shell__bottom-nav { display: none; }
+  .app-topbar {
+    position: relative;
+    top: auto;
+    z-index: 20;
+    display: flex;
+    min-height: auto;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .app-topbar__menu, .app-topbar__mobile-spacer { display: none; }
+  .app-topbar__heading { justify-content: flex-start; gap: .75rem; text-align: left; }
+  .app-topbar__seed { font-size: 2rem; }
+  .app-topbar__title { font-size: clamp(1.7rem, 2.6vw, 2.25rem); white-space: normal; }
+  .app-topbar__subtitle { display: block; margin-top: .2rem; font-size: .78rem; font-weight: 650; color: #64748b; }
+  .app-topbar__account { margin-left: auto; }
+}
+
+@media (min-width: 1280px) {
+  .app-shell__main { padding: 2.5rem; }
 }

@@ -66,6 +66,7 @@ export async function markEventoError(
       retries: evento.retries + 1,
       lastError: error,
     });
+    await updateSyncStatePendingCount();
   }
 }
 
@@ -76,8 +77,9 @@ export async function getPendingCount(): Promise<number> {
     .count();
 }
 
-export async function clearEventosProcesados(): Promise<void> {
+export async function eliminarEventosFallidos(): Promise<void> {
   await db.eventosOutbox.toCollection().filter((e) => e.retries >= MAX_RETRIES).delete();
+  await updateSyncStatePendingCount();
 }
 
 async function updateSyncStatePendingCount(): Promise<void> {

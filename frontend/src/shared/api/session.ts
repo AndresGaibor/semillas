@@ -1,5 +1,6 @@
 const GUEST_USER_ID_KEY = "semillas_guest_user_id";
 const ACCESS_TOKEN_KEY = "semillas_access_token";
+const GUEST_TOKEN_KEY = "semillas_guest_token";
 
 export const sessionStorageApi = {
   getGuestUserId() {
@@ -12,6 +13,23 @@ export const sessionStorageApi = {
 
   clearGuestUserId() {
     localStorage.removeItem(GUEST_USER_ID_KEY);
+  },
+
+  getGuestToken() {
+    return localStorage.getItem(GUEST_TOKEN_KEY);
+  },
+
+  setGuestToken(token: string) {
+    localStorage.setItem(GUEST_TOKEN_KEY, token);
+  },
+
+  clearGuestToken() {
+    localStorage.removeItem(GUEST_TOKEN_KEY);
+  },
+
+  clearGuestSession() {
+    localStorage.removeItem(GUEST_USER_ID_KEY);
+    localStorage.removeItem(GUEST_TOKEN_KEY);
   },
 
   getAccessToken() {

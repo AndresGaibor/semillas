@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
-import clubesImg from "@/assets/images/Ilustraciones/Ninños 2.png";
+import clubesImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 
 export function ClubesSection() {
   return (

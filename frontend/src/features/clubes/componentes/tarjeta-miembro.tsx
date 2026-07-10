@@ -7,7 +7,7 @@ type PropsTarjetaMiembro = {
   nombre: string;
   nivel: string;
   xpSemana: number;
-  contribuciones: number;
+  contribuciones?: number;
   avatarIndex: string;
 };
 
@@ -32,30 +32,30 @@ export function TarjetaMiembro({
   const avatarUrl = resolverAvatar(avatarIndex);
 
   return (
-    <div className="grid grid-cols-12 items-center py-1">
-      <div className="col-span-2 flex justify-center">
-        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${obtenerColorPosicion(posicion)}`}>
+    <div className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 rounded-2xl border border-slate-100 bg-white p-3 sm:grid-cols-12 sm:gap-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-1">
+      <div className="flex justify-center sm:col-span-2">
+        <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black ${obtenerColorPosicion(posicion)}`}>
           {posicion}
         </span>
       </div>
-      <div className="col-span-4 min-w-0 text-left">
+      <div className="min-w-0 text-left sm:col-span-4">
         <AvatarTexto
           src={avatarUrl}
           alt={nombre}
           titulo={nombre}
           subtitulo={nivel}
           className="gap-2.5"
-          avatarClassName="h-8 w-8 rounded-full border border-slate-100 bg-orange-100"
-          tituloClassName="text-xs font-extrabold truncate text-slate-800"
-          subtituloClassName="text-[9px] font-semibold truncate text-slate-400"
+          avatarClassName="h-9 w-9 rounded-full border border-slate-100 bg-orange-100"
+          tituloClassName="truncate text-xs font-extrabold text-slate-800"
+          subtituloClassName="truncate text-[9px] font-semibold text-slate-400"
         />
       </div>
-      <div className="col-span-3 flex items-center justify-center gap-1">
-        <Zap size={11} className="text-amber-500 fill-amber-500" />
+      <div className="flex items-center justify-end gap-1 whitespace-nowrap sm:col-span-3 sm:justify-center">
+        <Zap size={12} className="fill-amber-500 text-amber-500" aria-hidden="true" />
         <span className="text-xs font-black text-slate-700">{xpSemana} XP</span>
       </div>
-      <span className="col-span-3 text-center text-xs font-semibold text-slate-500">
-        {contribuciones} actividades
+      <span className="col-span-2 col-start-2 text-left text-[10px] font-semibold text-slate-500 sm:col-span-3 sm:col-start-auto sm:text-center sm:text-xs">
+        {contribuciones === undefined ? "Sin contribuciones registradas" : `${contribuciones} actividades`}
       </span>
     </div>
   );

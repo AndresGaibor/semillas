@@ -14,6 +14,8 @@ const OPCIONES_TIPO: { id: string; nombre: string }[] = [
 
 const OPCIONES_CARPETA: CarpetaOpcion[] = [
   { id: "Ilustraciones", nombre: "Ilustraciones" },
+  { id: "Audios", nombre: "Audios" },
+  { id: "Videos", nombre: "Videos" },
   { id: "Documentos", nombre: "Documentos" },
 ];
 
@@ -88,11 +90,6 @@ export function AdminMediaFilters({
           />
         </div>
 
-        <button
-          className="w-[42px] h-[42px] rounded-full border border-slate-100 bg-slate-50/50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
-        >
-          <i className="fa-solid fa-sliders text-sm" />
-        </button>
       </div>
     </div>
   );

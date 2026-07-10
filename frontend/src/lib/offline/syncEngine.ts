@@ -1,3 +1,5 @@
+import { env } from "../../shared/config/env";
+import { sessionStorageApi } from "../../shared/api/session";
 import { db } from "./db";
 import {
   getEventosPendientes,
@@ -5,7 +7,7 @@ import {
   markEventoError,
   getPendingCount,
 } from "./outbox";
-import type { EventoOutbox } from "./db";
+import type { EventoOutbox, ProgresoUsuarioLocal } from "./db";
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
@@ -16,6 +18,53 @@ export interface SyncResult {
   timestamp: string;
 }
 
+type EventoApi = {
+  evento_id_cliente: string;
+  tipo_evento: EventoOutbox["tipoEvento"];
+  tema_id?: string;
+  paso_id?: string;
+  actividad_id?: string;
+  datos: Record<string, unknown>;
+  creado_en_cliente: string;
+  dispositivo_id: string;
+};
+
+type RespuestaPush = {
+  procesados: number;
+  omitidos: number;
+  procesados_ids: string[];
+  omitidos_ids: string[];
+  errores: Array<{ evento_id_cliente: string; error: string }>;
+};
+
+type ProgresoTemaApi = {
+  usuario_id: string;
+  tema_id: string;
+  estado: string;
+  porcentaje: number;
+  iniciado_en: string | null;
+  completado_en: string | null;
+  actualizado_en: string;
+};
+
+type ProgresoActividadApi = {
+  usuario_id: string;
+  actividad_id: string;
+  intentos: number;
+  mejor_puntaje: number;
+  completado: boolean;
+  completado_en: string | null;
+  actualizado_en: string;
+};
+
+type RespuestaPull = {
+  timestamp_servidor: string;
+  progreso: {
+    temas: ProgresoTemaApi[];
+    actividades: ProgresoActividadApi[];
+  };
+};
+
 const SYNC_INTERVAL_MS = 30_000;
 const PUSH_BATCH_SIZE = 50;
 
@@ -24,126 +73,221 @@ let isSyncing = false;
 
 export function getSyncStatus(): SyncStatus {
   if (!navigator.onLine) return "offline";
-  return "idle";
+  return isSyncing ? "syncing" : "idle";
 }
 
-export async function pushPendingEvents(): Promise<{
-  procesados: number;
-  errores: number }> {
+export async function pushPendingEvents(): Promise<{ procesados: number; errores: number }> {
   if (isSyncing) return { procesados: 0, errores: 0 };
   isSyncing = true;
 
-  const eventos = await getEventosPendientes();
   let procesados = 0;
   let errores = 0;
 
-  const batches = chunkArray(eventos, PUSH_BATCH_SIZE);
+  try {
+    const eventos = await getEventosPendientes();
+    const batches = chunkArray(eventos, PUSH_BATCH_SIZE);
 
-  for (const batch of batches) {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/sync/push`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ eventos: batch }),
-      });
+    for (const batch of batches) {
+      const enviados: Array<{ local: EventoOutbox; api: EventoApi }> = [];
 
-      if (response.ok) {
-        for (const evento of batch) {
-          await markEventoProcesado(evento.localId);
-          procesados++;
-        }
-      } else if (response.status === 409) {
-        for (const evento of batch) {
-          await markEventoError(evento.localId, "Conflicto de versión");
-          errores++;
-        }
-      } else {
-        const errorText = await response.text();
-        for (const evento of batch) {
-          await markEventoError(evento.localId, errorText);
+      for (const evento of batch) {
+        try {
+          enviados.push({ local: evento, api: await serializarEvento(evento) });
+        } catch (error) {
+          const mensaje = error instanceof Error ? error.message : "Evento local inválido";
+          await markEventoError(evento.localId, mensaje);
           errores++;
         }
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error de red";
-      for (const evento of batch) {
-        await markEventoError(evento.localId, msg);
-        errores++;
+
+      if (enviados.length === 0) continue;
+
+      try {
+        const response = await fetch(`${env.apiUrl}/sync/push`, {
+          method: "POST",
+          headers: getAuthHeaders(true),
+          body: JSON.stringify({ eventos: enviados.map(({ api }) => api) }),
+        });
+
+        const cuerpo = await response.json().catch(() => null) as
+          | { exito?: boolean; datos?: RespuestaPush; error?: string }
+          | null;
+
+        if (!response.ok || !cuerpo?.exito || !cuerpo.datos) {
+          const mensaje = cuerpo?.error ?? `Error de sincronización (${response.status})`;
+          for (const { local } of enviados) {
+            await markEventoError(local.localId, mensaje);
+            errores++;
+          }
+          continue;
+        }
+
+        const confirmados = new Set([
+          ...cuerpo.datos.procesados_ids,
+          ...cuerpo.datos.omitidos_ids,
+        ]);
+        const erroresServidor = new Map(
+          cuerpo.datos.errores.map((error) => [error.evento_id_cliente, error.error])
+        );
+
+        for (const { local } of enviados) {
+          if (confirmados.has(local.localId)) {
+            await markEventoProcesado(local.localId);
+            procesados++;
+            continue;
+          }
+
+          await markEventoError(
+            local.localId,
+            erroresServidor.get(local.localId) ?? "El servidor no confirmó el evento"
+          );
+          errores++;
+        }
+      } catch (error) {
+        const mensaje = error instanceof Error ? error.message : "Error de red";
+        for (const { local } of enviados) {
+          await markEventoError(local.localId, mensaje);
+          errores++;
+        }
       }
     }
+
+    await actualizarEstadoSync(errores === 0);
+    return { procesados, errores };
+  } finally {
+    isSyncing = false;
   }
-
-  isSyncing = false;
-  await updateSyncStateTimestamp(procesados > 0);
-
-  return { procesados, errores };
 }
 
 export async function pullCambios(): Promise<void> {
   const syncState = await db.syncState.get("main");
-  const since = syncState?.lastSyncTimestamp;
-
   const params = new URLSearchParams();
-  if (since) params.set("since", since);
+  if (syncState?.lastSyncTimestamp) params.set("since", syncState.lastSyncTimestamp);
 
-  const url = `${import.meta.env.VITE_API_URL}/sync/pull${params.toString() ? `?${params}` : ""}`;
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: getAuthHeaders(),
+  const query = params.toString();
+  const response = await fetch(`${env.apiUrl}/sync/pull${query ? `?${query}` : ""}`, {
+    headers: getAuthHeaders(false),
   });
+  const cuerpo = await response.json().catch(() => null) as
+    | { exito?: boolean; datos?: RespuestaPull; error?: string }
+    | null;
 
-  if (!response.ok) {
-    throw new Error(`Pull failed: ${response.status}`);
+  if (!response.ok || !cuerpo?.exito || !cuerpo.datos) {
+    throw new Error(cuerpo?.error ?? `Error al descargar cambios (${response.status})`);
   }
 
-  const resultado = await response.json();
-
-  if (!resultado.exito) {
-    throw new Error(resultado.error ?? "Error en pull");
-  }
+  const pendingCount = await getPendingCount();
 
   await db.transaction("rw", [db.progresoUsuario, db.syncState], async () => {
-    if (resultado.datos?.progresos_actualizados) {
-      for (const progreso of resultado.datos.progresos_actualizados) {
-        await upsertProgreso(progreso);
-      }
+    for (const progreso of cuerpo.datos!.progreso.temas) {
+      await upsertProgresoTema(progreso);
     }
 
-    await db.syncState.update("main", {
-      lastSyncTimestamp: resultado.datos.timestamp_servidor ?? new Date().toISOString(),
+    for (const progreso of cuerpo.datos!.progreso.actividades) {
+      await upsertProgresoActividad(progreso);
+    }
+
+    await db.syncState.put({
+      id: "main",
+      lastSyncTimestamp: cuerpo.datos!.timestamp_servidor,
       lastSyncExito: true,
-      pendingCount: await getPendingCount(),
+      pendingCount,
       updatedAt: new Date().toISOString(),
     });
   });
 }
 
-async function upsertProgreso(serverProgreso: {
-  id: string;
-  tema_id: string;
-  estado: string;
-  porcentaje: number;
-  iniciado_en: string | null;
-  completado_en: string | null;
-}): Promise<void> {
-  const existing = await db.progresoUsuario
-    .where("serverId")
-    .equals(serverProgreso.id)
-    .first();
+async function upsertProgresoTema(progreso: ProgresoTemaApi): Promise<void> {
+  const tema = await db.temas.where("serverId").equals(progreso.tema_id).first();
+  if (!tema) return;
 
-  const now = new Date().toISOString();
+  const serverId = `${progreso.usuario_id}:${progreso.tema_id}`;
+  const existente =
+    (await db.progresoUsuario.where("serverId").equals(serverId).first()) ??
+    (await db.progresoUsuario.where("temaLocalId").equals(tema.localId).first());
+  const ahora = new Date().toISOString();
+  const datos: ProgresoUsuarioLocal = {
+    localId: existente?.localId ?? crypto.randomUUID(),
+    serverId,
+    temaLocalId: tema.localId,
+    pasoLocalId: existente?.pasoLocalId ?? null,
+    actividadLocalId: null,
+    estado: progreso.estado === "completado" ? "completado" : "en_progreso",
+    porcentaje: progreso.porcentaje,
+    iniciadoEn: progreso.iniciado_en,
+    completadoEn: progreso.completado_en,
+    mejorPuntaje: existente?.mejorPuntaje ?? null,
+    intentos: existente?.intentos ?? 0,
+    createdAt: existente?.createdAt ?? ahora,
+    updatedAt: progreso.actualizado_en ?? ahora,
+    syncStatus: "synced",
+  };
 
-  if (existing) {
-    await db.progresoUsuario.update(existing.localId, {
-      estado: serverProgreso.estado as "en_progreso" | "completado",
-      porcentaje: serverProgreso.porcentaje,
-      iniciadoEn: serverProgreso.iniciado_en,
-      completadoEn: serverProgreso.completado_en,
-      updatedAt: now,
-      syncStatus: "synced",
-    });
+  await db.progresoUsuario.put(datos);
+}
+
+async function upsertProgresoActividad(progreso: ProgresoActividadApi): Promise<void> {
+  const actividad = await db.actividades.where("serverId").equals(progreso.actividad_id).first();
+  if (!actividad) return;
+
+  const serverId = `${progreso.usuario_id}:${progreso.actividad_id}`;
+  const existente = await db.progresoUsuario.where("serverId").equals(serverId).first();
+  const ahora = new Date().toISOString();
+
+  await db.progresoUsuario.put({
+    localId: existente?.localId ?? crypto.randomUUID(),
+    serverId,
+    temaLocalId: actividad.temaLocalId,
+    pasoLocalId: actividad.pasoLocalId,
+    actividadLocalId: actividad.localId,
+    estado: progreso.completado ? "completado" : "en_progreso",
+    porcentaje: progreso.completado ? 100 : 0,
+    iniciadoEn: existente?.iniciadoEn ?? null,
+    completadoEn: progreso.completado_en,
+    mejorPuntaje: progreso.mejor_puntaje,
+    intentos: progreso.intentos,
+    createdAt: existente?.createdAt ?? ahora,
+    updatedAt: progreso.actualizado_en ?? ahora,
+    syncStatus: "synced",
+  });
+}
+
+async function serializarEvento(evento: EventoOutbox): Promise<EventoApi> {
+  const [temaId, pasoId, actividadId] = await Promise.all([
+    resolverServerId("tema", evento.temaLocalId),
+    resolverServerId("paso", evento.pasoLocalId),
+    resolverServerId("actividad", evento.actividadLocalId),
+  ]);
+
+  return {
+    evento_id_cliente: evento.localId,
+    tipo_evento: evento.tipoEvento,
+    ...(temaId ? { tema_id: temaId } : {}),
+    ...(pasoId ? { paso_id: pasoId } : {}),
+    ...(actividadId ? { actividad_id: actividadId } : {}),
+    datos: evento.datos ?? {},
+    creado_en_cliente: evento.ocurridoEnCliente,
+    dispositivo_id: evento.dispositivoId,
+  };
+}
+
+async function resolverServerId(
+  tipo: "tema" | "paso" | "actividad",
+  localId?: string
+): Promise<string | undefined> {
+  if (!localId) return undefined;
+
+  const registro = tipo === "tema"
+    ? await db.temas.get(localId)
+    : tipo === "paso"
+      ? await db.pasos.get(localId)
+      : await db.actividades.get(localId);
+
+  if (!registro?.serverId) {
+    throw new Error(`No se puede sincronizar: ${tipo} local sin ID del servidor`);
   }
+
+  return registro.serverId;
 }
 
 export async function syncFull(): Promise<SyncResult> {
@@ -155,12 +299,13 @@ export async function syncFull(): Promise<SyncResult> {
     const pushResult = await pushPendingEvents();
     await pullCambios();
     return {
-      exito: true,
+      exito: pushResult.errores === 0,
       procesados: pushResult.procesados,
       errores: pushResult.errores,
       timestamp: new Date().toISOString(),
     };
-  } catch (err) {
+  } catch {
+    await actualizarEstadoSync(false);
     return {
       exito: false,
       procesados: 0,
@@ -174,11 +319,8 @@ export function startAutoSync(): void {
   if (syncIntervalId) return;
 
   syncIntervalId = setInterval(async () => {
-    if (navigator.onLine) {
-      const count = await getPendingCount();
-      if (count > 0) {
-        await pushPendingEvents();
-      }
+    if (navigator.onLine && (await getPendingCount()) > 0) {
+      await pushPendingEvents();
     }
   }, SYNC_INTERVAL_MS);
 
@@ -194,45 +336,33 @@ export function stopAutoSync(): void {
 }
 
 async function onOnline(): Promise<void> {
-  const count = await getPendingCount();
-  if (count > 0) {
+  if ((await getPendingCount()) > 0) {
     await pushPendingEvents();
   }
 }
 
-async function updateSyncStateTimestamp(exito: boolean): Promise<void> {
-  const now = new Date().toISOString();
-  const pendingCount = await getPendingCount();
-  const existing = await db.syncState.get("main");
-
-  if (existing) {
-    await db.syncState.update("main", {
-      lastSyncTimestamp: now,
-      lastSyncExito: exito,
-      pendingCount,
-      updatedAt: now,
-    });
-  } else {
-    await db.syncState.add({
-      id: "main",
-      lastSyncTimestamp: now,
-      lastSyncExito: exito,
-      pendingCount,
-      updatedAt: now,
-    });
-  }
+async function actualizarEstadoSync(exito: boolean): Promise<void> {
+  const ahora = new Date().toISOString();
+  const existente = await db.syncState.get("main");
+  await db.syncState.put({
+    id: "main",
+    lastSyncTimestamp: existente?.lastSyncTimestamp ?? null,
+    lastSyncExito: exito,
+    pendingCount: await getPendingCount(),
+    updatedAt: ahora,
+  });
 }
 
-function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+function getAuthHeaders(conJson: boolean): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (conJson) headers["Content-Type"] = "application/json";
 
-  const guestId = sessionStorage.getItem("semillas_guest_user_id");
-  const token = sessionStorage.getItem("semillas_access_token");
-
+  const guestId = sessionStorageApi.getGuestUserId();
+  const guestToken = sessionStorageApi.getGuestToken();
+  const token = sessionStorageApi.getAccessToken();
   if (guestId) headers["X-Guest-User-Id"] = guestId;
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (guestToken) headers["X-Guest-Token"] = guestToken;
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   return headers;
 }

@@ -178,6 +178,15 @@ export type ActividadAdmin = {
   dificultad: string;
   obligatorio: boolean;
   configuracion: Record<string, unknown>;
+  opciones: Array<{
+    id: string;
+    actividad_id: string;
+    etiqueta: string | null;
+    texto: string;
+    correcta: boolean;
+    orden: number;
+    retroalimentacion: string | null;
+  }>;
   estado: string;
   creado_en: string | null;
   actualizado_en: string | null;
@@ -213,6 +222,10 @@ export type ObtenerActividadesAdminParams = {
   limit?: number;
   offset?: number;
 };
+
+export function obtenerActividadAdmin(idActividad: string) {
+  return peticion<ActividadAdmin>(`/administracion/actividades/${idActividad}`);
+}
 
 export function obtenerActividadesAdmin(params?: ObtenerActividadesAdminParams) {
   const busqueda = new URLSearchParams();

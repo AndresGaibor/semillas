@@ -14,7 +14,7 @@ describe("obtenerRutaPostLogin", () => {
           url_avatar: null,
           clave_avatar: null,
           prefiere_audio: false,
-          tamano_texto_preferido: "medium",
+          tamano_texto_preferido: "mediano",
         },
         {
           id: "usuario-1",
@@ -37,7 +37,7 @@ describe("obtenerRutaPostLogin", () => {
         url_avatar: null,
         clave_avatar: null,
         prefiere_audio: false,
-        tamano_texto_preferido: "medium",
+        tamano_texto_preferido: "mediano",
       }),
     ).toBe("/onboarding");
   });
@@ -52,7 +52,7 @@ describe("obtenerRutaPostLogin", () => {
         url_avatar: null,
         clave_avatar: null,
         prefiere_audio: false,
-        tamano_texto_preferido: "medium",
+        tamano_texto_preferido: "mediano",
       }),
     ).toBe("/onboarding/customize");
   });
@@ -67,7 +67,7 @@ describe("obtenerRutaPostLogin", () => {
         url_avatar: null,
         clave_avatar: null,
         prefiere_audio: false,
-        tamano_texto_preferido: "medium",
+        tamano_texto_preferido: "mediano",
       }),
     ).toBe("/app");
   });
