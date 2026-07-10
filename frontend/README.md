@@ -1,21 +1,81 @@
-# bun-react-tailwind-shadcn-template
+# Semillas PWA
 
-To install dependencies:
+Frontend web de Semillas: una sola PWA responsive para fanpage, juego, CMS y experiencia offline.
+
+## Proposito
+
+Esta app permite:
+
+- navegar la landing publica
+- iniciar sesion o usar modo invitado
+- hacer onboarding por franja de edad
+- recorrer sendas, temas y actividades
+- ver progreso, logros y clubes
+- usar contenido descargado sin internet
+- administrar contenido desde el CMS
+
+## Stack
+
+- React
+- TypeScript
+- Vite
+- TanStack Router
+- TanStack Query
+- Dexie
+- React Hook Form
+- Zod
+- shadcn/ui
+- Tailwind CSS
+- vite-plugin-pwa
+
+## Comandos
 
 ```bash
 bun install
+bun run dev
+bun run build
+bun run preview
+bun run typecheck
+bun run storybook
+bun run build-storybook
 ```
 
-To start a development server:
+## Desarrollo local
 
-```bash
-bun dev
+El frontend corre por defecto en `http://localhost:5173`.
+
+Variables principales:
+
+- `VITE_API_URL`
+
+## Estructura
+
+```text
+frontend/src/
+├─ app/
+├─ components/
+├─ features/
+├─ routes/
+├─ shared/
+└─ paginas/
 ```
 
-To run for production:
+## Areas importantes
 
-```bash
-bun start
-```
+- `src/routes/` - rutas publicas, app y admin
+- `src/features/` - modulos de negocio
+- `src/componentes/` - componentes reutilizables
+- `src/shared/` - api, auth, layout y utilidades comunes
 
-This project was created using `bun init` in bun v1.3.10. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Estado actual
+
+El frontend ya cubre buena parte de la experiencia principal, pero falta cerrar con firmeza:
+
+- persistencia offline completa con Dexie
+- outbox y sincronizacion cliente-servidor real
+- ajustes finales de documentacion y consistencia de contratos
+
+Revisa tambien:
+
+- `../README.md`
+- `../docs/estado-proyecto/README.md`

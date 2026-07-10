@@ -21,7 +21,7 @@ describe("relacionar conceptos utils", () => {
 
     expect(pares[0]?.relacion).toBe("Construyo el arca");
     expect(relaciones).toHaveLength(3);
-    expect(relaciones.map((relacion) => relacion.id).sort()).toEqual(["david", "moises", "noe"]);
+    expect(relaciones.map((relacion) => relacion.id)).toEqual(["david", "moises", "noe"]);
   });
 
   it("valida intento correcto e incorrecto", () => {

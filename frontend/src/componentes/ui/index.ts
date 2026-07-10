@@ -32,3 +32,4 @@ export { CardInsignia } from "./card-insignia";
 export { BadgeEstado } from "./badge-estado";
 export { AvatarTexto } from "./avatar-texto";
 export { CampoBusqueda } from "./navegacion-tabs";
+export { SyncStatusBadge, OfflineBanner } from "./sync-status-badge";
