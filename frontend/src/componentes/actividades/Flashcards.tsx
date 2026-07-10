@@ -46,12 +46,12 @@ export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
 
   const handleCardClick = (index: number) => {
     // Evitar clic si el tablero está bloqueado, si la carta ya está volteada o emparejada
-    if (isLocked || cards[index].isFlipped || cards[index].isMatched) return;
+    if (isLocked || cards[index]!.isFlipped || cards[index]!.isMatched) return;
 
-    playSound('pop'); // Sonidito de giro
+    playSound('iniciar'); // Sonidito de giro
 
     const newCards = [...cards];
-    newCards[index].isFlipped = true;
+    newCards[index]!.isFlipped = true;
     setCards(newCards);
 
     const newFlippedIndices = [...flippedIndices, index];
@@ -61,9 +61,9 @@ export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
     if (newFlippedIndices.length === 2) {
       setIsLocked(true); // Bloqueamos clics adicionales
 
-      const [firstIndex, secondIndex] = newFlippedIndices;
-      const firstCard = newCards[firstIndex];
-      const secondCard = newCards[secondIndex];
+      const [firstIndex, secondIndex] = newFlippedIndices as [number, number];
+      const firstCard = newCards[firstIndex]!;
+      const secondCard = newCards[secondIndex]!;
 
       if (firstCard.parId === secondCard.parId) {
         // MATCH CORRECTO
@@ -71,8 +71,8 @@ export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
           playSound('acertado');
           setCards(prev => {
             const matched = [...prev];
-            matched[firstIndex].isMatched = true;
-            matched[secondIndex].isMatched = true;
+            matched[firstIndex]!.isMatched = true;
+            matched[secondIndex]!.isMatched = true;
             return matched;
           });
           setFlippedIndices([]);
@@ -85,8 +85,8 @@ export function Flashcards({ actividad, onComplete }: FlashcardsProps) {
           playSound('error');
           setCards(prev => {
             const flippedBack = [...prev];
-            flippedBack[firstIndex].isFlipped = false;
-            flippedBack[secondIndex].isFlipped = false;
+            flippedBack[firstIndex]!.isFlipped = false;
+            flippedBack[secondIndex]!.isFlipped = false;
             return flippedBack;
           });
           setFlippedIndices([]);

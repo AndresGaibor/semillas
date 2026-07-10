@@ -37,6 +37,7 @@ export const ConPistas: Story = { args: { ...baseArgs, mostrarPistas: true } };
 export const DificultadMedia: Story = { args: { ...baseArgs, pares: paresMedios, xp: 40 } };
 export const CompletadoDemo: Story = { args: { ...baseArgs, titulo: "Completa todos los pares" } };
 export const DocumentacionCompleta: Story = {
+  args: baseArgs,
   parameters: { layout: "fullscreen" },
   render: () => (
     <main className="min-h-screen bg-[#F7F4EC] p-4 text-[#123B2C] sm:p-8">

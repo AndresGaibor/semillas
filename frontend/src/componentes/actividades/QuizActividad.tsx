@@ -1,60 +1,30 @@
-import { useState } from "react";
 import { Check, X, ArrowLeft, ArrowRight } from "lucide-react";
-import { playSound } from "../../lib/audio";
 import imgBannerQuiz from "../../assets/images/Ilustraciones/banner_quiz.png";
 import { Boton } from "@/componentes/ui/boton";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 import { unirClases } from "@/lib/utilidades";
+import { useQuiz } from "./hooks/use-quiz";
 
 interface QuizActividadProps {
   actividad: any;
   onComplete: (actividadId: string, xpRecompensa: number) => void;
 }
 
-export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [completed, setCompleted] = useState(false);
+const letters = ["A", "B", "C", "D", "E", "F"];
 
-  const preguntas = actividad.configuracion?.preguntas || [];
-  const currentQuestion = preguntas[currentQuestionIndex];
+export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
+  const {
+    currentQuestionIndex,
+    completed,
+    preguntas,
+    currentQuestion,
+    selectedOption,
+    handleSelectOption,
+    handleNext,
+    handlePrev,
+  } = useQuiz({ actividad, onComplete });
 
   if (!preguntas.length) return <div className="p-4 text-center text-slate-500">No hay preguntas configuradas.</div>;
-
-  const selectedOption = answers[currentQuestionIndex] !== undefined ? answers[currentQuestionIndex] : null;
-
-  const handleSelectOption = (index: number) => {
-    if (selectedOption !== null || completed) return; 
-    
-    setAnswers(prev => ({ ...prev, [currentQuestionIndex]: index }));
-    const correct = index === currentQuestion.respuesta_correcta;
-    
-    if (correct) {
-      playSound('acertado');
-    } else {
-      playSound('error');
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQuestionIndex < preguntas.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      if (!completed) {
-        setCompleted(true);
-        playSound('insignia'); 
-        onComplete(actividad.id, actividad.xp_recompensa || 0);
-      }
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const letters = ["A", "B", "C", "D", "E", "F"];
 
   return (
     <div className="flex flex-col w-full max-w-2xl mx-auto py-2 animate-in fade-in zoom-in-95">

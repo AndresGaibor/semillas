@@ -1,10 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { randomUUID } from "../shared/utils/uuid";
-import { responderActividad, obtenerActividad } from "../features/activities/activities.api";
-import { queryClient } from "../app/query-client";
+import { createFileRoute } from "@tanstack/react-router";
 import { Loader, Check, X, ArrowLeft, Zap } from "lucide-react";
+import { useActivityPage } from "../features/activities/hooks/use-activity-page";
 
 export const Route = createFileRoute("/app/actividades/$activityId")({
   component: ActivityPage
@@ -12,29 +8,14 @@ export const Route = createFileRoute("/app/actividades/$activityId")({
 
 function ActivityPage() {
   const { activityId } = Route.useParams();
-  const navigate = useNavigate();
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const activityQuery = useQuery({
-    queryKey: ["activity", activityId],
-    queryFn: () => obtenerActividad(activityId)
-  });
-
-  const answerMutation = useMutation({
-    mutationFn: (selectedOptionId: string) =>
-      responderActividad(activityId, {
-        evento_id_cliente: randomUUID(),
-        opcion_id_seleccionada: selectedOptionId,
-        ocurrido_en_cliente: new Date().toISOString(),
-        dispositivo_id: "web"
-      }),
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ["gamification", "me"] });
-    }
-  });
-
-  const activity = activityQuery.data;
-  const result = answerMutation.data;
+  const {
+    activity,
+    result,
+    selected,
+    handleSelectOption,
+    handleGoBack,
+    activityQuery
+  } = useActivityPage(activityId);
 
   if (activityQuery.isLoading) {
     return (
@@ -46,7 +27,7 @@ function ActivityPage() {
 
   return (
     <div>
-      <button onClick={() => navigate({ to: "/app" })} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
+      <button onClick={handleGoBack} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
         <ArrowLeft size={16} /> Volver
       </button>
 
@@ -73,12 +54,7 @@ function ActivityPage() {
             return (
               <button
                 key={option.id}
-                onClick={() => {
-                  if (!result) {
-                    setSelected(option.id);
-                    answerMutation.mutate(option.id);
-                  }
-                }}
+                onClick={() => handleSelectOption(option.id)}
                 disabled={!!result}
                 className={`w-full text-left p-4 rounded-xl border-2 transition-all ${bg} ${
                   isAnswered && isCorrectOption ? "border-[#2e9e5b]" : ""
@@ -119,7 +95,7 @@ function ActivityPage() {
 
         {result && (
           <button
-            onClick={() => navigate({ to: "/app" })}
+            onClick={handleGoBack}
             className="w-full mt-4 bg-[#2e9e5b] text-white py-3 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors"
           >
             Volver al inicio

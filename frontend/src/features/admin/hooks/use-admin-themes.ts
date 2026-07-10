@@ -6,7 +6,7 @@ import { obtenerSendas } from "@/features/sendas/sendas.api";
 import { obtenerGruposEdad } from "@/features/catalog/catalog.api";
 import { getSendaIcon } from "../componentes/admin.helpers";
 import type { Tema } from "@/shared/api/api";
-import type { TemaTableRow } from "../componentes/admin-themes-table";
+import type { TemaTableRow } from "../componentes/admin-themes-table.types";
 
 function usePortadasFirmadas(temas: Tema[]) {
   return useQueries({

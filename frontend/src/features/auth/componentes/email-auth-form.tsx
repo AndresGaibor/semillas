@@ -1,79 +1,23 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { registrarConCorreo, iniciarSesionConCorreo } from "../auth.api";
 import { Mail, Lock, LoaderCircle } from "lucide-react";
-
-type Modo = "iniciar-sesion" | "registrarse";
-
-const loginSchema = z.object({
-  email: z.string().email("Correo electrónico inválido"),
-  password: z.string().min(1, "La contraseña es obligatoria"),
-});
-
-const registerSchema = z
-  .object({
-    email: z.string().email("Correo electrónico inválido"),
-    password: z.string().min(1, "La contraseña es obligatoria"),
-    confirmarPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmarPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmarPassword"],
-  });
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
+import { useEmailAuth } from "../hooks/use-email-auth";
 
 export interface EmailAuthFormProps {
   onSuccess: () => void;
 }
 
 export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
-  const [modo, setModo] = useState<Modo>("iniciar-sesion");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const [cuentaCreada, setCuentaCreada] = useState(false);
-
-  const isLogin = modo === "iniciar-sesion";
-  const schema = isLogin ? loginSchema : registerSchema;
-
   const {
+    error,
+    pending,
+    cuentaCreada,
+    isLogin,
+    errors,
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData | RegisterFormData>({
-    resolver: zodResolver(schema),
-  });
-
-  const onSubmit = async (data: LoginFormData | RegisterFormData) => {
-    setError(null);
-    setPending(true);
-
-    try {
-      if (isLogin) {
-        const { error: err } = await iniciarSesionConCorreo(data.email, data.password);
-        if (err) {
-          setError(obtenerMensajeError(err.message));
-          return;
-        }
-        onSuccess();
-      } else {
-        const registerData = data as RegisterFormData;
-        const { error: err } = await registrarConCorreo(registerData.email, registerData.password);
-        if (err) {
-          setError(obtenerMensajeError(err.message));
-          return;
-        }
-        setCuentaCreada(true);
-      }
-    } catch {
-      setError("Error de conexión. Intenta de nuevo.");
-    } finally {
-      setPending(false);
-    }
-  };
+    onSubmit,
+    toggleModo,
+    resetCuentaCreada,
+  } = useEmailAuth({ onSuccess });
 
   if (cuentaCreada) {
     return (
@@ -84,10 +28,7 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
           Revisa tu bandeja de entrada y sigue las instrucciones.
         </p>
         <button
-          onClick={() => {
-            setCuentaCreada(false);
-            setModo("iniciar-sesion");
-          }}
+          onClick={resetCuentaCreada}
           className="text-[#2e9e5b] text-sm font-medium hover:underline"
         >
           Volver a inicio de sesión
@@ -170,10 +111,7 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
 
       <button
         type="button"
-        onClick={() => {
-          setModo(isLogin ? "registrarse" : "iniciar-sesion");
-          setError(null);
-        }}
+        onClick={toggleModo}
         className="text-sm font-semibold text-[#2e9e5b] hover:text-[#258a4d] transition-colors"
       >
         {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
@@ -181,16 +119,3 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
     </form>
   );
 };
-
-function obtenerMensajeError(mensaje: string): string {
-  if (mensaje.includes("already registered") || mensaje.includes("already exists")) {
-    return "Este correo ya está registrado. Inicia sesión.";
-  }
-  if (mensaje.includes("Invalid login credentials")) {
-    return "Correo o contraseña incorrectos.";
-  }
-  if (mensaje.includes("Email not confirmed")) {
-    return "Por favor confirma tu correo antes de iniciar sesión.";
-  }
-  return mensaje;
-}

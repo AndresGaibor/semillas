@@ -1,35 +1,67 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
-import { obtenerMiPerfil } from "../features/profile/profile.api";
-import { obtenerGamificacionPropia } from "../features/gamification/gamification.api";
-
-// Componentes importados de features
+import { createFileRoute } from "@tanstack/react-router";
 import { TarjetaClub } from "../features/clubes/componentes/tarjeta-club";
 import { TablaRanking } from "../features/clubes/componentes/tabla-ranking";
 import { ClubRetosCard } from "../features/clubes/componentes/club-retos-card";
-import { ClubLogrosCard, type ClubLogro } from "../features/clubes/componentes/club-logros-card";
+import {
+  ClubLogrosCard,
+  type ClubLogro,
+} from "../features/clubes/componentes/club-logros-card";
 import { UnirseClubForm } from "../features/clubes/componentes/unirse-club-form";
 import { ProgresoXpWidget } from "../features/gamification/componentes/progreso-xp-widget";
 import { ClubRetoSemanalWidget } from "../features/clubes/componentes/club-reto-semanal-widget";
 import { ClubComparteWidget } from "../features/clubes/componentes/club-comparte-widget";
 import { ClubOfflineWidget } from "../features/clubes/componentes/club-offline-widget";
-
-// Portadas y recursos offline
 import cover1 from "@/assets/images/Ilustraciones/Tema1.png";
 import cover2 from "@/assets/images/Ilustraciones/Tema2.png";
 import cover3 from "@/assets/images/Ilustraciones/Tema3.png";
+import { useClubesPage } from "../features/clubes/hooks/use-clubes-page";
 
 export const Route = createFileRoute("/app/clubes")({
   component: ClubesPage,
 });
 
 const RANKING_MIEMBROS_EJEMPLO = [
-  { posicion: 1, nombre: "Sara López", nivel: "Explorador • Nivel 8", xpSemana: 450, contribuciones: 16, avatarIndex: "1" },
-  { posicion: 2, nombre: "Mateo Ruiz", nivel: "Explorador • Nivel 7", xpSemana: 380, contribuciones: 12, avatarIndex: "2" },
-  { posicion: 3, nombre: "Julián Pérez", nivel: "Explorador • Nivel 7", xpSemana: 310, contribuciones: 10, avatarIndex: "3" },
-  { posicion: 4, nombre: "María Núñez", nivel: "Explorador • Nivel 6", xpSemana: 250, contribuciones: 8, avatarIndex: "4" },
-  { posicion: 5, fontStyle: "normal", nombre: "David Torres", nivel: "Explorador • Nivel 6", xpSemana: 210, contribuciones: 7, avatarIndex: "5" },
+  {
+    posicion: 1,
+    nombre: "Sara López",
+    nivel: "Explorador • Nivel 8",
+    xpSemana: 450,
+    contribuciones: 16,
+    avatarIndex: "1",
+  },
+  {
+    posicion: 2,
+    nombre: "Mateo Ruiz",
+    nivel: "Explorador • Nivel 7",
+    xpSemana: 380,
+    contribuciones: 12,
+    avatarIndex: "2",
+  },
+  {
+    posicion: 3,
+    nombre: "Julián Pérez",
+    nivel: "Explorador • Nivel 7",
+    xpSemana: 310,
+    contribuciones: 10,
+    avatarIndex: "3",
+  },
+  {
+    posicion: 4,
+    nombre: "María Núñez",
+    nivel: "Explorador • Nivel 6",
+    xpSemana: 250,
+    contribuciones: 8,
+    avatarIndex: "4",
+  },
+  {
+    posicion: 5,
+    fontStyle: "normal",
+    nombre: "David Torres",
+    nivel: "Explorador • Nivel 6",
+    xpSemana: 210,
+    contribuciones: 7,
+    avatarIndex: "5",
+  },
 ];
 
 const CLUB_LOGROS_EJEMPLO: ClubLogro[] = [
@@ -64,53 +96,20 @@ const CLUB_LOGROS_EJEMPLO: ClubLogro[] = [
 ];
 
 function ClubesPage() {
-  const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
-  const [joinCode, setJoinCode] = useState("");
-
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
-  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia });
-
-  const nivel = gamificationQuery.data?.nivel;
-
-  const xpInfo = useMemo(() => {
-    const xpTotal = nivel?.xp_total ?? 1250;
-    const numNivel = nivel?.numero_nivel ?? 7;
-    const xpEnNivel = xpTotal % 1000;
-    const xpRestantes = 1000 - xpEnNivel;
-    const porcentaje = Math.round((xpEnNivel / 1000) * 100);
-
-    return {
-      xpTotal,
-      numNivel,
-      nombreNivel: nivel?.nombre_nivel || "Explorador",
-      porcentaje,
-      xpRestantes,
-    };
-  }, [nivel]);
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText("RIOB-1234");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleShareCode = () => {
-    navigator.clipboard.writeText("¡Únete a mi club de Semillas con el código RIOB-1234!");
-    alert("¡Código de invitación copiado para compartir!");
-  };
-
-  const handleJoinClub = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!joinCode.trim()) return;
-    alert(`¡Solicitud enviada con éxito para unirse al club "${joinCode.toUpperCase()}"!`);
-    setJoinCode("");
-  };
+  const {
+    copied,
+    joinCode,
+    setJoinCode,
+    xpInfo,
+    handleCopyCode,
+    handleShareCode,
+    handleJoinClub,
+    navigate,
+  } = useClubesPage();
 
   return (
     <div className="w-full flex flex-col font-sans text-slate-800 text-left">
       <div className="flex flex-col lg:flex-row gap-8 w-full items-start">
-        
         {/* COLUMNA IZQUIERDA */}
         <div className="flex-1 lg:flex-[3] flex flex-col gap-6 w-full">
           <TarjetaClub
@@ -120,7 +119,11 @@ function ClubesPage() {
             miembros={15}
             onCopiarCodigo={handleCopyCode}
             onCompartirCodigo={handleShareCode}
-            onInvitar={() => alert("Función para enviar invitaciones por correo electrónico.")}
+            onInvitar={() =>
+              alert(
+                "Función para enviar invitaciones por correo electrónico."
+              )
+            }
             onEditar={() => {}}
             copiado={copied}
           />
@@ -128,7 +131,9 @@ function ClubesPage() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
             <TablaRanking
               miembros={RANKING_MIEMBROS_EJEMPLO}
-              onVerCompleto={() => alert("Próximamente: Ranking histórico del club.")}
+              onVerCompleto={() =>
+                alert("Próximamente: Ranking histórico del club.")
+              }
             />
             <ClubRetosCard
               progresoPorcentaje={72}
@@ -140,7 +145,11 @@ function ClubesPage() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
             <ClubLogrosCard
               logros={CLUB_LOGROS_EJEMPLO}
-              onVerTodos={() => alert("Próximamente: Galería completa de insignias del club.")}
+              onVerTodos={() =>
+                alert(
+                  "Próximamente: Galería completa de insignias del club."
+                )
+              }
             />
             <UnirseClubForm
               joinCode={joinCode}
@@ -161,14 +170,9 @@ function ClubesPage() {
             onVerDetalles={() => navigate({ to: "/app/perfil" })}
           />
 
-          <ClubRetoSemanalWidget
-            completadas={12}
-            meta={20}
-          />
+          <ClubRetoSemanalWidget completadas={12} meta={20} />
 
-          <ClubComparteWidget
-            onCompartir={handleShareCode}
-          />
+          <ClubComparteWidget onCompartir={handleShareCode} />
 
           <ClubOfflineWidget
             temasDescargadosCount={3}
@@ -176,7 +180,6 @@ function ClubesPage() {
             onIrDescargas={() => navigate({ to: "/app/descargas" })}
           />
         </aside>
-
       </div>
     </div>
   );

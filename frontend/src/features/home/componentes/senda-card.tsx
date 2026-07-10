@@ -23,7 +23,7 @@ export function SendaCard({ variante, imagenUrl, label, titulo, descripcion, has
   return (
     <Link
       to="/app/temas"
-      search={{senda: hash as "padre" | "hijo" | "espiritu" }}
+      search={{sendas: hash as "padre" | "hijo" | "espiritu" }}
       className="block h-full"
       aria-label={`Abrir temas de ${titulo}`}
     >

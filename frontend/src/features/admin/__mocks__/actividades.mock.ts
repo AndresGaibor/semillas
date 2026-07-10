@@ -24,7 +24,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "facil",
     consignaRaw: "Selecciona la respuesta correcta",
     opciones: [],
-    sendasColor: getSendaColorClasses("Padre"),
+    sendaColor: getSendaColorClasses("Padre"),
     grupoEdadId: "grupo-1",
   },
   {
@@ -49,7 +49,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "facil",
     consignaRaw: "Conoce y memoriza",
     opciones: [],
-    sendasColor: getSendaColorClasses("Espíritu"),
+    sendaColor: getSendaColorClasses("Espíritu"),
     grupoEdadId: "grupo-2",
   },
   {
@@ -74,7 +74,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "normal",
     consignaRaw: "Filipenses 4:13",
     opciones: [],
-    sendasColor: getSendaColorClasses("Hijo"),
+    sendaColor: getSendaColorClasses("Hijo"),
     grupoEdadId: "grupo-3",
   },
   {
@@ -99,7 +99,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "facil",
     consignaRaw: "Pon a prueba tu conocimiento",
     opciones: [],
-    sendasColor: getSendaColorClasses("Padre"),
+    sendaColor: getSendaColorClasses("Padre"),
     grupoEdadId: "grupo-2",
   },
   {
@@ -124,7 +124,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "dificil",
     consignaRaw: "Encuentra las palabras",
     opciones: [],
-    sendasColor: getSendaColorClasses("Hijo"),
+    sendaColor: getSendaColorClasses("Hijo"),
     grupoEdadId: "grupo-3",
   },
   {
@@ -149,7 +149,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "facil",
     consignaRaw: "Pon en el orden correcto",
     opciones: [],
-    sendasColor: getSendaColorClasses("Espíritu"),
+    sendaColor: getSendaColorClasses("Espíritu"),
     grupoEdadId: "grupo-1",
   },
   {
@@ -174,7 +174,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "facil",
     consignaRaw: "Encuentra los pares",
     opciones: [],
-    sendasColor: getSendaColorClasses("Padre"),
+    sendaColor: getSendaColorClasses("Padre"),
     grupoEdadId: "grupo-1",
   },
   {
@@ -199,7 +199,7 @@ export const mockupActivities: ActivityTableRow[] = [
     dificultad: "normal",
     consignaRaw: "Responde rápido",
     opciones: [],
-    sendasColor: getSendaColorClasses("Padre"),
+    sendaColor: getSendaColorClasses("Padre"),
     grupoEdadId: "grupo-2",
   },
 ];

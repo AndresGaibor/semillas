@@ -1,46 +1,15 @@
-import { useState, useCallback } from "react";
 import type { MediaCardItem } from "../__mocks__/medios.mock";
 import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 import { EmptyState } from "@/componentes/ui/empty-state";
+import { ImageWithFallback } from "@/componentes/ui/image-with-fallback";
+import { DetailRow } from "@/componentes/ui/detail-row";
 import { MediaTypeBadge } from "./media-type-badge";
-
-const COLORES_TIPO = {
-  imagen: "from-[#2e9e5b]/20 to-[#2e9e5b]/5 text-[#2e9e5b]",
-  audio: "from-[#6c3aed]/20 to-[#6c3aed]/5 text-[#6c3aed]",
-  video: "from-[#ee6c4d]/20 to-[#ee6c4d]/5 text-[#ee6c4d]",
-  documento: "from-[#17a398]/20 to-[#17a398]/5 text-[#17a398]",
-} as const;
-
-const ICONOS_TIPO = {
-  imagen: "fa-regular fa-image",
-  audio: "fa-solid fa-volume-high",
-  video: "fa-solid fa-circle-play",
-  documento: "fa-solid fa-file-pdf",
-} as const;
 
 type Props = {
   selectedResource: MediaCardItem | null;
   onDelete: (id: string) => void;
 };
-
-function ImagenConFallback({ src, alt, tipo }: { src: string; alt: string; tipo: MediaCardItem["tipo"] }) {
-  const [fallo, setFallo] = useState(false);
-
-  const manejarError = useCallback(() => setFallo(true), []);
-
-  if (fallo) {
-    return (
-      <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${COLORES_TIPO[tipo]}`}>
-        <i className={`${ICONOS_TIPO[tipo]} text-4xl opacity-40`} />
-      </div>
-    );
-  }
-
-  return (
-    <img src={src} alt={alt} className="w-full h-full object-cover" onError={manejarError} />
-  );
-}
 
 export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
   return (
@@ -75,7 +44,7 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
       ) : (
         <>
           <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-            <ImagenConFallback src={selectedResource.imgUrl} alt={selectedResource.nombre} tipo={selectedResource.tipo} />
+            <ImageWithFallback src={selectedResource.imgUrl} alt={selectedResource.nombre} tipo={selectedResource.tipo} />
           </div>
 
           <div className="flex flex-col mt-4">
@@ -151,23 +120,4 @@ export function AdminMediaDetailPanel({ selectedResource, onDelete }: Props) {
   );
 }
 
-function DetailRow({
-  label,
-  value,
-  className = "",
-  noBorder = false,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-  noBorder?: boolean;
-}) {
-  return (
-    <div
-      className={`flex items-center justify-between text-xs font-semibold py-3 select-none ${noBorder ? "" : "border-b border-slate-50"} ${className}`}
-    >
-      <span className="text-slate-400">{label}:</span>
-      <span className="font-extrabold text-slate-800">{value}</span>
-    </div>
-  );
-}
+

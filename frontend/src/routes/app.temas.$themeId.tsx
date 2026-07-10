@@ -1,58 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { obtenerTema, obtenerPasos, obtenerActividades, obtenerUrlPortadaTema } from "../features/themes/themes.api";
-import { obtenerMiPerfil } from "../features/profile/profile.api";
-import { obtenerMiProgreso } from "../features/progress/progress.api";
 import { Zap, Loader, Play, CheckCircle, Clock } from "lucide-react";
-import { playSound } from "../lib/audio";
-
-const hex = (s: string | null | undefined): string => s ?? "#ccc";
-const hexColor = (s: string | null | undefined): React.CSSProperties["color"] => s ?? "#ccc";
+import { useTemaDetalle } from "../features/themes/hooks/use-tema-detalle";
 
 export const Route = createFileRoute("/app/temas/$themeId")({
-  component: ThemeDetailPage
+  component: ThemeDetailPage,
 });
 
 function ThemeDetailPage() {
   const { themeId } = Route.useParams();
-
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
-  const themeQuery = useQuery({ queryKey: ["theme", themeId], queryFn: () => obtenerTema(themeId) });
-  const portadaQuery = useQuery({
-    queryKey: ["theme-portada", themeId],
-    queryFn: () => obtenerUrlPortadaTema(themeId),
-    enabled: !!themeQuery.data?.portada_recurso?.id,
-    staleTime: 3 * 60 * 1000,
-  });
-  const stepsQuery = useQuery({
-    queryKey: ["theme", themeId, "steps", meQuery.data?.perfil?.grupo_edad_id],
-    queryFn: () => obtenerPasos(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
-    enabled: !!meQuery.data
-  });
-  const activitiesQuery = useQuery({
-    queryKey: ["theme", themeId, "activities", meQuery.data?.perfil?.grupo_edad_id],
-    queryFn: () => obtenerActividades(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
-    enabled: !!meQuery.data
-  });
-
-  const firstActivity = activitiesQuery.data?.[0];
-
-  const theme = themeQuery.data;
-
-  const progressQuery = useQuery({
-    queryKey: ["progress", themeId],
-    queryFn: obtenerMiProgreso
-  });
-
-  const temaDbId = theme?.id;
-
-  // Usa progreso real en lugar de mock
-  const progresoActual = progressQuery.data?.progresos_tema?.find(p => p.tema_id === temaDbId);
-  const progresoReal = progresoActual ? progresoActual.porcentaje : 0;
+  const {
+    themeQuery,
+    portadaQuery,
+    progresoReal,
+    theme,
+    handleIniciarClick,
+  } = useTemaDetalle(themeId);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
+
       {/* Título Principal */}
       <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-800 tracking-tight leading-tight">
@@ -67,16 +33,16 @@ function ThemeDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
+
         {/* COLUMNA IZQUIERDA: Tarjeta de Resumen y Botón */}
         <div className="lg:col-span-7 flex flex-col gap-4">
-          
+
           {/* Tarjeta principal (Card bonita) */}
           <div className="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
             <div className="absolute -top-10 -right-10 text-slate-50 opacity-50 pointer-events-none">
               <Zap size={200} fill="currentColor" />
             </div>
-            
+
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
                 <span className="w-10 h-10 rounded-full bg-[#43a047]/10 flex items-center justify-center text-[#43a047]">
@@ -84,7 +50,7 @@ function ThemeDetailPage() {
                 </span>
                 Acerca de esta lección
               </h3>
-              
+
               {theme?.resumen ? (
                 <p className="text-lg sm:text-xl text-slate-600 leading-relaxed font-medium mb-6">
                   {theme.resumen}
@@ -125,13 +91,13 @@ function ThemeDetailPage() {
               params={{ themeId }}
               className="flex items-center justify-center gap-3 w-full py-4 rounded-[1.5rem] font-black text-lg shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
               style={{ backgroundColor: '#43a047', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(67, 160, 71, 0.3), 0 8px 10px -6px rgba(67, 160, 71, 0.1)' }}
-              onClick={() => playSound('iniciar')}
+              onClick={handleIniciarClick}
             >
               <Play fill="currentColor" size={22} />
               {progresoReal === 0 ? "Iniciar Actividad" : "Reanudar Actividad"}
             </Link>
           </div>
-          
+
         </div>
 
         {/* COLUMNA DERECHA: Imagen en una Card */}
@@ -139,9 +105,9 @@ function ThemeDetailPage() {
           <div className="bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-slate-200/50 border border-slate-100 w-full">
             {portadaQuery.data?.url ? (
               <div className="w-full rounded-[2rem] overflow-hidden bg-slate-50 flex items-center justify-center">
-                <img 
-                  src={portadaQuery.data.url} 
-                  alt={theme?.titulo ?? "Portada del tema"} 
+                <img
+                  src={portadaQuery.data.url}
+                  alt={theme?.titulo ?? "Portada del tema"}
                   className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
                 />
               </div>

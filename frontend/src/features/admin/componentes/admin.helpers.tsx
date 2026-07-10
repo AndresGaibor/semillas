@@ -33,62 +33,7 @@ export function BotonAccion({ onClick, title, icon, className = BOTON_ACCION_CLS
   );
 }
 
-export type MenuAccionItem = {
-  label: string;
-  icon: string;
-  iconColor?: string;
-  onClick: () => void;
-  className?: string;
-};
-
-export type MenuAccionesProps = {
-  items: MenuAccionItem[];
-  isActive: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-};
-
-export function MenuAcciones({ items, isActive, onToggle, onClose }: MenuAccionesProps) {
-  return (
-    <div className="relative">
-      <Boton
-        type="button"
-        onClick={onToggle}
-        className={BOTON_ACCION_CLS}
-        variante="texto"
-        tamano="iconoPequeno"
-      >
-        <i className="fa-solid fa-ellipsis-vertical text-xs" />
-      </Boton>
-
-      {isActive && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={onClose} />
-          <div className="absolute right-0 z-20 mt-1.5 w-40 rounded-xl border border-slate-100 bg-white py-1.5 text-left shadow-lg">
-            {items.map((item, idx) => (
-              <Boton
-                key={idx}
-                type="button"
-                onClick={() => {
-                  item.onClick();
-                  onClose();
-                }}
-                className={item.className ?? "flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-neutro-oscuro-max transition-colors hover:bg-slate-50"}
-                variante="texto"
-              >
-                <i className={`fa-solid ${item.icon} w-4 text-center ${item.iconColor ?? "text-slate-400"}`} />
-                {item.label}
-              </Boton>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 export const CELDA_CHECKBOX_CLS = "py-4 px-2 text-center";
-export const CELDA_ACCION_CLS = "py-4 px-4 text-right";
 
 export const CheckboxCell = ({ stopPropagation = true, ariaLabel }: { stopPropagation?: boolean; ariaLabel: string }) => (
   <td className={CELDA_CHECKBOX_CLS} onClick={stopPropagation ? (e) => e.stopPropagation() : undefined}>
@@ -97,7 +42,3 @@ export const CheckboxCell = ({ stopPropagation = true, ariaLabel }: { stopPropag
 );
 
 export const FILA_HOVER_CLS = "hover:bg-slate-50/40 transition-colors group cursor-pointer";
-
-export const normalizarEstado = (estado: string): string => {
-  return estado.trim().toLowerCase();
-};

@@ -184,12 +184,6 @@ export type ActividadAdmin = {
     titulo: string;
     slug: string;
     estado: string;
-    sendero?: {
-      id: string;
-      codigo: string;
-      nombre: string;
-      color_hex: string;
-    };
     senda?: {
       id: string;
       codigo: string;

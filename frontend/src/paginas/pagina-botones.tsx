@@ -2,90 +2,34 @@ import {
   Ban,
   BookOpen,
   Bookmark,
-  Check,
   CheckCircle2,
   ChevronRight,
   CloudDownload,
   CloudUpload,
   Download,
   ExternalLink,
-  Eye,
   Flag,
   Headphones,
   HelpCircle,
   Lightbulb,
   MoreVertical,
-  Palette,
   PlayCircle,
   Plus,
-  Scale,
-  Pointer,
   Settings,
   Share2,
-  Sprout,
   Star,
   Trash2,
 } from "lucide-react";
 
 import { Boton } from "@/componentes/ui/boton";
+import { BotonesPageHeader } from "./botones-page-header";
 
 export function PaginaBotones() {
   return (
     <div className="min-h-screen bg-[#fbfdfc] p-6 text-slate-950">
       <div className="grid gap-8 xl:grid-cols-[360px_1fr]">
         <aside className="space-y-7">
-          <div className="flex items-center gap-4">
-            <div className="grid size-16 place-items-center rounded-2xl bg-green-50">
-              <Sprout className="size-11 text-green-600" />
-            </div>
-
-            <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-green-700">
-                Semillas
-              </h1>
-              <p className="text-sm font-semibold text-green-700">
-                Crece en la fe cada día
-              </p>
-            </div>
-          </div>
-
-          <section className="space-y-5">
-            <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
-              Botones
-            </h2>
-
-            <p className="max-w-[300px] text-lg font-medium leading-8 text-slate-800">
-              Nuestros botones son amigables, claros y accesibles. Tienen bordes
-              redondeados, colores consistentes y estados definidos para cada
-              interacción.
-            </p>
-          </section>
-
-          <TarjetaLateral titulo="Principios">
-            <ElementoLateral
-              icono={<Pointer className="size-5" />}
-              texto="Tamaño mínimo táctil de 44px de altura."
-            />
-            <ElementoLateral
-              icono={<Palette className="size-5" />}
-              texto="Uso consistente de color según la acción."
-            />
-            <ElementoLateral
-              icono={<Eye className="size-5" />}
-              texto="Estados claros para cada interacción."
-            />
-            <ElementoLateral
-              icono={<Scale className="size-5" />}
-              texto="Texto legible y contraste adecuado."
-            />
-          </TarjetaLateral>
-
-          <TarjetaLateral titulo="Recomendaciones">
-            <ElementoRecomendacion texto="Usa botones primarios para acciones principales." />
-            <ElementoRecomendacion texto="Usa secundarios para acciones complementarias." />
-            <ElementoRecomendacion texto="Usa peligro únicamente para eliminar o acciones críticas." />
-            <ElementoRecomendacion texto="No uses más de 2 botones principales en una misma vista." />
-          </TarjetaLateral>
+          <BotonesPageHeader />
         </aside>
 
         <main className="rounded-[24px] border border-slate-200 bg-white p-8 shadow-[0_2px_10px_rgba(15,23,42,0.04)]">
@@ -357,33 +301,6 @@ function GrupoTamano({ etiqueta, descripcion, children }: { etiqueta: string; de
       <p className="text-sm font-extrabold text-slate-900">{etiqueta}</p>
       {children}
       <p className="text-xs font-bold text-slate-700">{descripcion}</p>
-    </div>
-  );
-}
-
-function TarjetaLateral({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-violet-100 bg-violet-50/60 p-6">
-      <h3 className="mb-6 text-lg font-extrabold text-violet-700">{titulo}</h3>
-      <div className="space-y-5">{children}</div>
-    </section>
-  );
-}
-
-function ElementoLateral({ icono, texto }: { icono: React.ReactNode; texto: string }) {
-  return (
-    <div className="flex gap-4">
-      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-violet-100 text-violet-700">{icono}</div>
-      <p className="pt-1 text-sm font-bold leading-6 text-slate-900">{texto}</p>
-    </div>
-  );
-}
-
-function ElementoRecomendacion({ texto }: { texto: string }) {
-  return (
-    <div className="flex gap-4">
-      <Check className="mt-1 size-5 shrink-0 text-green-600" />
-      <p className="text-sm font-bold leading-6 text-slate-900">{texto}</p>
     </div>
   );
 }

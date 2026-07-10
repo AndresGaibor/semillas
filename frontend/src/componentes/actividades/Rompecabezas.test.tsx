@@ -8,11 +8,8 @@ describe("Rompecabezas", () => {
     const html = renderToStaticMarkup(
       <Rompecabezas
         imagen="/demo/tema.png"
-        titulo="Arca de Noe"
-        descripcion="Ordena la imagen para completar la actividad."
         filas={2}
         columnas={2}
-        xp={20}
       />,
     );
 

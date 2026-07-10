@@ -1,53 +1,39 @@
-import { useState } from "react";
 import { Check, CheckCircle2, Circle, Scissors, Paintbrush, ArrowRight } from "lucide-react";
-import { playSound } from "../../lib/audio";
 import iconoCandado from "../../assets/images/icons/candado.png";
+import { useManualidad } from "./hooks/use-manualidad";
 
 interface ManualidadActividadProps {
-  actividad: any;
+  actividad: {
+    id: string;
+    xp_recompensa?: number;
+    retroalimentacion?: string;
+    configuracion?: {
+      materiales?: string[];
+      pasos?: string[];
+    };
+  };
   onComplete: (actividadId: string, xpRecompensa: number) => void;
 }
 
 export function ManualidadActividad({ actividad, onComplete }: ManualidadActividadProps) {
+  const {
+    materialesCheck,
+    currentStep,
+    completed,
+    todosMaterialesListos,
+    toggleMaterial,
+    nextStep,
+  } = useManualidad({ actividad, onComplete });
+
   const materiales = actividad.configuracion?.materiales || [];
   const pasos = actividad.configuracion?.pasos || [];
 
-  const [materialesCheck, setMaterialesCheck] = useState<number[]>([]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completed, setCompleted] = useState(false);
-
-  const toggleMaterial = (index: number) => {
-    if (completed) return;
-    
-    if (materialesCheck.includes(index)) {
-      setMaterialesCheck(materialesCheck.filter(i => i !== index));
-    } else {
-      playSound('siguiente');
-      setMaterialesCheck([...materialesCheck, index]);
-    }
-  };
-
-  const todosMaterialesListos = materiales.length === 0 || materialesCheck.length === materiales.length;
-
-  const nextStep = () => {
-    if (currentStep < pasos.length - 1) {
-      playSound('acertado');
-      setCurrentStep(prev => prev + 1);
-    } else {
-      // Finalizar
-      setCompleted(true);
-      playSound('insignia');
-      onComplete(actividad.id, actividad.xp_recompensa || 0);
-    }
-  };
-
   return (
     <div className="flex flex-col w-full max-w-2xl mx-auto py-2 animate-in fade-in zoom-in-95">
-      
+
       {!completed ? (
         <div className="w-full flex flex-col gap-8">
-          
-          {/* Sección de Materiales */}
+
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 text-pink-100 opacity-50">
               <Scissors size={100} />
@@ -58,19 +44,19 @@ export function ManualidadActividad({ actividad, onComplete }: ManualidadActivid
             <p className="text-sm text-slate-500 mb-5 relative z-10 font-medium">
               Toca cada material para marcarlo cuando ya lo tengas listo en tu mesa.
             </p>
-            
+
             {materiales.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
                 {materiales.map((material: string, index: number) => {
                   const isChecked = materialesCheck.includes(index);
-                  
+
                   return (
                     <button
                       key={index}
                       onClick={() => toggleMaterial(index)}
                       className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left font-semibold ${
-                        isChecked 
-                          ? "bg-green-100 border-green-500 text-green-900 shadow-sm" 
+                        isChecked
+                          ? "bg-green-100 border-green-500 text-green-900 shadow-sm"
                           : "bg-slate-100 border-slate-300 text-slate-800 hover:bg-pink-50 hover:border-pink-400"
                       }`}
                     >
@@ -91,9 +77,8 @@ export function ManualidadActividad({ actividad, onComplete }: ManualidadActivid
             )}
           </div>
 
-          {/* Sección de Pasos (Bloqueada con overlay hasta tener materiales) */}
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm relative">
-            
+
             {!todosMaterialesListos && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-300">
                 <img src={iconoCandado} alt="Bloqueado" className="w-16 h-16 mb-4 opacity-80 drop-shadow-sm" />
@@ -130,7 +115,6 @@ export function ManualidadActividad({ actividad, onComplete }: ManualidadActivid
 
         </div>
       ) : (
-        /* Card de Completado */
         <div className="w-full p-8 bg-green-50 rounded-3xl border-2 border-green-200 text-center animate-in zoom-in-95 mt-8 shadow-sm">
           <div className="flex justify-center mb-6 text-green-500">
             <div className="bg-white p-4 rounded-full shadow-md">

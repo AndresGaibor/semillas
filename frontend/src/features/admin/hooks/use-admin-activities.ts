@@ -44,8 +44,7 @@ export function useAdminActivities() {
       const temaNombre = tema?.titulo ?? "Sin tema";
       const temaSlug = tema?.slug ?? "";
       const temaEstado = tema?.estado ?? "borrador";
-      const sendero = tema?.senda;
-      const sendasColor = getSendaColorClasses(sendero?.nombre ?? "");
+      const sendaColor = getSendaColorClasses(tema?.senda?.nombre ?? "");
       const dateObj = act.creado_en ? new Date(act.creado_en) : new Date();
       const dateStr = dateObj.toLocaleDateString("es-EC", { day: "numeric", month: "short", year: "numeric" });
 
@@ -71,7 +70,7 @@ export function useAdminActivities() {
         opciones: [],
         temaSlug,
         temaEstado,
-        sendasColor,
+        sendaColor,
         grupoEdadId: act.grupo_edad_id,
       };
     });
@@ -90,7 +89,7 @@ export function useAdminActivities() {
       if (searchValue && !act.titulo.toLowerCase().includes(searchValue.toLowerCase()) && !act.consigna.toLowerCase().includes(searchValue.toLowerCase())) return false;
       if (selectedSendaId) {
         const matchingSenda = sendasBase.find((s) => s.id === selectedSendaId);
-        if (matchingSenda && act.sendasColor.nombre !== matchingSenda.nombre) return false;
+        if (matchingSenda && act.sendaColor.nombre !== matchingSenda.nombre) return false;
       }
       if (selectedTemaId) {
         const matchingTema = temasBase.find((t) => t.id === selectedTemaId);

@@ -1,6 +1,6 @@
 import { SelectFiltro } from "@/componentes/ui/select-filtro";
 import { Boton } from "@/componentes/ui/boton";
-import type { Tema } from "@/shared/api/api";
+import type { Tema, Senda, GrupoEdad } from "@/shared/api/api";
 
 export type AdminActivitiesFiltersProps = {
   searchValue: string;
@@ -10,10 +10,10 @@ export type AdminActivitiesFiltersProps = {
   temasBase: Tema[];
   selectedSendaId: string;
   onSendaChange: (val: string) => void;
-  sendasBase: any[];
+  sendasBase: Senda[];
   selectedAgeGroupId: string;
   onAgeGroupChange: (val: string) => void;
-  ageGroupsBase: any[];
+  ageGroupsBase: GrupoEdad[];
   onClear: () => void;
   tieneFiltros: boolean;
 };
@@ -62,7 +62,7 @@ export function AdminActivitiesFilters({
         <SelectFiltro
           opciones={sendasBase}
           placeholder="Todas las sendas"
-          etiquetaAria="Filtrar por faixa"
+          etiquetaAria="Filtrar por senda"
           value={selectedSendaId}
           onChange={(e) => onSendaChange(e.target.value)}
         />

@@ -1,11 +1,12 @@
 import { Link2, BookOpen, Coins, GraduationCap, Mail, Trophy } from "lucide-react";
-import type { ComponentType } from "react";
 import type { Perfil, Usuario } from "../../shared/api/api";
-import { resolverAvatar } from "../../shared/constants/avatares";
 import type { GamificacionMiRespuesta, ProgresoMiRespuesta } from "./profile.api";
-import { Boton } from "@/componentes/ui/boton";
+import { MetricCard } from "../perfil/componentes/MetricCard";
+import { ActionButton } from "../perfil/componentes/ActionButton";
+import { Item } from "../perfil/componentes/Item";
+import { useProfileDashboard } from "./hooks/use-profile-dashboard";
 
-type PerfilDashboardProps = {
+export type PerfilDashboardProps = {
   usuario: Usuario | undefined;
   perfil: Perfil | null | undefined;
   gamificacion: GamificacionMiRespuesta | undefined;
@@ -13,19 +14,6 @@ type PerfilDashboardProps = {
   onVincularGoogle: () => void;
   onVincularCorreo: () => void;
 };
-
-function formatearProveedor(proveedor: string) {
-  if (proveedor === "invitado") return "Invitado";
-  if (proveedor === "google") return "Google";
-  return "Correo";
-}
-
-function contarCompletados(progreso: ProgresoMiRespuesta | undefined) {
-  return {
-    temas: progreso?.progresos_tema.filter((tema) => tema.estado === "completado" || tema.estado === "completado_total").length ?? 0,
-    actividades: progreso?.progresos_actividad.filter((actividad) => actividad.completado).length ?? 0,
-  };
-}
 
 export function ProfileDashboard({
   usuario,
@@ -35,13 +23,22 @@ export function ProfileDashboard({
   onVincularGoogle,
   onVincularCorreo,
 }: PerfilDashboardProps) {
-  const nivel = gamificacion?.nivel;
-  const logros = gamificacion?.logros ?? [];
-  const completados = contarCompletados(progreso);
-  const esInvitado = usuario?.proveedor === "invitado";
-  const proveedorLabel = formatearProveedor(usuario?.proveedor ?? "invitado");
-  const avatarUrl = perfil?.url_avatar ?? resolverAvatar("1");
-  const nombreVisible = perfil?.apodo ?? usuario?.nombre_visible ?? "Semillero";
+  const {
+    nivel,
+    logros,
+    completados,
+    esInvitado,
+    proveedorLabel,
+    avatarUrl,
+    nombreVisible,
+  } = useProfileDashboard({
+    usuario,
+    perfil,
+    gamificacion,
+    progreso,
+    onVincularGoogle,
+    onVincularCorreo,
+  });
 
   return (
     <div className="grid grid-cols-1 gap-6 text-left lg:grid-cols-[1fr_320px]">
@@ -155,62 +152,6 @@ export function ProfileDashboard({
           </dl>
         </section>
       </aside>
-    </div>
-  );
-}
-
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-  helper,
-  accent,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  value: string | number;
-  helper?: string;
-  accent: string;
-}) {
-  return (
-    <article className="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm">
-      <div className={`mb-3 inline-flex rounded-2xl bg-slate-50 p-2 ${accent}`}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">{label}</p>
-      <p className="mt-2 text-2xl font-black text-slate-800">{value}</p>
-      {helper ? <p className="mt-1 text-xs font-bold text-slate-400">{helper}</p> : null}
-    </article>
-  );
-}
-
-function ActionButton({
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <Boton
-      type="button"
-      onClick={onClick}
-      variante="contorno"
-      clase="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 hover:border-[#2E9E5B]/40 hover:bg-slate-50"
-    >
-      <Icon className="h-4 w-4 text-[#2E9E5B]" />
-      {label}
-    </Boton>
-  );
-}
-
-function Item({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 px-3 py-3">
-      <dt className="text-[11px] font-black uppercase tracking-[0.12em] text-slate-400">{label}</dt>
-      <dd className="mt-1 break-words font-bold text-slate-700">{value}</dd>
     </div>
   );
 }

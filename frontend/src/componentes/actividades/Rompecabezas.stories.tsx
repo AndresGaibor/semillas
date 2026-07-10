@@ -16,11 +16,8 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {
     imagen: { control: false, description: "URL o asset importado para dividir en piezas" },
-    titulo: { control: "text" },
-    descripcion: { control: "text" },
     filas: { control: { type: "number", min: 1, max: 4, step: 1 } },
     columnas: { control: { type: "number", min: 1, max: 4, step: 1 } },
-    xp: { control: { type: "number", min: 0, max: 200, step: 5 } },
     mostrarVistaReferencia: { control: "boolean" },
   },
 } satisfies Meta<typeof Rompecabezas>;
@@ -30,11 +27,8 @@ type Story = StoryObj<typeof meta>;
 
 const baseArgs: RompecabezasProps = {
   imagen: tema1,
-  titulo: "Arma la historia bíblica",
-  descripcion: "Toca una pieza y luego otra, o arrastra para intercambiarlas.",
   filas: 3,
   columnas: 3,
-  xp: 20,
   mostrarVistaReferencia: true,
 };
 
@@ -49,10 +43,8 @@ export const Facil2x2Movil: Story = {
   args: {
     ...baseArgs,
     imagen: conectar,
-    titulo: "Primer rompecabezas",
     filas: 2,
     columnas: 2,
-    xp: 10,
   },
 };
 
@@ -64,10 +56,8 @@ export const Dificil4x4: Story = {
   args: {
     ...baseArgs,
     imagen: tema2,
-    titulo: "Reto de exploradores",
     filas: 4,
     columnas: 4,
-    xp: 35,
   },
 };
 
@@ -75,7 +65,6 @@ export const ConVistaReferencia: Story = {
   args: {
     ...baseArgs,
     imagen: sendaPadre,
-    titulo: "Senda del Padre",
     mostrarVistaReferencia: true,
   },
 };
@@ -84,7 +73,6 @@ export const SinVistaReferencia: Story = {
   args: {
     ...baseArgs,
     imagen: sendaPadre,
-    titulo: "Reto sin pista",
     mostrarVistaReferencia: false,
   },
 };
@@ -116,7 +104,6 @@ export const DocumentacionCompleta: Story = {
           <pre className="mt-6 overflow-auto rounded-3xl bg-[#123B2C] p-5 text-sm font-semibold leading-6 text-[#F7F4EC]">
             {`{
   tipo: "ROMPECABEZAS",
-  titulo: "Arca de Noe",
   configuracion: {
     imagen: "/actividades/arca-noe.png",
     filas: 3,

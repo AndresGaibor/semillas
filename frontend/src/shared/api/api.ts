@@ -123,6 +123,18 @@ export interface Tema {
     ancho_px?: number | null;
     alto_px?: number | null;
   } | null;
+  portada?: {
+    id: string;
+    tipo?: string;
+    url_publica: string;
+    texto_alternativo: string | null;
+    titulo: string | null;
+    tipo_mime?: string | null;
+    tamano_bytes?: number | null;
+    duracion_seg?: number | null;
+    ancho_px?: number | null;
+    alto_px?: number | null;
+  } | null;
   versiculo_clave?: {
     id: string;
     tema_id: string;
