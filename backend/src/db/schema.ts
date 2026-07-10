@@ -24,8 +24,10 @@ import {
   jsonb,
   serial,
   real,
-  pgEnum
+  pgEnum,
+  uniqueIndex
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /**
  * ============================================================
@@ -103,6 +105,7 @@ export const usuarioApp = pgTable("usuario_app", {
   id: uuid("id").primaryKey().defaultRandom(),
   correo: varchar("correo", { length: 255 }),
   idExterno: varchar("id_externo", { length: 255 }),
+  tokenInvitadoHash: varchar("token_invitado_hash", { length: 64 }),
   nombreVisible: varchar("nombre_visible", { length: 255 }).notNull(),
   proveedor: proveedorAutenticacionEnum("proveedor").notNull(),
   rol: rolUsuarioEnum("rol").notNull().default("invitado"),
@@ -145,7 +148,7 @@ export const vinculoTutorMenor = pgTable("vinculo_tutor_menor", {
  */
 
 // Sendas espirituales (Padre, Hijo, Espíritu Santo)
-export const enda = pgTable("senda", {
+export const senda = pgTable("senda", {
   id: uuid("id").primaryKey().defaultRandom(),
   nombre: varchar("nombre", { length: 100 }).notNull(),
   codigo: varchar("codigo", { length: 50 }).notNull().unique(),
@@ -182,7 +185,7 @@ export const tema = pgTable("tema", {
   versionContenido: integer("version_contenido").notNull().default(1),
   portadaRecursoId: uuid("portada_recurso_id"),
   versionBiblicaId: uuid("version_biblica_id"),
-  endaId: uuid("senda_id").notNull().references(() => enda.id),
+  sendaId: uuid("senda_id").notNull().references(() => senda.id),
   creadoPor: uuid("creado_por").references(() => usuarioApp.id),
   revisadoPor: uuid("revisado_por").references(() => usuarioApp.id),
   publicadoPor: uuid("publicado_por").references(() => usuarioApp.id),
@@ -415,7 +418,7 @@ export const progresoActividadUsuario = pgTable("progreso_actividad_usuario", {
 // Eventos de progreso para sincronización offline
 export const eventoProgreso = pgTable("evento_progreso", {
   id: uuid("id").primaryKey().defaultRandom(),
-  idEventoCliente: varchar("id_evento_cliente", { length: 255 }).notNull().unique(),
+  idEventoCliente: uuid("id_evento_cliente").notNull(),
   usuarioId: uuid("usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
   tipoEvento: tipoEventoProgresoEnum("tipo_evento").notNull(),
   temaId: uuid("tema_id").references(() => tema.id, { onDelete: "set null" }),
@@ -428,7 +431,13 @@ export const eventoProgreso = pgTable("evento_progreso", {
   dispositivoId: varchar("dispositivo_id", { length: 255 }),
   ocurridoEnCliente: timestamp("ocurrido_en_cliente").notNull(),
   recibidoEnServidor: timestamp("recibido_en_servidor").notNull().defaultNow()
-});
+}, (tabla) => [
+  uniqueIndex("uq_evento_progreso_usuario_evento_cliente")
+    .on(tabla.usuarioId, tabla.idEventoCliente),
+  uniqueIndex("uq_evento_progreso_recompensa_actividad")
+    .on(tabla.usuarioId, tabla.actividadId)
+    .where(sql`${tabla.actividadId} is not null and ${tabla.xpOtorgada} > 0`)
+]);
 
 // Paquetes de contenido para descarga offline
 export const paqueteSinConexion = pgTable("paquete_sin_conexion", {
@@ -553,7 +562,7 @@ export type NuevaActividad = typeof actividad.$inferInsert;
 export type EventoProgreso = typeof eventoProgreso.$inferSelect;
 export type NuevoEventoProgreso = typeof eventoProgreso.$inferInsert;
 
-export type Senda = typeof enda.$inferSelect;
+export type Senda = typeof senda.$inferSelect;
 export type GrupoEdad = typeof grupoEdad.$inferSelect;
 
 export type Club = typeof club.$inferSelect;

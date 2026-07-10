@@ -44,6 +44,7 @@ export function crearModuloAdmin() {
     const casos = obtenerCasosUso(c);
     return responderExito(await casos.actividades.listar({ temaId: c.req.query("tema_id") ?? undefined, tipoId: c.req.query("tipo_actividad_id") ?? undefined, grupoEdadId: c.req.query("grupo_edad_id") ?? undefined, estado: c.req.query("estado") ?? undefined, limit: Math.min(Math.max(Number(c.req.query("limit") ?? "100"), 1), 500), offset: Math.max(Number(c.req.query("offset") ?? "0"), 0) }));
   });
+  adminRoutes.get("/actividades/:actividad_id", async (c) => responderExito(await obtenerCasosUso(c).actividades.obtener(c.req.param("actividad_id"))));
   adminRoutes.get("/temas", async (c) => responderExito(await obtenerCasosUso(c).temas.listar(c.req.query("status") ?? undefined)));
   adminRoutes.get("/temas/:tema_id", async (c) => responderExito(await obtenerCasosUso(c).temas.obtener(c.req.param("tema_id"))));
   adminRoutes.post("/temas", zValidator("json", createThemeSchema), async (c) => responderExito(await obtenerCasosUso(c).temas.crear(c.req.valid("json"), c.get("user").id), 201));

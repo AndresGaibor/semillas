@@ -91,6 +91,9 @@ export function mapActivity(activity: Record<string, unknown>) {
   const temaRaw = activity.tema as Record<string, unknown> | undefined;
   const temaSendaRaw = temaRaw?.senda as Record<string, unknown> | undefined;
   const grupoEdadRaw = activity.grupo_edad as Record<string, unknown> | undefined;
+  const opcionesRaw = Array.isArray(activity.opciones)
+    ? (activity.opciones as Array<Record<string, unknown>>)
+    : [];
 
   return {
     id: String(activity.id),
@@ -110,6 +113,17 @@ export function mapActivity(activity: Record<string, unknown>) {
     estado: String(activity.estado ?? "borrador"),
     creado_en: (activity.creado_en ?? null) as string | null,
     actualizado_en: (activity.actualizado_en ?? null) as string | null,
+    opciones: opcionesRaw
+      .map((opcion) => ({
+        id: String(opcion.id ?? ""),
+        actividad_id: String(opcion.actividad_id ?? activity.id ?? ""),
+        etiqueta: (opcion.etiqueta ?? null) as string | null,
+        texto: String(opcion.texto ?? ""),
+        correcta: Boolean(opcion.correcta),
+        orden: Number(opcion.orden ?? 0),
+        retroalimentacion: (opcion.retroalimentacion ?? null) as string | null,
+      }))
+      .sort((a, b) => a.orden - b.orden),
     tipo_actividad: tipoActividadRaw
       ? {
           id: String(tipoActividadRaw.id ?? ""),

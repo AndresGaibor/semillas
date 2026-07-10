@@ -63,9 +63,32 @@ export function crearCasosUsoMedia(repositorio: ReturnType<typeof crearMediaRepo
       const { error: uploadError } = await repositorio.subirArchivo(storagePath, archivo);
       if (uploadError) return { error: { mensaje: "Error al subir el archivo al almacenamiento", codigo: "STORAGE_ERROR", estado: 500 } } as const;
 
-      const { data: { publicUrl } } = repositorio.obtenerUrlPublica(storagePath);
-      const recurso = await repositorio.insertarRecurso({ tipo, bucket_almacenamiento: repositorio.bucket, clave_almacenamiento: storagePath, url_publica: publicUrl, texto_alternativo: textoAlternativo ?? null, titulo: cleanName, tipo_mime: archivo.type, tamano_bytes: archivo.size, creado_por: userId, activo: true });
-      return { recurso } as const;
+      let recursoCreadoId: string | null = null;
+      try {
+        const creado = await repositorio.insertarRecurso({
+          tipo,
+          bucket_almacenamiento: repositorio.bucket,
+          clave_almacenamiento: storagePath,
+          // El bucket es privado. La columna se conserva por compatibilidad, pero
+          // apunta al endpoint que genera una URL firmada de corta duración.
+          url_publica: "",
+          texto_alternativo: textoAlternativo ?? null,
+          titulo: cleanName,
+          tipo_mime: archivo.type,
+          tamano_bytes: archivo.size,
+          creado_por: userId,
+          activo: true
+        });
+        recursoCreadoId = creado.id;
+        const recurso = await repositorio.actualizarRutaAcceso(creado.id, `/media/${creado.id}/url`);
+        return { recurso } as const;
+      } catch (error) {
+        // Compensación: si Postgres falla después de subir el objeto, no dejamos
+        // archivos huérfanos ocupando Storage.
+        await repositorio.eliminarArchivo(repositorio.bucket, storagePath);
+        if (recursoCreadoId) await repositorio.eliminarRegistro(recursoCreadoId);
+        throw error;
+      }
     },
     async obtenerUrl(id: string) {
       if (!UUID_REGEX.test(id)) return { error: { mensaje: "El ID del recurso multimedia debe ser un UUID válido", codigo: "VALIDATION_ERROR", estado: 400 } } as const;

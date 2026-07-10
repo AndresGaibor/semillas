@@ -21,6 +21,14 @@ export function crearClubsRepository(db: DbClient) {
       const [club] = await db.select().from(schema.club).where(eq(schema.club.id, clubId)).limit(1);
       return club ?? null;
     },
+    async obtenerClubPorCodigo(codigo: string) {
+      const [club] = await db
+        .select()
+        .from(schema.club)
+        .where(and(eq(schema.club.codigoInvitacion, codigo.toUpperCase()), eq(schema.club.activo, true)))
+        .limit(1);
+      return club ?? null;
+    },
     async obtenerCreadorClub(usuarioId: string) {
       const [creador] = await db.select({ id: schema.usuarioApp.id, nombre_visible: schema.usuarioApp.nombreVisible }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1);
       return creador ?? null;
@@ -37,7 +45,11 @@ export function crearClubsRepository(db: DbClient) {
       return club;
     },
     async agregarMiembro(datos: { clubId: string; usuarioId: string; rolMiembro: string }) {
-      await db.insert(schema.miembroClub).values(datos);
+      const [creado] = await db.insert(schema.miembroClub).values(datos).onConflictDoNothing().returning();
+      return creado ?? null;
+    },
+    async eliminarClub(clubId: string) {
+      await db.delete(schema.club).where(eq(schema.club.id, clubId));
     },
     async obtenerMembresia(usuarioId: string, clubId: string) {
       const [membership] = await db.select({ rolMiembro: schema.miembroClub.rolMiembro }).from(schema.miembroClub).where(and(eq(schema.miembroClub.clubId, clubId), eq(schema.miembroClub.usuarioId, usuarioId))).limit(1);

@@ -1,5 +1,5 @@
 import type { AuthUser } from "../../../config/env";
-import { NotFoundError } from "../../../shared/errors/http-error";
+import { BadRequestError, NotFoundError } from "../../../shared/errors/http-error";
 import type { ActivitiesRepository } from "../activities.repository";
 
 type Dependencias = {
@@ -26,18 +26,17 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
       throw new NotFoundError("Actividad no encontrada");
     }
 
-    let correcta = false;
-
-    if (entrada.opcion_id_seleccionada) {
-      const opcion = await actividades.obtenerOpcionDeActividad(actividadId, entrada.opcion_id_seleccionada);
-
-      if (!opcion) {
-        throw new NotFoundError("Opción no encontrada");
-      }
-
-      correcta = Boolean(opcion.correcta);
+    if (!entrada.opcion_id_seleccionada) {
+      throw new BadRequestError("Esta actividad todavía no admite respuestas de texto verificables");
     }
 
+    const opcion = await actividades.obtenerOpcionDeActividad(actividadId, entrada.opcion_id_seleccionada);
+    if (!opcion) {
+      throw new NotFoundError("Opción no encontrada");
+    }
+
+    const opcionCorrecta = await actividades.obtenerOpcionCorrecta(actividadId);
+    const correcta = Boolean(opcion.correcta);
     const xpOtorgada = correcta ? Number(actividad.xpRecompensa ?? 0) : 0;
 
     const evento = await actividades.registrarEventoProgreso({
@@ -58,7 +57,12 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
 
     if (!evento) {
       return {
-        resultado: { correcta, xp_otorgada: 0 },
+        resultado: {
+          correcta,
+          xp_otorgada: 0,
+          opcion_correcta_id: opcionCorrecta?.id ?? null,
+          retroalimentacion: opcion.retroalimentacion ?? opcionCorrecta?.retroalimentacion ?? null
+        },
         duplicado: true,
         correcta,
         xp_otorgada: 0,
@@ -72,7 +76,12 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
     }
 
     return {
-      resultado: { correcta, xp_otorgada: xpOtorgada },
+      resultado: {
+        correcta,
+        xp_otorgada: xpOtorgada,
+        opcion_correcta_id: opcionCorrecta?.id ?? null,
+        retroalimentacion: opcion.retroalimentacion ?? opcionCorrecta?.retroalimentacion ?? null
+      },
       duplicado: false,
       correcta,
       xp_otorgada: xpOtorgada,

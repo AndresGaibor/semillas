@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
@@ -18,7 +18,13 @@ type RegistroEventoProgreso = {
 export function crearActivitiesRepository(db: DbClient) {
   return {
     async listarActividades() {
-      const actividades = await db.select().from(schema.actividad).orderBy(asc(schema.actividad.orden));
+      const filasActividades = await db
+        .select({ actividad: schema.actividad })
+        .from(schema.actividad)
+        .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .where(eq(schema.tema.estado, "publicado"))
+        .orderBy(asc(schema.actividad.orden));
+      const actividades = filasActividades.map((fila) => fila.actividad);
       const tipos = await db.select().from(schema.tipoActividad);
       const opciones = await db.select().from(schema.opcionActividad);
 
@@ -26,12 +32,14 @@ export function crearActivitiesRepository(db: DbClient) {
     },
 
     async obtenerActividadConTipoYOpciones(actividadId: string) {
-      const [actividad] = await db
-        .select()
+      const [filaActividad] = await db
+        .select({ actividad: schema.actividad })
         .from(schema.actividad)
-        .where(eq(schema.actividad.id, actividadId))
+        .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .where(and(eq(schema.actividad.id, actividadId), eq(schema.tema.estado, "publicado")))
         .limit(1);
 
+      const actividad = filaActividad?.actividad;
       if (!actividad) return null;
 
       const [tipoActividad] = await db
@@ -57,7 +65,8 @@ export function crearActivitiesRepository(db: DbClient) {
           xpRecompensa: schema.actividad.xpRecompensa
         })
         .from(schema.actividad)
-        .where(eq(schema.actividad.id, actividadId))
+        .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .where(and(eq(schema.actividad.id, actividadId), eq(schema.tema.estado, "publicado")))
         .limit(1);
 
       return actividad ?? null;
@@ -65,9 +74,26 @@ export function crearActivitiesRepository(db: DbClient) {
 
     async obtenerOpcionDeActividad(actividadId: string, opcionId: string) {
       const [opcion] = await db
-        .select({ id: schema.opcionActividad.id, correcta: schema.opcionActividad.correcta })
+        .select({
+          id: schema.opcionActividad.id,
+          correcta: schema.opcionActividad.correcta,
+          retroalimentacion: schema.opcionActividad.retroalimentacion
+        })
         .from(schema.opcionActividad)
         .where(sql`${schema.opcionActividad.id} = ${opcionId} and ${schema.opcionActividad.actividadId} = ${actividadId}`)
+        .limit(1);
+
+      return opcion ?? null;
+    },
+
+    async obtenerOpcionCorrecta(actividadId: string) {
+      const [opcion] = await db
+        .select({
+          id: schema.opcionActividad.id,
+          retroalimentacion: schema.opcionActividad.retroalimentacion
+        })
+        .from(schema.opcionActividad)
+        .where(sql`${schema.opcionActividad.actividadId} = ${actividadId} and ${schema.opcionActividad.correcta} = true`)
         .limit(1);
 
       return opcion ?? null;
@@ -89,7 +115,7 @@ export function crearActivitiesRepository(db: DbClient) {
           ocurridoEnCliente: evento.ocurridoEnCliente,
           dispositivoId: evento.dispositivoId
         })
-        .onConflictDoNothing({ target: schema.eventoProgreso.idEventoCliente })
+        .onConflictDoNothing()
         .returning();
 
       return registro ?? null;

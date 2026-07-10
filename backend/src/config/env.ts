@@ -34,6 +34,13 @@ export type Env = {
   SUPABASE_ANON_KEY: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   SUPABASE_PROJECT_REF?: string;
+
+  // Bootstrap administrativo exclusivamente local. Debe permanecer desactivado
+  // en producción y requiere un secreto independiente para invocar la ruta.
+  ENABLE_DEV_ADMIN_SETUP?: string;
+  DEV_ADMIN_EMAIL?: string;
+  DEV_ADMIN_PASSWORD?: string;
+  DEV_ADMIN_SETUP_TOKEN?: string;
 };
 
 export type Variables = {

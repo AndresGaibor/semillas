@@ -9,7 +9,7 @@ type EntradaActualizarPerfil = {
   grupo_edad_id?: string | null;
   url_avatar?: string | null;
   prefiere_audio?: boolean;
-  tamano_texto_preferido?: "small" | "medium" | "large";
+  tamano_texto_preferido?: "pequeno" | "mediano" | "grande";
 };
 
 export function crearCasoActualizarPerfil({ usuarios }: Dependencias) {

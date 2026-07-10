@@ -9,6 +9,10 @@ const env: AppBindings["Bindings"] = {
   SUPABASE_ANON_KEY: "test-anon-key",
   SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
   SUPABASE_PROJECT_REF: "test-project-ref",
+  ENABLE_DEV_ADMIN_SETUP: "true",
+  DEV_ADMIN_EMAIL: "admin@correo.com",
+  DEV_ADMIN_PASSWORD: "admin-test-1234",
+  DEV_ADMIN_SETUP_TOKEN: "token-configuracion-test-1234",
 };
 
 const originalFetch = globalThis.fetch;
@@ -98,7 +102,7 @@ describe("auth.routes", () => {
               url_avatar: null,
               clave_avatar: null,
               prefiere_audio: false,
-              tamano_texto_preferido: "medium",
+              tamano_texto_preferido: "mediano",
             }),
             { status: 201, headers: { "content-type": "application/json" } },
           );
@@ -106,7 +110,10 @@ describe("auth.routes", () => {
       },
     ]);
 
-    const response = await app.fetch(new Request("http://localhost/autenticacion/configuracion-dev", { method: "POST" }), env);
+    const response = await app.fetch(new Request("http://localhost/autenticacion/configuracion-dev", {
+      method: "POST",
+      headers: { "x-dev-setup-token": "token-configuracion-test-1234" }
+    }), env);
     const body = (await response.json()) as {
       exito: true;
       datos: { usuario: { correo: string; proveedor: string }; credenciales: { correo: string; password: string } };
@@ -115,11 +122,11 @@ describe("auth.routes", () => {
     expect(response.status).toBe(200);
     expect(body.datos.usuario.correo).toBe("admin@correo.com");
     expect(body.datos.usuario.proveedor).toBe("correo");
-    expect(body.datos.credenciales).toEqual({ correo: "admin@correo.com", password: "admin" });
+    expect(body.datos.credenciales).toEqual({ correo: "admin@correo.com", password: "admin-test-1234" });
     expect(solicitudes[0].path).toBe("/auth/v1/admin/users");
     expect(solicitudes[0].body).toMatchObject({
       email: "admin@correo.com",
-      password: "admin",
+      password: "admin-test-1234",
       email_confirm: true,
     });
   });
@@ -174,14 +181,17 @@ describe("auth.routes", () => {
               url_avatar: null,
               clave_avatar: null,
               prefiere_audio: false,
-              tamano_texto_preferido: "medium",
+              tamano_texto_preferido: "mediano",
             }),
             { status: 200, headers: { "content-type": "application/json" } },
           ),
       },
     ]);
 
-    const response = await app.fetch(new Request("http://localhost/autenticacion/configuracion-dev", { method: "POST" }), env);
+    const response = await app.fetch(new Request("http://localhost/autenticacion/configuracion-dev", {
+      method: "POST",
+      headers: { "x-dev-setup-token": "token-configuracion-test-1234" }
+    }), env);
     const body = (await response.json()) as {
       exito: true;
       datos: { usuario: { correo: string; rol: string }; credenciales: { correo: string; password: string } };
@@ -189,7 +199,7 @@ describe("auth.routes", () => {
 
     expect(response.status).toBe(200);
     expect(body.datos.usuario).toMatchObject({ correo: "admin@correo.com", rol: "administrador" });
-    expect(body.datos.credenciales).toEqual({ correo: "admin@correo.com", password: "admin" });
+    expect(body.datos.credenciales).toEqual({ correo: "admin@correo.com", password: "admin-test-1234" });
     expect(solicitudes[0]).toEqual({ path: "/rest/v1/usuario_app", body: { rol: "administrador" } });
   });
 });

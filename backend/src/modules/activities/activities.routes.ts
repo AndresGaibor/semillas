@@ -46,10 +46,8 @@ export function crearModuloActivities({
       const actividades = obtenerRepositorio(c);
       const responderActividad = crearCasoResponderActividad({ actividades });
 
-      return responderExito(
-        await responderActividad(usuario, actividadId, cuerpo),
-        201
-      );
+      const resultado = await responderActividad(usuario, actividadId, cuerpo);
+      return responderExito(resultado, resultado.duplicado ? 200 : 201);
     }
   );
 

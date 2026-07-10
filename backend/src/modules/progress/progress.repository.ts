@@ -38,9 +38,9 @@ export function crearProgressRepository(db: DbClient) {
         temaId: body.tema_id ?? null,
         pasoId: body.paso_id ?? null,
         actividadId: body.actividad_id ?? null,
-        correcta: body.correcta ?? null,
-        puntaje: body.puntaje ?? null,
-        xpOtorgada: body.xp_otorgada ?? 0,
+        correcta: null,
+        puntaje: null,
+        xpOtorgada: 0,
         datos: body.datos ?? {},
         ocurridoEnCliente: body.ocurrido_en_cliente ? new Date(body.ocurrido_en_cliente) : new Date(),
         dispositivoId: body.dispositivo_id ?? null

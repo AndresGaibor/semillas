@@ -1,7 +1,13 @@
 import type { ClubsRepository } from "./clubs.repository";
 
-export function serializarClub(fila: { id: string; nombre: string; descripcion: string | null; codigoInvitacion: string; creadoPor: string; activo: boolean; creadoEn: Date }) {
+type FilaClub = { id: string; nombre: string; descripcion: string | null; codigoInvitacion: string; creadoPor: string; activo: boolean; creadoEn: Date };
+
+export function serializarClub(fila: FilaClub) {
   return { id: fila.id, nombre: fila.nombre, descripcion: fila.descripcion, codigo_invitacion: fila.codigoInvitacion, creado_por: fila.creadoPor, activo: fila.activo, creado_en: fila.creadoEn.toISOString() };
+}
+
+export function serializarClubPublico(fila: FilaClub) {
+  return { id: fila.id, nombre: fila.nombre, descripcion: fila.descripcion, creado_por: fila.creadoPor, activo: fila.activo, creado_en: fila.creadoEn.toISOString() };
 }
 
 export function serializarMiembroClub(fila: { clubId: string; usuarioId: string; rolMiembro: string; unidoEn: Date }) {

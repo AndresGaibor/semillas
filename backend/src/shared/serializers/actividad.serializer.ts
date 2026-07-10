@@ -53,9 +53,7 @@ function serializarOpcionActividad(opcion: NonNullable<NonNullable<FilaActividad
     actividad_id: opcion.actividad_id,
     etiqueta: opcion.etiqueta,
     texto: opcion.texto,
-    correcta: opcion.correcta,
-    orden: opcion.orden,
-    retroalimentacion: opcion.retroalimentacion
+    orden: opcion.orden
   };
 }
 

@@ -3,12 +3,12 @@ import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
 type TemaFila = typeof schema.tema.$inferSelect;
-type SendaFila = typeof schema.enda.$inferSelect | null;
+type SendaFila = typeof schema.senda.$inferSelect | null;
 type PortadaFila = typeof schema.recursoMultimedia.$inferSelect | null;
 
 export type TemaListadoRepo = {
   tema: TemaFila;
-  enda: SendaFila;
+  senda: SendaFila;
   portada: PortadaFila;
 };
 
@@ -19,24 +19,24 @@ export function crearThemesRepository(db: DbClient) {
         return db
           .select({
             tema: schema.tema,
-            enda: schema.enda,
+            senda: schema.senda,
             portada: schema.recursoMultimedia
           })
           .from(schema.tema)
-          .leftJoin(schema.enda, eq(schema.tema.endaId, schema.enda.id))
+          .leftJoin(schema.senda, eq(schema.tema.sendaId, schema.senda.id))
           .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
-          .where(and(eq(schema.tema.estado, "publicado"), eq(schema.tema.endaId, sendaId)))
+          .where(and(eq(schema.tema.estado, "publicado"), eq(schema.tema.sendaId, sendaId)))
           .orderBy(asc(schema.tema.publicadoEn)) as never;
       }
 
       return db
         .select({
           tema: schema.tema,
-          enda: schema.enda,
+          senda: schema.senda,
           portada: schema.recursoMultimedia
         })
         .from(schema.tema)
-        .leftJoin(schema.enda, eq(schema.tema.endaId, schema.enda.id))
+        .leftJoin(schema.senda, eq(schema.tema.sendaId, schema.senda.id))
         .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
         .where(eq(schema.tema.estado, "publicado"))
         .orderBy(asc(schema.tema.publicadoEn)) as never;
@@ -46,13 +46,13 @@ export function crearThemesRepository(db: DbClient) {
       const [resultado] = await db
         .select({
           tema: schema.tema,
-          enda: schema.enda,
+          senda: schema.senda,
           portada: schema.recursoMultimedia
         })
         .from(schema.tema)
-        .leftJoin(schema.enda, eq(schema.tema.endaId, schema.enda.id))
+        .leftJoin(schema.senda, eq(schema.tema.sendaId, schema.senda.id))
         .leftJoin(schema.recursoMultimedia, eq(schema.tema.portadaRecursoId, schema.recursoMultimedia.id))
-        .where(eq(schema.tema.id, temaId))
+        .where(and(eq(schema.tema.id, temaId), eq(schema.tema.estado, "publicado")))
         .limit(1);
 
       return resultado ?? null;
@@ -77,7 +77,8 @@ export function crearThemesRepository(db: DbClient) {
         .select({ paso: schema.pasoTema, tipoPaso: schema.tipoPasoCrecer })
         .from(schema.pasoTema)
         .leftJoin(schema.tipoPasoCrecer, eq(schema.pasoTema.tipoPasoId, schema.tipoPasoCrecer.id))
-        .where(eq(schema.pasoTema.temaId, temaId))
+        .innerJoin(schema.tema, eq(schema.pasoTema.temaId, schema.tema.id))
+        .where(and(eq(schema.pasoTema.temaId, temaId), eq(schema.tema.estado, "publicado")))
         .orderBy(asc(schema.pasoTema.orden));
 
       return Promise.all(
@@ -108,13 +109,15 @@ export function crearThemesRepository(db: DbClient) {
             .select({ actividad: schema.actividad, tipoActividad: schema.tipoActividad })
             .from(schema.actividad)
             .leftJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
-            .where(and(eq(schema.actividad.temaId, temaId), eq(schema.actividad.grupoEdadId, grupoEdadId)))
+            .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+            .where(and(eq(schema.actividad.temaId, temaId), eq(schema.actividad.grupoEdadId, grupoEdadId), eq(schema.tema.estado, "publicado")))
             .orderBy(asc(schema.actividad.orden))
         : await db
             .select({ actividad: schema.actividad, tipoActividad: schema.tipoActividad })
             .from(schema.actividad)
             .leftJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
-            .where(eq(schema.actividad.temaId, temaId))
+            .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+            .where(and(eq(schema.actividad.temaId, temaId), eq(schema.tema.estado, "publicado")))
             .orderBy(asc(schema.actividad.orden));
 
       return Promise.all(

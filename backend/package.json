@@ -7,35 +7,33 @@
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "bun test",
-    "test:e2e": "bun test \"src/**/*.e2e.test.ts\" --pass-with-no-tests",
+    "test:e2e": "bun test test --pass-with-no-tests",
     "typecheck": "tsc --noEmit",
-    "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > src/db/database.types.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
+    "gen:types": "bun run --cwd .. db:types",
     "db:studio": "drizzle-kit studio",
-    "db:check": "drizzle-kit check"
+    "db:check": "drizzle-kit check",
+    "db:generate:draft": "drizzle-kit generate"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
     "@hono/zod-openapi": "^1.4.0",
-    "@hono/zod-validator": "latest",
+    "@hono/zod-validator": "0.8.0",
     "@libsql/client": "^0.17.4",
     "@scalar/hono-api-reference": "^0.11.8",
-    "@supabase/supabase-js": "latest",
+    "@supabase/supabase-js": "2.110.2",
     "drizzle-orm": "^0.45.2",
-    "hono": "latest",
+    "hono": "4.12.28",
     "openapi3-ts": "^4.6.0",
     "postgres": "^3.4.9",
-    "zod": "latest"
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "latest",
+    "@cloudflare/workers-types": "5.20260708.1",
     "@types/bun": "^1.3.14",
-    "@types/node": "latest",
+    "@types/node": "26.1.1",
     "drizzle-kit": "^0.31.10",
-    "supabase": "latest",
-    "typescript": "latest",
-    "wrangler": "latest"
+    "supabase": "2.109.1",
+    "typescript": "7.0.2",
+    "wrangler": "4.110.0"
   }
 }

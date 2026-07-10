@@ -52,10 +52,12 @@ import * as schema from "./schema";
  */
 
 export function crearDb(env: Env) {
-  const connectionString = env.HYPERDRIVE?.connectionString;
+  const connectionString = env.HYPERDRIVE?.connectionString ?? env.SUPABASE_DATABASE_URL;
 
   if (!connectionString) {
-    throw new Error("El binding HYPERDRIVE es obligatorio para crear el cliente Drizzle.");
+    throw new Error(
+      "Configura HYPERDRIVE en Cloudflare o SUPABASE_DATABASE_URL para desarrollo local."
+    );
   }
 
   const clientePostgres = postgres(connectionString, {
@@ -65,17 +67,8 @@ export function crearDb(env: Env) {
   return drizzle(clientePostgres, { schema });
 }
 
-// Cliente de compatibilidad para los módulos que aún importan `db` directamente.
-// No puede usar Hyperdrive hasta que la composición de la aplicación inyecte `env`.
-const queryClient = postgres({
-  transform: undefined,
-  prepare: false
-});
-
-// Instancia global del cliente Drizzle
-// En Cloudflare Workers, el código se ejecuta en un solo hilo
-// por lo que una instancia global es segura y eficiente
-export const db = drizzle(queryClient, { schema });
+// El cliente Drizzle se crea por solicitud a partir del entorno y se inyecta
+// en los módulos. No se abre una conexión global implícita a localhost.
 
 /**
  * ============================================================
@@ -139,7 +132,7 @@ export function createSupabaseAuthClient(env: Env, accessToken: string) {
  */
 
 // Tipos del cliente Drizzle (para inyección de dependencias si se necesita)
-export type DbClient = typeof db;
+export type DbClient = ReturnType<typeof crearDb>;
 
 // Schema completo de la base de datos
 // Usar para importar las tablas en los módulos
@@ -152,7 +145,7 @@ export { schema };
  *
  * Para migrar un módulo de Supabase a Drizzle:
  *
- * 1. Importar db y schema desde este archivo
+ * 1. Recibir el cliente Drizzle por inyección y usar schema desde este archivo
  * 2. Reemplazar Supabase queries con queries Drizzle
  * 3. Eliminar c.set("db") y c.get("db") del módulo
  * 4. Mantener el uso de Supabase client solo para:

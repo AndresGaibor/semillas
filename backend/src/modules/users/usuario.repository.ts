@@ -10,7 +10,7 @@ type PerfilActualizacion = {
   grupoEdadId?: string | null;
   urlAvatar?: string | null;
   prefiereAudio?: boolean | null;
-  tamanoTextoPreferido?: "small" | "medium" | "large" | null;
+  tamanoTextoPreferido?: "pequeno" | "mediano" | "grande" | null;
 };
 
 type VincularCuentaInput = {

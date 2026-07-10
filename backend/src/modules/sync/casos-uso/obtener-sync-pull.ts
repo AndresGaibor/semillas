@@ -1,4 +1,11 @@
-import { serializarEventoSincronizacion, serializarProgresoActividadSincronizacion, serializarProgresoTemaSincronizacion, type FilaEventoSincronizacion, type FilaProgresoActividadSincronizacion, type FilaProgresoTemaSincronizacion } from "../sync.serializer";
+import {
+  serializarEventoSincronizacion,
+  serializarProgresoActividadSincronizacion,
+  serializarProgresoTemaSincronizacion,
+  type FilaEventoSincronizacion,
+  type FilaProgresoActividadSincronizacion,
+  type FilaProgresoTemaSincronizacion
+} from "../sync.serializer";
 import type { SyncRepository } from "../sync.repository";
 
 type Dependencias = {
@@ -14,6 +21,7 @@ export function crearCasoObtenerSyncPull({ repositorio }: Dependencias) {
     ]);
 
     return {
+      timestamp_servidor: new Date().toISOString(),
       eventos: eventos.map((fila) => serializarEventoSincronizacion(fila as FilaEventoSincronizacion)),
       progreso: {
         temas: progresoTemas.map((fila) => serializarProgresoTemaSincronizacion(fila as FilaProgresoTemaSincronizacion)),

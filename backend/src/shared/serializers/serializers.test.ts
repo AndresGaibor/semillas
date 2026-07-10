@@ -277,18 +277,14 @@ describe("serializadores", () => {
           actividad_id: "actividad-1",
           etiqueta: "A",
           texto: "Dios",
-          correcta: true,
-          orden: 1,
-          retroalimentacion: "Correcto"
+          orden: 1
         },
         {
           id: "opcion-2",
           actividad_id: "actividad-1",
           etiqueta: "B",
           texto: "Jesús",
-          correcta: false,
-          orden: 2,
-          retroalimentacion: null
+          orden: 2
         }
       ]
     });

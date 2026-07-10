@@ -1,9 +1,17 @@
 import type { AuthRepository } from "../auth.repository";
 
-export function crearCasoConfigurarAdminDev(repositorio: AuthRepository) {
+type CredencialesAdminDev = {
+  correo: string;
+  password: string;
+};
+
+export function crearCasoConfigurarAdminDev(
+  repositorio: AuthRepository,
+  credenciales: CredencialesAdminDev
+) {
   return async function configurarAdminDev() {
-    const adminEmail = "admin@correo.com";
-    const adminPassword = "admin";
+    const adminEmail = credenciales.correo;
+    const adminPassword = credenciales.password;
 
     const existente = await repositorio.buscarUsuarioPorCorreo(adminEmail);
 
@@ -14,7 +22,12 @@ export function crearCasoConfigurarAdminDev(repositorio: AuthRepository) {
 
       const perfil = await repositorio.buscarPerfilPorUsuarioId(usuario.id);
 
-      return { usuario, perfil, credenciales: { correo: adminEmail, password: adminPassword }, mensaje: "Administrador de desarrollo disponible para iniciar sesión con correo." };
+      return {
+        usuario,
+        perfil,
+        credenciales: { correo: adminEmail, password: adminPassword },
+        mensaje: "Administrador de desarrollo disponible para iniciar sesión con correo."
+      };
     }
 
     const authUser = await repositorio.crearUsuarioAuthAdmin({
@@ -33,8 +46,20 @@ export function crearCasoConfigurarAdminDev(repositorio: AuthRepository) {
       id_externo: authUser.id
     });
 
-    const perfil = await repositorio.crearPerfil({ usuario_id: usuario.id, apodo: "Admin Dev" });
-
-    return { usuario, perfil, credenciales: { correo: adminEmail, password: adminPassword }, mensaje: "Administrador creado. Usa este correo y contraseña para iniciar sesión." };
+    try {
+      const perfil = await repositorio.crearPerfil({ usuario_id: usuario.id, apodo: "Admin Dev" });
+      return {
+        usuario,
+        perfil,
+        credenciales: { correo: adminEmail, password: adminPassword },
+        mensaje: "Administrador creado. Usa este correo y contraseña para iniciar sesión."
+      };
+    } catch (error) {
+      // La creación ocurre en Auth y en PostgREST. Compensamos ambas escrituras
+      // para que el endpoint pueda reintentarse sin dejar identidades incompletas.
+      await repositorio.eliminarUsuarioApp(usuario.id);
+      await repositorio.eliminarUsuarioAuth(authUser.id);
+      throw error;
+    }
   };
 }

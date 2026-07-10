@@ -49,6 +49,6 @@ test("crearDb rechaza un binding Hyperdrive ausente", () => {
   };
 
   expect(() => crearDb(envSinHyperdrive)).toThrow(
-    "El binding HYPERDRIVE es obligatorio para crear el cliente Drizzle."
+    "Configura HYPERDRIVE en Cloudflare o SUPABASE_DATABASE_URL para desarrollo local."
   );
 });

@@ -11,7 +11,7 @@
  *
  * La API sigue el patrón de respuestas:
  * - Éxito: { exito: true, datos: {...} }
- * - Error: { exito: false, error: {...} }
+ * - Error: { exito: false, error: "mensaje", codigo?: "CODIGO" }
  *
  * @module app
  */
@@ -71,12 +71,20 @@ app.use(
   "*",
   cors({
     origin: (origin, c) => {
-      const allowed = c.env.CORS_ORIGIN;
-      if (!origin) return allowed;
-      if (origin?.startsWith("http://localhost")) return origin;
-      return origin === allowed ? origin : allowed;
+      const permitidos = c.env.CORS_ORIGIN
+        .split(",")
+        .map((valor: string) => valor.trim())
+        .filter(Boolean);
+
+      if (!origin) return permitidos[0] ?? "";
+
+      const esDesarrollo = c.env.APP_ENV !== "production";
+      const esLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      if (esDesarrollo && esLocal) return origin;
+
+      return permitidos.includes(origin) ? origin : "";
     },
-    allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id", "X-Guest-Token", "X-Dev-Setup-Token"],
     allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   })
@@ -94,7 +102,7 @@ app.use(
  */
 app.use("*", async (c, next) => {
   c.set("db", createSupabaseAdmin(c.env));
-  if (c.env.HYPERDRIVE) {
+  if (c.env.HYPERDRIVE || c.env.SUPABASE_DATABASE_URL) {
     c.set("drizzle", crearDb(c.env));
   }
   await next();

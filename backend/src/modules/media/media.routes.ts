@@ -35,13 +35,13 @@ mediaRoutes.get("/:id/url", authMiddleware, async (c) => {
   return responderExito({ url: resultado.url, expira_en_segundos: resultado.expiraEnSegundos });
 });
 
-mediaRoutes.get("/", authMiddleware, async (c) => {
+mediaRoutes.get("/", authMiddleware, requireRole("administrador"), async (c) => {
   const repositorio = crearMediaRepository(c.get("db"));
   const casos = crearCasosUsoMedia(repositorio);
   return responderExito(await casos.listar());
 });
 
-mediaRoutes.get("/:id", async (c) => {
+mediaRoutes.get("/:id", authMiddleware, requireRole("administrador"), async (c) => {
   const repositorio = crearMediaRepository(c.get("db"));
   const casos = crearCasosUsoMedia(repositorio);
   const resultado = await casos.obtener(c.req.param("id"));
@@ -49,7 +49,7 @@ mediaRoutes.get("/:id", async (c) => {
   return responderExito(resultado);
 });
 
-mediaRoutes.delete("/:id", async (c) => {
+mediaRoutes.delete("/:id", authMiddleware, requireRole("administrador"), async (c) => {
   const repositorio = crearMediaRepository(c.get("db"));
   const casos = crearCasosUsoMedia(repositorio);
   const resultado = await casos.eliminar(c.req.param("id"));

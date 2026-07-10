@@ -1,9 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  'https://dmddyzftrkktzctrurmo.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZGR5emZ0cmtrdHpjdHJ1cm1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzIwNjYxOSwiZXhwIjoyMDk4NzgyNjE5fQ.2wsM31YUh0pFeeIS9jHKqhRuwezbASErBvYtHwz9aZw'
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !serviceRoleKey) {
+  throw new Error(
+    "Configura SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en el entorno antes de ejecutar este script."
+  );
+}
+
+const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 async function run() {
   const themeId = '47a2e22f-86da-466f-92ff-1847d85de609'; // El tema que ya tiene el quiz

@@ -25,10 +25,10 @@ function crearDbMock() {
         minutosEstimados: 10,
         versionContenido: 1,
         publicadoEn: new Date("2026-01-01T00:00:00.000Z"),
-        endaId: "senda-padre",
+        sendaId: "senda-padre",
         portadaRecursoId: "recurso-1"
       },
-      enda: {
+      senda: {
         id: "senda-padre",
         nombre: "Senda del Padre",
         codigo: "padre",
@@ -122,7 +122,7 @@ function crearDbMock() {
                 orderBy: async () => {
                   queryIndex += 1;
 
-                  if (claves.includes("tema") && claves.includes("enda") && claves.includes("portada")) {
+                  if (claves.includes("tema") && claves.includes("senda") && claves.includes("portada")) {
                     return listados;
                   }
 
@@ -141,7 +141,7 @@ function crearDbMock() {
                   return [];
                 },
                 limit: async () => {
-                  if (claves.includes("tema") && claves.includes("enda") && claves.includes("portada")) {
+                  if (claves.includes("tema") && claves.includes("senda") && claves.includes("portada")) {
                     return [detalle];
                   }
 
@@ -187,10 +187,10 @@ describe("themes.routes", () => {
     expect(cuerpoListado.datos[0].senda?.codigo).toBe("padre");
 
     const portada = await app.fetch(new Request("http://localhost/550e8400-e29b-41d4-a716-446655440011/portada"), env);
-    const cuerpoPortada = (await portada.json()) as { exito: true; datos: { url: string; expiraEnSegundos: number } };
+    const cuerpoPortada = (await portada.json()) as { exito: true; datos: { url: string; expira_en_segundos: number } };
 
     expect(portada.status).toBe(200);
     expect(cuerpoPortada.datos.url).toContain("token=abc123");
-    expect(cuerpoPortada.datos.expiraEnSegundos).toBe(300);
+    expect(cuerpoPortada.datos.expira_en_segundos).toBe(300);
   });
 });

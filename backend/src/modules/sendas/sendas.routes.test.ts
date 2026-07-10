@@ -53,8 +53,8 @@ describe("sendasRoutes", () => {
           codigo: "PADRE",
           nombre: "Padre",
           descripcion: "Senda padre",
-          colorHex: "#123456",
-          nombreIcono: "sun",
+          color_hex: "#123456",
+          nombre_icono: "sun",
           orden: 1
         },
         {
@@ -62,8 +62,8 @@ describe("sendasRoutes", () => {
           codigo: "HIJO",
           nombre: "Hijo",
           descripcion: null,
-          colorHex: "#654321",
-          nombreIcono: null,
+          color_hex: "#654321",
+          nombre_icono: null,
           orden: 2
         }
       ]

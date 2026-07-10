@@ -49,7 +49,7 @@ export function crearModuloThemes({
 
     return responderExito({
       url: portada.url,
-      expiraEnSegundos: portada.expiraEnSegundos
+      expira_en_segundos: portada.expira_en_segundos
     });
   });
 

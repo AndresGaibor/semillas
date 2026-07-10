@@ -5,5 +5,5 @@ export const updateProfileSchema = z.object({
   grupo_edad_id: z.string().uuid().nullable().optional(),
   url_avatar: z.string().nullable().optional(),
   prefiere_audio: z.boolean().optional(),
-  tamano_texto_preferido: z.enum(["small", "medium", "large"]).optional()
+  tamano_texto_preferido: z.enum(["pequeno", "mediano", "grande"]).optional()
 });

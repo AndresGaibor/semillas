@@ -15,12 +15,16 @@ const env: AppBindings["Bindings"] = {
   SUPABASE_PROJECT_REF: "test-project-ref",
 };
 
+const TOKEN_INVITADO = "guest-token-test-1234567890";
+
 const admin = {
   id: "550e8400-e29b-41d4-a716-446655440010",
   rol: "administrador",
   proveedor: "invitado",
   nombre_visible: "Admin Semillas",
   correo: null,
+  activo: true,
+  token_invitado_hash: "c9c27b711102ce6c9dd22f9b6b6b08bec1c294ce4b2a636e31c5a85c6f6ee6b2",
 };
 
 const usuario = {
@@ -53,7 +57,7 @@ function crearSolicitudSubida(archivo: File, tipo = "imagen", usuarioId = admin.
 
   return new Request("http://localhost/media/subir", {
     method: "POST",
-    headers: { "x-guest-user-id": usuarioId },
+    headers: { "x-guest-user-id": usuarioId, "x-guest-token": TOKEN_INVITADO },
     body: formData,
   });
 }
@@ -164,8 +168,9 @@ describe("media.routes", () => {
     expect(body.codigo).toBe("INVALID_FILE_SIGNATURE");
   });
 
-  it("guarda bucket y clave de storage al registrar la imagen", async () => {
+  it("guarda bucket, clave y ruta firmada al registrar la imagen", async () => {
     let registroInsertado: Record<string, unknown> = {};
+    let rutaActualizada = "";
 
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const request = input instanceof Request ? input : new Request(String(input), init);
@@ -199,6 +204,22 @@ describe("media.routes", () => {
         );
       }
 
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "PATCH") {
+        const actualizacion = await request.json() as { url_publica: string };
+        rutaActualizada = actualizacion.url_publica;
+        return new Response(
+          JSON.stringify({
+            id: "550e8400-e29b-41d4-a716-446655440099",
+            ...registroInsertado,
+            ...actualizacion,
+            activo: true,
+            creado_en: "2026-07-07T00:00:00.000Z",
+            actualizado_en: "2026-07-07T00:00:00.000Z",
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+
       return new Response(JSON.stringify({}), {
         status: 200,
         headers: { "content-type": "application/json" },
@@ -210,7 +231,8 @@ describe("media.routes", () => {
     expect(response.status).toBe(201);
     expect(registroInsertado?.bucket_almacenamiento).toBe("media");
     expect(registroInsertado?.clave_almacenamiento).toEqual(expect.stringMatching(/^imagen\//));
-    expect(registroInsertado?.url_publica).toEqual(expect.stringContaining("/storage/v1/object/public/media/imagen/"));
+    expect(registroInsertado?.url_publica).toBe("");
+    expect(rutaActualizada).toBe("/media/550e8400-e29b-41d4-a716-446655440099/url");
   });
 
   it("desactiva recursos multimedia con borrado logico", async () => {
@@ -264,7 +286,7 @@ describe("media.routes", () => {
     const response = await app.fetch(
       new Request("http://localhost/media/550e8400-e29b-41d4-a716-446655440099", {
         method: "DELETE",
-        headers: { "x-guest-user-id": admin.id },
+        headers: { "x-guest-user-id": admin.id, "x-guest-token": TOKEN_INVITADO },
       }),
       env,
     );
@@ -319,7 +341,7 @@ describe("media.routes", () => {
 
     const response = await app.fetch(
       new Request("http://localhost/media/550e8400-e29b-41d4-a716-446655440099/url", {
-        headers: { "x-guest-user-id": admin.id },
+        headers: { "x-guest-user-id": admin.id, "x-guest-token": TOKEN_INVITADO },
       }),
       env,
     );

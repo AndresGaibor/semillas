@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "../../db/database.types";
-import { db as drizzleDb, schema, type DbClient } from "../../db/client";
+import { schema, type DbClient } from "../../db/client";
 import { NotFoundError } from "../../shared/errors/http-error";
 import { z } from "zod";
 import { crearSlugCopia, crearTituloCopia, mapActivity, mapStep, mapTheme } from "./admin.formatters";
@@ -26,20 +26,31 @@ type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 type UpdateUserInput = z.infer<typeof updateUserSchema>;
 
 export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
+  function requerirDrizzle() {
+    if (!drizzle) {
+      throw new Error("Cliente Drizzle no disponible: configura HYPERDRIVE o SUPABASE_DATABASE_URL");
+    }
+    return drizzle;
+  }
+
   return {
     async obtenerResumen() {
       const [themes, users, activities, published] = await Promise.all([
-        supabase.from("tema").select("id"),
-        supabase.from("usuario_app").select("id"),
-        supabase.from("actividad").select("id"),
-        supabase.from("tema").select("id").eq("estado", "publicado")
+        supabase.from("tema").select("id", { count: "exact", head: true }),
+        supabase.from("usuario_app").select("id", { count: "exact", head: true }),
+        supabase.from("actividad").select("id", { count: "exact", head: true }),
+        supabase.from("tema").select("id", { count: "exact", head: true }).eq("estado", "publicado")
       ]);
 
+      for (const resultado of [themes, users, activities, published]) {
+        if (resultado.error) throw resultado.error;
+      }
+
       return {
-        temas: themes.data?.length ?? 0,
-        publicados: published.data?.length ?? 0,
-        usuarios: users.data?.length ?? 0,
-        actividades: activities.data?.length ?? 0
+        temas: themes.count ?? 0,
+        publicados: published.count ?? 0,
+        usuarios: users.count ?? 0,
+        actividades: activities.count ?? 0
       };
     },
 
@@ -49,6 +60,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         .select(`
       *,
       tipo_actividad:tipo_actividad_id(id, codigo, nombre),
+      opciones:opcion_actividad(id, actividad_id, etiqueta, texto, correcta, orden, retroalimentacion),
       tema:tema_id(id, titulo, slug, estado, senda:senda_id(id, codigo, nombre, color_hex)),
       grupo_edad:grupo_edad_id(id, codigo, nombre)
     `, { count: "exact" })
@@ -67,6 +79,23 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         actividades: (data ?? []).map((a: Record<string, unknown>) => mapActivity(a)),
         total: count ?? 0
       };
+    },
+
+    async obtenerActividad(actividadId: string) {
+      const { data, error } = await supabase
+        .from("actividad")
+        .select(`
+          *,
+          tipo_actividad:tipo_actividad_id(id, codigo, nombre),
+          opciones:opcion_actividad(id, actividad_id, etiqueta, texto, correcta, orden, retroalimentacion),
+          tema:tema_id(id, titulo, slug, estado, senda:senda_id(id, codigo, nombre, color_hex)),
+          grupo_edad:grupo_edad_id(id, codigo, nombre)
+        `)
+        .eq("id", actividadId)
+        .single();
+
+      if (error || !data) throw new NotFoundError("Actividad no encontrada");
+      return mapActivity(data as Record<string, unknown>);
     },
 
     async listarTemas(status?: string) {
@@ -112,7 +141,12 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       if (error || !theme) throw error;
       const rows = body.grupo_edad_ids.map((grupoEdadId: string) => ({ tema_id: theme.id, grupo_edad_id: grupoEdadId }));
       const { error: ageError } = await supabase.from("tema_grupo_edad").insert(rows);
-      if (ageError) throw ageError;
+      if (ageError) {
+        // Supabase REST no agrupa estas escrituras en una transacción. Eliminamos
+        // el padre para no dejar un tema huérfano si falla la relación etaria.
+        await supabase.from("tema").delete().eq("id", theme.id);
+        throw ageError;
+      }
       return mapTheme(theme as Record<string, unknown>);
     },
 
@@ -134,8 +168,27 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         .single();
       if (error || !theme) throw new NotFoundError("Tema no encontrado");
       if (body.grupo_edad_ids) {
-        await supabase.from("tema_grupo_edad").delete().eq("tema_id", temaId);
-        await supabase.from("tema_grupo_edad").insert(body.grupo_edad_ids.map((grupoEdadId: string) => ({ tema_id: temaId, grupo_edad_id: grupoEdadId })));
+        const { data: relacionesAnteriores, error: relacionesError } = await supabase
+          .from("tema_grupo_edad")
+          .select("grupo_edad_id")
+          .eq("tema_id", temaId);
+        if (relacionesError) throw relacionesError;
+
+        const { error: deleteError } = await supabase.from("tema_grupo_edad").delete().eq("tema_id", temaId);
+        if (deleteError) throw deleteError;
+
+        const { error: insertError } = await supabase
+          .from("tema_grupo_edad")
+          .insert(body.grupo_edad_ids.map((grupoEdadId: string) => ({ tema_id: temaId, grupo_edad_id: grupoEdadId })));
+
+        if (insertError) {
+          const restaurar = (relacionesAnteriores ?? []).map((relacion) => ({
+            tema_id: temaId,
+            grupo_edad_id: relacion.grupo_edad_id
+          }));
+          if (restaurar.length > 0) await supabase.from("tema_grupo_edad").insert(restaurar);
+          throw insertError;
+        }
       }
       return mapTheme(theme as Record<string, unknown>);
     },
@@ -176,18 +229,52 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       if (body.opciones.length > 0) {
         const rows = body.opciones.map((opcion) => ({ actividad_id: activity.id, etiqueta: opcion.etiqueta, texto: opcion.texto, correcta: opcion.correcta, orden: opcion.orden, retroalimentacion: opcion.retroalimentacion ?? null }));
         const { error: optionsError } = await supabase.from("opcion_actividad").insert(rows);
-        if (optionsError) throw optionsError;
+        if (optionsError) {
+          await supabase.from("actividad").delete().eq("id", activity.id);
+          throw optionsError;
+        }
       }
       return activity;
     },
 
     async actualizarActividad(actividadId: string, body: UpdateActivityInput) {
-      const { data: activity, error } = await supabase.from("actividad").update({ ...(body.tema_id && { tema_id: body.tema_id }), ...(body.paso_id !== undefined && { paso_id: body.paso_id }), ...(body.grupo_edad_id && { grupo_edad_id: body.grupo_edad_id }), ...(body.tipo_actividad_id && { tipo_actividad_id: body.tipo_actividad_id }), ...(body.titulo && { titulo: body.titulo }), ...(body.consigna && { consigna: body.consigna }), ...(body.retroalimentacion !== undefined && { retroalimentacion: body.retroalimentacion }), ...(body.orden && { orden: body.orden }), ...(body.xp_recompensa && { xp_recompensa: body.xp_recompensa }), ...(body.limite_tiempo_seg !== undefined && { limite_tiempo_seg: body.limite_tiempo_seg }), ...(body.dificultad && { dificultad: body.dificultad }), ...(body.obligatorio !== undefined && { obligatorio: body.obligatorio }), ...(body.configuracion && { configuracion: body.configuracion as Json }), actualizado_en: new Date().toISOString() } as Database["public"]["Tables"]["actividad"]["Update"]).eq("id", actividadId).select("*").single();
+      const { data: activity, error } = await supabase.from("actividad").update({
+        ...(body.tema_id !== undefined ? { tema_id: body.tema_id } : {}),
+        ...(body.paso_id !== undefined ? { paso_id: body.paso_id } : {}),
+        ...(body.grupo_edad_id !== undefined ? { grupo_edad_id: body.grupo_edad_id } : {}),
+        ...(body.tipo_actividad_id !== undefined ? { tipo_actividad_id: body.tipo_actividad_id } : {}),
+        ...(body.titulo !== undefined ? { titulo: body.titulo } : {}),
+        ...(body.consigna !== undefined ? { consigna: body.consigna } : {}),
+        ...(body.retroalimentacion !== undefined ? { retroalimentacion: body.retroalimentacion } : {}),
+        ...(body.orden !== undefined ? { orden: body.orden } : {}),
+        ...(body.xp_recompensa !== undefined ? { xp_recompensa: body.xp_recompensa } : {}),
+        ...(body.limite_tiempo_seg !== undefined ? { limite_tiempo_seg: body.limite_tiempo_seg } : {}),
+        ...(body.dificultad !== undefined ? { dificultad: body.dificultad } : {}),
+        ...(body.obligatorio !== undefined ? { obligatorio: body.obligatorio } : {}),
+        ...(body.configuracion !== undefined ? { configuracion: body.configuracion as Json } : {}),
+        actualizado_en: new Date().toISOString()
+      } as Database["public"]["Tables"]["actividad"]["Update"]).eq("id", actividadId).select("*").single();
       if (error || !activity) throw new NotFoundError("Actividad no encontrada");
       if (body.opciones) {
-        const { error: delError } = await supabase.from("opcion_actividad").delete().eq("actividad_id", actividadId); if (delError) throw delError;
+        const { data: opcionesAnteriores, error: opcionesError } = await supabase
+          .from("opcion_actividad")
+          .select("etiqueta, texto, correcta, orden, retroalimentacion")
+          .eq("actividad_id", actividadId);
+        if (opcionesError) throw opcionesError;
+
+        const { error: delError } = await supabase.from("opcion_actividad").delete().eq("actividad_id", actividadId);
+        if (delError) throw delError;
+
         const rows = body.opciones.map((opcion) => ({ actividad_id: actividadId, etiqueta: opcion.etiqueta, texto: opcion.texto, correcta: opcion.correcta, orden: opcion.orden, retroalimentacion: opcion.retroalimentacion ?? null }));
-        const { error: insError } = await supabase.from("opcion_actividad").insert(rows); if (insError) throw insError;
+        const { error: insError } = rows.length > 0
+          ? await supabase.from("opcion_actividad").insert(rows)
+          : { error: null };
+
+        if (insError) {
+          const restaurar = (opcionesAnteriores ?? []).map((opcion) => ({ ...opcion, actividad_id: actividadId }));
+          if (restaurar.length > 0) await supabase.from("opcion_actividad").insert(restaurar);
+          throw insError;
+        }
       }
       return activity;
     },
@@ -229,7 +316,11 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       if (duplicadoError || !temaDuplicado) throw duplicadoError ?? new NotFoundError("Tema duplicado no encontrado");
       const gruposEdad = Array.isArray(temaBase.grupos_edad) ? temaBase.grupos_edad.map((grupo) => { const grupoEdadRaw = (grupo as Record<string, unknown>).grupo_edad as Record<string, unknown> | undefined; const grupoEdad = grupoEdadRaw ?? (grupo as Record<string, unknown>); return { tema_id: String((temaDuplicado as Record<string, unknown>).id ?? ""), grupo_edad_id: String(grupoEdad.id ?? "") }; }) : [];
       if (gruposEdad.length > 0) {
-        const { error: gruposError } = await supabase.from("tema_grupo_edad").insert(gruposEdad); if (gruposError) throw gruposError;
+        const { error: gruposError } = await supabase.from("tema_grupo_edad").insert(gruposEdad);
+        if (gruposError) {
+          await supabase.from("tema").delete().eq("id", String((temaDuplicado as Record<string, unknown>).id ?? ""));
+          throw gruposError;
+        }
       }
       return mapTheme({ ...(temaBase as Record<string, unknown>), ...(temaDuplicado as Record<string, unknown>), path: temaBase.path, created_by: { id: user.id, nombre_visible: user.displayName }, portada_recurso: temaBase.portada_recurso, grupos_edad: temaBase.grupos_edad });
     },
@@ -239,28 +330,28 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       if (params.q) condiciones.push(or(ilike(schema.usuarioApp.nombreVisible, `%${params.q}%`), ilike(schema.usuarioApp.correo, `%${params.q}%`))!);
       if (params.rol) condiciones.push(eq(schema.usuarioApp.rol, params.rol as Database["public"]["Enums"]["rol_usuario"]));
       const whereClause = condiciones.length > 0 ? and(...condiciones) : undefined;
-      const clienteDrizzle = drizzle ?? drizzleDb;
+      const clienteDrizzle = requerirDrizzle();
       const usuarios = await clienteDrizzle.select({ usuario: schema.usuarioApp, perfil: schema.perfil }).from(schema.usuarioApp).leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId)).where(whereClause).orderBy(desc(schema.usuarioApp.creadoEn)).limit(params.limit).offset(params.offset);
       const [countRow] = await clienteDrizzle.select({ total: sql<number>`count(*)` }).from(schema.usuarioApp).where(whereClause);
       return { usuarios: usuarios.map((fila) => ({ id: fila.usuario.id, rol: fila.usuario.rol, proveedor: fila.usuario.proveedor, nombre_visible: fila.usuario.nombreVisible, correo: fila.usuario.correo, activo: fila.usuario.activo, creado_en: fila.usuario.creadoEn.toISOString(), actualizado_en: fila.usuario.actualizadoEn.toISOString(), ultimo_login_en: fila.usuario.ultimoLoginEn ? fila.usuario.ultimoLoginEn.toISOString() : null, perfil: fila.perfil })), total: Number(countRow?.total ?? 0) };
     },
 
     async obtenerUsuario(usuarioId: string) {
-      const clienteDrizzle = drizzle ?? drizzleDb;
+      const clienteDrizzle = requerirDrizzle();
       const [usuario] = await clienteDrizzle.select({ usuario: schema.usuarioApp, perfil: schema.perfil }).from(schema.usuarioApp).leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId)).where(eq(schema.usuarioApp.id, usuarioId)).limit(1);
       if (!usuario) throw new NotFoundError("Usuario no encontrado");
       return { id: usuario.usuario.id, rol: usuario.usuario.rol, proveedor: usuario.usuario.proveedor, nombre_visible: usuario.usuario.nombreVisible, correo: usuario.usuario.correo, activo: usuario.usuario.activo, creado_en: usuario.usuario.creadoEn.toISOString(), actualizado_en: usuario.usuario.actualizadoEn.toISOString(), ultimo_login_en: usuario.usuario.ultimoLoginEn ? usuario.usuario.ultimoLoginEn.toISOString() : null, perfil: usuario.perfil };
     },
 
     async actualizarUsuario(usuarioId: string, body: UpdateUserInput) {
-      const clienteDrizzle = drizzle ?? drizzleDb;
+      const clienteDrizzle = requerirDrizzle();
       const [existing] = await clienteDrizzle.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1); if (!existing) throw new NotFoundError("Usuario no encontrado");
       await clienteDrizzle.update(schema.usuarioApp).set({ ...(body.rol !== undefined ? { rol: body.rol } : {}), ...(body.nombre_visible !== undefined ? { nombreVisible: body.nombre_visible } : {}), actualizadoEn: new Date() }).where(eq(schema.usuarioApp.id, usuarioId));
       return this.obtenerUsuario(usuarioId);
     },
 
     async eliminarUsuario(usuarioId: string) {
-      const clienteDrizzle = drizzle ?? drizzleDb;
+      const clienteDrizzle = requerirDrizzle();
       const [existing] = await clienteDrizzle.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1); if (!existing) throw new NotFoundError("Usuario no encontrado");
       await clienteDrizzle.update(schema.usuarioApp).set({ activo: false, actualizadoEn: new Date() }).where(eq(schema.usuarioApp.id, usuarioId));
       return { eliminado: true };

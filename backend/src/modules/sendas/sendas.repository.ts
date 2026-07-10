@@ -9,9 +9,9 @@ export function crearSendasRepository(db: SendasRepositoryDb) {
     async listarActivas() {
       return db
         .select()
-        .from(schema.enda)
-        .where(eq(schema.enda.activo, true))
-        .orderBy(asc(schema.enda.orden));
+        .from(schema.senda)
+        .where(eq(schema.senda.activo, true))
+        .orderBy(asc(schema.senda.orden));
     }
   };
 }

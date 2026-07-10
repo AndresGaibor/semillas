@@ -47,7 +47,7 @@ describe("users.routes", () => {
                       urlAvatar: null,
                       claveAvatar: null,
                       prefiereAudio: false,
-                      tamanoTextoPreferido: "medium"
+                      tamanoTextoPreferido: "mediano"
                     }
                   ]
                 };

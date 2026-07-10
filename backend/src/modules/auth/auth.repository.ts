@@ -31,6 +31,14 @@ export function crearAuthRepository(db: DbClient) {
       if (error || !data) throw error;
       return data;
     },
+    async eliminarUsuarioApp(usuarioId: string) {
+      const { error } = await db.from("usuario_app").delete().eq("id", usuarioId);
+      if (error) throw error;
+    },
+    async eliminarUsuarioAuth(usuarioAuthId: string) {
+      const { error } = await db.auth.admin.deleteUser(usuarioAuthId);
+      if (error) throw error;
+    },
     async buscarPerfilPorUsuarioId(usuarioId: string) {
       const { data } = await db.from("perfil").select("*").eq("usuario_id", usuarioId).maybeSingle();
       return data ?? null;

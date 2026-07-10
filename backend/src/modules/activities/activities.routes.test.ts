@@ -12,7 +12,10 @@ describe("activities.routes", () => {
       select(consulta?: Record<string, unknown>) {
         return {
           from() {
-            return {
+            const chain = {
+              innerJoin() {
+                return chain;
+              },
               where() {
                 return {
                   limit: async () => {
@@ -74,6 +77,8 @@ describe("activities.routes", () => {
               },
               orderBy: async () => []
             };
+
+            return chain;
           }
         };
       },

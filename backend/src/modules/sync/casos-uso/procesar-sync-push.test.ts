@@ -2,13 +2,15 @@ import { describe, expect, it } from "bun:test";
 import { crearCasoProcesarSyncPush } from "./procesar-sync-push";
 
 describe("procesar-sync-push", () => {
-  it("omite duplicados y actualiza progreso localmente", async () => {
+  it("confirma cada evento, omite duplicados y no confía en XP del cliente", async () => {
     const operaciones: string[] = [];
+    const eventosGuardados: Array<Record<string, unknown>> = [];
 
     const repositorio = {
-      registrarEvento: async (_usuarioId: string, evento: { evento_id_cliente: string }) => {
+      registrarEvento: async (_usuarioId: string, evento: Record<string, unknown>) => {
         operaciones.push(`registrar:${evento.evento_id_cliente}`);
-        return evento.evento_id_cliente === "duplicado" ? false : true;
+        eventosGuardados.push(evento);
+        return evento.evento_id_cliente === "550e8400-e29b-41d4-a716-446655440002" ? false : true;
       },
       obtenerProgresoTema: async () => undefined,
       crearProgresoTema: async () => {
@@ -18,32 +20,30 @@ describe("procesar-sync-push", () => {
         operaciones.push("actualizar-tema");
       },
       obtenerProgresoActividad: async () => undefined,
-      crearProgresoActividad: async () => {
-        operaciones.push("crear-actividad");
-      },
-      actualizarProgresoActividad: async () => {
-        operaciones.push("actualizar-actividad");
-      },
+      crearProgresoActividad: async () => undefined,
+      actualizarProgresoActividad: async () => undefined,
       listarEventosUsuario: async () => [],
       listarProgresoTemas: async () => [],
       listarProgresoActividades: async () => []
-    } as const;
+    } as never;
 
     const procesarSyncPush = crearCasoProcesarSyncPush({ repositorio });
 
     const resultado = await procesarSyncPush("usuario-1", [
       {
-        evento_id_cliente: "nuevo",
+        evento_id_cliente: "550e8400-e29b-41d4-a716-446655440001",
         tipo_evento: "tema_iniciado",
-        tema_id: "tema-1",
-        xp_otorgada: 10,
+        tema_id: "550e8400-e29b-41d4-a716-446655440010",
+        correcta: true,
+        puntaje: 100,
+        xp_otorgada: 999999,
         datos: {},
         creado_en_cliente: "2026-01-01T00:00:00.000Z"
       },
       {
-        evento_id_cliente: "duplicado",
+        evento_id_cliente: "550e8400-e29b-41d4-a716-446655440002",
         tipo_evento: "actividad_completada",
-        actividad_id: "actividad-1",
+        actividad_id: "550e8400-e29b-41d4-a716-446655440020",
         correcta: true,
         puntaje: 100,
         xp_otorgada: 15,
@@ -55,12 +55,19 @@ describe("procesar-sync-push", () => {
     expect(resultado).toEqual({
       procesados: 1,
       omitidos: 1,
+      procesados_ids: ["550e8400-e29b-41d4-a716-446655440001"],
+      omitidos_ids: ["550e8400-e29b-41d4-a716-446655440002"],
       errores: []
     });
+    expect(eventosGuardados[0]).toMatchObject({
+      correcta: undefined,
+      puntaje: undefined,
+      xp_otorgada: 0
+    });
     expect(operaciones).toEqual([
-      "registrar:nuevo",
+      "registrar:550e8400-e29b-41d4-a716-446655440001",
       "crear-tema",
-      "registrar:duplicado"
+      "registrar:550e8400-e29b-41d4-a716-446655440002"
     ]);
   });
 });

@@ -9,6 +9,12 @@ export class HttpError extends Error {
   }
 }
 
+export class BadRequestError extends HttpError {
+  constructor(message = "Solicitud inválida", details?: unknown) {
+    super(400, message, "BAD_REQUEST", details);
+  }
+}
+
 export class UnauthorizedError extends HttpError {
   constructor(message = "No autenticado") {
     super(401, message, "UNAUTHORIZED");

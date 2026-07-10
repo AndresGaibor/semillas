@@ -41,8 +41,10 @@ const GuestAuthBody = z.object({
 
 const AuthInfo = z.object({
   tipo: z.literal("invitado"),
-  encabezado: z.string().openapi({ description: "Nombre del header para autenticar", example: "x-guest-user-id" }),
-  valor: z.string().openapi({ description: "Valor del header (ID del usuario)", example: uuidExample })
+  encabezado: z.literal("x-guest-user-id"),
+  valor: z.string().uuid().openapi({ description: "ID público del usuario invitado", example: uuidExample }),
+  encabezado_token: z.literal("x-guest-token"),
+  token: z.string().min(32).openapi({ description: "Secreto de sesión mostrado una sola vez" })
 });
 
 const GuestAuthResponse = z.object({
@@ -63,7 +65,7 @@ const GuestAuthResponse = z.object({
       url_avatar: z.string().nullable().openapi({ description: "URL del avatar", example: null }),
       clave_avatar: z.string().nullable().openapi({ description: "Clave del avatar", example: null }),
       prefiere_audio: z.boolean().openapi({ description: "Prefiere audio", example: true }),
-      tamano_texto_preferido: z.string().openapi({ description: "Tamano de texto preferido", example: "medium" })
+      tamano_texto_preferido: z.string().openapi({ description: "Tamano de texto preferido", example: "mediano" })
     }),
     autenticacion: AuthInfo
   })
@@ -170,9 +172,9 @@ const ProgressEventBody = z.object({
   tema_id: z.string().uuid().optional(),
   paso_id: z.string().uuid().optional(),
   actividad_id: z.string().uuid().optional(),
-  correcta: z.boolean().optional(),
-  puntaje: z.number().min(0).max(100).optional(),
-  xp_otorgada: z.number().int().min(0).optional().default(0).openapi({ example: 15 }),
+  correcta: z.boolean().optional().openapi({ description: "Dato informativo del cliente; el servidor lo ignora para validar respuestas" }),
+  puntaje: z.number().min(0).max(100).optional().openapi({ description: "Dato informativo del cliente; el servidor no lo usa como autoridad" }),
+  xp_otorgada: z.number().int().min(0).optional().default(0).openapi({ description: "Valor no confiable: el servidor lo ignora y calcula las recompensas", example: 0 }),
   datos: z.object({}).passthrough().optional(),
   ocurrido_en_cliente: z.string().datetime().optional().openapi({ example: "2026-01-01T00:00:00.000Z" }),
   dispositivo_id: z.string().optional()
@@ -226,11 +228,11 @@ const ContenidoPasoCrecerSchema = z
   .openapi("ContenidoPasoCrecer");
 
 const OpcionActividadSchema = z.object({
-  id: z.string().uuid(), actividad_id: z.string().uuid(),
+  id: z.string().uuid(),
+  actividad_id: z.string().uuid(),
   texto: z.string().openapi({ example: "Dios" }),
-  correcta: z.boolean().openapi({ description: "Si es la respuesta correcta", example: true }),
-  orden: z.number(), etiqueta: z.string().nullable().openapi({ example: "A" }),
-  retroalimentacion: z.string().nullable().openapi({ example: "Correcto!" })
+  orden: z.number(),
+  etiqueta: z.string().nullable().openapi({ example: "A" })
 }).openapi("OpcionActividad");
 
 const ActividadSchema = z.object({
@@ -279,8 +281,13 @@ const PasoTemaCrecerSchema = z
 const ClubSchema = z.object({
   id: z.string().uuid(), nombre: z.string().openapi({ example: "Exploradores de la Fe" }),
   descripcion: z.string().nullable(), codigo_invitacion: z.string().openapi({ example: "ABC12345" }),
-  activo: z.boolean(), creado_por: z.string().uuid(), creado_en: z.string().datetime()
+  activo: z.boolean(), creado_por: z.string().uuid(), creado_en: z.string().datetime(),
+  member_count: z.number().int().nonnegative().optional()
 }).openapi("Club");
+
+const ClubPublicoSchema = ClubSchema.omit({ codigo_invitacion: true })
+  .extend({ member_count: z.number().int().nonnegative() })
+  .openapi("ClubPublico");
 
 const NivelUsuario = z.object({
   usuario_id: z.string().uuid().nullable(),
@@ -307,7 +314,7 @@ const UpdateProfileBody = z.object({
   grupo_edad_id: z.string().uuid().nullable().optional(),
   url_avatar: z.string().url().nullable().optional(),
   prefiere_audio: z.boolean().optional(),
-  tamano_texto_preferido: z.enum(["small","medium","large"]).optional().openapi({ example: "medium" })
+  tamano_texto_preferido: z.enum(["pequeno","mediano","grande"]).optional().openapi({ example: "mediano" })
 }).openapi("UpdateProfileBody");
 
 const ProfileResponse = z.object({
@@ -433,6 +440,45 @@ const AdminUpdateActivityBody = z.object({
   })).optional().openapi({ description: "Opciones de respuesta" })
 }).openapi("AdminUpdateActivityBody");
 
+const AdminActivityOption = z.object({
+  id: z.string().uuid(),
+  actividad_id: z.string().uuid(),
+  etiqueta: z.string().nullable(),
+  texto: z.string(),
+  correcta: z.boolean(),
+  orden: z.number().int(),
+  retroalimentacion: z.string().nullable()
+}).openapi("AdminActivityOption");
+
+const AdminActivityItem = z.object({
+  id: z.string().uuid(),
+  tema_id: z.string().uuid(),
+  paso_id: z.string().uuid().nullable(),
+  grupo_edad_id: z.string().uuid(),
+  tipo_actividad_id: z.string().uuid(),
+  titulo: z.string(),
+  consigna: z.string(),
+  retroalimentacion: z.string().nullable(),
+  orden: z.number().int(),
+  xp_recompensa: z.number().int(),
+  limite_tiempo_seg: z.number().int().nullable(),
+  dificultad: z.string(),
+  obligatorio: z.boolean(),
+  configuracion: z.record(z.string(), z.unknown()),
+  opciones: z.array(AdminActivityOption),
+  estado: z.string(),
+  creado_en: z.string().datetime().nullable(),
+  actualizado_en: z.string().datetime().nullable(),
+  tipo_actividad: z.object({ id: z.string().uuid(), codigo: z.string(), nombre: z.string() }).nullable(),
+  tema: z.object({
+    id: z.string().uuid(),
+    titulo: z.string(),
+    slug: z.string(),
+    senda: z.object({ id: z.string().uuid(), codigo: z.string(), nombre: z.string(), color_hex: z.string() }).nullable()
+  }).nullable(),
+  grupo_edad: z.object({ id: z.string().uuid(), codigo: z.string(), nombre: z.string() }).nullable()
+}).openapi("AdminActivityItem");
+
 const AdminStepWithContentResponse = z.object({
   exito: z.literal(true),
   datos: z.object({
@@ -487,7 +533,9 @@ const ResponderActividadResponse = z.object({
   datos: z.object({
     resultado: z.object({
       correcta: z.boolean().openapi({ example: true }),
-      xp_otorgada: z.number().openapi({ example: 15 })
+      xp_otorgada: z.number().openapi({ example: 15 }),
+      opcion_correcta_id: z.string().uuid().nullable().openapi({ example: uuidExample }),
+      retroalimentacion: z.string().nullable().openapi({ example: "¡Muy bien!" })
     }),
     duplicado: z.boolean().openapi({ example: false })
   })
@@ -508,7 +556,6 @@ const ClubDetallado = z.object({
     nombre_visible: z.string()
   }).nullable().openapi({ description: "Creador del club" }),
   members: z.array(z.object({
-    id: z.string().uuid(),
     club_id: z.string().uuid(),
     usuario_id: z.string().uuid(),
     rol_miembro: z.string().openapi({ example: "lider" }),
@@ -517,18 +564,18 @@ const ClubDetallado = z.object({
 }).openapi("ClubDetallado");
 
 const CreateClubBody = z.object({
-  name: z.string().min(3).max(80).openapi({ description: "Nombre del club", example: "Exploradores de la Fe" }),
-  description: z.string().max(300).optional().openapi({ description: "Descripcion del club", example: "Club para aprender juntos" })
+  nombre: z.string().min(3).max(80).openapi({ description: "Nombre del club", example: "Exploradores de la Fe" }),
+  descripcion: z.string().max(300).optional().openapi({ description: "Descripción del club", example: "Club para aprender juntos" })
 }).openapi("CreateClubBody");
 
 const JoinClubBody = z.object({
-  inviteCode: z.string().min(4).max(20).openapi({ description: "Codigo de invitacion", example: "ABC12345" })
+  codigo_acceso: z.string().min(4).max(20).openapi({ description: "Código de invitación", example: "ABC12345" })
 }).openapi("JoinClubBody");
 
 const ClubRankingEntry = z.object({
   club_id: z.string().uuid().openapi({ example: uuidExample }),
   usuario_id: z.string().uuid().openapi({ example: uuidExample }),
-  nombre_visible: z.string().openapi({ example: "Aventurero123" }),
+  apodo: z.string().openapi({ example: "Aventurero123" }),
   xp_total: z.number().openapi({ example: 1500 }),
   numero_ranking: z.number().openapi({ description: "Posicion en el ranking", example: 1 })
 }).openapi("ClubRankingEntry");
@@ -548,13 +595,13 @@ const RetoClub = z.object({
 }).openapi("RetoClub");
 
 const CreateRetoBody = z.object({
-  name: z.string().min(3).max(120).openapi({ description: "Nombre del reto", example: "Leer 10 temas" }),
-  description: z.string().max(300).optional().openapi({ description: "Descripcion del reto", example: "Completa 10 temas esta semana" }),
-  metricCode: z.string().min(2).openapi({ description: "Codigo de metrica", example: "TEMAS_COMPLETADOS" }),
-  targetValue: z.number().int().min(1).openapi({ description: "Valor objetivo", example: 10 }),
-  rewardXp: z.number().int().min(0).openapi({ description: "XP de recompensa", example: 200 }),
-  startsOn: z.string().datetime().openapi({ description: "Fecha de inicio", example: "2026-01-01T00:00:00.000Z" }),
-  endsOn: z.string().datetime().openapi({ description: "Fecha de fin", example: "2026-01-07T00:00:00.000Z" })
+  nombre: z.string().min(3).max(120).openapi({ description: "Nombre del reto", example: "Leer 10 temas" }),
+  descripcion: z.string().max(300).optional().openapi({ description: "Descripción del reto", example: "Completa 10 temas esta semana" }),
+  codigo_metrica: z.string().min(2).openapi({ description: "Código de métrica", example: "TEMAS_COMPLETADOS" }),
+  valor_objetivo: z.number().int().min(1).openapi({ description: "Valor objetivo", example: 10 }),
+  xp_reto: z.number().int().min(0).default(100).openapi({ description: "XP de recompensa", example: 200 }),
+  fecha_inicio: z.string().datetime().openapi({ description: "Fecha de inicio", example: "2026-01-01T00:00:00.000Z" }),
+  fecha_fin: z.string().datetime().openapi({ description: "Fecha de fin", example: "2026-01-07T00:00:00.000Z" })
 }).openapi("CreateRetoBody");
 
 const registry = new OpenAPIRegistry();
@@ -614,7 +661,7 @@ registry.registerPath({ method: "get", path: "/health", operationId: "healthChec
   description: "Verifica que la API funcione correctamente", responses: { 200: { content: { "application/json": { schema: HealthResponse } }, description: "API saludable" } } });
 
 registry.registerPath({ method: "post", path: "/autenticacion/invitado", operationId: "createGuestUser", tags: ["auth"], summary: "Crear usuario invitado",
-  description: "Crea un usuario invitado. Usar el X-Guest-User-Id devuelto para autenticar solicitudes posteriores.",
+  description: "Crea un usuario invitado. Usar X-Guest-User-Id y X-Guest-Token para autenticar solicitudes posteriores.",
   request: { body: { content: { "application/json": { schema: GuestAuthBody } }, required: true } },
   responses: { 201: { content: { "application/json": { schema: GuestAuthResponse } }, description: "Usuario invitado creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" } } });
 
@@ -686,8 +733,8 @@ registry.registerPath({ method: "post", path: "/progreso/eventos", operationId: 
   responses: { 201: { content: { "application/json": { schema: ProgressEventCreatedResponse } }, description: "Evento nuevo registrado" }, 200: { content: { "application/json": { schema: ProgressEventDuplicateResponse } }, description: "Evento duplicado (ya procesado)" } } });
 
 registry.registerPath({ method: "get", path: "/clubes", operationId: "listClubs", tags: ["clubes"],
-  summary: "Listar clubes", description: "Clubs publicos disponibles",
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubSchema) }) } }, description: "Lista de clubs" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  summary: "Listar clubes", description: "Clubes públicos disponibles sin exponer códigos de invitación",
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubPublicoSchema) }) } }, description: "Lista de clubes" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 registry.registerPath({ method: "get", path: "/clubes/mios", operationId: "getMyClubs", tags: ["clubes"],
   summary: "Mis clubs", description: "Clubs del usuario autenticado",
@@ -712,7 +759,7 @@ registry.registerPath({ method: "get", path: "/actividades", operationId: "listA
 registry.registerPath({ method: "post", path: "/actividades/{actividad_id}/responder", operationId: "respondActivity", tags: ["actividades"],
   summary: "Responder actividad", description: "Registra la respuesta del usuario a una actividad. Es idempotente via evento_id_cliente.",
   request: { params: z.object({ actividad_id: z.string().uuid() }), body: { content: { "application/json": { schema: ResponderActividadBody } }, required: true } },
-  responses: { 201: { content: { "application/json": { schema: ResponderActividadResponse } }, description: "Respuesta registrada" }, 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ resultado: z.object({ correcta: z.boolean(), xp_otorgada: z.literal(0) }), duplicado: z.literal(true) }) }) } }, description: "Evento duplicado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Actividad u opcion no encontrada" } } });
+  responses: { 201: { content: { "application/json": { schema: ResponderActividadResponse } }, description: "Respuesta registrada" }, 200: { content: { "application/json": { schema: ResponderActividadResponse } }, description: "Evento ya procesado o recompensa ya otorgada" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Actividad u opcion no encontrada" } } });
 
 // ─── Administracion paths ────────────────────────────────────────────
 
@@ -770,6 +817,16 @@ registry.registerPath({ method: "post", path: "/administracion/temas/{tema_id}/b
   request: { params: z.object({ tema_id: z.string().uuid() }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: TemaResumido }) } }, description: "Tema en borrador" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
+registry.registerPath({ method: "get", path: "/administracion/actividades", operationId: "adminListActivities", tags: ["administracion"],
+  summary: "Listar actividades administrativas", description: "Lista actividades con sus opciones privadas, incluidas las respuestas correctas. Solo administradores.",
+  request: { query: z.object({ tema_id: z.string().uuid().optional(), tipo_actividad_id: z.string().uuid().optional(), grupo_edad_id: z.string().uuid().optional(), estado: z.string().optional(), limit: z.number().int().min(1).max(500).optional(), offset: z.number().int().min(0).optional() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ actividades: z.array(AdminActivityItem), total: z.number().int().nonnegative() }) }) } }, description: "Actividades administrativas" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
+registry.registerPath({ method: "get", path: "/administracion/actividades/{actividad_id}", operationId: "adminGetActivity", tags: ["administracion"],
+  summary: "Obtener actividad administrativa", description: "Obtiene una actividad con sus opciones privadas y respuestas correctas. Solo administradores.",
+  request: { params: z.object({ actividad_id: z.string().uuid() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: AdminActivityItem }) } }, description: "Actividad administrativa" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrada" } } });
+
 registry.registerPath({ method: "post", path: "/administracion/actividades", operationId: "adminCreateActivity", tags: ["administracion"],
   summary: "Crear actividad", description: "Crea una nueva actividad con opciones de respuesta",
   request: { body: { content: { "application/json": { schema: AdminCreateActivityBody } }, required: true } },
@@ -812,17 +869,22 @@ registry.registerPath({ method: "delete", path: "/administracion/usuarios/{usuar
 registry.registerPath({ method: "get", path: "/clubes/{clubId}", operationId: "getClub", tags: ["clubes"],
   summary: "Obtener club", description: "Detalle del club con miembros e info del creador",
   request: { params: z.object({ clubId: z.string().uuid() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ClubDetallado }) } }, description: "Club encontrado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ClubDetallado }) } }, description: "Club encontrado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Debes pertenecer al club" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
 registry.registerPath({ method: "post", path: "/clubes", operationId: "createClub", tags: ["clubes"],
   summary: "Crear club", description: "Crea un nuevo club. El creador se convierte en lider automaticamente.",
   request: { body: { content: { "application/json": { schema: CreateClubBody } }, required: true } },
   responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ClubSchema }) } }, description: "Club creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
+registry.registerPath({ method: "post", path: "/clubes/unirse", operationId: "joinClubByCode", tags: ["clubes"],
+  summary: "Unirse por código", description: "Busca un club por su código de acceso y une al usuario autenticado.",
+  request: { body: { content: { "application/json": { schema: JoinClubBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ unido: z.boolean(), ya_era_miembro: z.boolean(), club: ClubSchema }) }) } }, description: "Membresía resuelta" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Código inválido" } } });
+
 registry.registerPath({ method: "post", path: "/clubes/{clubId}/unirse", operationId: "joinClub", tags: ["clubes"],
   summary: "Unirse a club", description: "Unete a un club usando el codigo de invitacion",
   request: { params: z.object({ clubId: z.string().uuid() }), body: { content: { "application/json": { schema: JoinClubBody } }, required: true } },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ joined: z.literal(true) }) }) } }, description: "Unido al club" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Ya eres miembro o datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Codigo incorrecto o club inactivo" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Club no encontrado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ unido: z.boolean(), ya_era_miembro: z.boolean(), club: ClubSchema }) }) } }, description: "Membresía resuelta" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Ya eres miembro o datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Codigo incorrecto o club inactivo" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Club no encontrado" } } });
 
 registry.registerPath({ method: "post", path: "/clubes/{clubId}/salir", operationId: "leaveClub", tags: ["clubes"],
   summary: "Salir de club", description: "Abandona un club. Si eres lider, debes transferir liderazgo antes.",
@@ -832,12 +894,12 @@ registry.registerPath({ method: "post", path: "/clubes/{clubId}/salir", operatio
 registry.registerPath({ method: "get", path: "/clubes/{clubId}/ranking", operationId: "getClubRanking", tags: ["clubes"],
   summary: "Ranking del club", description: "Clasificacion de miembros del club por XP",
   request: { params: z.object({ clubId: z.string().uuid() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubRankingEntry) }) } }, description: "Ranking del club" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ClubRankingEntry) }) } }, description: "Ranking del club" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Debes pertenecer al club" } } });
 
 registry.registerPath({ method: "get", path: "/clubes/{clubId}/retos", operationId: "listClubChallenges", tags: ["clubes"],
   summary: "Retos del club", description: "Retos cooperativos del club",
   request: { params: z.object({ clubId: z.string().uuid() }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(RetoClub) }) } }, description: "Retos del club" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(RetoClub) }) } }, description: "Retos del club" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Debes pertenecer al club" } } });
 
 registry.registerPath({ method: "post", path: "/clubes/{clubId}/retos", operationId: "createClubChallenge", tags: ["clubes"],
   summary: "Crear reto", description: "Crea un reto cooperativo. Solo el lider del club puede crear retos.",
@@ -887,9 +949,9 @@ const SyncPushEventSchema = z.object({
   tema_id: z.string().uuid().optional(),
   paso_id: z.string().uuid().optional(),
   actividad_id: z.string().uuid().optional(),
-  correcta: z.boolean().optional(),
-  puntaje: z.number().min(0).max(100).optional(),
-  xp_otorgada: z.number().int().min(0).optional().default(0).openapi({ example: 15 }),
+  correcta: z.boolean().optional().openapi({ description: "Dato informativo del cliente; el servidor lo ignora para validar respuestas" }),
+  puntaje: z.number().min(0).max(100).optional().openapi({ description: "Dato informativo del cliente; el servidor no lo usa como autoridad" }),
+  xp_otorgada: z.number().int().min(0).optional().default(0).openapi({ description: "Valor no confiable: el servidor lo ignora y calcula las recompensas", example: 0 }),
   datos: z.object({}).passthrough().optional(),
   creado_en_cliente: z.string().datetime().optional().openapi({ example: "2026-01-01T00:00:00.000Z" }),
   dispositivo_id: z.string().optional()
@@ -934,7 +996,7 @@ registry.registerPath({ method: "get", path: "/sync/pull", operationId: "syncPul
   responses: { 200: { content: { "application/json": { schema: SyncPullResponse } }, description: "Datos de sincronizacion" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 
 registry.registerPath({ method: "post", path: "/sync/push", operationId: "syncPush", tags: ["sync"],
-  summary: "Sincronizar push", description: "Envia eventos offline acumulados. Cada evento es idempotente por evento_id_cliente. Procesa y actualiza progreso.",
+  summary: "Sincronizar push", description: "Envia telemetria offline acumulada. Cada evento es idempotente por evento_id_cliente. Los campos de respuesta, puntaje y XP enviados por el cliente no son autoridad y se ignoran.",
   request: { body: { content: { "application/json": { schema: SyncPushBody } }, required: true } },
   responses: { 200: { content: { "application/json": { schema: SyncPushResponse } }, description: "Resultado de sincronizacion" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
 

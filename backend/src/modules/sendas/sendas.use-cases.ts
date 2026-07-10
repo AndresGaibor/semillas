@@ -10,8 +10,8 @@ export function crearCasosUsoSendas(repositorio: SendasRepository) {
         codigo: senda.codigo,
         nombre: senda.nombre,
         descripcion: senda.descripcion,
-        colorHex: senda.colorHex,
-        nombreIcono: senda.nombreIcono,
+        color_hex: senda.colorHex,
+        nombre_icono: senda.nombreIcono,
         orden: senda.orden
       }));
     }

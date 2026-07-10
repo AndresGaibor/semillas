@@ -1,5 +1,5 @@
 import { and, desc, eq, gte } from "drizzle-orm";
-import { db as dbPredeterminado, schema, type DbClient } from "../../db/client";
+import { schema, type DbClient } from "../../db/client";
 import type { SyncPushEvent } from "./sync.schemas";
 
 export type FilaEventoSincronizacion = {
@@ -94,10 +94,18 @@ export interface SyncRepository {
 }
 
 type Dependencias = {
-  db?: DbClient;
+  db: DbClient;
 };
 
-export function crearSyncRepository({ db = dbPredeterminado }: Dependencias = {}): SyncRepository {
+function normalizarFechaCliente(fecha?: string) {
+  const ahora = new Date();
+  if (!fecha) return ahora;
+  const candidata = new Date(fecha);
+  if (Number.isNaN(candidata.getTime()) || candidata > ahora) return ahora;
+  return candidata;
+}
+
+export function crearSyncRepository({ db }: Dependencias): SyncRepository {
   return {
     async listarEventosUsuario(usuarioId: string, since?: string) {
       const consultaBase = db
@@ -133,11 +141,11 @@ export function crearSyncRepository({ db = dbPredeterminado }: Dependencias = {}
           temaId: evento.tema_id ?? null,
           pasoId: evento.paso_id ?? null,
           actividadId: evento.actividad_id ?? null,
-          correcta: evento.correcta ?? null,
-          puntaje: evento.puntaje ?? null,
-          xpOtorgada: evento.xp_otorgada,
+          correcta: null,
+          puntaje: null,
+          xpOtorgada: 0,
           datos: evento.datos,
-          ocurridoEnCliente: evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : new Date(),
+          ocurridoEnCliente: normalizarFechaCliente(evento.creado_en_cliente),
           dispositivoId: evento.dispositivo_id ?? null
         })
         .onConflictDoNothing({ target: schema.eventoProgreso.idEventoCliente })

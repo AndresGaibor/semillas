@@ -11,6 +11,9 @@ const env: AppBindings["Bindings"] = {
   SUPABASE_PROJECT_REF: "test-project-ref"
 };
 
+const TOKEN_INVITADO = "guest-token-test-1234567890";
+const TOKEN_INVITADO_HASH = "c9c27b711102ce6c9dd22f9b6b6b08bec1c294ce4b2a636e31c5a85c6f6ee6b2";
+
 const originalFetch = globalThis.fetch;
 
 afterEach(() => {
@@ -52,7 +55,9 @@ describe("admin.routes", () => {
               rol: "administrador",
               proveedor: "invitado",
               nombre_visible: "Admin",
-              correo: null
+              correo: null,
+              activo: true,
+              token_invitado_hash: TOKEN_INVITADO_HASH
             }),
             { status: 200, headers: { "content-type": "application/json" } }
           )
@@ -105,7 +110,8 @@ describe("admin.routes", () => {
       new Request("http://localhost/administracion/temas/tema-1/archivar", {
         method: "POST",
         headers: {
-          "x-guest-user-id": "usuario-admin"
+          "x-guest-user-id": "usuario-admin",
+          "x-guest-token": TOKEN_INVITADO
         }
       }),
       env
@@ -136,7 +142,9 @@ describe("admin.routes", () => {
               rol: "administrador",
               proveedor: "invitado",
               nombre_visible: "Admin",
-              correo: null
+              correo: null,
+              activo: true,
+              token_invitado_hash: TOKEN_INVITADO_HASH
             }),
             { status: 200, headers: { "content-type": "application/json" } }
           )
@@ -240,7 +248,8 @@ describe("admin.routes", () => {
       new Request("http://localhost/administracion/temas/tema-1/duplicar", {
         method: "POST",
         headers: {
-          "x-guest-user-id": "usuario-admin"
+          "x-guest-user-id": "usuario-admin",
+          "x-guest-token": TOKEN_INVITADO
         }
       }),
       env

@@ -15,7 +15,7 @@ authRoutes.post("/invitado", zValidator("json", createGuestSchema), async (c) =>
   const body = c.req.valid("json");
   const repositorio = crearAuthRepository(c.get("db"));
   const crearInvitado = crearCasoCrearInvitado(repositorio);
-  const { usuario, perfil } = await crearInvitado(body);
+  const { usuario, perfil, tokenInvitado } = await crearInvitado(body);
 
   return responderExito(
     {
@@ -24,7 +24,9 @@ authRoutes.post("/invitado", zValidator("json", createGuestSchema), async (c) =>
       autenticacion: {
         tipo: "invitado",
         encabezado: "x-guest-user-id",
-        valor: usuario.id
+        valor: usuario.id,
+        encabezado_token: "x-guest-token",
+        token: tokenInvitado
       }
     },
     201
@@ -32,12 +34,27 @@ authRoutes.post("/invitado", zValidator("json", createGuestSchema), async (c) =>
 });
 
 authRoutes.post("/configuracion-dev", async (c) => {
-  if (c.env.APP_ENV !== "development" && c.env.APP_ENV !== "local") {
-    return responderError("No disponible fuera de desarrollo", "NO_DISPONIBLE_EN_DESARROLLO", 403);
+  const habilitado = c.env.ENABLE_DEV_ADMIN_SETUP === "true";
+  const esEntornoLocal = c.env.APP_ENV === "development" || c.env.APP_ENV === "local";
+  const correo = c.env.DEV_ADMIN_EMAIL?.trim();
+  const password = c.env.DEV_ADMIN_PASSWORD;
+  const tokenConfiguracion = c.env.DEV_ADMIN_SETUP_TOKEN;
+  const tokenRecibido = c.req.header("x-dev-setup-token");
+
+  if (!esEntornoLocal || !habilitado) {
+    return responderError("Configuración administrativa desactivada", "DEV_SETUP_DISABLED", 404);
+  }
+
+  if (!correo || !password || password.length < 12 || !tokenConfiguracion || tokenConfiguracion.length < 16) {
+    return responderError("Variables de configuración administrativa incompletas o débiles", "DEV_SETUP_MISCONFIGURED", 503);
+  }
+
+  if (tokenRecibido !== tokenConfiguracion) {
+    return responderError("Token de configuración inválido", "UNAUTHORIZED", 401);
   }
 
   const repositorio = crearAuthRepository(c.get("db"));
-  const configurarAdminDev = crearCasoConfigurarAdminDev(repositorio);
+  const configurarAdminDev = crearCasoConfigurarAdminDev(repositorio, { correo, password });
   const resultado = await configurarAdminDev();
 
   return responderExito({

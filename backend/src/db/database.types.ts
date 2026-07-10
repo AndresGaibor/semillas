@@ -1698,6 +1698,7 @@ export type Database = {
           creado_en: string
           id: string
           id_externo: string | null
+          token_invitado_hash: string | null
           nombre_visible: string
           proveedor: Database["public"]["Enums"]["proveedor_autenticacion"]
           rol: Database["public"]["Enums"]["rol_usuario"]
@@ -1710,6 +1711,7 @@ export type Database = {
           creado_en?: string
           id?: string
           id_externo?: string | null
+          token_invitado_hash?: string | null
           nombre_visible: string
           proveedor: Database["public"]["Enums"]["proveedor_autenticacion"]
           rol?: Database["public"]["Enums"]["rol_usuario"]
@@ -1722,6 +1724,7 @@ export type Database = {
           creado_en?: string
           id?: string
           id_externo?: string | null
+          token_invitado_hash?: string | null
           nombre_visible?: string
           proveedor?: Database["public"]["Enums"]["proveedor_autenticacion"]
           rol?: Database["public"]["Enums"]["rol_usuario"]

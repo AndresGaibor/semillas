@@ -16,9 +16,6 @@ export function crearMediaRepository(db: DbClient) {
     async subirArchivo(storagePath: string, archivo: File) {
       return db.storage.from(STORAGE_BUCKET).upload(storagePath, archivo, { contentType: archivo.type, upsert: false });
     },
-    obtenerUrlPublica(storagePath: string) {
-      return db.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
-    },
     async insertarRecurso(datos: RecursoMultimediaInsert) {
       const { data, error } = await db.from("recurso_multimedia").insert(datos).select("*").single();
       if (error || !data) throw error;
@@ -39,6 +36,20 @@ export function crearMediaRepository(db: DbClient) {
       const { data, error } = await db.from("recurso_multimedia").select("*").eq("activo", true).order("creado_en", { ascending: false });
       if (error) throw error;
       return (data as RecursoMultimediaRow[] | null) ?? [];
+    },
+    async eliminarRegistro(id: string) {
+      const { error } = await db.from("recurso_multimedia").delete().eq("id", id);
+      if (error) throw error;
+    },
+    async actualizarRutaAcceso(id: string, ruta: string) {
+      const { data, error } = await db
+        .from("recurso_multimedia")
+        .update({ url_publica: ruta, actualizado_en: new Date().toISOString() } satisfies RecursoMultimediaUpdate)
+        .eq("id", id)
+        .select("*")
+        .single();
+      if (error || !data) throw error;
+      return data as RecursoMultimediaRow;
     },
     async desactivarRecurso(id: string) {
       const { error } = await db.from("recurso_multimedia").update({ activo: false, actualizado_en: new Date().toISOString() } satisfies RecursoMultimediaUpdate).eq("id", id);

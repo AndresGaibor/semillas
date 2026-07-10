@@ -12,7 +12,10 @@ describe("activities factory", () => {
       select(consulta?: Record<string, unknown>) {
         const selector = {
           from() {
-            return {
+            const chain = {
+              innerJoin() {
+                return chain;
+              },
               where() {
                 return {
                   limit: async () => {
@@ -40,6 +43,8 @@ describe("activities factory", () => {
                 return [];
               }
             };
+
+            return chain;
           }
         };
 
