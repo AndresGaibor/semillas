@@ -8,3 +8,6 @@ coverage/
 .DS_Store
 .superpowers/
 docs/superpowers/
+imagenes-storybook/
+graphify-out/
+storybook-static/
