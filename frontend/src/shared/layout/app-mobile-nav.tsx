@@ -21,6 +21,7 @@ export function obtenerNavMovilActivo(pathname: string): string {
   if (pathname.startsWith("/app/temas") || pathname.startsWith("/app/C_") || pathname.startsWith("/app/E_") || pathname.startsWith("/app/R_")) {
     return "jugar";
   }
+  if (pathname === "/app" || pathname === "/app/") return "inicio";
   if (pathname.startsWith("/app/clubes")) return "clubes";
   if (pathname.startsWith("/app/perfil")) return "perfil";
   return "inicio";

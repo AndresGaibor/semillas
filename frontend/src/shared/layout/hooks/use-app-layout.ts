@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { sessionStorageApi } from "@/shared/api/session";
 import { cerrarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerNavMovilActivo, obtenerNavegacionMovil } from "@/shared/layout/app-mobile-nav";
+import { obtenerMiPerfil } from "@/features/profile/profile.api";
 
 type PageHeaderInfo = {
   titulo: string;
@@ -40,6 +42,10 @@ const DEFAULT_HEADER: PageHeaderInfo = {
 export function useAppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const meQuery = useQuery({
+    queryKey: ["me"],
+    queryFn: obtenerMiPerfil,
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
 
@@ -75,7 +81,10 @@ export function useAppLayout() {
   const opcionesBottomNav = navegacionMovil.map(({ id, etiqueta, icono }) => ({ id, etiqueta, icono }));
   const activoMovil = obtenerNavMovilActivo(location.pathname);
 
-  const pageHeader = getPageHeaderInfo(location.pathname) ?? DEFAULT_HEADER;
+  const esInicio = location.pathname === "/app" || location.pathname === "/app/";
+  const pageHeader = esInicio
+    ? getDefaultHeaderInfo(meQuery.data?.perfil?.apodo || meQuery.data?.usuario?.nombre_visible)
+    : getPageHeaderInfo(location.pathname) ?? DEFAULT_HEADER;
 
   const navigateTo = (id: string) => {
     const destino = navegacionMovil.find((opcion) => opcion.id === id)?.to ?? "/app";
@@ -83,6 +92,7 @@ export function useAppLayout() {
   };
 
   return {
+    meQuery,
     sidebarOpen,
     closeSidebar,
     openSidebar,
@@ -96,7 +106,15 @@ export function useAppLayout() {
   };
 }
 
-function getPageHeaderInfo(path: string): PageHeaderInfo {
+function getPageHeaderInfo(path: string): PageHeaderInfo | undefined {
   const basePath = Object.keys(PAGE_HEADER_MAP).find((key) => path.startsWith(key));
-  return basePath ? PAGE_HEADER_MAP[basePath]! : DEFAULT_HEADER;
+  return basePath ? PAGE_HEADER_MAP[basePath]! : undefined;
+}
+
+function getDefaultHeaderInfo(nombre?: string | null): PageHeaderInfo {
+  const nombreVisible = nombre?.trim() || "Semillero";
+  return {
+    titulo: `Hola ${nombreVisible}`,
+    subtitulo: "Sigue creciendo hoy con una lección corta y una meta clara.",
+  };
 }

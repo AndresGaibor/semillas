@@ -1,5 +1,7 @@
 import * as React from "react";
-import { Card, CardHeader, CardTitle } from "@/componentes/ui/card-base";
+import { ArrowRight, Trophy } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Card } from "@/componentes/ui/card-base";
 import { AvatarCircular } from "@/componentes/ui/avatar-circular";
 
 export interface Insignia {
@@ -16,29 +18,32 @@ export const InsigniasWidget: React.FC<InsigniasWidgetProps> = ({ insignias }) =
   const tieneInsignias = insignias && insignias.length > 0;
 
   return (
-    <Card sombra="sm" hoverEffect="none" className="p-5">
-      {tieneInsignias && (
-        <CardHeader className="p-0 mb-4">
-          <CardTitle>Insignias</CardTitle>
-        </CardHeader>
-      )}
+    <Card sombra="sm" hoverEffect="none" className="home-badges-card">
+      <div className="home-badges-card__header">
+        <span className="home-badges-card__badge"><Trophy size={18} aria-hidden="true" /></span>
+        <div>
+          <span className="home-badges-card__eyebrow">Insignias</span>
+          <h2>{tieneInsignias ? `${insignias.length}` : "0"}</h2>
+        </div>
+      </div>
 
       {tieneInsignias ? (
-        <div className="flex gap-3 flex-wrap">
-          {insignias.map((insignia) => (
-            <div key={insignia.id} className="flex flex-col items-center w-[60px]">
+        <div className="home-badges-card__list">
+          {insignias.slice(0, 4).map((insignia) => (
+            <div key={insignia.id} className="home-badges-card__item">
               <AvatarCircular src={insignia.imagenUrl} alt={insignia.nombre} tamano="xs" />
-              <span className="text-[0.65rem] text-center mt-1 text-slate-400 truncate w-full">
-                {insignia.nombre}
-              </span>
+              <span>{insignia.nombre}</span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="py-8 text-center text-slate-400 text-sm">
-          <p>Aún no tienes insignias.</p>
-        </div>
+        <p className="home-badges-card__text">Aún no tienes insignias. Completa una lección para ganar la primera.</p>
       )}
+
+      <Link to="/app/logros" className="home-badges-card__action">
+        <span>Ver logros</span>
+        <ArrowRight size={16} aria-hidden="true" />
+      </Link>
     </Card>
   );
 };

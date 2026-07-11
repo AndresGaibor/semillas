@@ -46,11 +46,24 @@ export function useAppHomePage() {
     }));
   }, [gamificationQuery.data]);
 
+  const nivel = gamificationQuery.data?.nivel;
+  const nombreUsuario = meQuery.data?.perfil?.apodo || meQuery.data?.usuario?.nombre_visible || "Semillero";
+
+  const progreso = {
+    xpTotal: nivel?.xp_total ?? 0,
+    numeroNivel: nivel?.numero_nivel ?? 1,
+    nombreNivel: nivel?.nombre_nivel ?? "Nivel 1",
+    totalInsignias: insignias.length,
+  };
+
   return {
     meQuery,
     gamificationQuery,
     verseOfTheDay,
     diasRacha,
     insignias,
+    progreso,
+    nombreUsuario,
+    isError: meQuery.isError || gamificationQuery.isError,
   };
 }

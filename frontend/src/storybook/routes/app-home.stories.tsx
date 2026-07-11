@@ -1,27 +1,32 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StoryRouter } from "@/storybook/story-router";
-import { VersiculoDelDia } from "@/features/home/componentes/versiculo-del-dia";
+import { InicioHero } from "@/features/home/componentes/inicio-hero";
+import { ResumenProgreso } from "@/features/home/componentes/resumen-progreso";
 import { PathsGrid } from "@/features/home/componentes/paths-grid";
 import { RachaWidget } from "@/features/home/componentes/racha-widget";
 import { InsigniasWidget } from "@/features/home/componentes/insignias-widget";
-
-const BASE = "https://picsum.photos/seed/semillas/800/250";
+import { VersiculoDelDia } from "@/features/home/componentes/versiculo-del-dia";
 
 function AppHomeStory() {
   return (
     <StoryRouter initialPath="/app">
-      <div className="p-4 flex flex-col gap-6 max-w-5xl mx-auto">
-        <div className="dashboard-banner">
-          <img src="https://picsum.photos/seed/semillasbanner/800/250" alt="Banner" className="w-full max-h-[250px] rounded-2xl object-cover" />
+      <div className="app-home p-4 md:p-0">
+        <InicioHero imagenUrl="https://picsum.photos/seed/semillasbanner/800/250" nombreUsuario="Andres" />
+        <ResumenProgreso xpTotal={1240} numeroNivel={7} nombreNivel="Explorador" diasRacha={12} totalInsignias={3} />
+        <div className="app-home__dashboard">
+          <div className="app-home__primary">
+            <PathsGrid
+              sendaPadreImg="https://picsum.photos/seed/padre/400/200"
+              sendaHijoImg="https://picsum.photos/seed/hijo/400/200"
+              sendaEspirituImg="https://picsum.photos/seed/espiritu/400/200"
+            />
+          </div>
+          <aside className="app-home__aside">
+            <VersiculoDelDia texto="Todo lo puedo en Cristo que me fortalece." referencia="Filipenses 4:13" />
+            <RachaWidget diasRacha={12} />
+            <InsigniasWidget insignias={[]} />
+          </aside>
         </div>
-        <VersiculoDelDia texto="Todo lo puedo en Cristo que me fortalece." referencia="Filipenses 4:13" />
-        <PathsGrid
-          senderoPadreImg="https://picsum.photos/seed/padre/400/200"
-          senderoHijoImg="https://picsum.photos/seed/hijo/400/200"
-          senderoEspirituImg="https://picsum.photos/seed/espiritu/400/200"
-        />
-        <RachaWidget diasRacha={12} />
-        <InsigniasWidget insignias={[]} />
       </div>
     </StoryRouter>
   );

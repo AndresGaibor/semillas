@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import versiculoImg from "@/assets/images/Ilustraciones/Versiculo del dia.png";
 import { Card } from "@/componentes/ui/card-base";
 
@@ -9,25 +9,37 @@ export interface VersiculoDelDiaProps {
 }
 
 export const VersiculoDelDia: React.FC<VersiculoDelDiaProps> = ({ texto, referencia }) => {
+  const [expandido, setExpandido] = React.useState(false);
+  const esLargo = texto.length > 85;
+
   return (
-    <Card sombra="sm" hoverEffect="none" className="relative overflow-hidden p-6 flex items-center gap-6 border-2 border-amber-100">
-      <div className="flex-1 z-10">
-        <h2 className="mb-3 text-lg font-bold text-amber-900 flex items-center gap-2">
-          <BookOpen size={20} className="text-amber-500" /> Versículo del día
-        </h2>
-        <p className="text-lg italic leading-relaxed text-slate-800 mb-2">
-          "{texto}"
-        </p>
-        <p className="text-right text-sm font-medium text-amber-800">
-          - {referencia}
-        </p>
+    <Card sombra="sm" hoverEffect="none" className="home-verse-card">
+      <div className="home-verse-card__header">
+        <span className="home-verse-card__icon"><BookOpen size={18} aria-hidden="true" /></span>
+        <div>
+          <span className="home-verse-card__eyebrow">Versículo</span>
+          <h2>Del día</h2>
+        </div>
       </div>
-      <div className="flex-shrink-0 w-[140px] z-10">
-        <img
-          src={versiculoImg}
-          alt="Versículo del día"
-          className="w-full rounded-xl shadow-md"
-        />
+
+      <div className="home-verse-card__body">
+        <div className="home-verse-card__copy">
+          <p className={`home-verse-card__quote ${expandido ? "is-expanded" : ""}`}>
+            "{texto}"
+          </p>
+          <p className="home-verse-card__ref">- {referencia}</p>
+
+          {esLargo && (
+            <button type="button" className="home-verse-card__toggle" onClick={() => setExpandido((valor) => !valor)}>
+              {expandido ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
+              <span>{expandido ? "Ver menos" : "Leer completo"}</span>
+            </button>
+          )}
+        </div>
+
+        <div className="home-verse-card__media">
+          <img src={versiculoImg} alt="Versículo del día" />
+        </div>
       </div>
     </Card>
   );

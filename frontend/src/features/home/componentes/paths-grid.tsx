@@ -13,10 +13,12 @@ export const PathsGrid: React.FC<PathsGridProps> = ({
   sendaEspirituImg,
 }) => {
   return (
-    <section>
-      <div className="section-header">
-        <h2 className="section-title">Elige tu senda</h2>
+    <section className="home-paths" aria-labelledby="home-paths-title">
+      <div className="home-section-head">
+        <h2 id="home-paths-title" className="home-section-head__title">Elige tu senda</h2>
+        <span className="home-section-head__note">Explora una ruta para seguir aprendiendo</span>
       </div>
+
       <div className="paths-grid">
         <SendaCard
           variante="padre"

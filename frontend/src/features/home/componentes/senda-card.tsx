@@ -24,37 +24,38 @@ export function SendaCard({ variante, imagenUrl, label, titulo, descripcion, has
     <Link
       to="/app/temas"
       search={{sendas: hash as "padre" | "hijo" | "espiritu" }}
-      className="block h-full"
+      className="home-path-card"
       aria-label={`Abrir temas de ${titulo}`}
     >
       <Card
         sombra="md"
         hoverEffect="elevate"
-        className={unirClases("h-full overflow-hidden border border-white/60", bg)}
+        className={unirClases("home-path-card__card h-full overflow-hidden border border-white/60", bg)}
       >
-        <div className="flex h-full flex-col">
-          <div className="relative aspect-[16/11] overflow-hidden">
+        <div className="home-path-card__body">
+          <div className="home-path-card__media">
             <img
               src={imagenUrl}
               alt={`Senda del ${titulo}`}
-              className="h-full w-full object-cover"
+              className="home-path-card__image"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/8 via-transparent to-transparent" />
+            <div className="home-path-card__overlay" />
           </div>
 
-          <div className="flex flex-1 flex-col p-6 sm:p-7">
-            <span className={unirClases("mb-1 block text-[0.78rem] font-black uppercase tracking-[0.16em]", labelColor)}>
+          <div className="home-path-card__content">
+            <span className={unirClases("home-path-card__label", labelColor)}>
               {label}
             </span>
-            <h3 className={unirClases("text-[2rem] font-black leading-[0.95] tracking-[-0.04em]", titleColor)}>
+            <h3 className={unirClases("home-path-card__title", titleColor)}>
               {titulo}
             </h3>
-            <p className="mt-3 max-w-[17ch] text-[0.98rem] leading-relaxed text-slate-700">
+            <p className="home-path-card__desc">
               {descripcion}
             </p>
 
-            <div className="mt-auto pt-6">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_8px_20px_rgba(15,23,42,0.10)] text-primario transition-transform hover:scale-105 active:scale-95">
+            <div className="home-path-card__cta">
+              <span className="home-path-card__cta-badge">Explorar</span>
+              <span className="home-path-card__cta-arrow" aria-hidden="true">
                 <i className="fa-solid fa-arrow-right text-[16px]" />
               </span>
             </div>
