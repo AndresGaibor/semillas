@@ -33,5 +33,9 @@
     "storybook:build": "bun run --cwd frontend build-storybook",
     "storybook:coverage": "bun run --cwd frontend storybook:coverage",
     "storybook:check": "bun run --cwd frontend storybook:check"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "playwright": "^1.61.1"
   }
 }

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { QueryClient } from "@tanstack/react-query";
-import { StoryRouter } from "./story-router";
+import { StoryRouter } from "@/storybook/story-router";
 import { CardLeccion } from "@/componentes/ui/card-leccion";
 import { TemasTabsFilter } from "@/features/themes/componentes/temas-tabs-filter";
 import { TemasSearchBar } from "@/features/themes/componentes/temas-search-bar";
@@ -8,29 +7,15 @@ import { ResumenTemasCard } from "@/features/themes/componentes/resumen-temas-ca
 import { ContinuarAprendiendoCard } from "@/features/themes/componentes/continuar-aprendiendo-card";
 import { SendaFilterRow } from "@/features/themes/componentes/senda-filter-row";
 
-const mockQueryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-
-mockQueryClient.setQueryData(["temas", "exploradores"], [
-  { id: "t-1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor infinito de Dios", duracion: "20 min", xp: 50, progreso: 75, favorito: false, slug: "amor-de-dios", estado: "disponible", sendas: "padre", imagenUrl: "https://picsum.photos/400/200?random=1" },
-  { id: "t-2", titulo: "La Creación", descripcion: "Dios creó el mundo en 6 días", duracion: "15 min", xp: 40, progreso: 100, favorito: true, slug: "creacion", estado: "completado", sendas: "hijo", imagenUrl: "https://picsum.photos/400/200?random=2" },
-  { id: "t-3", titulo: "El Espíritu Santo", descripcion: "Conoce al Espíritu Santo", duracion: "25 min", xp: 60, progreso: 0, favorito: false, slug: "espiritu-santo", estado: "disponible", sendas: "espiritu", imagenUrl: "https://picsum.photos/400/200?random=3" },
-]);
-
-mockQueryClient.setQueryData(["temas", undefined], [
-  { id: "t-1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor infinito de Dios", duracion: "20 min", xp: 50, progreso: 75, favorito: false, slug: "amor-de-dios", estado: "disponible", sendas: "padre", imagenUrl: "https://picsum.photos/400/200?random=1" },
-  { id: "t-2", titulo: "La Creación", descripcion: "Dios creó el mundo en 6 días", duracion: "15 min", xp: 40, progreso: 100, favorito: true, slug: "creacion", estado: "completado", sendas: "hijo", imagenUrl: "https://picsum.photos/400/200?random=2" },
-  { id: "t-3", titulo: "El Espíritu Santo", descripcion: "Conoce al Espíritu Santo", duracion: "25 min", xp: 60, progreso: 0, favorito: false, slug: "espiritu-santo", estado: "disponible", sendas: "espiritu", imagenUrl: "https://picsum.photos/400/200?random=3" },
-]);
+const temas = [
+  { id: "t-1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor infinito de Dios", duracion: "20 min", xp: 50, progreso: 75, favorito: false, slug: "amor-de-dios", estado: "disponible" as const, sendas: "padre" as const, imagenUrl: "https://picsum.photos/seed/tema1/400/200" },
+  { id: "t-2", titulo: "La Creación", descripcion: "Dios creó el mundo en 6 días", duracion: "15 min", xp: 40, progreso: 100, favorito: true, slug: "creacion", estado: "completado" as const, sendas: "hijo" as const, imagenUrl: "https://picsum.photos/seed/tema2/400/200" },
+  { id: "t-3", titulo: "El Espíritu Santo", descripcion: "Conoce al Espíritu Santo", duracion: "25 min", xp: 60, progreso: 0, favorito: false, slug: "espiritu-santo", estado: "disponible" as const, sendas: "espiritu" as const, imagenUrl: "https://picsum.photos/seed/tema3/400/200" },
+];
 
 function TemasPageStory() {
-  const temas = [
-    { id: "t-1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor infinito de Dios", duracion: "20 min", xp: 50, progreso: 75, favorito: false, slug: "amor-de-dios", estado: "disponible" as const, sendas: "padre" as const, imagenUrl: "https://picsum.photos/400/200?random=1" },
-    { id: "t-2", titulo: "La Creación", descripcion: "Dios creó el mundo en 6 días", duracion: "15 min", xp: 40, progreso: 100, favorito: true, slug: "creacion", estado: "completado" as const, sendas: "hijo" as const, imagenUrl: "https://picsum.photos/400/200?random=2" },
-    { id: "t-3", titulo: "El Espíritu Santo", descripcion: "Conoce al Espíritu Santo", duracion: "25 min", xp: 60, progreso: 0, favorito: false, slug: "espiritu-santo", estado: "disponible" as const, sendas: "espiritu" as const, imagenUrl: "https://picsum.photos/400/200?random=3" },
-  ];
-
   return (
-    <StoryRouter initialPath="/app/temas" client={mockQueryClient}>
+    <StoryRouter initialPath="/app/temas">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 w-full font-sans text-left p-4">
         <div className="flex flex-col min-w-0 gap-4">
           <SendaFilterRow searchSenda={undefined} onSendaChange={() => {}} />
@@ -51,7 +36,7 @@ function TemasPageStory() {
                 mostrarSendaBadge
                 onFavorito={() => {}}
                 onAccion={() => {}}
-                senda={tema.sendas}
+                sendas={tema.sendas}
               />
             ))}
           </div>
