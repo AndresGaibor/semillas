@@ -24,8 +24,8 @@ describe("onboarding responsive layout", () => {
       <AvatarSelector selectedAvatar={3} onSelect={() => undefined} />,
     );
 
-    expect(html).toContain("onboarding-avatar-grid");
-    expect(html).toContain("onboarding-avatar-card");
+    expect(html).toContain("customize-avatar-grid");
+    expect(html).toContain("customize-avatar-option");
   });
 
   it("presenta el preview como una card secundaria", () => {
@@ -33,8 +33,8 @@ describe("onboarding responsive layout", () => {
       <ProfilePreview selectedAvatar={2} nickname="Ana" />,
     );
 
-    expect(html).toContain("onboarding-preview");
-    expect(html).toContain("onboarding-preview-card");
+    expect(html).toContain("customize-preview");
+    expect(html).toContain("customize-preview__card");
   });
 
   it("mantiene la navegación como una barra de acciones táctil", () => {
@@ -42,9 +42,9 @@ describe("onboarding responsive layout", () => {
       <FormNavigation onBack={() => undefined} onFinish={() => undefined} isEnabled isLoading={false} />,
     );
 
-    expect(html).toContain("onboarding-actions");
-    expect(html).toContain("onboarding-actions__secondary");
-    expect(html).toContain("onboarding-actions__primary");
+    expect(html).toContain("customize-actions");
+    expect(html).toContain("customize-actions__back");
+    expect(html).toContain("customize-actions__finish");
   });
 
   it("reduce el texto del CTA del onboarding a un solo mensaje", () => {

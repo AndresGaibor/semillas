@@ -1,31 +1,48 @@
-import { Boton } from "@/componentes/ui/boton";
+import { ArrowLeft, ArrowRight, LoaderCircle } from "lucide-react";
 
 interface FormNavigationProps {
   onBack: () => void;
   onFinish: () => void;
   isEnabled: boolean;
   isLoading: boolean;
+  hasError?: boolean;
 }
 
-export function FormNavigation({ onBack, onFinish, isEnabled, isLoading }: FormNavigationProps) {
+export function FormNavigation({
+  onBack,
+  onFinish,
+  isEnabled,
+  isLoading,
+  hasError = false,
+}: FormNavigationProps) {
   return (
-    <div className="onboarding-actions flex justify-between items-center border-t border-[#e5e7eb] pt-6 mt-10">
-      <Boton
-        variante="secundario"
-        onClick={onBack}
-        clase="onboarding-actions__secondary bg-transparent border-[1.5px] border-[#9E9E9E] text-[#2E2E2E] px-6 py-3 rounded-lg font-bold text-base"
-      >
-        ← Atrás
-      </Boton>
-      <Boton
-        variante="primario"
-        onClick={onFinish}
-        disabled={!isEnabled}
-        cargando={isLoading}
-        clase="onboarding-actions__primary px-8 py-3 rounded-lg font-bold text-base"
-      >
-        {isLoading ? "Finalizando..." : "Finalizar →"}
-      </Boton>
-    </div>
+    <footer className="customize-actions">
+      {hasError && (
+        <p className="customize-actions__error" role="alert">
+          No pudimos guardar tu perfil. Inténtalo nuevamente.
+        </p>
+      )}
+
+      <div className="customize-actions__row">
+        <button type="button" onClick={onBack} className="customize-actions__back">
+          <ArrowLeft size={19} aria-hidden="true" />
+          <span>Atrás</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onFinish}
+          disabled={!isEnabled || isLoading}
+          className="customize-actions__finish"
+        >
+          {isLoading ? (
+            <LoaderCircle size={20} className="animate-spin" aria-hidden="true" />
+          ) : (
+            <ArrowRight size={20} aria-hidden="true" />
+          )}
+          <span>{isLoading ? "Guardando..." : "Finalizar"}</span>
+        </button>
+      </div>
+    </footer>
   );
 }
