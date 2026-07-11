@@ -7,6 +7,12 @@ import { Flashcards } from "../../../componentes/actividades/Flashcards";
 import { SopaLetrasActividad } from "../../../componentes/actividades/SopaLetrasActividad";
 import { Rompecabezas } from "../../../componentes/actividades/Rompecabezas";
 import { OpcionMultipleServidor } from "./opcion-multiple-servidor";
+import { ActividadAudio } from "../../../componentes/actividades/ActividadAudio";
+import { AventuraDecisiones } from "../../../componentes/actividades/AventuraDecisiones";
+import { ArrastrarSoltar } from "../../../componentes/actividades/ArrastrarSoltar";
+import { CompletarVersiculo } from "../../../componentes/actividades/CompletarVersiculo";
+import { ActividadVideo } from "../../../componentes/actividades/ActividadVideo";
+import { ActividadCancion } from "../../../componentes/actividades/ActividadCancion";
 
 interface ActividadCardProps {
   actividad: Actividad;
@@ -50,6 +56,60 @@ interface InnerActividadProps {
 
 function InnerActividad({ actividad, onComplete }: InnerActividadProps) {
   const { tipo_actividad } = actividad;
+
+  if (tipo_actividad?.codigo === "actividad_audio") {
+    return (
+      <ActividadAudio
+        actividad={actividad as any}
+        onComplete={(actId, xp) => onComplete(actId, xp)}
+      />
+    );
+  }
+
+  if (tipo_actividad?.codigo === "aventura_decisiones") {
+    return (
+      <AventuraDecisiones
+        actividad={actividad as any}
+        onComplete={(actId, xp) => onComplete(actId, xp)}
+      />
+    );
+  }
+
+  if (tipo_actividad?.codigo === "arrastrar_soltar") {
+    return (
+      <ArrastrarSoltar
+        actividad={actividad as any}
+        onComplete={(actId, xp) => onComplete(actId, xp)}
+      />
+    );
+  }
+
+  if (tipo_actividad?.codigo === "completar_versiculo") {
+    return (
+      <CompletarVersiculo
+        actividad={actividad as any}
+        onComplete={(actId, xp) => onComplete(actId, xp)}
+      />
+    );
+  }
+
+  if (tipo_actividad?.codigo === "video" || tipo_actividad?.codigo === "actividad_video") {
+    return (
+      <ActividadVideo
+        actividad={actividad as any}
+        onComplete={(actId, xp) => onComplete(actId, xp)}
+      />
+    );
+  }
+
+  if (tipo_actividad?.codigo === "cancion") {
+    return (
+      <ActividadCancion
+        actividad={actividad as any}
+        onComplete={(actId, xp) => onComplete(actId, xp)}
+      />
+    );
+  }
 
   // Las actividades con opciones se verifican siempre en el backend. Así la
   // respuesta correcta y el XP nunca dependen de datos enviados al navegador.
@@ -126,14 +186,21 @@ function InnerActividad({ actividad, onComplete }: InnerActividadProps) {
   }
 
   return (
-    <div className="w-full bg-slate-100 p-8 rounded-3xl border border-slate-200 text-center opacity-70">
-      <span className="text-4xl mb-4 block">🚧</span>
-      <h3 className="text-xl font-bold text-slate-700">
-        Modo de juego en construcción
-      </h3>
-      <p className="text-slate-500 mt-2">
-        Próximamente: {tipo_actividad?.nombre}
+    <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200 w-full max-w-4xl mx-auto my-8">
+      <h3 className="text-yellow-800 font-bold mb-2 text-xl">Actividad no soportada o código incorrecto</h3>
+      <p className="text-yellow-700 mb-4">
+        El código de esta actividad es: <strong className="bg-yellow-200 px-2 py-1 rounded">{tipo_actividad?.codigo}</strong>
       </p>
+      
+      <div className="w-full bg-slate-900 text-emerald-400 p-6 rounded-3xl text-left text-sm font-mono overflow-x-auto shadow-inner border-[6px] border-slate-800">
+        <div className="flex items-center gap-2 text-slate-400 mb-4 border-b border-slate-700 pb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          <span>Estructura JSON (Cópiala para integrarla)</span>
+        </div>
+        <pre className="whitespace-pre-wrap">
+          {JSON.stringify(actividad, null, 2)}
+        </pre>
+      </div>
     </div>
   );
 }
@@ -176,6 +243,36 @@ const BADGE_COLORS: Record<
     badge: "text-indigo-700",
     bg: "bg-indigo-100",
     label: "Rompecabezas",
+  },
+  actividad_audio: {
+    badge: "text-emerald-700",
+    bg: "bg-emerald-100",
+    label: "Audio",
+  },
+  aventura_decisiones: {
+    badge: "text-rose-700",
+    bg: "bg-rose-100",
+    label: "Aventura",
+  },
+  arrastrar_soltar: {
+    badge: "text-blue-700",
+    bg: "bg-blue-100",
+    label: "Arrastrar",
+  },
+  completar_versiculo: {
+    badge: "text-violet-700",
+    bg: "bg-violet-100",
+    label: "Versículo",
+  },
+  actividad_video: {
+    badge: "text-red-700",
+    bg: "bg-red-100",
+    label: "Video",
+  },
+  cancion: {
+    badge: "text-amber-700",
+    bg: "bg-amber-100",
+    label: "Canción",
   },
 };
 
