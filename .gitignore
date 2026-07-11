@@ -5,3 +5,7 @@ frontend/.cache/
 frontend/node_modules/
 storybook-screenshots/
 *.exe
+node_modules/
+backend/node_modules/
+backend/.wrangler/
+.dev.vars
