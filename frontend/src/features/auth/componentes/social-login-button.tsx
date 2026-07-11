@@ -20,29 +20,20 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   disabled,
   isPending,
 }) => {
-  const getButtonClass = () => {
-    switch (tipo) {
-      case "google":
-        return isPending ? "login-social__btn--google is-pending" : "login-social__btn--google";
-      case "facebook":
-        return "login-social__btn--facebook";
-      case "guest":
-        return "login-social__btn--guest relative overflow-hidden";
-      default:
-        return "";
-    }
-  };
+  const isDisabled = disabled || isPending;
 
   if (tipo === "guest") {
     return (
-      <button 
-        type="button" 
-        className={`login-social__btn ${getButtonClass()}`} 
+      <button
+        type="button"
+        className={`login-social__btn login-social__btn--guest ${isDisabled ? "is-disabled" : ""}`}
         onClick={onClick}
-        disabled={disabled || isPending}
+        disabled={isDisabled}
       >
-        <img src={logo} alt="" className="login-social__icon" width="36" height="36" />
-        <div className="login-social__guest-text text-left flex flex-col items-start ml-2">
+        <div className="login-social__guest-icon-wrap">
+          <img src={logo} alt="" className="login-social__icon login-social__icon--guest" width="32" height="32" />
+        </div>
+        <div className="login-social__guest-text">
           <span className="login-social__guest-title">{isPending ? "Entrando..." : label}</span>
           {guestNote && <span className="login-social__guest-note">{guestNote}</span>}
         </div>
@@ -51,11 +42,11 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   }
 
   return (
-    <button 
-      type="button" 
-      className={`login-social__btn ${getButtonClass()} ${disabled || isPending ? "cursor-not-allowed opacity-55" : ""}`} 
+    <button
+      type="button"
+      className={`login-social__btn login-social__btn--${tipo} ${isDisabled ? "is-disabled" : ""}`}
       onClick={onClick}
-      disabled={disabled || isPending}
+      disabled={isDisabled}
     >
       {isPending ? (
         <LoaderCircle className="login-social__icon animate-spin text-green-600" size={22} />

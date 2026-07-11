@@ -1,19 +1,22 @@
 import * as React from "react";
-import ninosImg from "@/assets/images/Ilustraciones/Ninos 2.png";
-import progresoIcon from "@/assets/images/icons/progreso.png";
-import escudoIcon from "@/assets/images/icons/entorno_seguro.png";
 import candadoIcon from "@/assets/images/icons/candado.png";
+import escudoIcon from "@/assets/images/icons/entorno_seguro.png";
+import progresoIcon from "@/assets/images/icons/progreso.png";
+import ninosImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 
 export const LoginHeroPanel: React.FC = () => {
   return (
     <section className="login-panel login-panel--visual" aria-label="Ilustración y beneficios">
-      <div className="login-visual-bg"></div>
-
-      <div className="login-illustration">
+      <div className="login-illustration-card">
         <div className="login-bubble" aria-hidden="true">
-          <span>💜 Aprende, crece<br/>y comparte su amor.</span>
+          <span>
+            💜 Aprende, crece
+            <br />y comparte su amor.
+          </span>
         </div>
-        <img src={ninosImg} alt="Niños leyendo la Biblia" className="login-illustration__img" draggable="false" />
+        <div className="login-illustration">
+          <img src={ninosImg} alt="Niños cuidando una pequeña planta" className="login-illustration__img" draggable="false" />
+        </div>
       </div>
 
       <div className="login-benefits">
@@ -40,7 +43,7 @@ export const LoginHeroPanel: React.FC = () => {
 
       <p className="login-privacy">
         <img src={candadoIcon} alt="" aria-hidden="true" className="login-privacy__icon" width="14" height="14" />
-        Privacidad protegida. Nunca compartimos tu información.
+        <span>Privacidad protegida. Nunca compartimos tu información.</span>
       </p>
     </section>
   );

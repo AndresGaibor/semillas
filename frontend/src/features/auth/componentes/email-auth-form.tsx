@@ -1,4 +1,4 @@
-import { Mail, Lock, LoaderCircle } from "lucide-react";
+import { LoaderCircle, Lock, Mail } from "lucide-react";
 import { useEmailAuth } from "../hooks/use-email-auth";
 
 export interface EmailAuthFormProps {
@@ -21,16 +21,13 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
 
   if (cuentaCreada) {
     return (
-      <div className="flex flex-col items-center py-6 text-center">
-        <div className="text-green-600 text-lg font-bold mb-2">¡Cuenta creada!</div>
-        <p className="text-sm text-gray-600 mb-4">
-          Hemos enviado un correo de confirmación a tu dirección.
-          Revisa tu bandeja de entrada y sigue las instrucciones.
+      <div className="login-success-state">
+        <div className="login-success-state__badge">¡Cuenta creada!</div>
+        <p>
+          Hemos enviado un correo de confirmación a tu dirección. Revisa tu bandeja de
+          entrada y sigue las instrucciones.
         </p>
-        <button
-          onClick={resetCuentaCreada}
-          className="text-green-600 text-sm font-medium hover:underline"
-        >
+        <button onClick={resetCuentaCreada} className="login-switch-link" type="button">
           Volver a inicio de sesión
         </button>
       </div>
@@ -38,82 +35,77 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mb-6">
-      <div>
+    <form onSubmit={handleSubmit(onSubmit)} className="login-email-form">
+      <div className="login-field-group">
         <label htmlFor="email" className="sr-only">
           Correo electrónico
         </label>
-        <div className="relative">
-          <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="login-field">
+          <Mail size={18} className="login-field__icon" aria-hidden="true" />
           <input
             id="email"
             type="email"
             placeholder="Correo electrónico"
             {...register("email")}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600"
+            className="login-field__input"
           />
         </div>
-        {errors.email && (
-          <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="login-feedback login-feedback--error">{errors.email.message}</p>}
       </div>
 
-      <div>
+      <div className="login-field-group">
         <label htmlFor="password" className="sr-only">
           Contraseña
         </label>
-        <div className="relative">
-          <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="login-field">
+          <Lock size={18} className="login-field__icon" aria-hidden="true" />
           <input
             id="password"
             type="password"
             placeholder="Contraseña"
             {...register("password")}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600"
+            className="login-field__input"
           />
         </div>
         {errors.password && (
-          <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+          <p className="login-feedback login-feedback--error">{errors.password.message}</p>
         )}
       </div>
 
       {!isLogin && (
-        <div>
+        <div className="login-field-group">
           <label htmlFor="confirmarPassword" className="sr-only">
             Confirmar contraseña
           </label>
-          <div className="relative">
-            <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div className="login-field">
+            <Lock size={18} className="login-field__icon" aria-hidden="true" />
             <input
               id="confirmarPassword"
               type="password"
               placeholder="Confirmar contraseña"
               {...register("confirmarPassword")}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600"
+              className="login-field__input"
             />
           </div>
           {(errors as Record<string, { message?: string } | undefined>)["confirmarPassword"] && (
-            <p className="text-red-500 text-xs mt-1">{(errors as Record<string, { message?: string } | undefined>)["confirmarPassword"]?.message}</p>
+            <p className="login-feedback login-feedback--error">
+              {
+                (errors as Record<string, { message?: string } | undefined>)["confirmarPassword"]
+                  ?.message
+              }
+            </p>
           )}
         </div>
       )}
 
-      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      {error && <p className="login-feedback login-feedback--error login-feedback--center">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="btn btn-primario btn-full"
-      >
-        {pending && <LoaderCircle size={16} className="animate-spin" />}
-        {isLogin ? "Iniciar sesión" : "Crear cuenta"}
+      <button type="submit" disabled={pending} className="login-submit">
+        {pending && <LoaderCircle size={18} className="animate-spin" />}
+        <span>{isLogin ? "Iniciar sesión" : "Crear cuenta"}</span>
       </button>
 
-      <button
-        type="button"
-        onClick={toggleModo}
-        className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors"
-      >
+      <button type="button" onClick={toggleModo} className="login-switch-link">
         {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
       </button>
     </form>

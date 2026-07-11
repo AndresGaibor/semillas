@@ -1,6 +1,7 @@
 import * as React from "react";
-import { SocialLoginButton } from "./social-login-button";
+import { LockKeyhole } from "lucide-react";
 import { EmailAuthForm } from "./email-auth-form";
+import { SocialLoginButton } from "./social-login-button";
 import googleIcon from "@/assets/images/icons/google.png";
 import guestIcon from "@/assets/images/icons/invitado.png";
 
@@ -29,28 +30,29 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
     <section className="login-panel login-panel--form" aria-label="Opciones de inicio de sesión">
       <div className="login-form-wrapper">
         <div className="login-welcome">
+          <span className="login-welcome__eyebrow">Tu aventura comienza aquí</span>
           <h1 className="login-welcome__title">Bienvenido a Semillas</h1>
-          <p className="login-welcome__subtitle">Inicia sesión para continuar tu aventura de fe y aprendizaje.</p>
+          <p className="login-welcome__subtitle">
+            Inicia sesión para continuar tu aventura de fe y aprendizaje.
+          </p>
         </div>
 
-        <div className="flex border-b border-gray-200 mb-6">
+        <div className="login-tabs" role="tablist" aria-label="Métodos de acceso">
           <button
+            type="button"
+            role="tab"
+            aria-selected={tabActivo === "social"}
+            className={`login-tab ${tabActivo === "social" ? "is-active" : ""}`}
             onClick={() => onCambiarTab("social")}
-            className={`flex-1 pb-3 text-sm font-medium transition-colors ${
-              tabActivo === "social"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-400 hover:text-gray-600"
-            }`}
           >
             Redes sociales
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={tabActivo === "email"}
+            className={`login-tab ${tabActivo === "email" ? "is-active" : ""}`}
             onClick={() => onCambiarTab("email")}
-            className={`flex-1 pb-3 text-sm font-medium transition-colors ${
-              tabActivo === "email"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-400 hover:text-gray-600"
-            }`}
           >
             Correo electrónico
           </button>
@@ -82,14 +84,19 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
             />
 
             {guestError && (
-              <p className="text-red-500 text-sm mt-2 text-center">No se pudo crear el invitado. Asegúrate de que el backend esté activo.</p>
+              <p className="login-feedback login-feedback--error">
+                No se pudo crear el invitado. Asegúrate de que el backend esté activo.
+              </p>
             )}
           </div>
         )}
 
-        {tabActivo === "email" && (
-          <EmailAuthForm onSuccess={onEmailSuccess} />
-        )}
+        {tabActivo === "email" && <EmailAuthForm onSuccess={onEmailSuccess} />}
+
+        <p className="login-mobile-privacy">
+          <LockKeyhole size={16} aria-hidden="true" />
+          <span>Tu información está protegida.</span>
+        </p>
       </div>
     </section>
   );

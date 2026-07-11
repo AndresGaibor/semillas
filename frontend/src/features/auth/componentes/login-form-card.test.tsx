@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { LoginFormCard } from "./login-form-card";
+process.env.VITE_API_URL = process.env.VITE_API_URL ?? "http://localhost";
+process.env.VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? "http://localhost";
+process.env.VITE_SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY ?? "test-anon-key";
+
+const { LoginFormCard } = await import("./login-form-card");
 
 describe("LoginFormCard", () => {
   it("renderiza tabs de redes sociales y correo", () => {
@@ -60,5 +64,36 @@ describe("LoginFormCard", () => {
 
     expect(html).not.toContain("Modo desarrollo");
     expect(html).not.toContain("admin de prueba");
+  });
+
+  it("muestra un eyebrow y tabs con semántica de segmented control", () => {
+    const html = renderToStaticMarkup(
+      <LoginFormCard
+        onGoogleClick={() => undefined}
+        onGuestClick={() => undefined}
+        onEmailSuccess={() => undefined}
+        tabActivo="social"
+        onCambiarTab={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("Tu aventura comienza aquí");
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('role="tab"');
+  });
+
+  it("incluye el mensaje compacto de privacidad para móvil", () => {
+    const html = renderToStaticMarkup(
+      <LoginFormCard
+        onGoogleClick={() => undefined}
+        onGuestClick={() => undefined}
+        onEmailSuccess={() => undefined}
+        tabActivo="social"
+        onCambiarTab={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("login-mobile-privacy");
+    expect(html).toContain("Tu información está protegida.");
   });
 });
