@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
 import { Download, Menu, Monitor, X } from "lucide-react";
 import logoImg from "@/assets/images/logos/Logotipo.png";
-import { esEnlaceLandingActivo, obtenerHrefLandingInicial } from "./Navbar.helpers";
+import { esEnlaceLandingActivo, obtenerHrefLandingInicial, crearScrollSpy } from "./Navbar.helpers";
 
 interface NavbarProps {
   variante?: "landing" | "simple";
@@ -11,7 +11,6 @@ interface NavbarProps {
 
 const navItems = [
   { label: "Inicio", href: "#top" },
-  { label: "Cómo funciona", href: "#como-funciona" },
   { label: "Sendas", href: "#sendas" },
   { label: "Clubes", href: "#clubes" },
   { label: "Metodología", href: "#metodologia" },
@@ -22,6 +21,13 @@ const apkUrl = import.meta.env.VITE_APK_URL;
 export function Navbar({ variante = "landing" }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hrefActivo, setHrefActivo] = useState(obtenerHrefLandingInicial());
+
+  useEffect(() => {
+    return crearScrollSpy(
+      navItems.map((item) => item.href),
+      (seccion) => setHrefActivo(seccion)
+    );
+  }, []);
 
   return (
     <header className="landing-navbar">
