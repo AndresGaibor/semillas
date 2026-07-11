@@ -1,29 +1,33 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
+import { Users } from "lucide-react";
 import clubesImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 
 export function ClubesSection() {
   return (
     <section id="clubes" className="clubes">
       <div className="clubes__content">
+        <span className="section-kicker">Comunidad</span>
         <h2>
           Únete a los <span className="text-green">Clubes</span>
         </h2>
         <p>
-          Comparte lo que aprendes en grupo,en compañía de amigos¡Pertenece a una
-          comunidad genial!
+          Comparte lo que aprendes en grupo, en compañía de amigos, y forma parte de
+          una comunidad cristiana llena de alegría.
         </p>
         <Button
           asChild
-          className="btn btn-primario btn-lg rounded-full px-6 py-3 h-auto text-base bg-green-600 text-white hover:bg-green-700"
+          className="landing-button landing-button--primary landing-button--large h-auto rounded-full px-6 py-3"
         >
           <Link to="/login" search={{ redirect: "/onboarding" }}>
-            <i className="fa-solid fa-users mr-2"></i> Ver Clubes
+            <Users size={18} aria-hidden="true" />
+            <span>Ver clubes</span>
           </Link>
         </Button>
       </div>
+
       <div className="clubes__image">
-        <img src={clubesImg} alt="Niños compartiendo en club" />
+        <img src={clubesImg} alt="Niños cuidando una pequeña planta" loading="lazy" />
       </div>
     </section>
   );

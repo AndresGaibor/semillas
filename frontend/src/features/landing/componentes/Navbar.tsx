@@ -1,47 +1,101 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
+import { Download, Menu, Monitor, X } from "lucide-react";
 import logoImg from "@/assets/images/logos/Logotipo.png";
+import { esEnlaceLandingActivo, obtenerHrefLandingInicial } from "./Navbar.helpers";
 
 interface NavbarProps {
   variante?: "landing" | "simple";
 }
 
+const navItems = [
+  { label: "Inicio", href: "#top" },
+  { label: "Cómo funciona", href: "#como-funciona" },
+  { label: "Sendas", href: "#sendas" },
+  { label: "Clubes", href: "#clubes" },
+  { label: "Metodología", href: "#metodologia" },
+];
+
+const apkUrl = import.meta.env.VITE_APK_URL;
+
 export function Navbar({ variante = "landing" }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [hrefActivo, setHrefActivo] = useState(obtenerHrefLandingInicial());
+
   return (
-    <header className="navbar">
-      <div className="navbar__logo">
-        <img src={logoImg} alt="Semillas Logo" />
-        <div className="navbar__logo-text">
-          <span className="brand">Semillas</span>
-          <span className="tagline">Crecer en la Palabra, vivir Su verdad</span>
-        </div>
+    <header className="landing-navbar">
+      <div className="landing-navbar__bar">
+        <a href="#top" className="landing-navbar__brand" aria-label="Ir al inicio de Semillas">
+          <img src={logoImg} alt="Logo de Semillas" />
+          <div className="landing-navbar__brand-text">
+            <span className="brand">Semillas</span>
+            <span className="tagline">Crecer en la Palabra, vivir Su verdad</span>
+          </div>
+        </a>
+
+        <button
+          type="button"
+          className="landing-navbar__toggle"
+          aria-expanded={isOpen}
+          aria-controls="landing-nav-panel"
+          aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          {isOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
 
-      <nav className="navbar__nav">
-        <a href="#" className="nav-item active">Inicio</a>
-        <a href="#como-funciona" className="nav-item">Cómo funciona</a>
-        <a href="#sendas" className="nav-item">Sendas</a>
-        <a href="#clubes" className="nav-item">Clubes</a>
-        <a href="#metodologia" className="nav-item">Metodología</a>
-      </nav>
+      <div id="landing-nav-panel" className={`landing-navbar__panel ${isOpen ? "is-open" : ""}`}>
+        <nav className="landing-navbar__nav" aria-label="Navegación principal">
+          {navItems.map((item, index) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={`landing-navbar__link ${esEnlaceLandingActivo(hrefActivo, item.href) ? "is-active" : ""}`}
+              aria-current={esEnlaceLandingActivo(hrefActivo, item.href) ? "location" : undefined}
+              onClick={() => {
+                setHrefActivo(item.href);
+                setIsOpen(false);
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
 
-      <div className="navbar__actions">
-        <Button
-          asChild
-          className="btn btn-secundario rounded-full px-5 py-2 h-auto text-sm bg-transparent text-green-600 border-2 border-green-600 hover:bg-green-50 hover:text-green-600"
-        >
-          <Link to="/login" search={{ redirect: "/onboarding" }}>
-            <i className="fa-solid fa-desktop mr-2"></i> Entrar Web
-          </Link>
-        </Button>
-        <Button
-          asChild
-          className="btn btn-primario rounded-full px-5 py-2 h-auto text-sm bg-green-600 text-white hover:bg-green-700"
-        >
-          <a href="#">
-            <i className="fa-solid fa-download mr-2"></i> Descargar APK
-          </a>
-        </Button>
+        <div className="landing-navbar__actions">
+          <Button
+            asChild
+            className="landing-button landing-button--ghost h-auto rounded-full px-5 py-3"
+          >
+            <Link to="/login" search={{ redirect: "/onboarding" }} onClick={() => setIsOpen(false)}>
+              <Monitor size={18} aria-hidden="true" />
+              <span>Entrar Web</span>
+            </Link>
+          </Button>
+
+          {apkUrl ? (
+            <Button
+              asChild
+              className="landing-button landing-button--primary h-auto rounded-full px-5 py-3"
+            >
+              <a href={apkUrl} onClick={() => setIsOpen(false)}>
+                <Download size={18} aria-hidden="true" />
+                <span>Descargar APK</span>
+              </a>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              disabled
+              className="landing-button landing-button--primary h-auto rounded-full px-5 py-3 opacity-70"
+            >
+              <Download size={18} aria-hidden="true" />
+              <span>APK próximamente</span>
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   );

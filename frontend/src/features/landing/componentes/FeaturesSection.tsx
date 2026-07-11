@@ -1,26 +1,23 @@
-import { Link } from "@tanstack/react-router";
-import { Button } from "@/componentes/ui/button";
+import { CloudDownload, Sprout, Trophy } from "lucide-react";
 
 interface FeatureCardProps {
   variante: "green" | "blue" | "yellow";
-  icono: string;
   titulo: string;
   descripcion: string;
+  icono: typeof Sprout;
 }
 
-export function FeatureCard({ variante, icono, titulo, descripcion }: FeatureCardProps) {
-  const variantClass = `feature-card--${variante}`;
-
+function FeatureCard({ variante, icono: Icon, titulo, descripcion }: FeatureCardProps) {
   return (
-    <div className={`feature-card ${variantClass}`}>
-      <div className="feature-card__icon">
-        <i className={icono}></i>
+    <article className={`feature-card feature-card--${variante}`}>
+      <div className="feature-card__icon" aria-hidden="true">
+        <Icon size={24} />
       </div>
       <div className="feature-card__text">
-        <h4>{titulo}</h4>
+        <h3>{titulo}</h3>
         <p>{descripcion}</p>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -28,29 +25,37 @@ export function FeaturesSection() {
   const features = [
     {
       variante: "green" as const,
-      icono: "fa-solid fa-seedling",
+      icono: Sprout,
       titulo: "Aprende con CRECER",
-      descripcion: "Nuestra metodología CRECER hace del aprendizaje una aventura espiritual.",
+      descripcion: "Una metodología sencilla que convierte el aprendizaje en una aventura espiritual.",
     },
     {
       variante: "blue" as const,
-      icono: "fa-solid fa-cloud-arrow-down",
+      icono: CloudDownload,
       titulo: "Funciona offline",
-      descripcion: "Descarga nuestra app y sigue aprendiendo sin conexión a internet.",
+      descripcion: "Descarga la app y continúa aprendiendo incluso sin conexión a internet.",
     },
     {
       variante: "yellow" as const,
-      icono: "fa-solid fa-trophy",
+      icono: Trophy,
       titulo: "Gana insignias y XP",
-      descripcion: "Completa actividades, gana XP y desbloquea recompensas.",
+      descripcion: "Completa actividades, gana experiencia y desbloquea recompensas.",
     },
   ];
 
   return (
-    <section id="como-funciona" className="features">
-      {features.map((feature, index) => (
-        <FeatureCard key={index} {...feature} />
-      ))}
+    <section id="como-funciona" className="landing-section">
+      <div className="section-header section-header--center">
+        <span className="section-kicker">Cómo funciona</span>
+        <h2>Una experiencia simple y divertida</h2>
+        <p>Todo está pensado para que niñas y niños aprendan de forma clara, segura y motivadora.</p>
+      </div>
+
+      <div className="features">
+        {features.map((feature) => (
+          <FeatureCard key={feature.titulo} {...feature} />
+        ))}
+      </div>
     </section>
   );
 }

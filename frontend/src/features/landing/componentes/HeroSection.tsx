@@ -1,48 +1,56 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
+import { Heart, Play, ShieldCheck, Smile, Sprout } from "lucide-react";
 import landingImg from "@/assets/images/banners/landing_page.png";
+
+const badges = [
+  { icon: ShieldCheck, text: "Contenido seguro" },
+  { icon: Smile, text: "Para niños de 5 a 14 años" },
+  { icon: Heart, text: "Basada en la Biblia" },
+];
 
 export function HeroSection() {
   return (
     <section className="hero">
       <div className="hero__content">
+        <span className="section-kicker">Aprender puede ser una aventura</span>
+
         <h1>
-          Aprende la Palabra de Dios <br />
-          <span className="text-green">
-            jugando <i className="fa-solid fa-seedling"></i>
+          Aprende la Palabra de Dios
+          <span className="hero__accent">
+            jugando <Sprout size={40} aria-hidden="true" />
           </span>
         </h1>
+
         <p>
           Semillas es una plataforma cristiana para niños que enseña el evangelio de
-          forma lúdica, interactiva y segura.
+          forma lúdica, interactiva y confiable.
         </p>
 
         <div className="hero__buttons">
           <Button
             asChild
-            className="btn btn-primario btn-lg rounded-full px-6 py-3 h-auto text-base bg-green-600 text-white hover:bg-green-700"
+            className="landing-button landing-button--primary landing-button--large h-auto rounded-full px-6 py-3"
           >
             <Link to="/login" search={{ redirect: "/onboarding" }}>
-              <i className="fa-solid fa-play mr-2"></i> Comenzar ahora
+              <Play size={18} fill="currentColor" aria-hidden="true" />
+              <span>Comenzar ahora</span>
             </Link>
           </Button>
         </div>
 
-        <div className="hero__badges">
-          <span>
-            <i className="fa-solid fa-shield-halved"></i> 100% segura
-          </span>
-          <span>
-            <i className="fa-solid fa-face-smile"></i> Para niños 5-14 años
-          </span>
-          <span>
-            <i className="fa-regular fa-heart"></i> Basada en la Biblia
-          </span>
+        <div className="hero__badges" aria-label="Beneficios clave de la plataforma">
+          {badges.map(({ icon: Icon, text }) => (
+            <span key={text} className="hero-badge">
+              <Icon size={18} aria-hidden="true" />
+              <span>{text}</span>
+            </span>
+          ))}
         </div>
       </div>
 
       <div className="hero__image">
-        <img src={landingImg} alt="Niños aprendiendo" />
+        <img src={landingImg} alt="Jesús caminando con niños en un paisaje alegre" loading="eager" />
       </div>
     </section>
   );

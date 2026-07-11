@@ -15,19 +15,20 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="landing-wrapper">
-      <Navbar />
+    <div className="landing-wrapper" id="top">
+      <div className="landing-shell">
+        <Navbar />
 
-      <main className="main-content">
-        <HeroSection />
-        <PathsSection />
-        <hr className="section-divider" />
-        <FeaturesSection />
-        <ClubesSection />
-        <MethodologySection />
-      </main>
+        <main className="main-content">
+          <HeroSection />
+          <PathsSection />
+          <FeaturesSection />
+          <ClubesSection />
+          <MethodologySection />
+        </main>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }
