@@ -3,6 +3,10 @@ import type { CrearTemaSolicitud } from "../admin.api";
 import type { Senda, GrupoEdad } from "@/shared/api/api";
 import { Input } from "@/componentes/ui/input-base";
 import { SelectFiltro } from "@/componentes/ui/select-filtro";
+import { Section } from "@/componentes/ui/section";
+import { Grid } from "@/componentes/ui/grid";
+import { Stack } from "@/componentes/ui/stack";
+import { FormField } from "@/componentes/ui/form-field";
 import { TagInput } from "./TagInput";
 import { ClubVisibilitySelector, type ClubVisibilidades } from "./club-visibility-selector";
 import { CoverImageUpload } from "./cover-image-upload";
@@ -45,155 +49,149 @@ export function PasoInformacionGeneral({
 }: PasoInformacionGeneralProps) {
   return (
     <>
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col gap-5 text-left">
-        <div>
-          <h3 className="font-extrabold text-slate-800 text-sm md:text-base">Información del tema</h3>
-          <p className="text-[12px] text-slate-400 mt-1 font-medium">Completa los datos básicos para crear el nuevo tema.</p>
-        </div>
+      <Section
+        variante="white"
+        padding="md"
+        titulo="Información del tema"
+        descripcion="Completa los datos básicos para crear el nuevo tema."
+      >
+        <Stack gap={5}>
+          <Grid columnas={{ base: 1, md: 2 }} gap={4}>
+            <FormField label="Título del tema" requerido>
+              <div className="relative">
+                <Input
+                  {...register("titulo", { required: true })}
+                  maxLength={100}
+                  placeholder="Ej. Dios cuida de mi"
+                  className="pr-12 text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
+                />
+                <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
+                  {liveTitle.length === 16 ? 0 : liveTitle.length}/100
+                </span>
+              </div>
+            </FormField>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Título del tema <span className="text-red-500">*</span></label>
-            <div className="relative">
+            <FormField
+              label="Slug (identificador)"
+              requerido
+              textoAyuda="Se usará en la URL. Solo minúsculas, números y guiones."
+            >
               <Input
-                {...register("titulo", { required: true })}
-                maxLength={100}
-                placeholder="Ej. Dios cuida de mi"
-                className="pr-12 text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
+                {...register("slug", { required: true })}
+                onFocus={() => onSlugManualEdit?.()}
+                placeholder="ej. dios-cuida-de-mi"
+                className="text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
               />
-              <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
-                {liveTitle.length === 16 ? 0 : liveTitle.length}/100
-              </span>
-            </div>
-          </div>
+            </FormField>
+          </Grid>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Slug (identificador) <span className="text-red-500">*</span></label>
-            <Input
-              {...register("slug", { required: true })}
-              onFocus={() => onSlugManualEdit?.()}
-              placeholder="ej. dios-cuida-de-mi"
-              className="text-[13px] font-semibold !text-slate-800 placeholder:!text-slate-400 focus:!border-[#2e9e5b] focus:!ring-[#2e9e5b]/10"
-            />
-            <span className="text-[10px] text-slate-450 font-bold mt-0.5 leading-relaxed">
-              Se usará en la URL. Solo minúsculas, números y guiones.
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Senda <span className="text-red-500">*</span></label>
-            <SelectFiltro
-              opciones={sendas ?? []}
-              placeholder="Selecciona una senda"
-              etiquetaAria="Seleccionar senda"
-              variante="cuadrado"
-              {...register("senda_id", { required: true })}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Franja de edad <span className="text-red-500">*</span></label>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {gruposEdad?.map((g) => (
-                <label key={g.id} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 hover:border-[#2e9e5b]/40 transition-colors cursor-pointer has-[:checked]:border-[#2e9e5b] has-[:checked]:bg-[#eefcf4]">
-                  <input
-                    type="checkbox"
-                    value={g.id}
-                    {...register("grupo_edad_ids", { required: true })}
-                    className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer"
-                  />
-                  {g.nombre} ({g.edad_minima}-{g.edad_maxima} años)
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Objetivo del tema <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <textarea
-                {...register("objetivo", { required: true })}
-                maxLength={200}
-                rows={3}
-                placeholder="Ej. Que los niños comprendan que Dios siempre cuida de ellos."
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all resize-none"
+          <Grid columnas={{ base: 1, md: 2 }} gap={4}>
+            <FormField label="Senda" requerido>
+              <SelectFiltro
+                opciones={sendas ?? []}
+                placeholder="Selecciona una senda"
+                etiquetaAria="Seleccionar senda"
+                variante="cuadrado"
+                {...register("senda_id", { required: true })}
               />
-              <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
-                0/200
-              </span>
-            </div>
-          </div>
+            </FormField>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Resumen <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <textarea
-                {...register("resumen", { required: true })}
-                maxLength={400}
-                rows={3}
-                placeholder="Breve descripción del tema y lo que aprenderán los niños."
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all resize-none"
+            <FormField label="Franja de edad" requerido>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {gruposEdad?.map((g) => (
+                  <label key={g.id} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 hover:border-[#2e9e5b]/40 transition-colors cursor-pointer has-[:checked]:border-[#2e9e5b] has-[:checked]:bg-[#eefcf4]">
+                    <input
+                      type="checkbox"
+                      value={g.id}
+                      {...register("grupo_edad_ids", { required: true })}
+                      className="rounded border-slate-300 text-[#2e9e5b] focus:ring-[#2e9e5b] cursor-pointer"
+                    />
+                    {g.nombre} ({g.edad_minima}-{g.edad_maxima} años)
+                  </label>
+                ))}
+              </div>
+            </FormField>
+          </Grid>
+
+          <Grid columnas={{ base: 1, md: 2 }} gap={4}>
+            <FormField label="Objetivo del tema" requerido>
+              <div className="relative">
+                <textarea
+                  {...register("objetivo", { required: true })}
+                  maxLength={200}
+                  rows={3}
+                  placeholder="Ej. Que los niños comprendan que Dios siempre cuida de ellos."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all resize-none"
+                />
+                <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
+                  0/200
+                </span>
+              </div>
+            </FormField>
+
+            <FormField label="Resumen" requerido>
+              <div className="relative">
+                <textarea
+                  {...register("resumen", { required: true })}
+                  maxLength={400}
+                  rows={3}
+                  placeholder="Breve descripción del tema y lo que aprenderán los niños."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#2e9e5b] focus:outline-hidden focus:ring-2 focus:ring-[#2e9e5b]/10 transition-all resize-none"
+                />
+                <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
+                  0/400
+                </span>
+              </div>
+            </FormField>
+          </Grid>
+
+          <Grid columnas={{ base: 1, md: 3 }} gap={4}>
+            <FormField label="Duración estimada" requerido>
+              <div className="relative flex items-center">
+                <input
+                  type="number"
+                  {...register("minutos_estimados", { required: true })}
+                  className="w-full pl-4 pr-16 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
+                />
+                <span className="absolute right-4 text-[11px] text-slate-400 font-bold">minutos</span>
+              </div>
+            </FormField>
+
+            <FormField label="XP que otorga" requerido>
+              <div className="relative flex items-center">
+                <input
+                  type="number"
+                  {...register("xp_recompensa", { required: true })}
+                  className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
+                />
+                <span className="absolute right-4 text-[11px] text-slate-400 font-bold">XP</span>
+              </div>
+            </FormField>
+
+            <FormField label="Versión bíblica" requerido>
+              <SelectFiltro
+                opciones={bibleVersions ?? []}
+                placeholder="Selecciona una versión"
+                etiquetaAria="Seleccionar versión bíblica"
+                variante="cuadrado"
+                {...register("version_biblica_id", { required: true })}
               />
-              <span className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-bold">
-                0/400
-              </span>
-            </div>
-          </div>
-        </div>
+            </FormField>
+          </Grid>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Duración estimada <span className="text-red-500">*</span></label>
-            <div className="relative flex items-center">
-              <input
-                type="number"
-                {...register("minutos_estimados", { required: true })}
-                className="w-full pl-4 pr-16 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
-              />
-              <span className="absolute right-4 text-[11px] text-slate-400 font-bold">minutos</span>
-            </div>
-          </div>
+          <CoverImageUpload />
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">XP que otorga <span className="text-red-500">*</span></label>
-            <div className="relative flex items-center">
-              <input
-                type="number"
-                {...register("xp_recompensa", { required: true })}
-                className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-800 focus:border-[#2e9e5b] focus:outline-hidden transition-all"
-              />
-              <span className="absolute right-4 text-[11px] text-slate-400 font-bold">XP</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Versión bíblica <span className="text-red-500">*</span></label>
-            <SelectFiltro
-              opciones={bibleVersions ?? []}
-              placeholder="Selecciona una versión"
-              etiquetaAria="Seleccionar versión bíblica"
-              variante="cuadrado"
-              {...register("version_biblica_id", { required: true })}
-            />
-          </div>
-        </div>
-
-        <CoverImageUpload />
-
-        <TagInput
-          tags={tagsList}
-          onChange={() => {}}
-          inputValue={tagsInput}
-          onInputChange={onTagsInputChange}
-          onAddTag={onAddTag}
-          onRemoveTag={onRemoveTag}
-          helperText="Escribe una etiqueta y presiona Enter. Ejemplos: amor, fe, oracion, obediencia, gratitud"
-        />
-      </div>
+          <TagInput
+            tags={tagsList}
+            onChange={() => {}}
+            inputValue={tagsInput}
+            onInputChange={onTagsInputChange}
+            onAddTag={onAddTag}
+            onRemoveTag={onRemoveTag}
+            helperText="Escribe una etiqueta y presiona Enter. Ejemplos: amor, fe, oracion, obediencia, gratitud"
+          />
+        </Stack>
+      </Section>
 
       <ClubVisibilitySelector
         clubVisibilities={clubVisibilities}

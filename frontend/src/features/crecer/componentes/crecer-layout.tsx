@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Loader } from "lucide-react";
 import type { ReactNode } from "react";
+import { StateView } from "@/componentes/ui/state-view";
 
 interface ContenidoPaso {
   titulo?: string;
@@ -64,38 +64,22 @@ export function CrecerLayout({
         </div>
 
         {/* Loading / Error / Contenido */}
-        {isLoading ? (
-          <LoadingState colorLoader={fase.colorLoader} nombre={fase.nombre} />
-        ) : isError ? (
-          <ErrorState />
-        ) : (
+        <StateView
+          cargando={isLoading}
+          error={isError ? "Ocurrió un error al cargar la fase." : null}
+          colorCarga={fase.colorLoader}
+          mensajeCarga={`Cargando fase ${fase.nombre}...`}
+        >
           <ContentCard paso={paso} numeroFase={fase.numero} emptyMessage={emptyMessage}>
             {children}
           </ContentCard>
-        )}
+        </StateView>
 
         {/* Botones de acción - solo visibles cuando NO está cargando ni hay error */}
         {!isLoading && !isError && (
           <BotonesAccion botones={botonesAccion} colorAccent={fase.colorAccent} />
         )}
       </div>
-    </div>
-  );
-}
-
-function LoadingState({ colorLoader, nombre }: { colorLoader: string; nombre: string }) {
-  return (
-    <div className="flex flex-col gap-4 justify-center items-center h-64 bg-white rounded-[2.5rem] shadow-xl" style={{ color: colorLoader }}>
-      <Loader className="animate-spin size-12" />
-      <p className="font-bold animate-pulse text-xl">Cargando fase {nombre}...</p>
-    </div>
-  );
-}
-
-function ErrorState() {
-  return (
-    <div className="flex flex-col gap-4 justify-center items-center h-64 bg-white rounded-[2.5rem] shadow-xl text-red-500">
-      <p className="font-bold text-xl">Ocurrió un error al cargar la fase.</p>
     </div>
   );
 }

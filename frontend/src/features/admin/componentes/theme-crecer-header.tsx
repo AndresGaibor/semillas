@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Layers3, Clock3, Sparkles, NotebookPen, Eye } from "lucide-react";
+import { formatElapsed } from "./theme-view.utils";
 
 interface ThemeCrecerHeaderProps {
   theme?: {
@@ -131,22 +132,4 @@ function MetricMini({ icon: Icon, label, value }: { icon: LucideIcon; label: str
       <p className="mt-2 text-sm font-black text-white">{value}</p>
     </div>
   );
-}
-
-function formatElapsed(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return "Ahora";
-    if (diffMins < 60) return `hace ${diffMins}m`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `hace ${diffHours}h`;
-    const diffDays = Math.floor(diffHours / 24);
-    return `hace ${diffDays}d`;
-  } catch {
-    return "—";
-  }
 }

@@ -1,17 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type JSX } from "react";
+import type { JSX } from "react";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 import {
   calcularFondoPieza,
-  crearPiezasRompecabezas,
-  intercambiarPiezas,
-  mezclarPiezasRompecabezas,
-  normalizarDimensionesRompecabezas,
-  rompecabezasCompletado,
   type PiezaRompecabezas,
 } from "./rompecabezas.utils";
 import { ImagenAmpliadaModal } from "./ImagenAmpliadaModal";
 import { VistaReferencia } from "./VistaReferencia";
 import { PiezaRompecabezasBtn } from "./PiezaRompecabezasBtn";
+import { useRompecabezas } from "./use-rompecabezas";
 
 export type RompecabezasProps = {
   imagen: string;
@@ -34,75 +30,21 @@ export function Rompecabezas({
   mostrarVistaReferencia = true,
   onComplete,
 }: RompecabezasProps): JSX.Element {
-  const dimensiones = useMemo(() => normalizarDimensionesRompecabezas(filas, columnas), [filas, columnas]);
-  const piezasBase = useMemo(() => crearPiezasRompecabezas(dimensiones.filas, dimensiones.columnas), [dimensiones]);
-  const [piezas, setPiezas] = useState(() => mezclarPiezasRompecabezas(piezasBase));
-  const [piezaSeleccionadaId, setPiezaSeleccionadaId] = useState<number | null>(null);
-  const [piezaArrastradaId, setPiezaArrastradaId] = useState<number | null>(null);
-  const [imagenAmpliada, setImagenAmpliada] = useState(false);
-  const completoNotificado = useRef(false);
-
-  const totalPiezas = dimensiones.filas * dimensiones.columnas;
-  const estaCompletado = rompecabezasCompletado(piezas);
-
-  useEffect(() => {
-    setPiezas(mezclarPiezasRompecabezas(piezasBase));
-    setPiezaSeleccionadaId(null);
-    completoNotificado.current = false;
-  }, [piezasBase]);
-
-  useEffect(() => {
-    if (!estaCompletado || completoNotificado.current) {
-      return;
-    }
-
-    completoNotificado.current = true;
-    void import("@/lib/audio")
-      .then(({ playSound }) => Promise.resolve(playSound("acertado")))
-      .catch(() => undefined);
-    onComplete?.();
-  }, [estaCompletado, onComplete]);
-
-  function mezclarOtraVez() {
-    setPiezas((piezasActuales) => mezclarPiezasRompecabezas(piezasActuales));
-    setPiezaSeleccionadaId(null);
-    completoNotificado.current = false;
-  }
-
-  function intercambiarPorId(primeraId: number, segundaId: number) {
-    setPiezas((piezasActuales) => intercambiarPiezas(piezasActuales, primeraId, segundaId));
-  }
-
-  function seleccionarPieza(id: number) {
-    if (piezaSeleccionadaId === null) {
-      setPiezaSeleccionadaId(id);
-      return;
-    }
-
-    if (piezaSeleccionadaId === id) {
-      setPiezaSeleccionadaId(null);
-      return;
-    }
-
-    intercambiarPorId(piezaSeleccionadaId, id);
-    setPiezaSeleccionadaId(null);
-  }
-
-  function iniciarArrastre(id: number) {
-    setPiezaArrastradaId(id);
-  }
-
-  function soltarSobrePieza(id: number) {
-    if (piezaArrastradaId !== null && piezaArrastradaId !== id) {
-      intercambiarPorId(piezaArrastradaId, id);
-    }
-
-    setPiezaArrastradaId(null);
-  }
+  const {
+    dimensiones,
+    piezas,
+    piezaSeleccionadaId,
+    imagenAmpliada,
+    setImagenAmpliada,
+    estaCompletado,
+    totalPiezas,
+    seleccionarPieza,
+    iniciarArrastre,
+    soltarSobrePieza,
+  } = useRompecabezas({ imagen, filas, columnas, onComplete });
 
   return (
     <div className="w-full max-w-4xl mx-auto py-2 animate-in fade-in zoom-in-95">
-
       <ImagenAmpliadaModal
         imagen={imagen}
         estaAbierta={imagenAmpliada}
@@ -111,7 +53,6 @@ export function Rompecabezas({
 
       {!estaCompletado ? (
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch justify-center w-full">
-
           <div className="w-full md:w-1/3 flex flex-col justify-center gap-6">
             {mostrarVistaReferencia && (
               <VistaReferencia
@@ -150,7 +91,7 @@ export function Rompecabezas({
                     onSeleccionar={seleccionarPieza}
                     onIniciarArrastre={iniciarArrastre}
                     onSoltar={soltarSobrePieza}
-                    onArrastreFinalizado={() => setPiezaArrastradaId(null)}
+                    onArrastreFinalizado={() => {}}
                   />
                 );
               })}

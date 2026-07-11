@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader, Cloud } from "lucide-react";
+import { Cloud } from "lucide-react";
 import imagenFase from "../assets/images/Ilustraciones/Recompensa.png";
 import { CSSConfetti } from "../componentes/ui/Confetti";
+import { StateView } from "../componentes/ui/state-view";
 import { useRecompensarPage } from "../features/crecer/hooks/use-recompensar-page";
 
 export const Route = createFileRoute("/app/R_recompensar/$themeId")({
@@ -49,31 +50,15 @@ function RRecompensarPage() {
           </div>
         </div>
 
-        {isLoading ? (
-          <LoadingState />
-        ) : isError ? (
-          <ErrorState />
-        ) : (
+        <StateView
+          cargando={isLoading}
+          error={isError ? "Ocurrió un error al cargar la fase." : null}
+          colorCarga="#f59e0b"
+          mensajeCarga="Cargando fase Recompensar..."
+        >
           <ContentState tema={tema} portadaQuery={portadaQuery} contenidoPaso={contenidoPaso} />
-        )}
+        </StateView>
       </div>
-    </div>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div className="flex flex-col gap-4 justify-center items-center h-64 bg-white rounded-[2.5rem] shadow-xl text-amber-500">
-      <Loader className="animate-spin size-12" />
-      <p className="font-bold animate-pulse text-xl">Cargando fase Recompensar...</p>
-    </div>
-  );
-}
-
-function ErrorState() {
-  return (
-    <div className="flex flex-col gap-4 justify-center items-center h-64 bg-white rounded-[2.5rem] shadow-xl text-red-500">
-      <p className="font-bold text-xl">Ocurrió un error al cargar la fase.</p>
     </div>
   );
 }
