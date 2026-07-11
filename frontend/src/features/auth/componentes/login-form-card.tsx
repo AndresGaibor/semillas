@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LockKeyhole } from "lucide-react";
+import { BookOpen, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { EmailAuthForm } from "./email-auth-form";
 import { SocialLoginButton } from "./social-login-button";
 import googleIcon from "@/assets/images/icons/google.png";
@@ -92,6 +92,21 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
         )}
 
         {tabActivo === "email" && <EmailAuthForm onSuccess={onEmailSuccess} />}
+
+        <div className="login-mobile-highlights" aria-label="Características de Semillas">
+          <span>
+            <ShieldCheck size={15} aria-hidden="true" />
+            Contenido seguro
+          </span>
+          <span>
+            <Sparkles size={15} aria-hidden="true" />
+            Aprende jugando
+          </span>
+          <span>
+            <BookOpen size={15} aria-hidden="true" />
+            Basada en la Biblia
+          </span>
+        </div>
 
         <p className="login-mobile-privacy">
           <LockKeyhole size={16} aria-hidden="true" />

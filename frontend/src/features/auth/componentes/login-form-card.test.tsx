@@ -96,4 +96,21 @@ describe("LoginFormCard", () => {
     expect(html).toContain("login-mobile-privacy");
     expect(html).toContain("Tu información está protegida.");
   });
+
+  it("incluye las tres características compactas en móvil", () => {
+    const html = renderToStaticMarkup(
+      <LoginFormCard
+        onGoogleClick={() => undefined}
+        onGuestClick={() => undefined}
+        onEmailSuccess={() => undefined}
+        tabActivo="social"
+        onCambiarTab={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("login-mobile-highlights");
+    expect(html).toContain("Contenido seguro");
+    expect(html).toContain("Aprende jugando");
+    expect(html).toContain("Basada en la Biblia");
+  });
 });
