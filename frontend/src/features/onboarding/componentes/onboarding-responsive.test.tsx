@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AvatarSelector } from "./AvatarSelector";
 import { GrupoEdadCard } from "./GrupoEdadCard";
 import { FormNavigation } from "./FormNavigation";
+import { OnboardingFooter } from "./OnboardingFooter";
 import { OnboardingTopbar } from "./OnboardingTopbar";
 import { ProfilePreview } from "./ProfilePreview";
 
@@ -44,6 +45,15 @@ describe("onboarding responsive layout", () => {
     expect(html).toContain("onboarding-actions");
     expect(html).toContain("onboarding-actions__secondary");
     expect(html).toContain("onboarding-actions__primary");
+  });
+
+  it("reduce el texto del CTA del onboarding a un solo mensaje", () => {
+    const html = renderToStaticMarkup(
+      <OnboardingFooter deshabilitado onContinuar={() => undefined} />,
+    );
+
+    expect(html).toContain("Selecciona una opción");
+    expect(html).not.toContain("Perfecto, puedes continuar");
   });
 
   it("expande las tarjetas de franja de edad en móvil", () => {

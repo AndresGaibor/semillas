@@ -8,9 +8,6 @@ interface OnboardingFooterProps {
 export function OnboardingFooter({ deshabilitado, onContinuar }: OnboardingFooterProps) {
   return (
     <div className="onboarding-age-footer">
-      <p className="onboarding-age-footer__hint" aria-live="polite">
-        {deshabilitado ? "Selecciona una opción para continuar" : "Perfecto, puedes continuar"}
-      </p>
       <button
         type="button"
         className="onboarding-age-footer__button"
