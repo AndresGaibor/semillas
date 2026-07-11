@@ -66,4 +66,29 @@ describe("onboarding responsive layout", () => {
 
     expect(html).toContain("onboarding-age-card");
   });
+
+  it("muestra la semántica y jerarquía nuevas de la selección de edad", () => {
+    const html = renderToStaticMarkup(
+      <GrupoEdadCard
+        grupo={{
+          id: "exploradores",
+          codigo: "exploradores",
+          nombre: "Exploradores",
+          edad_minima: 9,
+          edad_maxima: 12,
+          descripcion: "Aprende más de Dios y entiende su Palabra.",
+          imagen_url: null,
+          orden: 2,
+        }}
+        seleccionado
+        onSelect={() => undefined}
+      />,
+    );
+
+    expect(html).toContain('class="onboarding-age-card is-selected"');
+    expect(html).toContain('type="radio"');
+    expect(html).toContain("onboarding-age-card__check");
+    expect(html).toContain("Exploradores");
+    expect(html).toContain("9–12 años");
+  });
 });

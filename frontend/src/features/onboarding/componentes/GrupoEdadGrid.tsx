@@ -8,19 +8,36 @@ interface GrupoEdadGridProps {
   cargando: boolean;
 }
 
+function GrupoEdadSkeleton() {
+  return (
+    <div className="onboarding-age-skeleton" aria-hidden="true">
+      <div className="onboarding-age-skeleton__media" />
+      <div className="onboarding-age-skeleton__body">
+        <span />
+        <span />
+        <span />
+      </div>
+    </div>
+  );
+}
+
 export function GrupoEdadGrid({ grupos, seleccionadoId, onSelect, cargando }: GrupoEdadGridProps) {
   return (
-    <div className="onboarding-age-grid flex gap-4 justify-center mb-8 w-full flex-wrap">
-      {cargando && <p className="text-center text-[rgba(18,59,44,0.4)] font-semibold py-12 w-full">Cargando franjas...</p>}
+    <fieldset className="onboarding-age-fieldset" aria-busy={cargando}>
+      <legend className="sr-only">Selecciona tu franja de edad</legend>
 
-      {grupos.map((grupo) => (
-        <GrupoEdadCard
-          key={grupo.id}
-          grupo={grupo}
-          seleccionado={seleccionadoId === grupo.id}
-          onSelect={onSelect}
-        />
-      ))}
-    </div>
+      <div className="onboarding-age-grid">
+        {cargando
+          ? Array.from({ length: 3 }).map((_, index) => <GrupoEdadSkeleton key={index} />)
+          : grupos.map((grupo) => (
+              <GrupoEdadCard
+                key={grupo.id}
+                grupo={grupo}
+                seleccionado={seleccionadoId === grupo.id}
+                onSelect={onSelect}
+              />
+            ))}
+      </div>
+    </fieldset>
   );
 }

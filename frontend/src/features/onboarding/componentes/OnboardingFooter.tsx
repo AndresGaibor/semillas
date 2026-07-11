@@ -1,4 +1,4 @@
-import { Boton } from "@/componentes/ui/boton";
+import { ArrowRight } from "lucide-react";
 
 interface OnboardingFooterProps {
   deshabilitado: boolean;
@@ -7,17 +7,19 @@ interface OnboardingFooterProps {
 
 export function OnboardingFooter({ deshabilitado, onContinuar }: OnboardingFooterProps) {
   return (
-    <div className="w-full max-w-[400px] flex justify-center">
-      <Boton
-        variante="primario"
-        anchoCompleto
+    <div className="onboarding-age-footer">
+      <p className="onboarding-age-footer__hint" aria-live="polite">
+        {deshabilitado ? "Selecciona una opción para continuar" : "Perfecto, puedes continuar"}
+      </p>
+      <button
+        type="button"
+        className="onboarding-age-footer__button"
         onClick={onContinuar}
         disabled={deshabilitado}
-        deshabilitado={deshabilitado}
-        clase="rounded-xl text-base font-semibold"
       >
-        Continuar
-      </Boton>
+        <span>{deshabilitado ? "Selecciona una opción" : "Continuar"}</span>
+        <ArrowRight size={20} aria-hidden="true" />
+      </button>
     </div>
   );
 }

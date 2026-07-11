@@ -1,9 +1,11 @@
+import type { CSSProperties } from "react";
+import { Check } from "lucide-react";
 import type { GrupoEdad } from "../../../shared/api/api";
 
-const mapaColores: Record<string, { borde: string; fondo: string; acento: string }> = {
-  semillas: { borde: "#43A047", fondo: "#E8F5E9", acento: "#43A047" },
-  exploradores: { borde: "#3D8BD4", fondo: "#E3F2FD", acento: "#3D8BD4" },
-  embajadores: { borde: "#EE6C4D", fondo: "#FBE9E7", acento: "#EE6C4D" },
+const mapaColores: Record<string, { borde: string; fondo: string; acento: string; suave: string }> = {
+  semillas: { borde: "#43A047", fondo: "#E8F5E9", acento: "#2E7D32", suave: "#F3FAF4" },
+  exploradores: { borde: "#3D8BD4", fondo: "#EAF4FD", acento: "#2874C6", suave: "#F5FAFF" },
+  embajadores: { borde: "#EE6C4D", fondo: "#FDEDEA", acento: "#D9573A", suave: "#FFF8F6" },
 };
 
 interface GrupoEdadCardProps {
@@ -13,19 +15,24 @@ interface GrupoEdadCardProps {
 }
 
 export function GrupoEdadCard({ grupo, seleccionado, onSelect }: GrupoEdadCardProps) {
-  const colores = mapaColores[grupo.codigo] ?? { borde: "#7E57C2", fondo: "#EDE7F6", acento: "#7E57C2" };
+  const colores = mapaColores[grupo.codigo] ?? {
+    borde: "#7E57C2",
+    fondo: "#EDE7F6",
+    acento: "#6A42B8",
+    suave: "#FAF7FF",
+  };
+
+  const style = {
+    "--age-accent": colores.acento,
+    "--age-border": colores.borde,
+    "--age-background": colores.fondo,
+    "--age-soft": colores.suave,
+  } as CSSProperties;
 
   return (
     <label
-      className={`onboarding-age-card relative flex flex-col rounded-2xl cursor-pointer overflow-hidden transition-all duration-200 ${
-        seleccionado ? "" : "bg-white border border-gray-200"
-      }`}
-      style={{
-        background: seleccionado ? colores.fondo : "#ffffff",
-        border: `2px solid ${seleccionado ? colores.borde : "#e5e7eb"}`,
-        width: "280px",
-        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
-      }}
+      className={`onboarding-age-card ${seleccionado ? "is-selected" : ""}`}
+      style={style}
     >
       <input
         type="radio"
@@ -33,37 +40,29 @@ export function GrupoEdadCard({ grupo, seleccionado, onSelect }: GrupoEdadCardPr
         value={grupo.id}
         checked={seleccionado}
         onChange={() => onSelect(grupo.id)}
-        className="absolute opacity-0 w-0 h-0"
+        className="onboarding-age-card__radio"
       />
 
-      <div className="w-full h-[160px] relative bg-[#e5f0f9] flex-shrink-0">
+      <div className="onboarding-age-card__media">
         <img
           src={grupo.imagen_url ?? undefined}
-          alt={grupo.nombre}
-          className="w-full h-full object-cover block"
+          alt=""
+          className="onboarding-age-card__image"
+          loading="lazy"
         />
-        <div
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg text-white transition-all duration-200 shadow-[0_2px_4px_rgba(0,0,0,0.2)]"
-          style={{
-            background: colores.acento,
-            opacity: seleccionado ? 1 : 0,
-            transform: seleccionado ? "scale(1)" : "scale(0.8)",
-          }}
-        >
-          ✓
-        </div>
+        <span className="onboarding-age-card__check" aria-hidden="true">
+          <Check size={22} strokeWidth={3} />
+        </span>
       </div>
 
-      <div className="p-4 flex-1 flex flex-col">
-        <h2 className="text-xl font-bold text-[#1A1A1A] m-0 mb-1">
-          {grupo.nombre}
-        </h2>
-        <div className="text-sm font-semibold mb-3" style={{ color: colores.acento }}>
-          {grupo.edad_minima} - {grupo.edad_maxima} años
+      <div className="onboarding-age-card__body">
+        <div className="onboarding-age-card__heading">
+          <h2>{grupo.nombre}</h2>
+          <span className="onboarding-age-card__range">
+            {grupo.edad_minima}–{grupo.edad_maxima} años
+          </span>
         </div>
-        <p className="text-sm text-[#5C5C5C] leading-relaxed m-0">
-          {grupo.descripcion}
-        </p>
+        <p>{grupo.descripcion}</p>
       </div>
     </label>
   );
