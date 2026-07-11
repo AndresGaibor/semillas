@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ThemeCard } from "./theme-card";
 
 describe("ThemeCard mobile CTA", () => {
-  it("expone un CTA más grande y legible para móvil", () => {
+  it("expone un layout compacto para móvil", () => {
     const html = renderToStaticMarkup(
       <ThemeCard
         senda="Senda del Padre"
@@ -14,11 +14,13 @@ describe("ThemeCard mobile CTA", () => {
         xp={100}
         estado="porDefecto"
         onAccion={() => undefined}
+        layoutMovil="lista"
       />,
     );
 
     expect(html).toContain("Empezar tema");
     expect(html).toContain("max-w-[240px]");
     expect(html).toContain("py-3");
+    expect(html).toContain("theme-card--mobile-list");
   });
 });

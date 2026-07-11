@@ -21,6 +21,9 @@
     linear-gradient(180deg, #f7f8f6 0%, #f4f4f2 100%);
   color: var(--color-neutro-oscuro-max);
   overflow: hidden;
+  @media (max-width: 767px) {
+    overflow-y: auto;
+  }
 }
 
 .login-shell {
@@ -31,6 +34,9 @@
   border: 1px solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 20px 60px rgba(17, 24, 39, 0.06);
   overflow: hidden;
+  @media (max-width: 767px) {
+    overflow-y: auto;
+  }
 }
 
 .login-topbar {

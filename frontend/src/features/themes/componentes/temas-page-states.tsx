@@ -1,38 +1,58 @@
-import { Loader2 } from "lucide-react";
+import { BookOpenCheck, RefreshCw, SearchX } from "lucide-react";
 
 export function TemasLoadingState() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <Loader2 className="size-8 text-primario animate-spin" />
-      <p className="text-sm font-semibold text-neutro">Cargando temas bíblicos...</p>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Cargando temas">
+      {[0, 1, 2].map((item) => (
+        <div key={item} className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
+          <div className="h-40 animate-pulse bg-slate-100" />
+          <div className="space-y-3 p-5">
+            <div className="h-5 w-2/3 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-8 w-4/5 animate-pulse rounded-xl bg-slate-100" />
+            <div className="h-4 w-full animate-pulse rounded-full bg-slate-100" />
+            <div className="h-10 w-full animate-pulse rounded-full bg-slate-100" />
+          </div>
+        </div>
+      ))}
+      <span className="sr-only">Cargando temas bíblicos...</span>
     </div>
   );
 }
 
 export function TemasErrorState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-3xl border border-slate-100 shadow-sm text-center">
-      <svg className="size-12 text-red-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.694-.833-3.464 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
-      </svg>
-      <h4 className="text-sm font-black text-slate-700 mb-1">Error al cargar temas</h4>
-      <p className="text-xs text-slate-400 font-semibold max-w-[280px]">
-        No pudimos obtener los temas. Revisa tu conexión e intenta de nuevo.
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-red-100 bg-white px-4 py-16 text-center shadow-sm">
+      <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+        <RefreshCw className="size-7" />
+      </div>
+      <h4 className="mb-1 text-base font-black text-slate-800">No pudimos cargar los temas</h4>
+      <p className="max-w-[300px] text-sm font-semibold text-slate-400">
+        Revisa tu conexión e inténtalo nuevamente.
       </p>
     </div>
   );
 }
 
-export function TemasEmptyState() {
+export function TemasEmptyState({ onReset }: { onReset?: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-3xl border border-slate-100 shadow-sm text-center">
-      <svg className="size-12 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.121 2.121l2.121 2.121a1 1 0 001.415 0l2.121-2.121a1 1 0 000-1.415l-2.121-2.121a1 1 0 00-1.415 0L9.88 5.636a1 1 0 000 1.415l2.121 2.121z" />
-      </svg>
-      <h4 className="text-sm font-black text-slate-700 mb-1">No se encontraron temas</h4>
-      <p className="text-xs text-slate-400 font-semibold max-w-[280px]">
-        Intenta buscar con otros términos o cambia la pestaña seleccionada.
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white px-4 py-14 text-center shadow-sm">
+      <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-500">
+        <SearchX className="size-7" />
+      </div>
+      <h4 className="mb-1 text-base font-black text-slate-800">No encontramos temas</h4>
+      <p className="max-w-[310px] text-sm font-semibold text-slate-400">
+        Cambia la búsqueda, la pestaña o la Senda seleccionada.
       </p>
+      {onReset ? (
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-slate-900 px-5 text-sm font-black text-white transition-colors hover:bg-primario"
+        >
+          <BookOpenCheck className="size-4" />
+          Ver todos los temas
+        </button>
+      ) : null}
     </div>
   );
 }

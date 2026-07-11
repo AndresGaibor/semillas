@@ -14,7 +14,7 @@ type PageHeaderInfo = {
 const PAGE_HEADER_MAP: Record<string, PageHeaderInfo> = {
   "/app/temas": {
     titulo: "Mis temas",
-    subtitulo: "Explora y repasa los temas que has estudiado.",
+    subtitulo: "Explora, continúa y completa temas adaptados a tu edad.",
   },
   "/app/logros": {
     titulo: "Mis insignias",

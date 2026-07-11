@@ -12,7 +12,7 @@ interface ThemeCardImageSectionProps {
   imagenUrl?: string;
   titulo: string;
   colorSenda: ColorDisenoKey;
-senda: string;
+  senda: string;
   mostrarSendaBadge: boolean;
   favorito: boolean;
   onFavorito?: () => void;
@@ -35,7 +35,7 @@ senda,
   esCompacta,
 }: ThemeCardImageSectionProps) {
   return (
-    <div className={unirClases("relative w-full flex-shrink-0 overflow-hidden bg-slate-50", esCompacta ? "h-[152px]" : "h-[176px]")}>
+    <div className={unirClases("theme-card__media relative w-full flex-shrink-0 overflow-hidden bg-slate-50", esCompacta ? "h-[152px]" : "h-[176px]")}>
       <IlustracionCard
         esError={esError}
         esBloqueada={esBloqueada}
@@ -63,7 +63,7 @@ senda,
             evento.stopPropagation();
             onFavorito();
           }}
-          className="absolute right-3 top-3 flex size-9 cursor-pointer items-center justify-center rounded-full bg-white/92 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
+          className="theme-card__favorite absolute right-3 top-3 flex size-9 cursor-pointer items-center justify-center rounded-full bg-white/92 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
           aria-label={favorito ? "Quitar de favoritos" : "Agregar a favoritos"}
           aria-pressed={favorito}
         >

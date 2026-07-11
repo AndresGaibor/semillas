@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { CardLeccion } from "@/componentes/ui/card-leccion";
-import { TemasTabsFilter } from "@/features/themes/componentes/temas-tabs-filter";
-import { TemasSearchBar } from "@/features/themes/componentes/temas-search-bar";
-import { ResumenTemasCard } from "@/features/themes/componentes/resumen-temas-card";
 import { ContinuarAprendiendoCard } from "@/features/themes/componentes/continuar-aprendiendo-card";
-import { TemasLoadingState, TemasErrorState, TemasEmptyState } from "@/features/themes/componentes/temas-page-states";
+import { ResumenTemasCard } from "@/features/themes/componentes/resumen-temas-card";
 import { SendaFilterRow } from "@/features/themes/componentes/senda-filter-row";
+import { TemasEmptyState, TemasErrorState, TemasLoadingState } from "@/features/themes/componentes/temas-page-states";
+import { TemasSearchBar } from "@/features/themes/componentes/temas-search-bar";
+import { TemasTabsFilter } from "@/features/themes/componentes/temas-tabs-filter";
 import { useTemasPage } from "@/features/themes/hooks/use-temas-page";
+import "./app-temas.css";
 
 const BusquedaSchema = z.object({
   sendas: z.enum(["padre", "hijo", "espiritu"]).optional(),
@@ -27,6 +28,7 @@ function PaginaTemas() {
     temasFiltrados,
     stats,
     temaParaContinuar,
+    temaRecomendado,
     isLoading,
     isError,
     filtroTab,
@@ -37,23 +39,48 @@ function PaginaTemas() {
     cambiarSenda,
   } = useTemasPage({ searchSenda: search.sendas });
 
+  const limpiarFiltros = () => {
+    setFiltroTab("todos");
+    setBusqueda("");
+    cambiarSenda("todas");
+  };
+
   if (isLoading) return <TemasLoadingState />;
   if (isError) return <TemasErrorState />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 w-full font-sans text-left items-start">
-      <div className="flex flex-col min-w-0">
-        <SendaFilterRow
-          searchSenda={search.sendas}
-          onSendaChange={cambiarSenda}
-        />
-        <TemasTabsFilter activo={filtroTab} onChange={setFiltroTab} />
-        <TemasSearchBar valor={busqueda} onChange={setBusqueda} />
+    <div className="temas-page">
+      <section className="temas-page__main" aria-label="Catálogo de temas">
+        <div className="temas-page__mobile-summary">
+          <ResumenTemasCard
+            totales={stats.totales}
+            completados={stats.completados}
+            enProgreso={stats.enProgreso}
+            variante="inline"
+          />
+        </div>
+
+        <div className="temas-page__filters" aria-label="Filtros de temas">
+          <SendaFilterRow searchSenda={search.sendas} onSendaChange={cambiarSenda} />
+
+          <TemasTabsFilter
+            activo={filtroTab}
+            onChange={setFiltroTab}
+            counts={{
+              todos: stats.totales,
+              completados: stats.completados,
+              progreso: stats.enProgreso,
+              favoritos: stats.favoritos,
+            }}
+          />
+
+          <TemasSearchBar valor={busqueda} onChange={setBusqueda} />
+        </div>
 
         {temasFiltrados.length === 0 ? (
-          <TemasEmptyState />
+          <TemasEmptyState onReset={limpiarFiltros} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="temas-page__grid">
             {temasFiltrados.map((tema) => (
               <CardLeccion
                 key={tema.id}
@@ -65,7 +92,9 @@ function PaginaTemas() {
                 favorito={tema.favorito}
                 imagenUrl={tema.imagenUrl ?? undefined}
                 estado={tema.estado}
-                mostrarSendaBadge={!search.sendas}
+                mostrarSendaBadge={false}
+                layoutMovil="lista"
+                clase="temas-topic-card"
                 onFavorito={() => {
                   const slug = temasApi?.find((t) => t.id === tema.id)?.slug ?? tema.id;
                   toggleFavorito(slug);
@@ -78,23 +107,26 @@ function PaginaTemas() {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      <div className="flex flex-col gap-6 w-full">
+      <aside className="temas-page__aside" aria-label="Resumen de aprendizaje">
         <ResumenTemasCard
           totales={stats.totales}
           completados={stats.completados}
           enProgreso={stats.enProgreso}
         />
+
         <ContinuarAprendiendoCard
-          tema={temaParaContinuar ?? null}
+          tema={temaParaContinuar ?? temaRecomendado ?? null}
+          modo={temaParaContinuar ? "continuar" : "recomendado"}
           onContinuar={() => {
-            if (temaParaContinuar) {
-              navigate({ to: "/app/temas/$themeId", params: { themeId: temaParaContinuar.id } });
+            const temaDestino = temaParaContinuar ?? temaRecomendado;
+            if (temaDestino) {
+              navigate({ to: "/app/temas/$themeId", params: { themeId: temaDestino.id } });
             }
           }}
         />
-      </div>
+      </aside>
     </div>
   );
 }

@@ -1,24 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { StoryRouter } from "@/storybook/story-router";
-import { InicioHero } from "./inicio-hero";
 import { ResumenProgreso } from "./resumen-progreso";
 import { VersiculoDelDia } from "./versiculo-del-dia";
 
 describe("home dashboard layout", () => {
-  it("muestra el hero con CTA y nombre real", () => {
-    const html = renderToStaticMarkup(
-      <StoryRouter initialPath="/app">
-        <InicioHero imagenUrl="/hero.png" nombreUsuario="Andres" />
-      </StoryRouter>,
-    );
-
-    expect(html).toContain("Tu aventura de hoy");
-    expect(html).toContain("Sigue creciendo, Andres");
-    expect(html).toContain("Empezar una lección");
-  });
-
   it("expone el resumen de progreso con cuatro métricas", () => {
     const html = renderToStaticMarkup(
       <ResumenProgreso

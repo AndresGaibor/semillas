@@ -58,7 +58,7 @@ export function useTemasPage({ searchSenda }: UseTemasPageOptions = {}) {
     [temasBase, portadas],
   );
 
-  const { temasFiltrados, stats, temaParaContinuar } = useMemo(() => {
+  const { temasFiltrados, stats, temaParaContinuar, temaRecomendado } = useMemo(() => {
     const filtrados = temasConPortadas.filter((tema) => {
       const cumpleBusqueda =
         tema.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -81,8 +81,10 @@ export function useTemasPage({ searchSenda }: UseTemasPageOptions = {}) {
         totales: temasConPortadas.length,
         completados: temasConPortadas.filter((t) => t.estado === "completada").length,
         enProgreso: temasConPortadas.filter((t) => t.estado === "enProgreso").length,
+        favoritos: temasConPortadas.filter((t) => t.favorito).length,
       },
       temaParaContinuar: temasConPortadas.find((t) => t.estado === "enProgreso"),
+      temaRecomendado: temasConPortadas.find((t) => t.estado === "porDefecto"),
     };
   }, [temasConPortadas, filtroTab, busqueda, searchSenda]);
 
@@ -103,6 +105,7 @@ export function useTemasPage({ searchSenda }: UseTemasPageOptions = {}) {
     temasFiltrados,
     stats,
     temaParaContinuar,
+    temaRecomendado,
     isLoading,
     isError,
     filtroTab,

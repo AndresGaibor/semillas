@@ -1,3 +1,4 @@
+import type { FC } from "react";
 import { TabsOpciones } from "@/componentes/ui/navegacion-tabs";
 
 export type FiltroTab = "todos" | "completados" | "progreso" | "favoritos";
@@ -5,20 +6,21 @@ export type FiltroTab = "todos" | "completados" | "progreso" | "favoritos";
 export interface TemasTabsFilterProps {
   activo: FiltroTab;
   onChange: (tab: FiltroTab) => void;
+  counts?: Partial<Record<FiltroTab, number>>;
 }
 
-export const TemasTabsFilter: React.FC<TemasTabsFilterProps> = ({ activo, onChange }) => {
+export const TemasTabsFilter: FC<TemasTabsFilterProps> = ({ activo, onChange, counts }) => {
   return (
     <TabsOpciones
       activo={activo}
       onCambiar={(tab) => onChange(tab as FiltroTab)}
       opciones={[
-        { id: "todos", label: "Todos los temas" },
-        { id: "completados", label: "Completados" },
-        { id: "progreso", label: "En progreso" },
-        { id: "favoritos", label: "Favoritos" },
+        { id: "todos", label: "Todos", count: counts?.todos },
+        { id: "completados", label: "Completados", count: counts?.completados },
+        { id: "progreso", label: "En progreso", count: counts?.progreso },
+        { id: "favoritos", label: "Favoritos", count: counts?.favoritos },
       ]}
-      clase="mb-6"
+      clase="temas-tabs-scroll !mb-3 !gap-5 overflow-x-auto whitespace-nowrap"
     />
   );
 };

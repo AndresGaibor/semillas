@@ -17,6 +17,7 @@ import { unirClases } from "@/lib/utilidades";
 import { obtenerClasesSenda } from "@/features/themes/utils";
 
 export type ThemeCardVariant = "default" | "compact";
+export type ThemeCardMobileLayout = "tarjeta" | "lista";
 
 export type ThemeCardState =
   | "porDefecto"
@@ -29,7 +30,7 @@ export type ThemeCardState =
 export interface ThemeCardProps {
   titulo: string;
   descripcion: string;
-senda: string;
+  senda: string;
   duracion?: string;
   xp?: number;
   progreso?: number;
@@ -37,6 +38,7 @@ senda: string;
   imagenUrl?: string;
   estado?: ThemeCardState;
   variante?: ThemeCardVariant;
+  layoutMovil?: ThemeCardMobileLayout;
   mostrarSendaBadge?: boolean;
   onFavorito?: () => void;
   onAccion?: () => void;
@@ -46,7 +48,8 @@ senda: string;
 export function ThemeCard({
   estado = "porDefecto",
   variante = "default",
-senda,
+  layoutMovil = "tarjeta",
+  senda,
   titulo,
   descripcion,
   duracion,
@@ -80,7 +83,8 @@ senda,
       sombra="sm"
       hoverEffect={esInteractiva ? "elevate" : "none"}
       clase={unirClases(
-        "group flex w-full flex-col overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-[0_12px_34px_rgba(15,23,42,0.06)] transition-all duration-200",
+        "theme-card group flex w-full flex-col overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-[0_12px_34px_rgba(15,23,42,0.06)] transition-all duration-200",
+        layoutMovil === "lista" && "theme-card--mobile-list",
         esInteractiva && "cursor-pointer",
         esBloqueada && "opacity-75",
         clase,
@@ -100,16 +104,16 @@ senda,
         imagenUrl={imagenUrl}
         titulo={titulo}
         colorSenda={colorSenda}
-senda={senda}
+        senda={senda}
         mostrarSendaBadge={mostrarSendaBadge}
         favorito={favorito}
         onFavorito={onFavorito}
         esCompacta={esCompacta}
       />
 
-      <div className={unirClases("flex flex-1 flex-col justify-between text-left", esCompacta ? "p-4 sm:p-[18px]" : "p-4 sm:p-5")}>
-        <div className={unirClases("flex flex-col", esCompacta ? "gap-2" : "gap-2.5")}>
-          <TemaSendaEtiqueta claseSenda={claseSenda}senda={senda} />
+      <div className={unirClases("theme-card__body flex flex-1 flex-col justify-between text-left", esCompacta ? "p-4 sm:p-[18px]" : "p-4 sm:p-5")}>
+        <div className={unirClases("theme-card__content flex flex-col", esCompacta ? "gap-2" : "gap-2.5")}>
+          <TemaSendaEtiqueta claseSenda={claseSenda} senda={senda} />
 
           <TemaTituloDescripcion
             titulo={titulo}
@@ -120,7 +124,7 @@ senda={senda}
           <TemaMetadatos duracion={duracion} xp={xp} />
         </div>
 
-        <div className={unirClases("mt-5 flex flex-col gap-3", esCompacta && "mt-4")}>
+        <div className={unirClases("theme-card__footer mt-5 flex flex-col gap-3", esCompacta && "mt-4")}>
           {!esError && !esBloqueada && (
             <BarraProgreso progreso={progreso} claseRellenoBarra={claseRellenoBarra} />
           )}

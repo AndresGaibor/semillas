@@ -9,7 +9,7 @@ interface BarraProgresoProps {
 
 export function BarraProgreso({ progreso, claseRellenoBarra }: BarraProgresoProps) {
   return (
-    <div className="flex w-full items-center gap-3">
+    <div className="theme-card__progress flex w-full items-center gap-3">
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
         <div
           className={unirClases("h-full rounded-full transition-all duration-300", claseRellenoBarra)}
@@ -86,11 +86,11 @@ export function BotonEstado({ estado }: BotonEstadoProps) {
 
   return (
     <span
-      className={unirClases(
-        "inline-flex w-full max-w-[240px] items-center justify-center gap-2 self-center rounded-full px-5 py-3 text-[13px] font-black transition-colors sm:w-auto sm:max-w-none sm:py-2 sm:text-[10px]",
-        estado === "enProgreso" ? "bg-sky-100 text-sky-600" : "bg-slate-900 text-white group-hover:bg-primario",
-      )}
-    >
+        className={unirClases(
+          "theme-card__action inline-flex w-full max-w-[240px] items-center justify-center gap-2 self-center rounded-full px-5 py-3 text-[13px] font-black transition-colors sm:w-auto sm:max-w-none sm:py-2 sm:text-[10px]",
+          estado === "enProgreso" ? "bg-sky-100 text-sky-600" : "bg-slate-900 text-white group-hover:bg-primario",
+        )}
+      >
       {etiqueta}
     </span>
   );
