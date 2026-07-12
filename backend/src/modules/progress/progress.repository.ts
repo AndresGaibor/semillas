@@ -2,6 +2,32 @@ import { eq, sql, and, count } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
+/** Actualiza (o inserta) el registro de progreso de un tema al 100% completado */
+async function actualizarProgresoTema100(db: DbClient, usuarioId: string, temaId: string) {
+  const [existing] = await db
+    .select({ id: schema.progresoTemaUsuario.usuarioId })
+    .from(schema.progresoTemaUsuario)
+    .where(
+      sql`${schema.progresoTemaUsuario.usuarioId} = ${usuarioId} AND
+          ${schema.progresoTemaUsuario.temaId} = ${temaId}`
+    )
+    .limit(1);
+
+  if (existing) {
+    await db.update(schema.progresoTemaUsuario)
+      .set({ porcentaje: 100, estado: "completado", actualizadoEn: new Date(), completadoEn: new Date() })
+      .where(
+        sql`${schema.progresoTemaUsuario.usuarioId} = ${usuarioId} AND
+            ${schema.progresoTemaUsuario.temaId} = ${temaId}`
+      );
+  } else {
+    await db.insert(schema.progresoTemaUsuario)
+      .values({ usuarioId, temaId, porcentaje: 100, estado: "completado", completadoEn: new Date() });
+  }
+
+  console.log(`[PROGRESO] Tema ${temaId} forzado a 100% para usuario ${usuarioId}`);
+}
+
 export function crearProgressRepository(db: DbClient) {
   return {
     async obtenerProgresoPropio(usuarioId: string) {
@@ -47,7 +73,11 @@ export function crearProgressRepository(db: DbClient) {
             )
             .limit(1);
           
-          if (exists) return null; // Ya ganó XP por este tema
+          if (exists) {
+            // Ya ganó XP, pero igual aseguramos el 100% de progreso por si quedó incompleto
+            await actualizarProgresoTema100(db, usuarioId, body.tema_id!);
+            return null;
+          }
         }
 
         if (body.actividad_id && body.tipo_evento === "actividad_completada") {
@@ -117,7 +147,10 @@ export function crearProgressRepository(db: DbClient) {
           console.log(`[PROGRESO] Nuevo porcentaje: ${porcentaje}%\n`);
 
           const [existingProgress] = await db
-            .select({ id: schema.progresoTemaUsuario.usuarioId })
+            .select({ 
+              id: schema.progresoTemaUsuario.usuarioId,
+              porcentajeActual: schema.progresoTemaUsuario.porcentaje 
+            })
             .from(schema.progresoTemaUsuario)
             .where(and(
               eq(schema.progresoTemaUsuario.usuarioId, usuarioId),
@@ -126,13 +159,16 @@ export function crearProgressRepository(db: DbClient) {
             .limit(1);
 
           if (existingProgress) {
+            // Evitar bajar el porcentaje (ej. de 100% a 83% por un evento retrasado)
+            const nuevoPorcentaje = Math.max(existingProgress.porcentajeActual, porcentaje);
+            
             await db.update(schema.progresoTemaUsuario)
               .set({
-                porcentaje,
-                estado: porcentaje >= 100 ? "completado" : "en_progreso",
+                porcentaje: nuevoPorcentaje,
+                estado: nuevoPorcentaje >= 100 ? "completado" : "en_progreso",
                 ultimoPasoId: data.pasoId,
                 actualizadoEn: new Date(),
-                completadoEn: porcentaje >= 100 ? new Date() : undefined
+                completadoEn: nuevoPorcentaje >= 100 && existingProgress.porcentajeActual < 100 ? new Date() : undefined
               })
               .where(and(
                 eq(schema.progresoTemaUsuario.usuarioId, usuarioId),
@@ -151,42 +187,8 @@ export function crearProgressRepository(db: DbClient) {
           }
         }
       } else if (data && data.tipoEvento === "tema_completado" && data.temaId) {
-        // Fallback/Fail-safe: Si se completa el tema por completo y se da XP, forzar el 100%
-        console.log(`\n[PROGRESO] Usuario: ${usuarioId} | Tema: ${data.temaId}`);
-        console.log(`[PROGRESO] Tema completado (Evento tema_completado detectado)`);
-        console.log(`[PROGRESO] Nuevo porcentaje: 100%\n`);
-
-        const [existingProgress] = await db
-          .select({ id: schema.progresoTemaUsuario.usuarioId })
-          .from(schema.progresoTemaUsuario)
-          .where(
-            sql`${schema.progresoTemaUsuario.usuarioId} = ${usuarioId} AND 
-                ${schema.progresoTemaUsuario.temaId} = ${data.temaId}`
-          )
-          .limit(1);
-
-        if (existingProgress) {
-          await db.update(schema.progresoTemaUsuario)
-            .set({
-              porcentaje: 100,
-              estado: "completado",
-              actualizadoEn: new Date(),
-              completadoEn: new Date()
-            })
-            .where(
-              sql`${schema.progresoTemaUsuario.usuarioId} = ${usuarioId} AND 
-                  ${schema.progresoTemaUsuario.temaId} = ${data.temaId}`
-            );
-        } else {
-          await db.insert(schema.progresoTemaUsuario)
-            .values({
-              usuarioId,
-              temaId: data.temaId,
-              porcentaje: 100,
-              estado: "completado",
-              completadoEn: new Date()
-            });
-        }
+        // Fallback/Fail-safe: forzar el 100% cuando se recibe el evento de tema completado
+        await actualizarProgresoTema100(db, usuarioId, data.temaId);
       }
 
       // ────────────────────────────────────────────────────────

@@ -66,6 +66,9 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
         queryClient.invalidateQueries({ queryKey: ["gamificacion"] });
       } else {
         console.log("El evento ya existía (Farmeo detectado):", respuesta.mensaje);
+        // Aunque sea duplicado (ya dio XP), necesitamos actualizar el progreso local
+        // porque el backend asegura que el tema pase al 100%.
+        queryClient.invalidateQueries({ queryKey: ["progress"] });
       }
     },
     onError: (error) => {
