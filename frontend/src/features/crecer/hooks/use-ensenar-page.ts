@@ -19,6 +19,8 @@ interface UseEnsenarPageResult {
   actividadesFase: Actividad[];
   isLoading: boolean;
   isError: boolean;
+  eventMutation: ReturnType<typeof useMutation<any, any, EventoProgreso[]>>;
+  guardarProgresoFase: () => void;
 }
 
 export function useEnsenarPage(themeId: string): UseEnsenarPageResult {
