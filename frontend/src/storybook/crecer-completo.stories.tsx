@@ -81,7 +81,7 @@ function ContenidoCrecer() {
 }
 
 const meta = {
-  title: "Pantallas/CRECER/Fase completa",
+  title: "06 · Flujos/CRECER/Fase completa",
   component: ContenidoCrecer,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof ContenidoCrecer>;

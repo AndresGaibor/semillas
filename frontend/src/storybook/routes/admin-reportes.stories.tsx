@@ -33,7 +33,7 @@ function AdminReportesStory() {
 }
 
 const meta = {
-  title: "Pantallas/Admin/Reportes",
+  title: "05 · Pantallas/Admin/Reportes",
   component: AdminReportesStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof AdminReportesStory>;
