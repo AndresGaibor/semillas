@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "../../db/database.types";
 import { schema, type DbClient } from "../../db/client";
@@ -97,6 +97,112 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         actividades: actividades.length
       }
     };
+  }
+
+  async function enriquecerUsuarios(
+    filas: Array<{ usuario: typeof schema.usuarioApp.$inferSelect; perfil: typeof schema.perfil.$inferSelect | null }>,
+  ) {
+    if (filas.length === 0) return [];
+    const clienteDrizzle = requerirDrizzle();
+    const ids = filas.map((fila) => fila.usuario.id);
+    const [grupos, xp, temas, actividades, logros, clubes, niveles] = await Promise.all([
+      clienteDrizzle
+        .select({
+          usuarioId: schema.perfil.usuarioId,
+          grupoId: schema.grupoEdad.id,
+          grupoCodigo: schema.grupoEdad.codigo,
+          grupoNombre: schema.grupoEdad.nombre,
+          edadMinima: schema.grupoEdad.edadMinima,
+          edadMaxima: schema.grupoEdad.edadMaxima,
+        })
+        .from(schema.perfil)
+        .leftJoin(schema.grupoEdad, eq(schema.grupoEdad.id, schema.perfil.grupoEdadId))
+        .where(inArray(schema.perfil.usuarioId, ids)),
+      clienteDrizzle
+        .select({ usuarioId: schema.movimientoXp.usuarioId, total: sql<number>`coalesce(sum(${schema.movimientoXp.cantidad}), 0)::int` })
+        .from(schema.movimientoXp)
+        .where(inArray(schema.movimientoXp.usuarioId, ids))
+        .groupBy(schema.movimientoXp.usuarioId),
+      clienteDrizzle
+        .select({ usuarioId: schema.progresoTemaUsuario.usuarioId, total: sql<number>`count(*) filter (where ${schema.progresoTemaUsuario.estado} = 'completado')::int` })
+        .from(schema.progresoTemaUsuario)
+        .where(inArray(schema.progresoTemaUsuario.usuarioId, ids))
+        .groupBy(schema.progresoTemaUsuario.usuarioId),
+      clienteDrizzle
+        .select({ usuarioId: schema.progresoActividadUsuario.usuarioId, total: sql<number>`count(*) filter (where ${schema.progresoActividadUsuario.completado} = true)::int` })
+        .from(schema.progresoActividadUsuario)
+        .where(inArray(schema.progresoActividadUsuario.usuarioId, ids))
+        .groupBy(schema.progresoActividadUsuario.usuarioId),
+      clienteDrizzle
+        .select({ usuarioId: schema.logroUsuario.usuarioId, total: sql<number>`count(*)::int` })
+        .from(schema.logroUsuario)
+        .where(inArray(schema.logroUsuario.usuarioId, ids))
+        .groupBy(schema.logroUsuario.usuarioId),
+      clienteDrizzle
+        .select({
+          usuarioId: schema.miembroClub.usuarioId,
+          clubId: schema.club.id,
+          clubNombre: schema.club.nombre,
+          rolMiembro: schema.miembroClub.rolMiembro,
+          clubActivo: schema.club.activo,
+        })
+        .from(schema.miembroClub)
+        .innerJoin(schema.club, eq(schema.club.id, schema.miembroClub.clubId))
+        .where(inArray(schema.miembroClub.usuarioId, ids)),
+      clienteDrizzle.select().from(schema.reglaNivel).orderBy(desc(schema.reglaNivel.xpMinima)),
+    ]);
+
+    const grupoPorUsuario = new Map(grupos.map((grupo) => [grupo.usuarioId, grupo]));
+    const xpPorUsuario = new Map(xp.map((item) => [item.usuarioId, Number(item.total)]));
+    const temasPorUsuario = new Map(temas.map((item) => [item.usuarioId, Number(item.total)]));
+    const actividadesPorUsuario = new Map(actividades.map((item) => [item.usuarioId, Number(item.total)]));
+    const logrosPorUsuario = new Map(logros.map((item) => [item.usuarioId, Number(item.total)]));
+    const clubesPorUsuario = new Map<string, Array<Record<string, unknown>>>();
+    for (const item of clubes) {
+      const lista = clubesPorUsuario.get(item.usuarioId) ?? [];
+      lista.push({ id: item.clubId, nombre: item.clubNombre, rol: item.rolMiembro, activo: item.clubActivo });
+      clubesPorUsuario.set(item.usuarioId, lista);
+    }
+
+    return filas.map((fila) => {
+      const totalXp = xpPorUsuario.get(fila.usuario.id) ?? 0;
+      const nivel = niveles.find((item) => totalXp >= item.xpMinima) ?? niveles.at(-1) ?? null;
+      const grupo = grupoPorUsuario.get(fila.usuario.id);
+      return {
+        id: fila.usuario.id,
+        rol: fila.usuario.rol,
+        proveedor: fila.usuario.proveedor,
+        nombre_visible: fila.usuario.nombreVisible,
+        correo: fila.usuario.correo,
+        activo: fila.usuario.activo,
+        creado_en: fila.usuario.creadoEn.toISOString(),
+        actualizado_en: fila.usuario.actualizadoEn.toISOString(),
+        ultimo_login_en: fila.usuario.ultimoLoginEn?.toISOString() ?? null,
+        perfil: fila.perfil ? {
+          id: fila.perfil.id,
+          apodo: fila.perfil.apodo,
+          avatar_url: fila.perfil.urlAvatar,
+          clave_avatar: fila.perfil.claveAvatar,
+          grupo_edad_id: fila.perfil.grupoEdadId,
+          prefiere_audio: fila.perfil.prefiereAudio,
+          tamano_texto_preferido: fila.perfil.tamanoTextoPreferido,
+          xp_acumulada: totalXp,
+          nivel_actual: nivel?.numeroNivel ?? 1,
+          nivel_nombre: nivel?.nombre ?? "Brote",
+          temas_completados: temasPorUsuario.get(fila.usuario.id) ?? 0,
+          actividades_completadas: actividadesPorUsuario.get(fila.usuario.id) ?? 0,
+          logros: logrosPorUsuario.get(fila.usuario.id) ?? 0,
+          grupo_edad: grupo?.grupoId ? {
+            id: grupo.grupoId,
+            codigo: grupo.grupoCodigo,
+            nombre: grupo.grupoNombre,
+            edad_minima: grupo.edadMinima,
+            edad_maxima: grupo.edadMaxima,
+          } : null,
+        } : null,
+        clubes: clubesPorUsuario.get(fila.usuario.id) ?? [],
+      };
+    });
   }
 
   return {
@@ -731,36 +837,65 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       return this.obtenerTema(temaDuplicado.id);
     },
 
-    async listarUsuarios(params: { q?: string; rol?: string; limit: number; offset: number }) {
+    async listarUsuarios(params: { q?: string; rol?: string; activo?: boolean; limit: number; offset: number }) {
       const condiciones = [] as Array<ReturnType<typeof eq> | ReturnType<typeof or>>;
       if (params.q) condiciones.push(or(ilike(schema.usuarioApp.nombreVisible, `%${params.q}%`), ilike(schema.usuarioApp.correo, `%${params.q}%`))!);
       if (params.rol) condiciones.push(eq(schema.usuarioApp.rol, params.rol as Database["public"]["Enums"]["rol_usuario"]));
+      if (params.activo !== undefined) condiciones.push(eq(schema.usuarioApp.activo, params.activo));
       const whereClause = condiciones.length > 0 ? and(...condiciones) : undefined;
       const clienteDrizzle = requerirDrizzle();
-      const usuarios = await clienteDrizzle.select({ usuario: schema.usuarioApp, perfil: schema.perfil }).from(schema.usuarioApp).leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId)).where(whereClause).orderBy(desc(schema.usuarioApp.creadoEn)).limit(params.limit).offset(params.offset);
-      const [countRow] = await clienteDrizzle.select({ total: sql<number>`count(*)` }).from(schema.usuarioApp).where(whereClause);
-      return { usuarios: usuarios.map((fila) => ({ id: fila.usuario.id, rol: fila.usuario.rol, proveedor: fila.usuario.proveedor, nombre_visible: fila.usuario.nombreVisible, correo: fila.usuario.correo, activo: fila.usuario.activo, creado_en: fila.usuario.creadoEn.toISOString(), actualizado_en: fila.usuario.actualizadoEn.toISOString(), ultimo_login_en: fila.usuario.ultimoLoginEn ? fila.usuario.ultimoLoginEn.toISOString() : null, perfil: fila.perfil })), total: Number(countRow?.total ?? 0) };
+      const filas = await clienteDrizzle
+        .select({ usuario: schema.usuarioApp, perfil: schema.perfil })
+        .from(schema.usuarioApp)
+        .leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId))
+        .where(whereClause)
+        .orderBy(desc(schema.usuarioApp.creadoEn))
+        .limit(params.limit)
+        .offset(params.offset);
+      const [countRow] = await clienteDrizzle.select({ total: sql<number>`count(*)::int` }).from(schema.usuarioApp).where(whereClause);
+      return {
+        usuarios: await enriquecerUsuarios(filas),
+        total: Number(countRow?.total ?? 0),
+        limit: params.limit,
+        offset: params.offset,
+      };
     },
 
     async obtenerUsuario(usuarioId: string) {
       const clienteDrizzle = requerirDrizzle();
-      const [usuario] = await clienteDrizzle.select({ usuario: schema.usuarioApp, perfil: schema.perfil }).from(schema.usuarioApp).leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId)).where(eq(schema.usuarioApp.id, usuarioId)).limit(1);
-      if (!usuario) throw new NotFoundError("Usuario no encontrado");
-      return { id: usuario.usuario.id, rol: usuario.usuario.rol, proveedor: usuario.usuario.proveedor, nombre_visible: usuario.usuario.nombreVisible, correo: usuario.usuario.correo, activo: usuario.usuario.activo, creado_en: usuario.usuario.creadoEn.toISOString(), actualizado_en: usuario.usuario.actualizadoEn.toISOString(), ultimo_login_en: usuario.usuario.ultimoLoginEn ? usuario.usuario.ultimoLoginEn.toISOString() : null, perfil: usuario.perfil };
+      const [fila] = await clienteDrizzle
+        .select({ usuario: schema.usuarioApp, perfil: schema.perfil })
+        .from(schema.usuarioApp)
+        .leftJoin(schema.perfil, eq(schema.usuarioApp.id, schema.perfil.usuarioId))
+        .where(eq(schema.usuarioApp.id, usuarioId))
+        .limit(1);
+      if (!fila) throw new NotFoundError("Usuario no encontrado");
+      const [usuario] = await enriquecerUsuarios([fila]);
+      return usuario;
     },
 
-    async actualizarUsuario(usuarioId: string, body: UpdateUserInput) {
+    async actualizarUsuario(usuarioId: string, body: UpdateUserInput, actorId?: string) {
       const clienteDrizzle = requerirDrizzle();
-      const [existing] = await clienteDrizzle.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1); if (!existing) throw new NotFoundError("Usuario no encontrado");
-      await clienteDrizzle.update(schema.usuarioApp).set({ ...(body.rol !== undefined ? { rol: body.rol } : {}), ...(body.nombre_visible !== undefined ? { nombreVisible: body.nombre_visible } : {}), actualizadoEn: new Date() }).where(eq(schema.usuarioApp.id, usuarioId));
-      return this.obtenerUsuario(usuarioId);
+      const anterior = await this.obtenerUsuario(usuarioId);
+      if (!anterior) throw new NotFoundError("Usuario no encontrado");
+      await clienteDrizzle.update(schema.usuarioApp).set({
+        ...(body.rol !== undefined ? { rol: body.rol } : {}),
+        ...(body.nombre_visible !== undefined ? { nombreVisible: body.nombre_visible } : {}),
+        ...(body.activo !== undefined ? { activo: body.activo } : {}),
+        actualizadoEn: new Date(),
+      }).where(eq(schema.usuarioApp.id, usuarioId));
+      const actualizado = await this.obtenerUsuario(usuarioId);
+      await registrarAuditoria({ actorId, accion: "actualizar", tipoEntidad: "usuario", entidadId: usuarioId, antes: anterior, despues: actualizado });
+      return actualizado;
     },
 
-    async eliminarUsuario(usuarioId: string) {
+    async eliminarUsuario(usuarioId: string, actorId?: string) {
       const clienteDrizzle = requerirDrizzle();
-      const [existing] = await clienteDrizzle.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1); if (!existing) throw new NotFoundError("Usuario no encontrado");
+      const anterior = await this.obtenerUsuario(usuarioId);
+      if (!anterior) throw new NotFoundError("Usuario no encontrado");
       await clienteDrizzle.update(schema.usuarioApp).set({ activo: false, actualizadoEn: new Date() }).where(eq(schema.usuarioApp.id, usuarioId));
-      return { eliminado: true };
+      await registrarAuditoria({ actorId, accion: "desactivar", tipoEntidad: "usuario", entidadId: usuarioId, antes: anterior, despues: { activo: false } });
+      return { desactivado: true };
     }
   };
 }

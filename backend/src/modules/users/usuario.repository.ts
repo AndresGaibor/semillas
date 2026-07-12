@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 import { ErrorConflicto } from "../../shared/errores/error-aplicacion";
@@ -77,6 +77,47 @@ export function crearUsuarioRepository(db: DbClient) {
         .returning();
 
       return perfil;
+    },
+
+
+
+    async listarNotificaciones(usuarioId: string, limit = 30) {
+      return db
+        .select()
+        .from(schema.notificacionUsuario)
+        .where(eq(schema.notificacionUsuario.usuarioId, usuarioId))
+        .orderBy(desc(schema.notificacionUsuario.creadoEn))
+        .limit(limit);
+    },
+
+    async marcarNotificacionLeida(usuarioId: string, notificacionId: string) {
+      const [notificacion] = await db
+        .update(schema.notificacionUsuario)
+        .set({ leidaEn: new Date() })
+        .where(and(
+          eq(schema.notificacionUsuario.id, notificacionId),
+          eq(schema.notificacionUsuario.usuarioId, usuarioId),
+        ))
+        .returning();
+      return notificacion ?? null;
+    },
+
+    async marcarTodasNotificacionesLeidas(usuarioId: string) {
+      await db
+        .update(schema.notificacionUsuario)
+        .set({ leidaEn: new Date() })
+        .where(and(
+          eq(schema.notificacionUsuario.usuarioId, usuarioId),
+          isNull(schema.notificacionUsuario.leidaEn),
+        ));
+      return { actualizadas: true };
+    },
+
+    async eliminarCuenta(usuarioId: string) {
+      await db.transaction(async (tx) => {
+        await tx.delete(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId));
+      });
+      return { eliminada: true };
     },
 
     async vincularCuenta({

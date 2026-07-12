@@ -68,13 +68,16 @@ describe("sync.routes", () => {
       crearProgresoActividad: async () => undefined,
       actualizarProgresoActividad: async () => undefined,
       validarRespuestaActividad: async () => null,
+      validarRespuestaConfigurada: async () => null,
       aplicarRespuestaActividad: async () => undefined,
       validarActividadCompletada: async () => null,
       aplicarActividadCompletada: async () => undefined,
       registrarPasoActual: async () => undefined,
       validarTemaCompletable: async () => null,
       marcarTemaCompletado: async () => undefined,
-      evaluarLogrosUsuario: async () => []
+      procesarGamificacionActividad: async () => ({ xpOtorgada: 0, racha: null, logros: [] }),
+      procesarGamificacionTema: async () => ({ xpOtorgada: 0, racha: null, logros: [] }),
+      actualizarXpEvento: async () => undefined
     };
 
     const authStub = createMiddleware<AppBindings>(async (c, next) => {

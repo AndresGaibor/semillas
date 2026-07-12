@@ -2796,6 +2796,28 @@ html[data-semillas-text-size="grande"] {
   color: #f4b740 !important;
 }
 
+/* ── Modo Oscuro con data-theme (app) ── */
+[data-theme="app-dark"] .app-sidebar {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+[data-theme="app-dark"] .app-sidebar .text-neutro {
+  color: #94a3b8 !important;
+}
+[data-theme="app-dark"] .app-sidebar__logo,
+[data-theme="app-dark"] .app-sidebar .text-primario {
+  color: #86efac !important;
+}
+
+/* ── Modo Oscuro con data-theme (admin) ── */
+[data-theme="admin-dark"] .app-sidebar {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+[data-theme="admin-dark"] .app-sidebar .text-violet-600 {
+  color: #a78bfa !important;
+}
+
 /* ── Modo Oscuro ── */
 .dark {
   --color-crema: #080a10 !important;

@@ -21,9 +21,11 @@ export type LogroUsuarioGamificacion = {
 };
 
 export type ReglaNivelGamificacion = {
+  id?: string;
   numero_nivel: number;
   nombre: string;
   xp_minima: number;
+  color_insignia?: string | null;
 };
 
 export type GamificacionPropia = {
@@ -34,8 +36,23 @@ export type GamificacionPropia = {
     nombre_nivel: string;
   } | null;
   logros: LogroUsuarioGamificacion[];
-  catalogo_logros?: LogroGamificacion[];
+  catalogo_logros?: Array<LogroGamificacion & {
+    obtenido?: boolean;
+    ganado_en?: string | null;
+    progreso_actual?: number;
+    progreso_objetivo?: number;
+    porcentaje?: number;
+  }>;
   reglas_nivel?: ReglaNivelGamificacion[];
+  racha?: { dias_actuales: number; dias_maximos: number; ultima_actividad_fecha: string | null };
+  movimientos_recientes?: Array<{
+    id: string;
+    origen: string;
+    origen_id: string | null;
+    cantidad: number;
+    metadatos: Record<string, unknown>;
+    creado_en: string;
+  }>;
 };
 
 const CACHE_KEY = "semillas_gamification_cache_v1";

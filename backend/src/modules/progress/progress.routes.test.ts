@@ -17,6 +17,16 @@ describe("progress.routes", () => {
                 const columnas = Object.keys(consulta ?? {}).join(",");
                 llamadas.push(`select:${columnas}`);
 
+                if (columnas.includes("xpRecompensa") && columnas.includes("estado")) {
+                  return {
+                    limit: async () => [{
+                      id: "550e8400-e29b-41d4-a716-446655440001",
+                      xpRecompensa: 50,
+                      estado: "publicado"
+                    }]
+                  } as never;
+                }
+
                 if (columnas.includes("progresoTemaUsuario")) {
                   return [
                     {
@@ -61,6 +71,10 @@ describe("progress.routes", () => {
                 return {
                   returning: async () => [{ id: "evento-1" }]
                 };
+              },
+              onConflictDoUpdate() {
+                llamadas.push("upsert:progreso");
+                return Promise.resolve(undefined);
               }
             };
           }
@@ -91,8 +105,8 @@ describe("progress.routes", () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           evento_id_cliente: "550e8400-e29b-41d4-a716-446655440000",
-          tipo_evento: "actividad_respondida",
-          actividad_id: "550e8400-e29b-41d4-a716-446655440001"
+          tipo_evento: "tema_iniciado",
+          tema_id: "550e8400-e29b-41d4-a716-446655440001"
         })
       })
     );

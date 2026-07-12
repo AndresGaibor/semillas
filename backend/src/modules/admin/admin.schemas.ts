@@ -70,8 +70,9 @@ export const updateActivitySchema = z.object({
 
 export const updateUserSchema = z.object({
   rol: z.enum(["administrador", "usuario", "invitado", "padre"]).optional(),
-  nombre_visible: z.string().min(2).max(60).optional()
-});
+  nombre_visible: z.string().min(2).max(60).optional(),
+  activo: z.boolean().optional(),
+}).refine((value) => Object.keys(value).length > 0, { message: "Envía al menos un cambio" });
 
 export const createActivitySchema = z.object({
   tema_id: z.string().uuid(),

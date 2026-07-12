@@ -4,6 +4,7 @@ import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { responderExito } from "../../shared/http/respuesta";
+import { BadRequestError, NotFoundError } from "../../shared/errors/http-error";
 import { serializarPerfil } from "../../shared/serializers/perfil.serializer";
 import { serializarUsuario } from "../../shared/serializers/usuario.serializer";
 import { updateProfileSchema } from "./users.schemas";
@@ -80,6 +81,55 @@ export function crearModuloUsuarios({
       );
     }
   );
+
+
+
+  usersRoutes.get("/notificaciones", async (c) => {
+    const usuarios = obtenerRepositorio(c);
+    const limit = Math.min(Math.max(Number(c.req.query("limit") ?? "30"), 1), 100);
+    const notificaciones = await usuarios.listarNotificaciones(c.get("user").id, limit);
+    return responderExito({
+      no_leidas: notificaciones.filter((item) => !item.leidaEn).length,
+      notificaciones: notificaciones.map((item) => ({
+        id: item.id,
+        tipo: item.tipo,
+        titulo: item.titulo,
+        mensaje: item.mensaje,
+        datos: item.datos,
+        leida_en: item.leidaEn?.toISOString() ?? null,
+        creado_en: item.creadoEn.toISOString(),
+      })),
+    });
+  });
+
+  usersRoutes.patch("/notificaciones/:notificacion_id/leer", async (c) => {
+    const usuarios = obtenerRepositorio(c);
+    const notificacion = await usuarios.marcarNotificacionLeida(
+      c.get("user").id,
+      c.req.param("notificacion_id"),
+    );
+    if (!notificacion) throw new NotFoundError("Notificación no encontrada");
+    return responderExito({ leida: true });
+  });
+
+  usersRoutes.post("/notificaciones/leer-todas", async (c) => {
+    return responderExito(await obtenerRepositorio(c).marcarTodasNotificacionesLeidas(c.get("user").id));
+  });
+
+  usersRoutes.delete("/cuenta", async (c) => {
+    const user = c.get("user");
+    if (user.role === "administrador") {
+      throw new BadRequestError("Una cuenta administradora no puede eliminarse desde el perfil");
+    }
+
+    const authSessionUser = c.get("authSessionUser");
+    if (authSessionUser) {
+      const { error } = await c.get("db").auth.admin.deleteUser(authSessionUser.id);
+      if (error) throw error;
+    }
+
+    return responderExito(await obtenerRepositorio(c).eliminarCuenta(user.id));
+  });
 
   usersRoutes.post("/vincular-cuenta", async (c) => {
     const user = c.get("user");

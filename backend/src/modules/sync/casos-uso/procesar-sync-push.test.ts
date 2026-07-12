@@ -113,6 +113,10 @@ describe("procesar-sync-push", () => {
       validarTemaCompletable: async () => null,
       marcarTemaCompletado: async () => undefined,
       evaluarLogrosUsuario: async () => [],
+      validarRespuestaConfigurada: async () => null,
+      procesarGamificacionActividad: async () => ({ xpOtorgada: 25, racha: null, logros: [] }),
+      procesarGamificacionTema: async () => ({ xpOtorgada: 40, racha: null, logros: [] }),
+      actualizarXpEvento: async () => undefined,
     } as never;
 
     const procesarSyncPush = crearCasoProcesarSyncPush({ repositorio });
@@ -138,7 +142,7 @@ describe("procesar-sync-push", () => {
       actividad_id: actividadId,
       correcta: true,
       puntaje: 100,
-      xp_otorgada: 25,
+      xp_otorgada: 0,
       datos: { validado_en_servidor: true },
     });
     expect(proyecciones).toEqual([`usuario-1:${actividadId}:${temaId}`]);
@@ -160,6 +164,8 @@ describe("procesar-sync-push", () => {
         temaId,
         correcta: true,
         xpOtorgada: 12,
+        puntaje: 100,
+        retroalimentacion: null,
         opcionCorrectaId: "550e8400-e29b-41d4-a716-446655440080",
       }),
       aplicarRespuestaActividad: async () => {
@@ -174,12 +180,20 @@ describe("procesar-sync-push", () => {
       marcarTemaCompletado: async () => {
         operaciones.push("tema");
       },
-      evaluarLogrosUsuario: async () => [{
-        id: "550e8400-e29b-41d4-a716-446655440090",
-        codigo: "primer-logro",
-        nombre: "Primer logro",
-        bonoXp: 5,
-      }],
+      evaluarLogrosUsuario: async () => [],
+      validarRespuestaConfigurada: async () => null,
+      procesarGamificacionActividad: async () => ({
+        xpOtorgada: 12,
+        racha: null,
+        logros: [{
+          id: "550e8400-e29b-41d4-a716-446655440090",
+          codigo: "primer-logro",
+          nombre: "Primer logro",
+          bonoXp: 5,
+        }],
+      }),
+      procesarGamificacionTema: async () => ({ xpOtorgada: 40, racha: null, logros: [] }),
+      actualizarXpEvento: async () => undefined,
       obtenerProgresoTema: async () => undefined,
       crearProgresoTema: async () => undefined,
       actualizarProgresoTema: async () => undefined,
@@ -221,13 +235,13 @@ describe("procesar-sync-push", () => {
       tema_id: temaId,
       correcta: true,
       puntaje: 100,
-      xp_otorgada: 12,
+      xp_otorgada: 0,
       datos: {
         opcion_correcta_id: "550e8400-e29b-41d4-a716-446655440080",
         validado_en_servidor: true,
       },
     });
-    expect(eventosGuardados[2]).toMatchObject({ xp_otorgada: 40, puntaje: 100 });
+    expect(eventosGuardados[2]).toMatchObject({ xp_otorgada: 0, puntaje: 100 });
     expect(operaciones).toEqual(["respuesta", "paso", "tema"]);
     expect(resultado.logros_desbloqueados).toEqual([{
       id: "550e8400-e29b-41d4-a716-446655440090",

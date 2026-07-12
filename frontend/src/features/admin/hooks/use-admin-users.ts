@@ -55,8 +55,6 @@ export function useAdminUsers() {
 
       if (u.rol === "administrador") {
         rol = "Administrador"; franja = "Todas"; club = "Todos los clubes"; clubIcon = "fa-people-group"; clubIconColor = "text-[#6c3aed]"; clubBadgeBg = "bg-[#6c3aed]/10";
-      } else if (u.rol === "moderador") {
-        rol = "Moderador"; franja = "Todas"; club = "Todos los clubes"; clubIcon = "fa-people-group"; clubIconColor = "text-[#6c3aed]"; clubBadgeBg = "bg-[#6c3aed]/10";
       } else if (!u.perfil?.grupo_edad_id) {
         rol = "Padre/Madre"; franja = "-"; club = "Semillitas de Luz"; isVinculado = true; levelText = "Vinculado"; xpText = "";
       }

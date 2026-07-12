@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/componentes/ui/button";
 import { AppAccountMenu } from "./app-account-menu";
+import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 import { obtenerMiPerfil } from "../../features/perfil/profile.api";
 
 import type { Perfil, Usuario } from "@/shared/api/api";
@@ -63,6 +64,7 @@ export function AppTopbar({
       </div>
 
       <div className="app-topbar__account">
+        <BotonTemaToggle />
         <AppAccountMenu
           nombreVisible={cuenta.nombre}
           nivelTexto={cuenta.nivelTexto}

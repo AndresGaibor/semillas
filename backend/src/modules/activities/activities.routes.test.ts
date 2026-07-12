@@ -20,6 +20,9 @@ describe("activities.routes", () => {
                 if (!consulta) return Promise.resolve([]);
 
                 return {
+                  then(resolve: (value: Array<{ total: number }>) => unknown) {
+                    return Promise.resolve(resolve([{ total: 0 }]));
+                  },
                   limit: async () => {
                     const columnas = Object.keys(consulta ?? {}).join(",");
                     llamadas.push(`select:${columnas}`);
@@ -90,6 +93,15 @@ describe("activities.routes", () => {
             };
 
             return chain;
+          }
+        };
+      },
+      update() {
+        return {
+          set() {
+            return {
+              where: async () => undefined
+            };
           }
         };
       },

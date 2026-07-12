@@ -4,6 +4,8 @@ import { AppAccountMenu } from "./app-account-menu";
 import { AppAccountMenuMobile } from "./app-account-menu-mobile";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
+import { AppNotifications } from "./app-notifications";
+import "./app-notifications.css";
 import "./app-account-menu-mobile.css";
 
 type AppUserHeaderProps = {
@@ -42,6 +44,7 @@ export function AppUserHeader({
 
         <div className="flex items-center gap-4">
           <BotonTemaToggle />
+          <AppNotifications />
           <AppAccountMenu
             nombreVisible={nombreVisible}
             nivelTexto={nivelTexto}
@@ -58,6 +61,8 @@ export function AppUserHeader({
 
         <h1 className="app-user-header__mobile-title">{title}</h1>
 
+        <div className="flex items-center gap-2">
+          <AppNotifications />
         <button
           type="button"
           className="app-user-header__mobile-avatar"
@@ -70,6 +75,7 @@ export function AppUserHeader({
             <img src={avatarUrl} alt="" />
           </span>
         </button>
+        </div>
       </div>
 
       <AppAccountMenuMobile

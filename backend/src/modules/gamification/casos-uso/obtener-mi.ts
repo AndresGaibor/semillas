@@ -6,35 +6,78 @@ function serializarLogro(logro: Record<string, unknown>) {
     codigo: String(logro.codigo ?? ""),
     nombre: String(logro.nombre ?? ""),
     descripcion: (logro.descripcion ?? null) as string | null,
-    codigo_criterio: String(logro.codigo_criterio ?? ""),
-    valor_criterio: (logro.valor_criterio ?? null) as number | null,
-    bono_xp: Number(logro.bono_xp ?? 0),
-    url_icono: (logro.url_icono ?? null) as string | null,
+    codigo_criterio: String(logro.codigoCriterio ?? logro.codigo_criterio ?? ""),
+    valor_criterio: Number(logro.valorCriterio ?? logro.valor_criterio ?? 0),
+    bono_xp: Number(logro.bonoXp ?? logro.bono_xp ?? 0),
+    url_icono: (logro.urlIcono ?? logro.url_icono ?? null) as string | null,
     activo: Boolean(logro.activo ?? false),
-    creado_en: String(logro.creado_en ?? "")
+    creado_en: logro.creadoEn instanceof Date
+      ? logro.creadoEn.toISOString()
+      : String(logro.creado_en ?? ""),
   };
 }
 
 export function crearCasoObtenerMiGamificacion(repositorio: GamificationRepository) {
   return async function obtenerMiGamificacion(usuarioId: string) {
-    const nivel = await repositorio.obtenerNivelUsuario(usuarioId);
-    const logros = await repositorio.listarLogrosUsuario(usuarioId);
+    const [resumen, catalogo, niveles] = await Promise.all([
+      repositorio.obtenerResumen(usuarioId),
+      repositorio.listarCatalogoLogros(usuarioId),
+      repositorio.listarNiveles(),
+    ]);
 
     return {
-      nivel: nivel
+      nivel: resumen.nivelActual
         ? {
-            usuario_id: String(nivel.usuario_id ?? ""),
-            xp_total: Number(nivel.xp_total ?? 0),
-            numero_nivel: Number(nivel.numero_nivel ?? 0),
-            nombre_nivel: String(nivel.nombre_nivel ?? "")
+            usuario_id: usuarioId,
+            xp_total: resumen.xpTotal,
+            numero_nivel: resumen.nivelActual.numeroNivel,
+            nombre_nivel: resumen.nivelActual.nombre,
+            color_insignia: resumen.nivelActual.colorInsignia ?? null,
+            porcentaje: resumen.porcentaje,
+            siguiente_nivel: resumen.siguienteNivel
+              ? {
+                  numero_nivel: resumen.siguienteNivel.numeroNivel,
+                  nombre: resumen.siguienteNivel.nombre,
+                  xp_minima: resumen.siguienteNivel.xpMinima,
+                  xp_restante: Math.max(0, resumen.siguienteNivel.xpMinima - resumen.xpTotal),
+                }
+              : null,
           }
         : null,
-      logros: logros.map((logroUsuario) => ({
-        usuario_id: String(logroUsuario.usuario_id ?? ""),
-        logro_id: String(logroUsuario.logro_id ?? ""),
-        ganado_en: logroUsuario.ganado_en.toISOString(),
-        ...(logroUsuario.logro ? { logro: serializarLogro({ ...logroUsuario.logro, creado_en: logroUsuario.logro.creadoEn.toISOString() }) } : {})
-      }))
+      racha: {
+        dias_actuales: resumen.racha.diasActuales,
+        dias_maximos: resumen.racha.diasMaximos,
+        ultima_actividad_fecha: resumen.racha.ultimaActividadFecha,
+      },
+      logros: resumen.logrosUsuario.map((item) => ({
+        usuario_id: usuarioId,
+        logro_id: item.logro.id,
+        ganado_en: item.ganadoEn.toISOString(),
+        logro: serializarLogro(item.logro),
+      })),
+      catalogo_logros: catalogo.map((item) => ({
+        ...serializarLogro(item),
+        obtenido: item.obtenido,
+        ganado_en: item.ganadoEn?.toISOString() ?? null,
+        progreso_actual: item.progresoActual,
+        progreso_objetivo: item.progresoObjetivo,
+        porcentaje: item.porcentaje,
+      })),
+      reglas_nivel: niveles.map((nivel) => ({
+        id: nivel.id,
+        numero_nivel: nivel.numeroNivel,
+        nombre: nivel.nombre,
+        xp_minima: nivel.xpMinima,
+        color_insignia: nivel.colorInsignia,
+      })),
+      movimientos_recientes: resumen.movimientos.map((movimiento) => ({
+        id: movimiento.id,
+        origen: movimiento.origen,
+        origen_id: movimiento.origenId,
+        cantidad: movimiento.cantidad,
+        metadatos: movimiento.metadatos,
+        creado_en: movimiento.creadoEn.toISOString(),
+      })),
     };
   };
 }

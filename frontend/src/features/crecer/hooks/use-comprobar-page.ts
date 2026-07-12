@@ -66,7 +66,7 @@ export function useComprobarPage({ themeId }: { themeId: string }) {
         tema_id: temaDbId,
         actividad_id: actividadId,
         ocurrido_en_cliente: new Date().toISOString(),
-        datos: { origen: "juego_configuracion_cliente" }
+        datos: { confirmacion: true, origen: "reproductor_interactivo" }
       };
       eventMutation.mutate([evento]);
     }

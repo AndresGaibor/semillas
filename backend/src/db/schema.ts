@@ -24,6 +24,7 @@ import {
   jsonb,
   serial,
   real,
+  date,
   pgEnum,
   uniqueIndex
 } from "drizzle-orm/pg-core";
@@ -519,6 +520,51 @@ export const tarjetaCompartida = pgTable("tarjeta_compartida", {
   logroId: uuid("logro_id").references(() => logro.id, { onDelete: "set null" }),
   urlImagen: text("url_imagen").notNull(),
   creadoEn: timestamp("creado_en").notNull().defaultNow()
+});
+
+
+// Ajustes administrables de la plataforma
+export const configuracionPlataforma = pgTable("configuracion_plataforma", {
+  clave: text("clave").primaryKey(),
+  categoria: text("categoria").notNull().default("general"),
+  valor: jsonb("valor").notNull().default({}),
+  descripcion: text("descripcion"),
+  actualizadoPor: uuid("actualizado_por").references(() => usuarioApp.id, { onDelete: "set null" }),
+  actualizadoEn: timestamp("actualizado_en", { withTimezone: true }).notNull().defaultNow()
+});
+
+// Libro mayor de XP. El backend es la única autoridad que inserta movimientos.
+export const movimientoXp = pgTable("movimiento_xp", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  origen: text("origen").notNull(),
+  origenId: uuid("origen_id"),
+  cantidad: integer("cantidad").notNull(),
+  metadatos: jsonb("metadatos").notNull().default({}),
+  creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow()
+}, (tabla) => [
+  uniqueIndex("uq_movimiento_xp_origen")
+    .on(tabla.usuarioId, tabla.origen, tabla.origenId)
+    .where(sql`${tabla.origenId} is not null`)
+]);
+
+export const rachaUsuario = pgTable("racha_usuario", {
+  usuarioId: uuid("usuario_id").primaryKey().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  diasActuales: integer("dias_actuales").notNull().default(0),
+  diasMaximos: integer("dias_maximos").notNull().default(0),
+  ultimaActividadFecha: date("ultima_actividad_fecha"),
+  actualizadoEn: timestamp("actualizado_en", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const notificacionUsuario = pgTable("notificacion_usuario", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  usuarioId: uuid("usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  tipo: text("tipo").notNull(),
+  titulo: text("titulo").notNull(),
+  mensaje: text("mensaje").notNull(),
+  datos: jsonb("datos").notNull().default({}),
+  leidaEn: timestamp("leida_en", { withTimezone: true }),
+  creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow()
 });
 
 /**

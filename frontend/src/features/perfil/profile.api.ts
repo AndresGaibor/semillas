@@ -51,7 +51,20 @@ export type GamificacionMiRespuesta = {
     xp_total: number;
     numero_nivel: number;
     nombre_nivel: string;
+    color_insignia?: string | null;
+    porcentaje?: number;
+    siguiente_nivel?: {
+      numero_nivel: number;
+      nombre: string;
+      xp_minima: number;
+      xp_restante: number;
+    } | null;
   } | null;
+  racha?: {
+    dias_actuales: number;
+    dias_maximos: number;
+    ultima_actividad_fecha: string | null;
+  };
   logros: Array<{
     usuario_id: string;
     logro_id: string;
@@ -69,6 +82,43 @@ export type GamificacionMiRespuesta = {
       creado_en: string;
     };
   }>;
+  catalogo_logros?: Array<{
+    id: string;
+    codigo: string;
+    nombre: string;
+    descripcion: string | null;
+    codigo_criterio: string;
+    valor_criterio: number | null;
+    bono_xp: number;
+    url_icono: string | null;
+    activo: boolean;
+    creado_en: string;
+    obtenido: boolean;
+    ganado_en: string | null;
+    progreso_actual: number;
+    progreso_objetivo: number;
+    porcentaje: number;
+  }>;
+  movimientos_recientes?: MovimientoXp[];
+};
+
+export type MovimientoXp = {
+  id: string;
+  origen: string;
+  origen_id: string | null;
+  cantidad: number;
+  metadatos: Record<string, unknown>;
+  creado_en: string;
+};
+
+export type NotificacionUsuario = {
+  id: string;
+  tipo: string;
+  titulo: string;
+  mensaje: string;
+  datos: Record<string, unknown>;
+  leida_en: string | null;
+  creado_en: string;
 };
 
 export type ProgresoMiRespuesta = {
@@ -161,4 +211,29 @@ async function obtenerPerfilLocalOError() {
   const local = await obtenerPerfilLocal();
   if (!local) throw new Error("Abre Semillas con conexión al menos una vez antes de usar tu perfil offline.");
   return local;
+}
+
+
+export function obtenerNotificaciones(limit = 30) {
+  return peticion<{ no_leidas: number; notificaciones: NotificacionUsuario[] }>(`/perfil/notificaciones?limit=${limit}`);
+}
+
+export function marcarNotificacionLeida(id: string) {
+  return peticion<{ leida: boolean }>(`/perfil/notificaciones/${id}/leer`, { metodo: "PATCH" });
+}
+
+export function marcarTodasNotificacionesLeidas() {
+  return peticion<{ actualizadas: boolean }>("/perfil/notificaciones/leer-todas", { metodo: "POST" });
+}
+
+export function obtenerHistorialXp(limit = 50, offset = 0) {
+  return peticion<{ movimientos: MovimientoXp[]; total: number; limit: number; offset: number }>(
+    `/gamificacion/historial-xp?limit=${limit}&offset=${offset}`,
+  );
+}
+
+export async function eliminarMiCuenta() {
+  const resultado = await peticion<{ eliminada: boolean }>("/perfil/cuenta", { metodo: "DELETE" });
+  await db.delete();
+  return resultado;
 }

@@ -5,6 +5,7 @@ import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { requireRole } from "../../shared/middleware/role.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { responderExito } from "../../shared/http/respuesta";
+import { BadRequestError } from "../../shared/errors/http-error";
 import {
   createActivitySchema,
   createThemeSchema,
@@ -17,10 +18,23 @@ import {
   upsertStepContentSchema
 } from "./admin.schemas";
 import { crearAdminRepository } from "./admin.repository";
+import { crearAdminExtraRepository } from "./admin-extra.repository";
 import { crearCasoObtenerResumen } from "./casos-uso/resumen";
 import { crearCasosUsoActividades } from "./casos-uso/actividades";
 import { crearCasosUsoTemas } from "./casos-uso/temas";
 import { crearCasosUsoUsuarios } from "./casos-uso/usuarios";
+import {
+  achievementCreateSchema,
+  achievementUpdateSchema,
+  clubModerationSchema,
+  levelCreateSchema,
+  levelUpdateSchema,
+  sendaCreateSchema,
+  sendaUpdateSchema,
+  sendasReorderSchema,
+  settingUpdateSchema,
+  xpAdjustmentSchema,
+} from "./admin-extra.schemas";
 
 export function crearModuloAdmin() {
   const adminRoutes = new Hono<AppBindings>();
@@ -34,6 +48,12 @@ export function crearModuloAdmin() {
       temas: crearCasosUsoTemas(repositorio),
       usuarios: crearCasosUsoUsuarios(repositorio)
     };
+  }
+
+  function obtenerExtra(c: Context<AppBindings>) {
+    const cliente = c.get("drizzle");
+    if (!cliente) throw new Error("Cliente Drizzle no disponible");
+    return crearAdminExtraRepository(cliente);
   }
 
   adminRoutes.use("*", authMiddleware);
@@ -77,10 +97,72 @@ export function crearModuloAdmin() {
   adminRoutes.post("/temas/:tema_id/borrador", async (c) => responderExito(await obtenerCasosUso(c).temas.guardarBorrador(c.req.param("tema_id"))));
   adminRoutes.post("/temas/:tema_id/archivar", async (c) => responderExito(await obtenerCasosUso(c).temas.archivar(c.req.param("tema_id"))));
   adminRoutes.post("/temas/:tema_id/duplicar", async (c) => responderExito(await obtenerCasosUso(c).temas.duplicar(c.req.param("tema_id"), c.get("user")), 201));
-  adminRoutes.get("/usuarios", async (c) => responderExito(await obtenerCasosUso(c).usuarios.listar({ q: c.req.query("q") ?? undefined, rol: c.req.query("rol") ?? undefined, limit: Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100), offset: Math.max(Number(c.req.query("offset") ?? "0"), 0) })));
+  adminRoutes.get("/usuarios", async (c) => responderExito(await obtenerCasosUso(c).usuarios.listar({
+    q: c.req.query("q") ?? undefined,
+    rol: c.req.query("rol") ?? undefined,
+    activo: c.req.query("activo") === undefined ? undefined : c.req.query("activo") === "true",
+    limit: Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100),
+    offset: Math.max(Number(c.req.query("offset") ?? "0"), 0),
+  })));
   adminRoutes.get("/usuarios/:usuario_id", async (c) => responderExito(await obtenerCasosUso(c).usuarios.obtener(c.req.param("usuario_id"))));
-  adminRoutes.patch("/usuarios/:usuario_id", zValidator("json", updateUserSchema), async (c) => responderExito(await obtenerCasosUso(c).usuarios.actualizar(c.req.param("usuario_id"), c.req.valid("json"))));
-  adminRoutes.delete("/usuarios/:usuario_id", async (c) => responderExito(await obtenerCasosUso(c).usuarios.eliminar(c.req.param("usuario_id"))));
+  adminRoutes.patch("/usuarios/:usuario_id", zValidator("json", updateUserSchema), async (c) => {
+    const objetivo = c.req.param("usuario_id");
+    if (objetivo === c.get("user").id && c.req.valid("json").activo === false) {
+      throw new BadRequestError("No puedes desactivar tu propia cuenta administrativa");
+    }
+    return responderExito(await obtenerCasosUso(c).usuarios.actualizar(objetivo, c.req.valid("json"), c.get("user").id));
+  });
+  adminRoutes.delete("/usuarios/:usuario_id", async (c) => {
+    const objetivo = c.req.param("usuario_id");
+    if (objetivo === c.get("user").id) throw new BadRequestError("No puedes desactivar tu propia cuenta administrativa");
+    return responderExito(await obtenerCasosUso(c).usuarios.eliminar(objetivo, c.get("user").id));
+  });
+  adminRoutes.post("/usuarios/:usuario_id/ajustar-xp", zValidator("json", xpAdjustmentSchema), async (c) =>
+    responderExito(await obtenerExtra(c).ajustarXpUsuario(
+      c.req.param("usuario_id"),
+      c.req.valid("json"),
+      c.get("user").id,
+    ), 201),
+  );
+
+  // Sendas: catálogo editorial completo.
+  adminRoutes.get("/sendas", async (c) => responderExito(await obtenerExtra(c).listarSendas()));
+  adminRoutes.post("/sendas", zValidator("json", sendaCreateSchema), async (c) => responderExito(await obtenerExtra(c).crearSenda(c.req.valid("json"), c.get("user").id), 201));
+  adminRoutes.patch("/sendas/:senda_id", zValidator("json", sendaUpdateSchema), async (c) => responderExito(await obtenerExtra(c).actualizarSenda(c.req.param("senda_id"), c.req.valid("json"), c.get("user").id)));
+  adminRoutes.post("/sendas/reordenar", zValidator("json", sendasReorderSchema), async (c) => responderExito(await obtenerExtra(c).reordenarSendas(c.req.valid("json").senda_ids, c.get("user").id)));
+  adminRoutes.delete("/sendas/:senda_id", async (c) => responderExito(await obtenerExtra(c).eliminarSenda(c.req.param("senda_id"), c.get("user").id)));
+
+  // Moderación global de clubes.
+  adminRoutes.get("/clubes", async (c) => responderExito(await obtenerExtra(c).listarClubes({
+    q: c.req.query("q") ?? undefined,
+    activo: c.req.query("activo") === undefined ? undefined : c.req.query("activo") === "true",
+    limit: Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100),
+    offset: Math.max(Number(c.req.query("offset") ?? "0"), 0),
+  })));
+  adminRoutes.get("/clubes/:club_id", async (c) => responderExito(await obtenerExtra(c).obtenerClub(c.req.param("club_id"))));
+  adminRoutes.patch("/clubes/:club_id", zValidator("json", clubModerationSchema), async (c) => responderExito(await obtenerExtra(c).moderarClub(c.req.param("club_id"), c.req.valid("json"), c.get("user").id)));
+
+  // Reportes, auditoría y exportación desde una única fuente real.
+  adminRoutes.get("/reportes", async (c) => {
+    const hasta = c.req.query("hasta") ? new Date(c.req.query("hasta")!) : new Date();
+    const desde = c.req.query("desde") ? new Date(c.req.query("desde")!) : new Date(hasta.getTime() - 29 * 86_400_000);
+    return responderExito(await obtenerExtra(c).obtenerReportes(desde, hasta));
+  });
+  adminRoutes.get("/auditoria", async (c) => responderExito(await obtenerExtra(c).listarAuditoria({
+    q: c.req.query("q") ?? undefined,
+    entidad: c.req.query("entidad") ?? undefined,
+    limit: Math.min(Math.max(Number(c.req.query("limit") ?? "30"), 1), 100),
+    offset: Math.max(Number(c.req.query("offset") ?? "0"), 0),
+  })));
+
+  // Ajustes y reglas de gamificación gobernadas por backend.
+  adminRoutes.get("/ajustes", async (c) => responderExito(await obtenerExtra(c).listarAjustes()));
+  adminRoutes.put("/ajustes/:clave", zValidator("json", settingUpdateSchema), async (c) => responderExito(await obtenerExtra(c).guardarAjuste(c.req.param("clave"), c.req.valid("json"), c.get("user").id)));
+  adminRoutes.get("/gamificacion", async (c) => responderExito(await obtenerExtra(c).listarConfiguracionGamificacion()));
+  adminRoutes.post("/gamificacion/niveles", zValidator("json", levelCreateSchema), async (c) => responderExito(await obtenerExtra(c).crearNivel(c.req.valid("json"), c.get("user").id), 201));
+  adminRoutes.patch("/gamificacion/niveles/:nivel_id", zValidator("json", levelUpdateSchema), async (c) => responderExito(await obtenerExtra(c).actualizarNivel(c.req.param("nivel_id"), c.req.valid("json"), c.get("user").id)));
+  adminRoutes.post("/gamificacion/logros", zValidator("json", achievementCreateSchema), async (c) => responderExito(await obtenerExtra(c).crearLogro(c.req.valid("json"), c.get("user").id), 201));
+  adminRoutes.patch("/gamificacion/logros/:logro_id", zValidator("json", achievementUpdateSchema), async (c) => responderExito(await obtenerExtra(c).actualizarLogro(c.req.param("logro_id"), c.req.valid("json"), c.get("user").id)));
 
   return adminRoutes;
 }

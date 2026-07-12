@@ -17,15 +17,17 @@
  */
 
 import { Hono } from "hono";
+import { eq } from "drizzle-orm";
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import type { AppBindings } from "./config/env";
 import { APP_NAME, APP_VERSION } from "./config/constants";
-import { createSupabaseAdmin, crearDb } from "./db/client";
+import { createSupabaseAdmin, crearDb, schema } from "./db/client";
 import { openApiSpec } from "./openapi/spec";
 import { errorHandler } from "./shared/middleware/error-handler";
 import { requestIdMiddleware } from "./shared/middleware/request-id.middleware";
+import { responderError } from "./shared/http/respuesta";
 
 /**
  * Rutas de la API
@@ -170,6 +172,49 @@ app.get("/health", (c) => {
       entorno: c.env.APP_ENV
     }
   });
+});
+
+/**
+ * Respeta el modo mantenimiento configurado desde administración.
+ * Se mantienen disponibles autenticación, perfil mínimo y herramientas
+ * administrativas para que un administrador pueda entrar y desactivarlo.
+ */
+app.use("*", async (c, next) => {
+  const ruta = c.req.path;
+  const prefijosExentos = [
+    "/",
+    "/health",
+    "/docs",
+    "/openapi.json",
+    "/autenticacion",
+    "/perfil",
+    "/administracion",
+    "/catalogo",
+    "/media",
+  ];
+  const exenta = prefijosExentos.some((prefijo) =>
+    prefijo === "/" ? ruta === "/" : ruta === prefijo || ruta.startsWith(`${prefijo}/`)
+  );
+  if (exenta) return next();
+
+  const db = c.get("drizzle");
+  if (!db) return next();
+
+  const [ajuste] = await db
+    .select({ valor: schema.configuracionPlataforma.valor })
+    .from(schema.configuracionPlataforma)
+    .where(eq(schema.configuracionPlataforma.clave, "plataforma.modo_mantenimiento"))
+    .limit(1);
+
+  if (ajuste?.valor === true) {
+    return responderError(
+      "Semillas está realizando una actualización. Vuelve a intentarlo en unos minutos.",
+      "MANTENIMIENTO",
+      503,
+    );
+  }
+
+  return next();
 });
 
 /**

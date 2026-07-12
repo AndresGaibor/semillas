@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { obtenerGruposEdad } from "@/features/catalog/catalog.api";
 import {
   actualizarPerfil,
+  eliminarMiCuenta,
   obtenerMiGamificacion,
   obtenerMiPerfil,
   obtenerMiProgreso,
@@ -56,6 +57,18 @@ function ProfilePage() {
     staleTime: 1000 * 60 * 60,
   });
 
+
+  const eliminarCuentaMutation = useMutation({
+    mutationFn: eliminarMiCuenta,
+    onSuccess: async () => {
+      queryClient.clear();
+      toast.success("Cuenta eliminada definitivamente");
+      await handleLogout();
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "No se pudo eliminar la cuenta");
+    },
+  });
   const actualizarMutation = useMutation({
     mutationFn: (data: ActualizarPerfilDatos) => actualizarPerfil(data),
     onSuccess: async (perfilActualizado) => {
@@ -177,6 +190,7 @@ function ProfilePage() {
       onVerLogros={() => void navigate({ to: "/app/logros" })}
       onEmpezarTema={() => void navigate({ to: "/app/temas" })}
       onCerrarSesion={() => void handleLogout()}
+      onEliminarCuenta={() => eliminarCuentaMutation.mutateAsync()}
     />
   );
 }

@@ -1,7 +1,7 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
-import { evaluarYDesbloquearLogros } from "../gamification/gamification-awards";
+import { procesarGamificacionPorAprendizaje } from "../gamification/gamification-engine";
 
 type RegistroEventoProgreso = {
   usuarioId: string;
@@ -37,6 +37,7 @@ export function crearActivitiesRepository(db: DbClient) {
         .select({ actividad: schema.actividad })
         .from(schema.actividad)
         .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .innerJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
         .where(and(eq(schema.actividad.id, actividadId), eq(schema.tema.estado, "publicado")))
         .limit(1);
 
@@ -63,10 +64,14 @@ export function crearActivitiesRepository(db: DbClient) {
         .select({
           id: schema.actividad.id,
           temaId: schema.actividad.temaId,
-          xpRecompensa: schema.actividad.xpRecompensa
+          xpRecompensa: schema.actividad.xpRecompensa,
+          configuracion: schema.actividad.configuracion,
+          retroalimentacion: schema.actividad.retroalimentacion,
+          tipoCodigo: schema.tipoActividad.codigo,
         })
         .from(schema.actividad)
         .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .innerJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
         .where(and(eq(schema.actividad.id, actividadId), eq(schema.tema.estado, "publicado")))
         .limit(1);
 
@@ -122,14 +127,14 @@ export function crearActivitiesRepository(db: DbClient) {
       return registro ?? null;
     },
 
-    async upsertProgresoActividad(usuarioId: string, actividadId: string, correcta: boolean) {
+    async upsertProgresoActividad(usuarioId: string, actividadId: string, correcta: boolean, puntaje: number) {
       await db
         .insert(schema.progresoActividadUsuario)
         .values({
           usuarioId,
           actividadId,
           intentos: 1,
-          mejorPuntaje: correcta ? 100 : 0,
+          mejorPuntaje: puntaje,
           completado: correcta,
           completadoEn: correcta ? new Date() : null,
           actualizadoEn: new Date()
@@ -138,7 +143,7 @@ export function crearActivitiesRepository(db: DbClient) {
           target: [schema.progresoActividadUsuario.usuarioId, schema.progresoActividadUsuario.actividadId],
           set: {
             intentos: sql`${schema.progresoActividadUsuario.intentos} + 1`,
-            mejorPuntaje: sql`greatest(${schema.progresoActividadUsuario.mejorPuntaje}, ${correcta ? 100 : 0})`,
+            mejorPuntaje: sql`greatest(${schema.progresoActividadUsuario.mejorPuntaje}, ${puntaje})`,
             completado: sql`${schema.progresoActividadUsuario.completado} or ${correcta}`,
             completadoEn: correcta ? new Date() : sql`${schema.progresoActividadUsuario.completadoEn}`,
             actualizadoEn: new Date()
@@ -166,8 +171,21 @@ export function crearActivitiesRepository(db: DbClient) {
         });
     },
 
-    async evaluarLogrosUsuario(usuarioId: string) {
-      return evaluarYDesbloquearLogros(db, usuarioId);
+    async procesarGamificacionActividad(usuarioId: string, actividadId: string, xpConfigurada: number) {
+      return procesarGamificacionPorAprendizaje(db, {
+        usuarioId,
+        origen: "actividad",
+        origenId: actividadId,
+        xpConfigurada,
+        metadatos: { actividad_id: actividadId },
+      });
+    },
+
+    async actualizarXpEvento(eventoId: string, xpOtorgada: number) {
+      await db
+        .update(schema.eventoProgreso)
+        .set({ xpOtorgada })
+        .where(eq(schema.eventoProgreso.id, eventoId));
     }
   };
 }

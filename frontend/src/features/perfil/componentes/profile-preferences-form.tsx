@@ -26,6 +26,7 @@ interface ProfilePreferencesFormProps {
   onVincularGoogle: () => void;
   onVincularCorreo: () => void;
   onLogout: () => void;
+  onDeleteAccount: () => Promise<unknown> | void;
 }
 
 const textSizes = [
@@ -49,6 +50,7 @@ export function ProfilePreferencesForm({
   onVincularGoogle,
   onVincularCorreo,
   onLogout,
+  onDeleteAccount,
 }: ProfilePreferencesFormProps) {
   // Ajustes de API
   const [audio, setAudio] = useState(Boolean(perfil.prefiere_audio));
@@ -138,16 +140,19 @@ export function ProfilePreferencesForm({
     toast.success("Preferencias guardadas correctamente.");
   }
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     const confirmText =
       usuario?.proveedor === "invitado"
-        ? "¿Seguro que deseas eliminar tus datos locales? Perderás todo el progreso acumulado como invitado."
-        : "¿Seguro que deseas desvincular tu cuenta? Esto eliminará tus datos locales del dispositivo y cerrará la sesión.";
+        ? "¿Eliminar definitivamente este perfil invitado y todo su progreso? Esta acción no se puede deshacer."
+        : "¿Eliminar definitivamente tu cuenta de Semillas, progreso, clubes y datos asociados? Esta acción no se puede deshacer.";
 
-    if (window.confirm(confirmText)) {
-      onLogout();
-      toast.success("Cuenta desvinculada y datos eliminados.");
+    if (!window.confirm(confirmText)) return;
+    const confirmacion = window.prompt('Escribe ELIMINAR para confirmar la eliminación definitiva.');
+    if (confirmacion !== "ELIMINAR") {
+      toast.error("La eliminación fue cancelada");
+      return;
     }
+    await onDeleteAccount();
   };
 
   const esInvitado = usuario?.proveedor === "invitado";

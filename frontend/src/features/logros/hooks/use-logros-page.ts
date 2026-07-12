@@ -66,6 +66,9 @@ export type InsigniaPresentacion = LogroGamificacion & {
   criterio: string;
   obtenido: boolean;
   ganadoEn: string | null;
+  progresoActual: number;
+  progresoObjetivo: number;
+  porcentaje: number;
 };
 
 export function useLogrosPage() {
@@ -120,14 +123,20 @@ export function useLogrosPage() {
 
     return catalogo.map((logro) => {
       const registro = obtenidosPorCodigo.get(logro.codigo);
+      const datosServidor = query.data?.catalogo_logros?.find((item) => item.codigo === logro.codigo);
+      const objetivo = Math.max(1, Number(datosServidor?.progreso_objetivo ?? logro.valor_criterio ?? 1));
+      const actual = Math.min(objetivo, Number(datosServidor?.progreso_actual ?? (registro ? objetivo : 0)));
       return {
         ...logro,
         criterio: construirCriterio(logro.codigo_criterio, logro.valor_criterio),
-        obtenido: Boolean(registro),
-        ganadoEn: registro?.ganado_en ?? null,
+        obtenido: Boolean(registro ?? datosServidor?.obtenido),
+        ganadoEn: registro?.ganado_en ?? datosServidor?.ganado_en ?? null,
+        progresoActual: actual,
+        progresoObjetivo: objetivo,
+        porcentaje: Math.min(100, Number(datosServidor?.porcentaje ?? Math.round((actual / objetivo) * 100))),
       };
     });
-  }, [catalogo, logrosObtenidos]);
+  }, [catalogo, logrosObtenidos, query.data?.catalogo_logros]);
 
   const insignias = useMemo(() => {
     if (activeTab === "obtenidas") return insigniasCompletas.filter((insignia) => insignia.obtenido);
@@ -185,6 +194,8 @@ export function useLogrosPage() {
     setActiveTab,
     sharedBadge,
     handleShare,
+    racha: query.data?.racha ?? { dias_actuales: 0, dias_maximos: 0, ultima_actividad_fecha: null },
+    movimientosRecientes: query.data?.movimientos_recientes ?? [],
   };
 }
 

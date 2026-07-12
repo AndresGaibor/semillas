@@ -1,7 +1,8 @@
 import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { schema, type DbClient } from "../../db/client";
 import type { SyncPushEvent } from "./sync.schemas";
-import { evaluarYDesbloquearLogros, type LogroDesbloqueado } from "../gamification/gamification-awards";
+import { procesarGamificacionPorAprendizaje, type ResultadoGamificacion } from "../gamification/gamification-engine";
+import { evaluarActividadConfigurada } from "../activities/activity-evaluator";
 
 export type FilaEventoSincronizacion = {
   id: string;
@@ -45,7 +46,7 @@ export interface SyncRepository {
   listarEventosUsuario(usuarioId: string, since?: string): Promise<FilaEventoSincronizacion[]>;
   listarProgresoTemas(usuarioId: string): Promise<FilaProgresoTemaSincronizacion[]>;
   listarProgresoActividades(usuarioId: string): Promise<FilaProgresoActividadSincronizacion[]>;
-  registrarEvento(usuarioId: string, evento: SyncPushEvent): Promise<boolean>;
+  registrarEvento(usuarioId: string, evento: SyncPushEvent): Promise<string | null>;
   obtenerProgresoTema(usuarioId: string, temaId: string): Promise<FilaProgresoTemaSincronizacion | undefined>;
   crearProgresoTema(
     usuarioId: string,
@@ -95,14 +96,24 @@ export interface SyncRepository {
   validarRespuestaActividad(actividadId: string, opcionId: string): Promise<{
     temaId: string;
     correcta: boolean;
+    puntaje: number;
     xpOtorgada: number;
     opcionCorrectaId: string | null;
+    retroalimentacion: string | null;
+  } | null>;
+  validarRespuestaConfigurada(actividadId: string, datos: Record<string, unknown>): Promise<{
+    temaId: string;
+    correcta: boolean;
+    puntaje: number;
+    xpOtorgada: number;
+    retroalimentacion: string | null;
   } | null>;
   aplicarRespuestaActividad(
     usuarioId: string,
     actividadId: string,
     temaId: string,
     correcta: boolean,
+    puntaje: number,
   ): Promise<void>;
   validarActividadCompletada(actividadId: string): Promise<{
     temaId: string;
@@ -116,7 +127,9 @@ export interface SyncRepository {
   registrarPasoActual(usuarioId: string, temaId: string, pasoId: string): Promise<void>;
   validarTemaCompletable(usuarioId: string, temaId: string): Promise<{ xpOtorgada: number } | null>;
   marcarTemaCompletado(usuarioId: string, temaId: string): Promise<void>;
-  evaluarLogrosUsuario(usuarioId: string): Promise<LogroDesbloqueado[]>;
+  procesarGamificacionActividad(usuarioId: string, actividadId: string, xpConfigurada: number): Promise<ResultadoGamificacion>;
+  procesarGamificacionTema(usuarioId: string, temaId: string, xpConfigurada: number): Promise<ResultadoGamificacion>;
+  actualizarXpEvento(eventoId: string, xpOtorgada: number): Promise<void>;
 }
 
 type Dependencias = {
@@ -177,7 +190,7 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
         .onConflictDoNothing()
         .returning();
 
-      return Boolean(nuevo);
+      return nuevo?.id ?? null;
     },
 
     async obtenerProgresoTema(usuarioId: string, temaId: string) {
@@ -297,6 +310,7 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
           xpRecompensa: schema.actividad.xpRecompensa,
           opcionId: schema.opcionActividad.id,
           correcta: schema.opcionActividad.correcta,
+          retroalimentacion: schema.opcionActividad.retroalimentacion,
         })
         .from(schema.actividad)
         .innerJoin(
@@ -323,12 +337,52 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
       return {
         temaId: fila.temaId,
         correcta: Boolean(fila.correcta),
+        puntaje: fila.correcta ? 100 : 0,
         xpOtorgada: fila.correcta ? Number(fila.xpRecompensa ?? 0) : 0,
         opcionCorrectaId: correcta?.id ?? null,
+        retroalimentacion: fila.retroalimentacion ?? null,
       };
     },
 
-    async aplicarRespuestaActividad(usuarioId, actividadId, temaId, correcta) {
+    async validarRespuestaConfigurada(actividadId, datos) {
+      const [actividad] = await db
+        .select({
+          temaId: schema.actividad.temaId,
+          xpRecompensa: schema.actividad.xpRecompensa,
+          configuracion: schema.actividad.configuracion,
+          retroalimentacion: schema.actividad.retroalimentacion,
+          tipoCodigo: schema.tipoActividad.codigo,
+        })
+        .from(schema.actividad)
+        .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .innerJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
+        .where(and(eq(schema.actividad.id, actividadId), eq(schema.tema.estado, "publicado")))
+        .limit(1);
+
+      if (!actividad) return null;
+      const evaluacion = evaluarActividadConfigurada(
+        {
+          tipoCodigo: actividad.tipoCodigo,
+          configuracion: actividad.configuracion,
+          retroalimentacion: actividad.retroalimentacion,
+        },
+        {
+          texto: typeof datos.texto_respuesta === "string" ? datos.texto_respuesta : undefined,
+          respuesta: datos.respuesta,
+          confirmacion: datos.confirmacion === true,
+        },
+      );
+
+      return {
+        temaId: actividad.temaId,
+        correcta: evaluacion.correcta,
+        puntaje: evaluacion.puntaje,
+        xpOtorgada: evaluacion.correcta ? Number(actividad.xpRecompensa ?? 0) : 0,
+        retroalimentacion: evaluacion.retroalimentacion,
+      };
+    },
+
+    async aplicarRespuestaActividad(usuarioId, actividadId, temaId, correcta, puntaje) {
       const ahora = new Date();
       await db
         .insert(schema.progresoActividadUsuario)
@@ -336,7 +390,7 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
           usuarioId,
           actividadId,
           intentos: 1,
-          mejorPuntaje: correcta ? 100 : 0,
+          mejorPuntaje: puntaje,
           completado: correcta,
           completadoEn: correcta ? ahora : null,
           actualizadoEn: ahora,
@@ -345,7 +399,7 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
           target: [schema.progresoActividadUsuario.usuarioId, schema.progresoActividadUsuario.actividadId],
           set: {
             intentos: sql`${schema.progresoActividadUsuario.intentos} + 1`,
-            mejorPuntaje: sql`greatest(${schema.progresoActividadUsuario.mejorPuntaje}, ${correcta ? 100 : 0})`,
+            mejorPuntaje: sql`greatest(${schema.progresoActividadUsuario.mejorPuntaje}, ${puntaje})`,
             completado: sql`${schema.progresoActividadUsuario.completado} or ${correcta}`,
             completadoEn: correcta ? ahora : sql`${schema.progresoActividadUsuario.completadoEn}`,
             actualizadoEn: ahora,
@@ -372,19 +426,11 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
     },
 
     async validarActividadCompletada(actividadId) {
-      const [actividad] = await db
-        .select({
-          temaId: schema.actividad.temaId,
-          xpRecompensa: schema.actividad.xpRecompensa,
-        })
-        .from(schema.actividad)
-        .where(eq(schema.actividad.id, actividadId))
-        .limit(1);
-
-      if (!actividad) return null;
+      const validacion = await this.validarRespuestaConfigurada(actividadId, { confirmacion: true });
+      if (!validacion || !validacion.correcta) return null;
       return {
-        temaId: actividad.temaId,
-        xpOtorgada: Number(actividad.xpRecompensa ?? 0),
+        temaId: validacion.temaId,
+        xpOtorgada: validacion.xpOtorgada,
       };
     },
 
@@ -476,24 +522,42 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
         .limit(1);
       if (!tema) return null;
 
-      const [conteos] = await db
-        .select({
-          total: sql<number>`count(${schema.actividad.id})::int`,
-          completadas: sql<number>`count(${schema.progresoActividadUsuario.actividadId}) filter (where ${schema.progresoActividadUsuario.completado} = true)::int`,
-        })
-        .from(schema.actividad)
-        .leftJoin(
-          schema.progresoActividadUsuario,
-          and(
-            eq(schema.progresoActividadUsuario.actividadId, schema.actividad.id),
-            eq(schema.progresoActividadUsuario.usuarioId, usuarioId),
-          ),
-        )
-        .where(eq(schema.actividad.temaId, temaId));
+      const [[pasos], [pasosCompletados], [actividades]] = await Promise.all([
+        db
+          .select({ total: sql<number>`count(*)::int` })
+          .from(schema.pasoTema)
+          .where(and(eq(schema.pasoTema.temaId, temaId), eq(schema.pasoTema.obligatorio, true))),
+        db
+          .select({ total: sql<number>`count(distinct ${schema.eventoProgreso.pasoId})::int` })
+          .from(schema.eventoProgreso)
+          .where(and(
+            eq(schema.eventoProgreso.usuarioId, usuarioId),
+            eq(schema.eventoProgreso.temaId, temaId),
+            eq(schema.eventoProgreso.tipoEvento, "bloque_completado"),
+          )),
+        db
+          .select({
+            total: sql<number>`count(${schema.actividad.id}) filter (where ${schema.actividad.obligatorio} = true)::int`,
+            completadas: sql<number>`count(${schema.progresoActividadUsuario.actividadId}) filter (where ${schema.actividad.obligatorio} = true and ${schema.progresoActividadUsuario.completado} = true)::int`,
+          })
+          .from(schema.actividad)
+          .leftJoin(
+            schema.progresoActividadUsuario,
+            and(
+              eq(schema.progresoActividadUsuario.actividadId, schema.actividad.id),
+              eq(schema.progresoActividadUsuario.usuarioId, usuarioId),
+            ),
+          )
+          .where(eq(schema.actividad.temaId, temaId)),
+      ]);
 
-      const total = Number(conteos?.total ?? 0);
-      const completadas = Number(conteos?.completadas ?? 0);
-      if (total > 0 && completadas < total) return null;
+      const totalPasos = Number(pasos?.total ?? 0);
+      const totalPasosCompletados = Number(pasosCompletados?.total ?? 0);
+      const totalActividades = Number(actividades?.total ?? 0);
+      const totalActividadesCompletadas = Number(actividades?.completadas ?? 0);
+
+      if (totalPasos > 0 && totalPasosCompletados < totalPasos) return null;
+      if (totalActividades > 0 && totalActividadesCompletadas < totalActividades) return null;
 
       return { xpOtorgada: Number(tema.xpRecompensa ?? 0) };
     },
@@ -522,8 +586,28 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
         });
     },
 
-    async evaluarLogrosUsuario(usuarioId) {
-      return evaluarYDesbloquearLogros(db, usuarioId);
+    async procesarGamificacionActividad(usuarioId, actividadId, xpConfigurada) {
+      return procesarGamificacionPorAprendizaje(db, {
+        usuarioId,
+        origen: "actividad",
+        origenId: actividadId,
+        xpConfigurada,
+        metadatos: { actividad_id: actividadId, origen: "sync_offline" },
+      });
+    },
+
+    async procesarGamificacionTema(usuarioId, temaId, xpConfigurada) {
+      return procesarGamificacionPorAprendizaje(db, {
+        usuarioId,
+        origen: "tema",
+        origenId: temaId,
+        xpConfigurada,
+        metadatos: { tema_id: temaId, origen: "sync_offline" },
+      });
+    },
+
+    async actualizarXpEvento(eventoId, xpOtorgada) {
+      await db.update(schema.eventoProgreso).set({ xpOtorgada }).where(eq(schema.eventoProgreso.id, eventoId));
     }
   };
 }

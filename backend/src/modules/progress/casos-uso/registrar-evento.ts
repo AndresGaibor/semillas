@@ -10,7 +10,7 @@ type Entrada = {
   actividad_id?: string;
   correcta?: boolean;
   puntaje?: number;
-  xp_otorgada?: number;
+  xp_otorgada?: number; // se acepta por compatibilidad, el repositorio lo ignora
   datos?: Record<string, unknown>;
   ocurrido_en_cliente?: string;
   dispositivo_id?: string;

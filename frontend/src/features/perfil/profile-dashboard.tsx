@@ -25,6 +25,7 @@ export type PerfilDashboardProps = {
   onVerLogros: () => void;
   onEmpezarTema: () => void;
   onCerrarSesion: () => void;
+  onEliminarCuenta?: () => Promise<unknown> | void;
 };
 
 export function ProfileDashboard({
@@ -42,6 +43,7 @@ export function ProfileDashboard({
   onVerLogros,
   onEmpezarTema,
   onCerrarSesion,
+  onEliminarCuenta,
 }: PerfilDashboardProps) {
   const {
     logros,
@@ -80,6 +82,7 @@ export function ProfileDashboard({
           onVincularGoogle={onVincularGoogle}
           onVincularCorreo={onVincularCorreo}
           onLogout={onCerrarSesion}
+          onDeleteAccount={onEliminarCuenta ?? (() => undefined)}
         />
       ) : null}
 

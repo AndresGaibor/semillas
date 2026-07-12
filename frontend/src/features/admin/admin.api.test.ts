@@ -5,19 +5,26 @@ const originalFetch = globalThis.fetch;
 const originalLocalStorage = globalThis.localStorage;
 
 beforeEach(() => {
-  globalThis.fetch = originalFetch;
-  globalThis.localStorage = {
+  Object.defineProperty(globalThis, "fetch", { configurable: true, value: originalFetch });
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
     getItem: () => null,
     setItem: () => undefined,
     removeItem: () => undefined,
     clear: () => undefined,
     key: () => null,
-    length: 0
-  } as Storage;
+      length: 0
+    } as Storage
+  });
 });
 
 afterEach(() => {
-  globalThis.localStorage = originalLocalStorage;
+  Object.defineProperty(globalThis, "fetch", { configurable: true, value: originalFetch });
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: originalLocalStorage
+  });
 });
 
 describe("admin.api", () => {
@@ -25,7 +32,7 @@ describe("admin.api", () => {
     let metodo = "";
     let ruta = "";
 
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    Object.defineProperty(globalThis, "fetch", { configurable: true, value: (async (input: RequestInfo | URL, init?: RequestInit) => {
       const request = input instanceof Request ? input : new Request(String(input), init);
       metodo = request.method;
       ruta = new URL(request.url).pathname;
@@ -34,7 +41,7 @@ describe("admin.api", () => {
         status: 200,
         headers: { "content-type": "application/json" }
       });
-    }) as typeof fetch;
+    }) as typeof fetch });
 
     const resultado = await archivarTema("tema-1");
 
@@ -47,7 +54,7 @@ describe("admin.api", () => {
     let metodo = "";
     let ruta = "";
 
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    Object.defineProperty(globalThis, "fetch", { configurable: true, value: (async (input: RequestInfo | URL, init?: RequestInit) => {
       const request = input instanceof Request ? input : new Request(String(input), init);
       metodo = request.method;
       ruta = new URL(request.url).pathname;
@@ -63,7 +70,7 @@ describe("admin.api", () => {
         status: 201,
         headers: { "content-type": "application/json" }
       });
-    }) as typeof fetch;
+    }) as typeof fetch });
 
     const resultado = await duplicarTema("tema-1");
 

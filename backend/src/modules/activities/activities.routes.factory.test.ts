@@ -20,6 +20,9 @@ describe("activities factory", () => {
                 if (!consulta) return Promise.resolve([]);
 
                 return {
+                  then(resolve: (value: Array<{ total: number }>) => unknown) {
+                    return Promise.resolve(resolve([{ total: 0 }]));
+                  },
                   limit: async () => {
                     llamadas.push(`select:${Object.keys(consulta ?? {}).join(",")}`);
 
@@ -60,6 +63,15 @@ describe("activities factory", () => {
         };
 
         return selector;
+      },
+      update() {
+        return {
+          set() {
+            return {
+              where: async () => undefined
+            };
+          }
+        };
       },
       insert() {
         return {

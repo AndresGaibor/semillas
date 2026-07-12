@@ -29,6 +29,8 @@ function AchievementsPage() {
     setActiveTab,
     sharedBadge,
     handleShare,
+    racha,
+    movimientosRecientes,
   } = useLogrosPage();
 
   return (
@@ -82,6 +84,9 @@ function AchievementsPage() {
                   imagen={obtenerImagenInsignia(insignia.codigo, insignia.url_icono)}
                   obtenido={insignia.obtenido}
                   ganadoEn={insignia.ganadoEn}
+                  progresoActual={insignia.progresoActual}
+                  progresoObjetivo={insignia.progresoObjetivo}
+                  porcentaje={insignia.porcentaje}
                 />
               ))}
             </div>
@@ -109,6 +114,19 @@ function AchievementsPage() {
             nombreSiguienteNivel={xpInfo.nombreSiguienteNivel}
             esNivelMaximo={xpInfo.esNivelMaximo}
           />
+
+          <section className="logros-ledger-card" aria-labelledby="logros-streak-title">
+            <p>Racha actual</p>
+            <h2 id="logros-streak-title">{racha.dias_actuales} {racha.dias_actuales === 1 ? "día" : "días"}</h2>
+            <span>Récord: {racha.dias_maximos} días</span>
+            {movimientosRecientes.length ? (
+              <ul>
+                {movimientosRecientes.slice(0, 4).map((movimiento) => (
+                  <li key={movimiento.id}><span>{etiquetaOrigen(movimiento.origen)}</span><strong>{movimiento.cantidad > 0 ? "+" : ""}{movimiento.cantidad} XP</strong></li>
+                ))}
+              </ul>
+            ) : <small>Completa una actividad para comenzar tu historial.</small>}
+          </section>
 
           {primerLogroObtenido ? (
             <CompartirInsigniaWidget
@@ -148,4 +166,8 @@ function ResumenItem({ icono, valor, etiqueta }: { icono: ReactNode; valor: numb
 function obtenerImagenInsignia(codigo: string, urlIcono: string | null): string {
   if (urlIcono) return urlIcono;
   return codigo === "primera_leccion" ? in1Img : in2Img;
+}
+
+function etiquetaOrigen(origen: string): string {
+  return ({ actividad: "Actividad", tema: "Tema", logro: "Insignia", reto_club: "Reto de club", ajuste_admin: "Ajuste" } as Record<string, string>)[origen] ?? "Progreso";
 }
