@@ -5,10 +5,22 @@ import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { zValidator } from "../../shared/middleware/validate.middleware";
 import { responderError, responderExito } from "../../shared/http/respuesta";
 import { esResultadoConError } from "../../shared/errors/result-helpers";
-import { createChallengeSchema, createClubSchema, joinClubSchema } from "./clubs.schemas";
+import {
+  createChallengeSchema,
+  createClubSchema,
+  joinClubSchema,
+  transferLeadershipSchema,
+  updateClubSchema,
+} from "./clubs.schemas";
 import { crearClubsRepository } from "./clubs.repository";
 import { crearCasosUsoClubs } from "./casos-uso/clubs";
-import { serializarClub, serializarClubPublico, serializarMiembroClub, serializarRetoClub } from "./clubs.mapper";
+import {
+  serializarClub,
+  serializarClubPublico,
+  serializarMiembroClub,
+  serializarRankingClub,
+  serializarRetoClub,
+} from "./clubs.mapper";
 
 export const clubsRoutes = new Hono<AppBindings>();
 
@@ -17,8 +29,7 @@ clubsRoutes.use("*", authMiddleware);
 function crearCasos(c: Context<AppBindings>) {
   const cliente = c.get("drizzle");
   if (!cliente) throw new Error("Cliente Drizzle no disponible");
-  const repositorio = crearClubsRepository(cliente);
-  return crearCasosUsoClubs(repositorio);
+  return crearCasosUsoClubs(crearClubsRepository(cliente));
 }
 
 clubsRoutes.get("/mios", async (c) => {
@@ -29,7 +40,9 @@ clubsRoutes.get("/mios", async (c) => {
   const miembrosPorClub = new Map(conteos.map((fila) => [fila.clubId, Number(fila.total)]));
   return responderExito(memberships.map((m) => ({
     ...serializarClub(m.club),
-    member_count: miembrosPorClub.get(m.club.id) ?? 0
+    member_count: miembrosPorClub.get(m.club.id) ?? 0,
+    rol_miembro: m.rolMiembro,
+    unido_en: m.unidoEn.toISOString(),
   })));
 });
 
@@ -39,7 +52,28 @@ clubsRoutes.get("/", async (c) => {
   const clubs = await casos.listar(c.req.query("q") ?? undefined);
   const miembros = await repositorio.contarMiembrosPorClub();
   const miembrosPorClub = new Map(miembros.map((fila) => [fila.clubId, Number(fila.total)]));
-  return responderExito(clubs.map((club) => ({ ...serializarClubPublico(club), member_count: miembrosPorClub.get(club.id) ?? 0 })));
+  return responderExito(clubs.map((club) => ({
+    ...serializarClubPublico(club),
+    member_count: miembrosPorClub.get(club.id) ?? 0,
+  })));
+});
+
+clubsRoutes.post("/", zValidator("json", createClubSchema), async (c) => {
+  if (c.get("user").provider === "invitado") {
+    return responderError("Vincula tu cuenta antes de crear un club", "CUENTA_REQUERIDA", 403);
+  }
+  const club = await crearCasos(c).crear(c.req.valid("json"), c.get("user").id);
+  return responderExito(serializarClub(club), 201);
+});
+
+clubsRoutes.post("/unirse", zValidator("json", joinClubSchema), async (c) => {
+  const resultado = await crearCasos(c).unirsePorCodigo(c.req.valid("json").codigo_acceso, c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito({
+    unido: !("alreadyMember" in resultado),
+    ya_era_miembro: "alreadyMember" in resultado,
+    club: serializarClub(resultado.club),
+  });
 });
 
 clubsRoutes.get("/:clubId", async (c) => {
@@ -49,42 +83,67 @@ clubsRoutes.get("/:clubId", async (c) => {
   if (!membresia) return responderError("No perteneces a este club", "FORBIDDEN", 403);
   const club = await casos.obtener(clubId);
   if (!club) return responderError("Club no encontrado", "NOT_FOUND", 404);
-  const creador = await casos.obtenerCreador(club.creadoPor);
-  const members = await casos.listarMiembros(clubId);
-  return responderExito({ ...serializarClub(club), created_by: creador ?? null, members: members.map(serializarMiembroClub) });
-});
-
-clubsRoutes.post("/", zValidator("json", createClubSchema), async (c) => {
-  const casos = crearCasos(c);
-  const club = await casos.crear(c.req.valid("json"), c.get("user").id);
-  return responderExito(serializarClub(club), 201);
-});
-
-clubsRoutes.post("/unirse", zValidator("json", joinClubSchema), async (c) => {
-  const casos = crearCasos(c);
-  const resultado = await casos.unirsePorCodigo(c.req.valid("json").codigo_acceso, c.get("user").id);
-  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  const [creador, members] = await Promise.all([
+    casos.obtenerCreador(club.creadoPor),
+    casos.listarMiembros(clubId),
+  ]);
   return responderExito({
-    unido: !("alreadyMember" in resultado),
-    ya_era_miembro: "alreadyMember" in resultado,
-    club: serializarClub(resultado.club)
+    ...serializarClub(club),
+    created_by: creador ?? null,
+    membership: {
+      rol_miembro: membresia.rolMiembro,
+      unido_en: membresia.unidoEn.toISOString(),
+    },
+    members: members.map(serializarMiembroClub),
   });
 });
 
+clubsRoutes.patch("/:clubId", zValidator("json", updateClubSchema), async (c) => {
+  const resultado = await crearCasos(c).actualizar(c.req.param("clubId"), c.req.valid("json"), c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito(serializarClub(resultado));
+});
+
+clubsRoutes.post("/:clubId/regenerar-codigo", async (c) => {
+  const resultado = await crearCasos(c).regenerarCodigo(c.req.param("clubId"), c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito(serializarClub(resultado));
+});
+
 clubsRoutes.post("/:clubId/unirse", zValidator("json", joinClubSchema), async (c) => {
-  const casos = crearCasos(c);
-  const resultado = await casos.unirse(c.req.param("clubId"), c.req.valid("json").codigo_acceso, c.get("user").id);
+  const resultado = await crearCasos(c).unirse(c.req.param("clubId"), c.req.valid("json").codigo_acceso, c.get("user").id);
   if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
   return responderExito({
     unido: !("alreadyMember" in resultado),
     ya_era_miembro: "alreadyMember" in resultado,
-    club: serializarClub(resultado.club)
+    club: serializarClub(resultado.club),
   });
 });
 
 clubsRoutes.post("/:clubId/salir", async (c) => {
-  const casos = crearCasos(c);
-  const resultado = await casos.salir(c.req.param("clubId"), c.get("user").id);
+  const resultado = await crearCasos(c).salir(c.req.param("clubId"), c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito(resultado);
+});
+
+clubsRoutes.delete("/:clubId", async (c) => {
+  const resultado = await crearCasos(c).archivar(c.req.param("clubId"), c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito(resultado);
+});
+
+clubsRoutes.delete("/:clubId/miembros/:usuarioId", async (c) => {
+  const resultado = await crearCasos(c).quitarMiembro(c.req.param("clubId"), c.req.param("usuarioId"), c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito(resultado);
+});
+
+clubsRoutes.post("/:clubId/transferir-liderazgo", zValidator("json", transferLeadershipSchema), async (c) => {
+  const resultado = await crearCasos(c).transferirLiderazgo(
+    c.req.param("clubId"),
+    c.req.valid("json").usuario_id,
+    c.get("user").id,
+  );
   if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
   return responderExito(resultado);
 });
@@ -92,23 +151,35 @@ clubsRoutes.post("/:clubId/salir", async (c) => {
 clubsRoutes.get("/:clubId/ranking", async (c) => {
   const casos = crearCasos(c);
   const clubId = c.req.param("clubId");
-  const membresia = await casos.esMiembro(clubId, c.get("user").id);
-  if (!membresia) return responderError("No perteneces a este club", "FORBIDDEN", 403);
-  return responderExito(await casos.ranking(clubId));
+  if (!(await casos.esMiembro(clubId, c.get("user").id))) {
+    return responderError("No perteneces a este club", "FORBIDDEN", 403);
+  }
+  const ranking = await casos.ranking(clubId);
+  return responderExito(Array.from(ranking as Iterable<Record<string, unknown>>).map(serializarRankingClub));
 });
 
 clubsRoutes.get("/:clubId/retos", async (c) => {
   const casos = crearCasos(c);
   const clubId = c.req.param("clubId");
-  const membresia = await casos.esMiembro(clubId, c.get("user").id);
-  if (!membresia) return responderError("No perteneces a este club", "FORBIDDEN", 403);
-  const data = await casos.listarRetos(clubId);
+  if (!(await casos.esMiembro(clubId, c.get("user").id))) {
+    return responderError("No perteneces a este club", "FORBIDDEN", 403);
+  }
+  const data = await casos.listarRetos(clubId, c.get("user").id);
   return responderExito(data.map(serializarRetoClub));
 });
 
 clubsRoutes.post("/:clubId/retos", zValidator("json", createChallengeSchema), async (c) => {
-  const casos = crearCasos(c);
-  const resultado = await casos.crearReto(c.req.param("clubId"), c.req.valid("json"), c.get("user").id);
-  if ("error" in resultado) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  const resultado = await crearCasos(c).crearReto(c.req.param("clubId"), c.req.valid("json"), c.get("user").id);
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
   return responderExito(serializarRetoClub(resultado), 201);
+});
+
+clubsRoutes.post("/:clubId/retos/:retoId/reclamar", async (c) => {
+  const resultado = await crearCasos(c).reclamarReto(
+    c.req.param("clubId"),
+    c.req.param("retoId"),
+    c.get("user").id,
+  );
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito(resultado);
 });

@@ -501,6 +501,16 @@ export const retoClub = pgTable("reto_club", {
   creadoEn: timestamp("creado_en").notNull().defaultNow()
 });
 
+// Recompensas individuales reclamadas por completar un reto cooperativo
+export const recompensaRetoClubUsuario = pgTable("recompensa_reto_club_usuario", {
+  retoId: uuid("reto_id").notNull().references(() => retoClub.id, { onDelete: "cascade" }),
+  usuarioId: uuid("usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  xpOtorgada: integer("xp_otorgada").notNull().default(0),
+  reclamadoEn: timestamp("reclamado_en").notNull().defaultNow()
+}, (tabla) => [
+  uniqueIndex("uq_recompensa_reto_club_usuario").on(tabla.retoId, tabla.usuarioId)
+]);
+
 // Tarjetas de logros compartidas por usuarios
 export const tarjetaCompartida = pgTable("tarjeta_compartida", {
   id: uuid("id").primaryKey().defaultRandom(),
