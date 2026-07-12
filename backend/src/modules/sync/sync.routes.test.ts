@@ -66,7 +66,15 @@ describe("sync.routes", () => {
       actualizarProgresoTema: async () => undefined,
       obtenerProgresoActividad: async () => undefined,
       crearProgresoActividad: async () => undefined,
-      actualizarProgresoActividad: async () => undefined
+      actualizarProgresoActividad: async () => undefined,
+      validarRespuestaActividad: async () => null,
+      aplicarRespuestaActividad: async () => undefined,
+      validarActividadCompletada: async () => null,
+      aplicarActividadCompletada: async () => undefined,
+      registrarPasoActual: async () => undefined,
+      validarTemaCompletable: async () => null,
+      marcarTemaCompletado: async () => undefined,
+      evaluarLogrosUsuario: async () => []
     };
 
     const authStub = createMiddleware<AppBindings>(async (c, next) => {

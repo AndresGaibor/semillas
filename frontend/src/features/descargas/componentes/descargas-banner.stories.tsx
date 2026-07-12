@@ -13,6 +13,10 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     visible: true,
+    isOnline: true,
+    downloadedCount: 2,
+    pendingCount: 1,
     onCerrar: () => console.log("Cerrar clicked"),
+    onGestionar: () => console.log("Gestionar clicked"),
   },
 };

@@ -1,31 +1,40 @@
-import { CloudOff, RefreshCw, Check, AlertCircle } from "lucide-react";
-import { useSyncStatus, useEventosPendientes } from "@/lib/offline";
+import { AlertCircle, Check, CloudOff, RefreshCw } from "lucide-react";
+import { useSyncStatus } from "@/lib/offline";
 
 export function SyncStatusBadge() {
   const { data: status } = useSyncStatus();
-  const { data: pendingCount = 0 } = useEventosPendientes();
+  if (!status) return null;
 
-  if (!status?.isOnline) {
+  if (!status.isOnline) {
     return (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-500 rounded-full text-xs font-semibold">
+      <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
         <CloudOff size={12} />
-        <span>Sin conexión</span>
+        <span>Modo sin conexión</span>
       </div>
     );
   }
 
-  if (pendingCount > 0) {
+  if (status.failedCount > 0) {
     return (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold">
+      <div className="flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
+        <AlertCircle size={12} />
+        <span>{status.failedCount} con error</span>
+      </div>
+    );
+  }
+
+  if (status.pendingCount > 0) {
+    return (
+      <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
         <RefreshCw size={12} className="animate-spin" />
-        <span>{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>
+        <span>{status.pendingCount} pendiente{status.pendingCount !== 1 ? "s" : ""}</span>
       </div>
     );
   }
 
   if (status.lastSyncExito) {
     return (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-full text-xs font-semibold">
+      <div className="flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
         <Check size={12} />
         <span>Sincronizado</span>
       </div>
@@ -36,16 +45,13 @@ export function SyncStatusBadge() {
 }
 
 export function OfflineBanner() {
-  const { data: isOnline } = useSyncStatus();
+  const { data: status } = useSyncStatus();
+  if (status?.isOnline !== false) return null;
 
-  if (!isOnline) {
-    return (
-      <div className="w-full bg-slate-800 text-white px-4 py-2 text-center text-sm font-medium flex items-center justify-center gap-2">
-        <CloudOff size={14} />
-        Estás sin conexión. El progreso se guardará localmente.
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="fixed inset-x-0 top-0 z-[100] flex min-h-10 items-center justify-center gap-2 bg-slate-900 px-4 py-2 text-center text-sm font-bold text-white shadow-lg" role="status">
+      <CloudOff size={16} />
+      <span>Sin conexión. Usa tus temas descargados; el progreso se sincronizará después.</span>
+    </div>
+  );
 }

@@ -11,10 +11,18 @@ import type { EventoOutbox, ProgresoUsuarioLocal } from "./db";
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
+export type LogroSincronizado = {
+  id: string;
+  codigo: string;
+  nombre: string;
+  bono_xp: number;
+};
+
 export interface SyncResult {
   exito: boolean;
   procesados: number;
   errores: number;
+  logrosDesbloqueados: LogroSincronizado[];
   timestamp: string;
 }
 
@@ -35,6 +43,7 @@ type RespuestaPush = {
   procesados_ids: string[];
   omitidos_ids: string[];
   errores: Array<{ evento_id_cliente: string; error: string }>;
+  logros_desbloqueados: LogroSincronizado[];
 };
 
 type ProgresoTemaApi = {
@@ -76,12 +85,17 @@ export function getSyncStatus(): SyncStatus {
   return isSyncing ? "syncing" : "idle";
 }
 
-export async function pushPendingEvents(): Promise<{ procesados: number; errores: number }> {
-  if (isSyncing) return { procesados: 0, errores: 0 };
+export async function pushPendingEvents(): Promise<{
+  procesados: number;
+  errores: number;
+  logrosDesbloqueados: LogroSincronizado[];
+}> {
+  if (isSyncing) return { procesados: 0, errores: 0, logrosDesbloqueados: [] };
   isSyncing = true;
 
   let procesados = 0;
   let errores = 0;
+  const logrosDesbloqueados = new Map<string, LogroSincronizado>();
 
   try {
     const eventos = await getEventosPendientes();
@@ -122,6 +136,10 @@ export async function pushPendingEvents(): Promise<{ procesados: number; errores
           continue;
         }
 
+        for (const logro of cuerpo.datos.logros_desbloqueados ?? []) {
+          logrosDesbloqueados.set(logro.id, logro);
+        }
+
         const confirmados = new Set([
           ...cuerpo.datos.procesados_ids,
           ...cuerpo.datos.omitidos_ids,
@@ -153,7 +171,11 @@ export async function pushPendingEvents(): Promise<{ procesados: number; errores
     }
 
     await actualizarEstadoSync(errores === 0);
-    return { procesados, errores };
+    const logros = [...logrosDesbloqueados.values()];
+    if (logros.length > 0) {
+      window.dispatchEvent(new CustomEvent("semillas:logros-desbloqueados", { detail: logros }));
+    }
+    return { procesados, errores, logrosDesbloqueados: logros };
   } finally {
     isSyncing = false;
   }
@@ -178,7 +200,7 @@ export async function pullCambios(): Promise<void> {
 
   const pendingCount = await getPendingCount();
 
-  await db.transaction("rw", [db.progresoUsuario, db.syncState], async () => {
+  await db.transaction("rw", [db.progresoUsuario, db.syncState, db.temas, db.actividades], async () => {
     for (const progreso of cuerpo.datos!.progreso.temas) {
       await upsertProgresoTema(progreso);
     }
@@ -292,7 +314,7 @@ async function resolverServerId(
 
 export async function syncFull(): Promise<SyncResult> {
   if (!navigator.onLine) {
-    return { exito: false, procesados: 0, errores: 0, timestamp: new Date().toISOString() };
+    return { exito: false, procesados: 0, errores: 0, logrosDesbloqueados: [], timestamp: new Date().toISOString() };
   }
 
   try {
@@ -302,6 +324,7 @@ export async function syncFull(): Promise<SyncResult> {
       exito: pushResult.errores === 0,
       procesados: pushResult.procesados,
       errores: pushResult.errores,
+      logrosDesbloqueados: pushResult.logrosDesbloqueados,
       timestamp: new Date().toISOString(),
     };
   } catch {
@@ -310,6 +333,7 @@ export async function syncFull(): Promise<SyncResult> {
       exito: false,
       procesados: 0,
       errores: 1,
+      logrosDesbloqueados: [],
       timestamp: new Date().toISOString(),
     };
   }
@@ -325,6 +349,9 @@ export function startAutoSync(): void {
   }, SYNC_INTERVAL_MS);
 
   window.addEventListener("online", onOnline);
+  if (navigator.onLine) {
+    window.setTimeout(() => void syncFull(), 1_000);
+  }
 }
 
 export function stopAutoSync(): void {
@@ -336,9 +363,8 @@ export function stopAutoSync(): void {
 }
 
 async function onOnline(): Promise<void> {
-  if ((await getPendingCount()) > 0) {
-    await pushPendingEvents();
-  }
+  await syncFull();
+  window.dispatchEvent(new CustomEvent("semillas:sync-state"));
 }
 
 async function actualizarEstadoSync(exito: boolean): Promise<void> {

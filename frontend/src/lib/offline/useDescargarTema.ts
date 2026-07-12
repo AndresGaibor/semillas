@@ -1,144 +1,149 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { env } from "../../shared/config/env";
-import { sessionStorageApi } from "../../shared/api/session";
-import type { Actividad, Paso, Tema } from "../../shared/api/api";
-import { db } from "./db";
-import type { TemaLocal, PasoLocal, ActividadLocal } from "./db";
+import { db, type TemaLocal } from "./db";
+import { cachearMediosPaqueteOffline, eliminarMedioDeCache } from "./media-cache";
+import { mapearPaqueteOfflineARegistros, type PaqueteOfflineRespuesta } from "./offline-package";
 import { queueEventoProgreso } from "./outbox";
+import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { peticion } from "@/shared/api/api";
 
-type RespuestaApi<T> = { exito: true; datos: T } | { exito: false; error: string };
+type DescargaTemaParams = {
+  temaId: string;
+  grupoEdadId?: string;
+  onProgress?: (progreso: number) => void;
+};
 
 export function useDescargarTema() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (temaId: string) => {
-      const headers = getAuthHeaders();
-      const [temaData, pasosData, actividadesData] = await Promise.all([
-        obtener<Tema>(`/temas/${temaId}`, headers),
-        obtener<Paso[]>(`/temas/${temaId}/pasos`, headers),
-        obtener<Actividad[]>(`/temas/${temaId}/actividades`, headers),
-      ]);
+    mutationFn: descargarTemaOffline,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["offline"] });
+      queryClient.invalidateQueries({ queryKey: ["sync"] });
+      queryClient.invalidateQueries({ queryKey: ["temas"] });
+    },
+  });
+}
 
-      const existente = await db.temas.where("serverId").equals(temaId).first();
-      const temaLocalId = existente?.localId ?? crypto.randomUUID();
-      const now = new Date().toISOString();
+export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitado, onProgress }: DescargaTemaParams) {
+      const perfil = await obtenerMiPerfil();
+      const grupoEdadId = grupoSolicitado ?? perfil.perfil.grupo_edad_id;
 
-      const tema: TemaLocal = {
-        localId: temaLocalId,
-        serverId: temaData.id,
-        titulo: temaData.titulo,
-        slug: temaData.slug,
-        objetivo: temaData.objetivo,
-        resumen: temaData.resumen,
-        portadaUrl: temaData.portada_recurso?.url_publica ?? null,
-        estado: temaData.estado,
-        xpRecompensa: temaData.xp_recompensa,
-        minutosEstimados: temaData.minutos_estimados,
-        versionContenido: temaData.version_contenido,
-        publicadoEn: temaData.publicado_en,
-        grupoEdadId: existente?.grupoEdadId ?? null,
-        createdAt: existente?.createdAt ?? now,
-        updatedAt: now,
-        syncStatus: "synced",
-      };
+      if (!grupoEdadId) {
+        throw new Error("Completa tu franja de edad antes de descargar contenido.");
+      }
 
-      const pasoLocalPorServerId = new Map<string, string>();
-      const pasos: PasoLocal[] = pasosData.map((paso) => {
-        const localId = crypto.randomUUID();
-        pasoLocalPorServerId.set(paso.id, localId);
-
-        return {
-          localId,
-          serverId: paso.id,
-          temaLocalId,
-          orden: paso.orden,
-          tipoPasoCodigo: paso.tipo_paso?.codigo ?? null,
-          tipoPasoNombre: paso.tipo_paso?.nombre ?? null,
-          tipoPasoColorHex: paso.tipo_paso?.color_hex ?? null,
-          contenidos: paso.contenidos.map((contenido) => ({
-            grupoEdadId: contenido.grupo_edad_id,
-            titulo: contenido.titulo,
-            cuerpo: contenido.cuerpo,
-            instruccionCorta: contenido.instruccion_corta,
-          })),
-          createdAt: now,
-          updatedAt: now,
-          syncStatus: "synced" as const,
-        };
+      const paquete = await peticion<PaqueteOfflineRespuesta>(`/temas/${temaId}/paquete-offline`, {
+        metodo: "POST",
+        cuerpo: { grupo_edad_id: grupoEdadId },
       });
 
-      const actividades: ActividadLocal[] = actividadesData.map((actividad) => ({
-        localId: crypto.randomUUID(),
-        serverId: actividad.id,
+      const registros = mapearPaqueteOfflineARegistros(paquete);
+      const temaLocalId = registros.tema.localId;
+      const ahora = new Date().toISOString();
+
+      const tema: TemaLocal = {
+        ...registros.tema,
+        localId: temaLocalId,
+        serverId: paquete.tema.id,
+        descargaEstado: "descargando",
+        descargaProgreso: 0,
+        descargadoEn: null,
+        downloadedAt: registros.tema.downloadedAt,
+        errorDescarga: null,
+        syncStatus: "synced",
+        createdAt: registros.tema.createdAt,
+        updatedAt: ahora,
+      };
+
+      const pasos = registros.pasos.map((paso) => ({ ...paso, temaLocalId }));
+      const actividades = registros.actividades.map((actividad) => ({
+        ...actividad,
         temaLocalId,
-        pasoLocalId: actividad.paso_id ? pasoLocalPorServerId.get(actividad.paso_id) ?? null : null,
-        grupoEdadId: actividad.grupo_edad_id,
-        tipoActividadCodigo: actividad.tipo_actividad?.codigo ?? "",
-        titulo: actividad.titulo,
-        consigna: actividad.consigna,
-        orden: actividad.orden,
-        xpRecompensa: actividad.xp_recompensa,
-        dificultad: actividad.dificultad,
-        limiteTiempoSeg: actividad.limite_tiempo_seg,
-        obligatorio: actividad.obligatorio,
-        retroalimentacion: actividad.retroalimentacion,
-        configuracion: actividad.configuracion ?? {},
-        opciones: (actividad.opciones ?? []).map((opcion) => ({
-          id: opcion.id,
-          etiqueta: opcion.etiqueta,
-          texto: opcion.texto,
-          // El paquete público nunca incluye claves de respuesta. Se conserva
-          // el shape local por compatibilidad, pero no se premia XP offline.
-          correcta: false,
-          orden: opcion.orden,
-          retroalimentacion: null,
-        })),
-        createdAt: now,
-        updatedAt: now,
-        syncStatus: "synced" as const,
       }));
 
-      await db.transaction("rw", [db.temas, db.pasos, db.actividades], async () => {
+      await db.transaction("rw", [db.temas, db.pasos, db.actividades, db.mediaCache], async () => {
         await db.pasos.where("temaLocalId").equals(temaLocalId).delete();
         await db.actividades.where("temaLocalId").equals(temaLocalId).delete();
+        await db.mediaCache.where("temaLocalId").equals(temaLocalId).delete();
         await db.temas.put(tema);
         if (pasos.length > 0) await db.pasos.bulkPut(pasos);
         if (actividades.length > 0) await db.actividades.bulkPut(actividades);
       });
 
-      await queueEventoProgreso("tema_descargado", {
-        temaLocalId,
-        datos: { tema_id: temaId, version_contenido: tema.versionContenido },
+      await cachearMediosPaqueteOffline(paquete, temaLocalId, (progreso) => {
+        if (onProgress) onProgress(Math.max(10, Math.min(95, progreso)));
+        void db.temas.update(temaLocalId, {
+          descargaProgreso: Math.max(10, Math.min(95, progreso)),
+          descargaEstado: "descargando",
+          updatedAt: new Date().toISOString(),
+        });
       });
 
-      return { temaLocalId, pasosCount: pasos.length, actividadesCount: actividades.length };
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["offline", "temas"] });
-      queryClient.invalidateQueries({ queryKey: ["sync", "status"] });
-    },
-  });
+      await db.temas.update(temaLocalId, {
+        descargaEstado: "descargado",
+        descargaProgreso: 100,
+        descargadoEn: ahora,
+        errorDescarga: null,
+        paqueteId: paquete.paquete_id,
+        paqueteVersionContenido: paquete.tema.version_contenido,
+        paqueteTamanoBytes: paquete.tamano_bytes,
+        packageId: paquete.paquete_id,
+        packageSizeBytes: paquete.tamano_bytes,
+        mediaServerIds: paquete.medios.map((medio) => medio.id),
+        downloadedAt: ahora,
+        updatedAt: ahora,
+      });
+
+      await queueEventoProgreso("tema_descargado", {
+        temaLocalId,
+        datos: { tema_id: temaId, version_contenido: paquete.tema.version_contenido },
+      });
+
+      if (onProgress) onProgress(100);
+
+      return {
+        temaLocalId,
+        pasosCount: pasos.length,
+        actividadesCount: actividades.length,
+        mediosCount: paquete.medios.length,
+        paqueteId: paquete.paquete_id,
+      };
 }
 
-async function obtener<T>(ruta: string, headers: Record<string, string>): Promise<T> {
-  const response = await fetch(`${env.apiUrl}${ruta}`, { headers });
-  const resultado = await response.json().catch(() => null) as RespuestaApi<T> | null;
+export async function eliminarTemaDescargado(temaServerId: string): Promise<void> {
+  const tema = await db.temas.where("serverId").equals(temaServerId).first();
+  if (!tema) return;
 
-  if (!response.ok || !resultado?.exito) {
-    throw new Error(resultado && !resultado.exito ? resultado.error : `Error al descargar contenido (${response.status})`);
+  const [pasos, actividades, eventos] = await Promise.all([
+    db.pasos.where("temaLocalId").equals(tema.localId).toArray(),
+    db.actividades.where("temaLocalId").equals(tema.localId).toArray(),
+    db.eventosOutbox.toArray(),
+  ]);
+  const pasoIds = new Set(pasos.map((paso) => paso.localId));
+  const actividadIds = new Set(actividades.map((actividad) => actividad.localId));
+  const tieneProgresoPendiente = eventos.some((evento) =>
+    evento.tipoEvento !== "tema_descargado" && (
+      evento.temaLocalId === tema.localId ||
+      Boolean(evento.pasoLocalId && pasoIds.has(evento.pasoLocalId)) ||
+      Boolean(evento.actividadLocalId && actividadIds.has(evento.actividadLocalId))
+    ),
+  );
+  if (tieneProgresoPendiente) {
+    throw new Error("Este tema tiene progreso pendiente. Conéctate y sincroniza antes de eliminarlo.");
   }
 
-  return resultado.datos;
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {};
-  const guestId = sessionStorageApi.getGuestUserId();
-  const guestToken = sessionStorageApi.getGuestToken();
-  const token = sessionStorageApi.getAccessToken();
-  if (guestId) headers["X-Guest-User-Id"] = guestId;
-  if (guestToken) headers["X-Guest-Token"] = guestToken;
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return headers;
+  const otrosTemas = await db.temas.filter((item) => item.localId !== tema.localId).toArray();
+  const mediosCompartidos = new Set(otrosTemas.flatMap((item) => item.mediaServerIds ?? []));
+  await db.transaction("rw", [db.temas, db.pasos, db.actividades, db.progresoUsuario, db.eventosOutbox, db.descargaJobs], async () => {
+    await db.eventosOutbox.toCollection().filter((evento) => evento.temaLocalId === tema.localId && evento.tipoEvento === "tema_descargado").delete();
+    await db.pasos.where("temaLocalId").equals(tema.localId).delete();
+    await db.actividades.where("temaLocalId").equals(tema.localId).delete();
+    await db.progresoUsuario.where("temaLocalId").equals(tema.localId).delete();
+    await db.temas.delete(tema.localId);
+    await db.descargaJobs.delete(temaServerId);
+  });
+  for (const mediaId of tema.mediaServerIds ?? []) {
+    if (!mediosCompartidos.has(mediaId)) await eliminarMedioDeCache(mediaId);
+  }
 }

@@ -1,81 +1,31 @@
-import * as React from "react";
-import { TabsOpciones, CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
+import { Search, X } from "lucide-react";
+import type { FiltroDescarga, OrdenDescarga } from "../hooks/use-descargas-page";
 
 export interface DescargasTabsFilterProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  ageFilter: string;
-  onAgeChange: (age: string) => void;
-  sortOrder: string;
-  onSortChange: (sort: string) => void;
+  activeTab: FiltroDescarga;
+  onTabChange: (tab: FiltroDescarga) => void;
+  counts: { total: number; descargados: number; disponibles: number; actualizaciones: number };
+  sortOrder: OrdenDescarga;
+  onSortChange: (sort: OrdenDescarga) => void;
   searchQuery: string;
   onSearchChange: (search: string) => void;
 }
 
-export const DescargasTabsFilter: React.FC<DescargasTabsFilterProps> = ({
-  activeTab,
-  onTabChange,
-  ageFilter,
-  onAgeChange,
-  sortOrder,
-  onSortChange,
-  searchQuery,
-  onSearchChange,
-}) => {
-  return (
-    <div>
-      <TabsOpciones
-        activo={activeTab}
-        onCambiar={onTabChange}
-        opciones={[
-          { id: "Todos", label: "Todos" },
-          { id: "Historias", label: "Historias" },
-          { id: "Actividades", label: "Actividades" },
-          { id: "Imprimibles", label: "Imprimibles" },
-          { id: "Canciones", label: "Canciones" },
-        ]}
-        clase="mb-6"
-        claseActiva="border-[#7E57C2] text-[#7E57C2]"
-        claseInactiva="border-transparent text-slate-400 hover:text-slate-600"
-      />
+const tabs: Array<{ id: FiltroDescarga; label: string; countKey: keyof DescargasTabsFilterProps["counts"] }> = [
+  { id: "todos", label: "Todos", countKey: "total" },
+  { id: "descargados", label: "En mi dispositivo", countKey: "descargados" },
+  { id: "disponibles", label: "Por descargar", countKey: "disponibles" },
+  { id: "actualizaciones", label: "Actualizaciones", countKey: "actualizaciones" },
+];
 
-      {/* Filtros y Búsqueda */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6 w-full">
-        <div className="flex flex-wrap gap-3 w-full md:w-auto">
-          {/* Dropdown de Edad */}
-          <select
-            value={ageFilter}
-            onChange={(e) => onAgeChange(e.target.value)}
-            className="bg-white border border-[#e5e7eb] rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none cursor-pointer focus:border-[#7E57C2]"
-          >
-            <option>Todas las edades</option>
-            <option>Párvulos (3-6)</option>
-            <option>Semillas (5-8)</option>
-            <option>Exploradores (9-12)</option>
-            <option>Embajadores (13-17)</option>
-          </select>
-
-          {/* Dropdown de Orden */}
-          <select
-            value={sortOrder}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="bg-white border border-[#e5e7eb] rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none cursor-pointer focus:border-[#7E57C2]"
-          >
-            <option>Más recientes</option>
-            <option>Mayor tamaño</option>
-            <option>Menor tamaño</option>
-          </select>
-        </div>
-
-        {/* Buscador */}
-        <CampoBusqueda
-          valor={searchQuery}
-          onChange={onSearchChange}
-          placeholder="Buscar descargas..."
-          contenedorClassName="w-full md:w-80"
-          inputClassName="font-sans focus:border-[#7E57C2] focus:ring-[#7E57C2]/20"
-        />
-      </div>
+export function DescargasTabsFilter({ activeTab, onTabChange, counts, sortOrder, onSortChange, searchQuery, onSearchChange }: DescargasTabsFilterProps) {
+  return <section className="downloads-filters" aria-label="Filtros de descargas">
+    <div className="downloads-filters__tabs" role="tablist" aria-label="Estado de descarga">
+      {tabs.map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} className={`downloads-filter-tab ${activeTab === tab.id ? "is-active" : ""}`} onClick={() => onTabChange(tab.id)}><span>{tab.label}</span><span className="downloads-filter-tab__count">{counts[tab.countKey]}</span></button>)}
     </div>
-  );
-};
+    <div className="downloads-filters__tools">
+      <label className="downloads-search"><Search size={19} aria-hidden="true" /><span className="sr-only">Buscar temas para descargar</span><input type="search" value={searchQuery} onChange={(event) => onSearchChange(event.target.value)} placeholder="Buscar por título o Senda" />{searchQuery && <button type="button" onClick={() => onSearchChange("")} aria-label="Limpiar búsqueda"><X size={17} /></button>}</label>
+      <label className="downloads-sort"><span>Ordenar</span><select value={sortOrder} onChange={(event) => onSortChange(event.target.value as OrdenDescarga)}><option value="recientes">Más recientes</option><option value="nombre">Nombre</option><option value="tamano">Mayor tamaño</option></select></label>
+    </div>
+  </section>;
+}

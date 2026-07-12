@@ -4,22 +4,28 @@ import acertadoSoundUrl from '../assets/Sonidos/acertado_quiz.mp3';
 import errorSoundUrl from '../assets/Sonidos/error_quiz.mp3';
 import insigniaSoundUrl from '../assets/Sonidos/insignia.mp3';
 
-// Pre-cargar los sonidos para evitar delay al hacer clic
+type TipoSonido = 'iniciar' | 'siguiente' | 'acertado' | 'error' | 'insignia';
+
+function crearAudio(url: string): HTMLAudioElement | null {
+  return typeof Audio === 'undefined' ? null : new Audio(url);
+}
+
+// Pre-cargar los sonidos para evitar delay al hacer clic en navegadores compatibles.
 const audioCache = {
-  iniciar: new Audio(iniciarSoundUrl),
-  siguiente: new Audio(siguienteSoundUrl),
-  acertado: new Audio(acertadoSoundUrl),
-  error: new Audio(errorSoundUrl),
-  insignia: new Audio(insigniaSoundUrl),
+  iniciar: crearAudio(iniciarSoundUrl),
+  siguiente: crearAudio(siguienteSoundUrl),
+  acertado: crearAudio(acertadoSoundUrl),
+  error: crearAudio(errorSoundUrl),
+  insignia: crearAudio(insigniaSoundUrl),
 };
 
 // Ajustar el volumen por defecto de todos los sonidos (0.0 a 1.0)
 const VOLUMEN_POR_DEFECTO = 0.4;
-Object.values(audioCache).forEach(audio => {
-  audio.volume = VOLUMEN_POR_DEFECTO;
+Object.values(audioCache).forEach((audio) => {
+  if (audio) audio.volume = VOLUMEN_POR_DEFECTO;
 });
 
-export const playSound = (type: 'iniciar' | 'siguiente' | 'acertado' | 'error' | 'insignia') => {
+export const playSound = (type: TipoSonido) => {
   try {
     const audioEnabled = typeof window === 'undefined' || window.localStorage.getItem('semillas-prefiere-audio') !== 'false';
     if (!audioEnabled) return;

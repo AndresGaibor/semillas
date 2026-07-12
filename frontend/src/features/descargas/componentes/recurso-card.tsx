@@ -1,99 +1,37 @@
-import * as React from "react";
-import { Download, Trash2, Loader2 } from "lucide-react";
-import { Card } from "@/componentes/ui/card-base";
-import { Boton } from "@/componentes/ui/boton";
+import { Link } from "@tanstack/react-router";
+import { CheckCircle2, Clock3, Download, HardDrive, LoaderCircle, RefreshCw, Sparkles, Trash2, WifiOff } from "lucide-react";
+import type { TemaDescargaUI } from "../hooks/use-descargas-page";
 
 export interface RecursoCardProps {
-  id: string;
-  titulo: string;
-  tipo: "Historia" | "Actividad" | "Imprimible" | "Canción";
-  edad: string;
-  sizeMB: number;
-  descripcion: string;
-  imagen: string;
-  isDownloaded: boolean;
-  progress?: number;
+  tema: TemaDescargaUI;
+  isOnline: boolean;
   onDownload: () => void;
   onDelete: () => void;
 }
 
-export const RecursoCard: React.FC<RecursoCardProps> = ({
-  id,
-  titulo,
-  tipo,
-  edad,
-  sizeMB,
-  descripcion,
-  imagen,
-  isDownloaded,
-  progress,
-  onDownload,
-  onDelete,
-}) => {
-  const isDownloading = progress !== undefined;
-
-  let tagBg = "bg-purple-50 text-purple-700 border-purple-100";
-  if (tipo === "Actividad") tagBg = "bg-blue-50 text-blue-700 border-blue-100";
-  else if (tipo === "Imprimible") tagBg = "bg-pink-50 text-pink-700 border-pink-100";
-  else if (tipo === "Canción") tagBg = "bg-indigo-50 text-indigo-700 border-indigo-100";
-
-  return (
-    <Card
-      className="p-4 flex flex-row items-center gap-4 bg-white border border-slate-100 shadow-sm rounded-2xl hover:shadow-md transition-shadow relative"
-    >
-      <div className="w-[120px] h-[120px] rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm relative">
-        <img
-          src={imagen}
-          alt={titulo}
-          className="w-full h-full object-cover"
-        />
+export function RecursoCard({ tema, isOnline, onDownload, onDelete }: RecursoCardProps) {
+  const descargando = tema.progresoDescarga !== null;
+  return <article className={`offline-theme-card ${tema.descargado ? "is-downloaded" : ""}`}>
+    <div className="offline-theme-card__media">
+      {tema.imagenUrl ? <img src={tema.imagenUrl} alt="" aria-hidden="true" loading="lazy" decoding="async" /> : <div className="offline-theme-card__placeholder" aria-hidden="true"><Download size={34} /></div>}
+      <span className="offline-theme-card__senda" style={{ color: tema.color }}>{tema.senda}</span>
+      {tema.descargado && <span className="offline-theme-card__ready"><CheckCircle2 size={14} aria-hidden="true" /> Listo offline</span>}
+    </div>
+    <div className="offline-theme-card__body">
+      <div className="offline-theme-card__heading"><div><h3>{tema.titulo}</h3><p>{tema.descripcion}</p></div>{tema.actualizacionDisponible && <span className="offline-theme-card__update">Nueva versión</span>}</div>
+      <div className="offline-theme-card__meta" aria-label="Datos del tema"><span><Clock3 size={15} aria-hidden="true" /> {tema.minutos} min</span><span><Sparkles size={15} aria-hidden="true" /> {tema.xp} XP</span>{tema.tamanoBytes !== null && <span><HardDrive size={15} aria-hidden="true" /> {formatBytes(tema.tamanoBytes)}</span>}{tema.medios !== null && <span>{tema.medios} recursos</span>}</div>
+      {descargando && <div className="offline-theme-card__progress" aria-live="polite"><div className="offline-theme-card__progress-row"><span><LoaderCircle size={15} className="animate-spin" /> Preparando contenido</span><strong>{tema.progresoDescarga}%</strong></div><div className="offline-theme-card__progress-track"><span style={{ width: `${tema.progresoDescarga}%` }} /></div></div>}
+      {tema.errorDescarga && <p className="offline-theme-card__error">{tema.errorDescarga}</p>}
+      <div className="offline-theme-card__actions">
+        {tema.descargado ? <><Link to="/app/temas/$themeId" params={{ themeId: tema.id }} className="offline-theme-card__primary">Abrir sin conexión</Link>{tema.actualizacionDisponible && <button type="button" className="offline-theme-card__secondary" onClick={onDownload} disabled={!isOnline || descargando}><RefreshCw size={17} aria-hidden="true" /> Actualizar</button>}<button type="button" className="offline-theme-card__delete" onClick={onDelete} disabled={descargando} aria-label={`Eliminar descarga de ${tema.titulo}`}><Trash2 size={18} /></button></> : <button type="button" className="offline-theme-card__primary" onClick={onDownload} disabled={!isOnline || descargando}>{isOnline ? <Download size={17} aria-hidden="true" /> : <WifiOff size={17} aria-hidden="true" />}{isOnline ? "Descargar" : "Necesita conexión"}</button>}
       </div>
+    </div>
+  </article>;
+}
 
-      <div className="flex-1 flex flex-col justify-center text-left min-w-0 pr-12">
-        <h3 className="text-base font-black text-slate-800 leading-tight mb-1 truncate">
-          {titulo}
-        </h3>
-        
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase border ${tagBg}`}>
-            {tipo}
-          </span>
-          <span className="text-[11px] font-bold text-slate-400">
-            Para {edad} años • {sizeMB} MB
-          </span>
-        </div>
-
-        <p className="text-xs text-slate-500 leading-relaxed truncate-2-lines">
-          {descripcion}
-        </p>
-      </div>
-
-      <div className="absolute right-4 top-1/2 -translate-y-1/2">
-        {isDownloading ? (
-          <div className="w-11 h-11 bg-slate-50 border border-slate-200 rounded-full flex flex-col items-center justify-center relative">
-            <Loader2 size={20} className="text-[#7E57C2] animate-spin" />
-            <span className="text-[8px] font-bold text-[#7E57C2] mt-0.5">{progress}%</span>
-          </div>
-        ) : isDownloaded ? (
-          <Boton
-            onClick={onDelete}
-            tamano="icono"
-            clase="border-0 bg-rose-50 hover:bg-rose-100 text-rose-600"
-            title="Eliminar descarga"
-          >
-            <Trash2 size={18} />
-          </Boton>
-        ) : (
-          <Boton
-            onClick={onDownload}
-            tamano="icono"
-            clase="border border-slate-200 hover:border-[#7E57C2] bg-white text-[#7E57C2] hover:bg-[#EDE7F6]"
-            title="Descargar"
-          >
-            <Download size={18} />
-          </Boton>
-        )}
-      </div>
-    </Card>
-  );
-};
+export function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  const mb = bytes / 1024 / 1024;
+  if (mb < 1) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return mb < 10 ? `${mb.toFixed(1)} MB` : `${Math.round(mb)} MB`;
+}

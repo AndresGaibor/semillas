@@ -1,19 +1,38 @@
 import Dexie, { type EntityTable } from "dexie";
 
+export type SyncRecordStatus = "synced" | "pending" | "error";
+
 export interface TemaLocal {
   localId: string;
   serverId?: string;
+  paqueteId?: string | null;
+  paqueteVersionContenido?: number | null;
   titulo: string;
   slug: string;
   objetivo: string;
   resumen: string | null;
   portadaUrl: string | null;
+  portadaMediaId?: string | null;
+  sendaId?: string | null;
+  sendaCodigo?: string | null;
+  sendaNombre?: string | null;
+  sendaColorHex?: string | null;
   estado: string;
   xpRecompensa: number;
   minutosEstimados: number;
   versionContenido: number;
   publicadoEn: string | null;
   grupoEdadId: string | null;
+  paqueteTamanoBytes?: number | null;
+  descargaEstado?: "disponible" | "descargando" | "descargado" | "actualizacion" | "error";
+  descargaProgreso?: number;
+  descargadoEn?: string | null;
+  errorDescarga?: string | null;
+  packageId?: string | null;
+  packageSizeBytes?: number | null;
+  mediaServerIds?: string[];
+  downloadedAt?: string;
+  lastOpenedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
@@ -25,19 +44,31 @@ export interface PasoLocal {
   serverId?: string;
   temaLocalId: string;
   orden: number;
+  obligatorio: boolean;
+  tipoPasoId: string | null;
   tipoPasoCodigo: string | null;
   tipoPasoNombre: string | null;
   tipoPasoColorHex: string | null;
   contenidos: Array<{
+    id: string;
     grupoEdadId: string;
     titulo: string;
     cuerpo: string;
     instruccionCorta: string | null;
+    recursoId: string | null;
+    recursoAudioId: string | null;
+    datosExtra: Record<string, unknown> | null;
+  }>;
+  preguntas: Array<{
+    id: string;
+    grupoEdadId: string;
+    pregunta: string;
+    orden: number;
   }>;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  syncStatus: "synced" | "pending" | "error";
+  syncStatus: SyncRecordStatus;
 }
 
 export interface ActividadLocal {
@@ -46,7 +77,11 @@ export interface ActividadLocal {
   temaLocalId: string;
   pasoLocalId: string | null;
   grupoEdadId: string;
+  tipoActividadId: string;
   tipoActividadCodigo: string;
+  tipoActividadNombre: string;
+  tipoActividadDescripcion: string | null;
+  tipoActividadEsJuego: boolean;
   titulo: string;
   consigna: string;
   orden: number;
@@ -67,7 +102,7 @@ export interface ActividadLocal {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  syncStatus: "synced" | "pending" | "error";
+  syncStatus: SyncRecordStatus;
 }
 
 export interface ProgresoUsuarioLocal {
@@ -85,7 +120,7 @@ export interface ProgresoUsuarioLocal {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  syncStatus: "synced" | "pending" | "error";
+  syncStatus: SyncRecordStatus;
 }
 
 export interface EventoOutbox {
@@ -127,6 +162,11 @@ export interface SyncState {
 export interface PerfilLocal {
   localId: string;
   serverId?: string;
+  usuarioId: string;
+  usuarioRol: string;
+  usuarioProveedor: string;
+  usuarioNombreVisible: string;
+  usuarioCorreo: string | null;
   apodo: string;
   grupoEdadId: string | null;
   urlAvatar: string | null;
@@ -141,16 +181,26 @@ export interface PerfilLocal {
 export interface MediaCache {
   id?: number;
   serverId: string;
-  tipo: "imagen" | "audio" | "video";
+  temaLocalId?: string;
+  tipo: "imagen" | "audio" | "video" | "archivo";
   urlOriginal: string;
-  urlLocal?: string;
+  urlLocal: string;
   textoAlternativo: string | null;
+  tipoMime?: string | null;
   tamanoBytes: number | null;
   duracionSeg: number | null;
   anchoPx: number | null;
   altoPx: number | null;
   cachedAt: number;
   accessedAt: number;
+}
+
+export interface DescargaJobLocal {
+  temaServerId: string;
+  estado: "preparando" | "descargando" | "guardando" | "completada" | "error";
+  progreso: number;
+  error: string | null;
+  updatedAt: string;
 }
 
 class SemillasDatabase extends Dexie {
@@ -162,6 +212,7 @@ class SemillasDatabase extends Dexie {
   syncState!: EntityTable<SyncState, "id">;
   perfil!: EntityTable<PerfilLocal, "localId">;
   mediaCache!: EntityTable<MediaCache, "id">;
+  descargaJobs!: EntityTable<DescargaJobLocal, "temaServerId">;
 
   constructor() {
     super("semillas_offline_db");
@@ -174,7 +225,19 @@ class SemillasDatabase extends Dexie {
       eventosOutbox: "++id, localId, tipoEvento, createdAt, retries",
       syncState: "id",
       perfil: "localId, serverId, syncStatus",
-      mediaCache: "++id, serverId, tipo, urlOriginal, cachedAt, accessedAt",
+      mediaCache: "++id, serverId, temaLocalId, tipo, urlOriginal, cachedAt, accessedAt",
+    });
+
+    this.version(2).stores({
+      temas: "localId, &serverId, slug, estado, grupoEdadId, syncStatus, downloadedAt, updatedAt",
+      pasos: "localId, &serverId, temaLocalId, orden, syncStatus",
+      actividades: "localId, &serverId, temaLocalId, pasoLocalId, grupoEdadId, tipoActividadCodigo, syncStatus",
+      progresoUsuario: "localId, serverId, temaLocalId, pasoLocalId, actividadLocalId, syncStatus, updatedAt",
+      eventosOutbox: "++id, &localId, tipoEvento, createdAt, retries",
+      syncState: "id",
+      perfil: "localId, serverId, syncStatus",
+      mediaCache: "++id, &serverId, tipo, urlOriginal, cachedAt, accessedAt",
+      descargaJobs: "temaServerId, estado, updatedAt",
     });
   }
 }

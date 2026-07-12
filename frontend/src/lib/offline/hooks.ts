@@ -1,20 +1,40 @@
-import { useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { db } from "./db";
-import { getPendingCount, queueEventoProgreso } from "./outbox";
-import { startAutoSync, stopAutoSync } from "./syncEngine";
+import { eliminarEventosFallidos, getPendingCount, getEventosFallidos, queueEventoProgreso, reintentarEventosFallidos } from "./outbox";
+import { startAutoSync, stopAutoSync, syncFull } from "./syncEngine";
+import { obtenerUsoAlmacenamiento } from "./media-cache";
+
+export function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+
+  useEffect(() => {
+    const actualizar = () => setIsOnline(navigator.onLine);
+    window.addEventListener("online", actualizar);
+    window.addEventListener("offline", actualizar);
+    return () => {
+      window.removeEventListener("online", actualizar);
+      window.removeEventListener("offline", actualizar);
+    };
+  }, []);
+
+  return isOnline;
+}
 
 export function useSyncStatus() {
+  const isOnline = useOnlineStatus();
   return useQuery({
-    queryKey: ["sync", "status"],
+    queryKey: ["sync", "status", isOnline],
     queryFn: async () => {
       const pendingCount = await getPendingCount();
+      const failedCount = (await getEventosFallidos()).length;
       const syncState = await db.syncState.get("main");
       return {
         pendingCount,
+        failedCount,
         lastSyncTimestamp: syncState?.lastSyncTimestamp ?? null,
         lastSyncExito: syncState?.lastSyncExito ?? false,
-        isOnline: navigator.onLine,
+        isOnline,
       };
     },
     refetchInterval: 5_000,
@@ -25,15 +45,31 @@ export function useEventosPendientes() {
   return useQuery({
     queryKey: ["sync", "pending-events"],
     queryFn: () => getPendingCount(),
-    refetchInterval: 10_000,
+    refetchInterval: 5_000,
   });
 }
 
 export function useTemasLocales() {
   return useQuery({
     queryKey: ["offline", "temas"],
-    queryFn: () =>
-      db.temas.orderBy("updatedAt").reverse().toArray(),
+    queryFn: () => db.temas.orderBy("downloadedAt").reverse().toArray(),
+    refetchInterval: 3_000,
+  });
+}
+
+export function useDescargaJobs() {
+  return useQuery({
+    queryKey: ["offline", "jobs"],
+    queryFn: () => db.descargaJobs.toArray(),
+    refetchInterval: 500,
+  });
+}
+
+export function useOfflineStorage() {
+  return useQuery({
+    queryKey: ["offline", "storage"],
+    queryFn: obtenerUsoAlmacenamiento,
+    refetchInterval: 15_000,
   });
 }
 
@@ -48,11 +84,7 @@ export function useTemaLocal(localId: string) {
 export function usePasosLocales(temaLocalId: string) {
   return useQuery({
     queryKey: ["offline", "pasos", temaLocalId],
-    queryFn: () =>
-      db.pasos
-        .where("temaLocalId")
-        .equals(temaLocalId)
-        .sortBy("orden"),
+    queryFn: () => db.pasos.where("temaLocalId").equals(temaLocalId).sortBy("orden"),
     enabled: !!temaLocalId,
   });
 }
@@ -64,7 +96,7 @@ export function useActividadesLocales(temaLocalId: string, grupoEdadId: string) 
       db.actividades
         .where("temaLocalId")
         .equals(temaLocalId)
-        .filter((a) => a.grupoEdadId === grupoEdadId)
+        .filter((actividad) => actividad.grupoEdadId === grupoEdadId)
         .toArray(),
     enabled: !!temaLocalId && !!grupoEdadId,
   });
@@ -77,6 +109,7 @@ export function useProgresoLocal(temaLocalId: string) {
       db.progresoUsuario
         .where("temaLocalId")
         .equals(temaLocalId)
+        .filter((item) => item.actividadLocalId === null)
         .first(),
     enabled: !!temaLocalId,
   });
@@ -91,7 +124,6 @@ export function useProgresosLocales() {
 
 export function useRegistrarEventoProgreso() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (params: {
       tipoEvento: Parameters<typeof queueEventoProgreso>[0];
@@ -101,32 +133,66 @@ export function useRegistrarEventoProgreso() {
       correcta?: boolean;
       puntaje?: number;
       xpOtorgada?: number;
-    }) => {
-      const localId = await queueEventoProgreso(params.tipoEvento, {
+      datos?: Record<string, unknown>;
+    }) =>
+      queueEventoProgreso(params.tipoEvento, {
         temaLocalId: params.temaLocalId,
         pasoLocalId: params.pasoLocalId,
         actividadLocalId: params.actividadLocalId,
         correcta: params.correcta,
         puntaje: params.puntaje,
         xpOtorgada: params.xpOtorgada,
-      });
-      return localId;
-    },
+        datos: params.datos,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sync", "pending-events"] });
-      queryClient.invalidateQueries({ queryKey: ["sync", "status"] });
+      queryClient.invalidateQueries({ queryKey: ["sync"] });
     },
   });
 }
 
-export function useAutoSync(enabled: boolean = true) {
+export function useSincronizarAhora() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: syncFull,
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["sync"] });
+      queryClient.invalidateQueries({ queryKey: ["progress"] });
+      queryClient.invalidateQueries({ queryKey: ["gamification"] });
+    },
+  });
+}
+
+export function useAutoSync(enabled = true) {
   useEffect(() => {
     if (!enabled) {
       stopAutoSync();
       return;
     }
-
     startAutoSync();
     return () => stopAutoSync();
   }, [enabled]);
+}
+
+
+export function useReintentarEventosFallidos() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const count = await reintentarEventosFallidos();
+      if (count > 0 && navigator.onLine) await syncFull();
+      return count;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["sync"] });
+      queryClient.invalidateQueries({ queryKey: ["progress"] });
+    },
+  });
+}
+
+export function useEliminarEventosFallidos() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: eliminarEventosFallidos,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["sync"] }),
+  });
 }

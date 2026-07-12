@@ -8,6 +8,7 @@ export type {
   SyncState,
   PerfilLocal,
   MediaCache,
+  DescargaJobLocal,
 } from "./db";
 
 export {
@@ -17,6 +18,7 @@ export {
   markEventoProcesado,
   getPendingCount,
   eliminarEventosFallidos,
+  reintentarEventosFallidos,
 } from "./outbox";
 
 export {
@@ -30,6 +32,7 @@ export {
 export type { SyncStatus, SyncResult } from "./syncEngine";
 
 export {
+  useOnlineStatus,
   useSyncStatus,
   useEventosPendientes,
   useTemasLocales,
@@ -39,7 +42,25 @@ export {
   useProgresoLocal,
   useProgresosLocales,
   useRegistrarEventoProgreso,
+  useSincronizarAhora,
   useAutoSync,
+  useDescargaJobs,
+  useOfflineStorage,
+  useReintentarEventosFallidos,
+  useEliminarEventosFallidos,
 } from "./hooks";
 
-export { useDescargarTema } from "./useDescargarTema";
+export { useDescargarTema, eliminarTemaDescargado } from "./useDescargarTema";
+export {
+  construirRutaMediaOffline,
+  mapearPaqueteOfflineARegistros,
+} from "./offline-package";
+export {
+  cachearMediosPaqueteOffline,
+  eliminarMediosTemaOffline,
+  obtenerMedioCacheado,
+  obtenerUsoAlmacenamiento,
+  solicitarAlmacenamientoPersistente,
+  obtenerUrlMediaLocal,
+  OFFLINE_MEDIA_CACHE,
+} from "./media-cache";

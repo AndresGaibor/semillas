@@ -77,6 +77,21 @@ export async function getPendingCount(): Promise<number> {
     .count();
 }
 
+
+export async function reintentarEventosFallidos(): Promise<number> {
+  const fallidos = await getEventosFallidos();
+  if (fallidos.length === 0) return 0;
+  await db.transaction("rw", db.eventosOutbox, async () => {
+    for (const evento of fallidos) {
+      if (evento.id) {
+        await db.eventosOutbox.update(evento.id, { retries: 0, lastError: undefined });
+      }
+    }
+  });
+  await updateSyncStatePendingCount();
+  return fallidos.length;
+}
+
 export async function eliminarEventosFallidos(): Promise<void> {
   await db.eventosOutbox.toCollection().filter((e) => e.retries >= MAX_RETRIES).delete();
   await updateSyncStatePendingCount();
