@@ -44,12 +44,12 @@ describe("supabase auth helper", () => {
       },
     } as never;
 
-    const url = await iniciarSesionGoogleConCliente(cliente, "https://semillas.org/app");
+    const url = await iniciarSesionGoogleConCliente(cliente, "https://semillas.org/auth/callback");
 
     expect(signInWithOAuthMock).toHaveBeenCalledWith({
       provider: "google",
       options: {
-        redirectTo: "https://semillas.org/app",
+        redirectTo: "https://semillas.org/auth/callback",
         queryParams: {
           access_type: "offline",
           prompt: "consent",

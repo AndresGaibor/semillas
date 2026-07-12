@@ -1,3 +1,1 @@
-export function obtenerRedirectGoogle(baseUrl: string) {
-  return `${baseUrl}/app`;
-}
+export { obtenerRedirectFacebook, obtenerRedirectGoogle } from "./social-login";

@@ -21,6 +21,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   isPending,
 }) => {
   const isDisabled = disabled || isPending;
+  const textoCargando = tipo === "facebook" ? "Conectando con Facebook..." : "Conectando con Google...";
 
   if (tipo === "guest") {
     return (
@@ -53,7 +54,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
       ) : (
         <img src={logo} alt="" className="login-social__icon" width="22" height="22" />
       )}
-      <span>{isPending ? "Conectando con Google..." : label}</span>
+      <span>{isPending ? textoCargando : label}</span>
     </button>
   );
 };

@@ -11,6 +11,7 @@ mock.module("../../shared/api/api", () => ({
 }));
 
 const iniciarSesionGoogleMock = mock(async () => "https://supabase.example/auth/v1/authorize");
+const iniciarSesionFacebookMock = mock(async () => "https://supabase.example/auth/v1/authorize-facebook");
 const registrarConCorreoMock = mock(async () => ({
   data: { user: { id: "user-1" }, session: null },
   error: null,
@@ -22,6 +23,7 @@ const iniciarSesionConCorreoMock = mock(async () => ({
 
 mock.module("../../shared/auth/supabase", () => ({
   iniciarSesionGoogle: iniciarSesionGoogleMock,
+  iniciarSesionFacebook: iniciarSesionFacebookMock,
   registrarConCorreo: registrarConCorreoMock,
   iniciarSesionConCorreo: iniciarSesionConCorreoMock,
 }));
@@ -54,10 +56,19 @@ describe("auth.api", () => {
   it("iniciarSesionGoogle delega al helper compartido", async () => {
     const { iniciarSesionGoogle } = await import("./auth.api");
 
-    const url = await iniciarSesionGoogle("https://semillas.org/app");
+    const url = await iniciarSesionGoogle("https://semillas.org/auth/callback");
 
-    expect(iniciarSesionGoogleMock).toHaveBeenCalledWith("https://semillas.org/app");
+    expect(iniciarSesionGoogleMock).toHaveBeenCalledWith("https://semillas.org/auth/callback");
     expect(url).toBe("https://supabase.example/auth/v1/authorize");
+  });
+
+  it("iniciarSesionFacebook delega al helper compartido", async () => {
+    const { iniciarSesionFacebook } = await import("./auth.api");
+
+    const url = await iniciarSesionFacebook("https://semillas.org/auth/callback");
+
+    expect(iniciarSesionFacebookMock).toHaveBeenCalledWith("https://semillas.org/auth/callback");
+    expect(url).toBe("https://supabase.example/auth/v1/authorize-facebook");
   });
 
   it("registrarConCorreo delega al helper de supabase", async () => {

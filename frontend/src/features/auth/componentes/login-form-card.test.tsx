@@ -12,10 +12,12 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
+        facebookDisponible={false}
       />,
     );
 
@@ -27,13 +29,33 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
+        facebookDisponible={true}
       />,
     );
 
+    expect(html).toContain("Continuar con Google");
+    expect(html).toContain("Continuar con Facebook");
+  });
+
+  it("oculta Facebook cuando no está disponible en localhost", () => {
+    const html = renderToStaticMarkup(
+      <LoginFormCard
+        onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
+        onGuestClick={() => undefined}
+        onEmailSuccess={() => undefined}
+        tabActivo="social"
+        onCambiarTab={() => undefined}
+        facebookDisponible={false}
+      />,
+    );
+
+    expect(html).not.toContain("Continuar con Facebook");
     expect(html).toContain("Continuar con Google");
   });
 
@@ -41,10 +63,12 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="email"
         onCambiarTab={() => undefined}
+        facebookDisponible={false}
       />,
     );
 
@@ -55,10 +79,12 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
+        facebookDisponible={false}
       />,
     );
 
@@ -70,10 +96,12 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
+        facebookDisponible={false}
       />,
     );
 
@@ -86,10 +114,12 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
+        facebookDisponible={false}
       />,
     );
 
@@ -101,10 +131,12 @@ describe("LoginFormCard", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
+        onFacebookClick={() => undefined}
         onGuestClick={() => undefined}
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
+        facebookDisponible={false}
       />,
     );
 

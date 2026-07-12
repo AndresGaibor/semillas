@@ -5,7 +5,7 @@ import { sessionStorageApi } from "../api/session";
 export type ClienteSupabaseAuth = {
   auth: {
     signInWithOAuth: (args: {
-      provider: "google";
+      provider: "google" | "facebook";
       options: {
         redirectTo: string;
         queryParams: {
@@ -81,6 +81,25 @@ export function escucharCambiosAutenticacionConCliente(
 export async function iniciarSesionGoogleConCliente(cliente: ClienteSupabaseAuth, redirectTo: string) {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
+    options: {
+      redirectTo,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data.url ?? "";
+}
+
+export async function iniciarSesionFacebookConCliente(cliente: ClienteSupabaseAuth, redirectTo: string) {
+  const { data, error } = await cliente.auth.signInWithOAuth({
+    provider: "facebook",
     options: {
       redirectTo,
       queryParams: {

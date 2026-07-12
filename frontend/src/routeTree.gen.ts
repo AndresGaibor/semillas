@@ -19,6 +19,7 @@ import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as OnboardingCustomizeRouteImport } from './routes/onboarding.customize'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppLogrosRouteImport } from './routes/app.logros'
 import { Route as AppDescargasRouteImport } from './routes/app.descargas'
@@ -97,6 +98,11 @@ const OnboardingCustomizeRoute = OnboardingCustomizeRouteImport.update({
   id: '/customize',
   path: '/customize',
   getParentRoute: () => OnboardingRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -342,6 +350,7 @@ export interface FileRoutesById {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -384,6 +393,7 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
+    | '/auth/callback'
     | '/onboarding/customize'
     | '/admin/'
     | '/app/'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
+    | '/auth/callback'
     | '/onboarding/customize'
     | '/admin'
     | '/app'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
+    | '/auth/callback'
     | '/onboarding/customize'
     | '/admin/'
     | '/app/'
@@ -489,6 +501,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -562,6 +575,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/onboarding/customize'
       preLoaderRoute: typeof OnboardingCustomizeRouteImport
       parentRoute: typeof OnboardingRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/perfil': {
       id: '/app/perfil'
@@ -869,6 +889,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

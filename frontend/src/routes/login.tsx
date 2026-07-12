@@ -16,7 +16,15 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const search = Route.useSearch();
-  const { tabActivo, setTabActivo, guestMutation, googleMutation, handleEmailSuccess } = useLoginPage({
+  const {
+    tabActivo,
+    setTabActivo,
+    guestMutation,
+    googleMutation,
+    facebookMutation,
+    facebookDisponible,
+    handleEmailSuccess,
+  } = useLoginPage({
     redirectTo: search.redirect,
   });
 
@@ -42,13 +50,16 @@ function LoginPage() {
         <main className="login-main" id="main-content" role="main">
           <LoginFormCard
             onGoogleClick={() => googleMutation.mutate()}
+            onFacebookClick={() => facebookMutation.mutate()}
             onGuestClick={() => guestMutation.mutate({ apodo: "Semillero" })}
             googlePending={googleMutation.isPending}
+            facebookPending={facebookMutation.isPending}
             guestPending={guestMutation.isPending}
             guestError={guestMutation.isError}
             onEmailSuccess={handleEmailSuccess}
             tabActivo={tabActivo}
             onCambiarTab={setTabActivo}
+            facebookDisponible={facebookDisponible}
           />
           <LoginHeroPanel />
         </main>

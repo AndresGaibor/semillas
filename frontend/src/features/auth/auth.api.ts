@@ -1,6 +1,7 @@
 import { peticion } from "../../shared/api/api";
 import type { Autenticacion, Perfil, Usuario } from "../../shared/api/api";
 import {
+  iniciarSesionFacebook as iniciarSesionFacebookSupabase,
   iniciarSesionConCorreo as iniciarSesionConCorreoSupabase,
   iniciarSesionGoogle as iniciarSesionGoogleSupabase,
   registrarConCorreo as registrarConCorreoSupabase,
@@ -26,6 +27,10 @@ export function crearSesionInvitado(datos: {
 
 export function iniciarSesionGoogle(redirectTo: string) {
   return iniciarSesionGoogleSupabase(redirectTo);
+}
+
+export function iniciarSesionFacebook(redirectTo: string) {
+  return iniciarSesionFacebookSupabase(redirectTo);
 }
 
 export function registrarConCorreo(email: string, password: string) {

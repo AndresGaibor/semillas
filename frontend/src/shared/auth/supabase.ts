@@ -3,6 +3,7 @@ import { env } from "../config/env";
 import {
   cerrarSesionAutenticadaConCliente,
   escucharCambiosAutenticacionConCliente,
+  iniciarSesionFacebookConCliente,
   iniciarSesionConCorreoConCliente,
   iniciarSesionGoogleConCliente,
   registrarConCorreoConCliente,
@@ -28,6 +29,10 @@ export function escucharCambiosAutenticacion(onCambio?: Parameters<typeof escuch
 
 export async function iniciarSesionGoogle(redirectTo: string) {
   return iniciarSesionGoogleConCliente(supabase, redirectTo);
+}
+
+export async function iniciarSesionFacebook(redirectTo: string) {
+  return iniciarSesionFacebookConCliente(supabase, redirectTo);
 }
 
 export async function vincularGoogle() {

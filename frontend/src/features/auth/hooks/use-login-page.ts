@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { crearSesionInvitado, iniciarSesionGoogle } from "@/features/auth/auth.api";
+import { crearSesionInvitado, iniciarSesionFacebook, iniciarSesionGoogle } from "@/features/auth/auth.api";
 import { sessionStorageApi } from "@/shared/api/session";
 import { sincronizarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerMiPerfil, reclamarCuentaInvitada } from "@/features/profile/profile.api";
-import { obtenerRedirectGoogle } from "@/features/auth/google-redirect";
+import { esFacebookPermitidoEnOrigen, obtenerRedirectGoogle, obtenerRedirectFacebook } from "@/features/auth/social-login";
 import { obtenerRutaPostLogin } from "@/shared/auth/post-login";
 
 type UseLoginPageOptions = {
@@ -15,6 +15,7 @@ type UseLoginPageOptions = {
 export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
   const navigate = useNavigate();
   const [tabActivo, setTabActivo] = useState<"social" | "email">("social");
+  const facebookDisponible = esFacebookPermitidoEnOrigen(window.location.origin);
 
   const guestMutation = useMutation({
     mutationFn: crearSesionInvitado,
@@ -27,6 +28,10 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
 
   const googleMutation = useMutation({
     mutationFn: () => iniciarSesionGoogle(obtenerRedirectGoogle(window.location.origin)),
+  });
+
+  const facebookMutation = useMutation({
+    mutationFn: () => iniciarSesionFacebook(obtenerRedirectFacebook(window.location.origin)),
   });
 
   const handleEmailSuccess = async () => {
@@ -45,6 +50,8 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
     setTabActivo,
     guestMutation,
     googleMutation,
+    facebookMutation,
     handleEmailSuccess,
+    facebookDisponible,
   };
 }

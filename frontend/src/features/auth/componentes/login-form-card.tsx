@@ -3,28 +3,35 @@ import { BookOpen, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { EmailAuthForm } from "./email-auth-form";
 import { SocialLoginButton } from "./social-login-button";
 import googleIcon from "@/assets/images/icons/google.png";
+import facebookIcon from "@/assets/images/icons/facebook.png";
 import guestIcon from "@/assets/images/icons/invitado.png";
 
 export interface LoginFormCardProps {
   onGoogleClick: () => void;
+  onFacebookClick: () => void;
   onGuestClick: () => void;
   googlePending?: boolean;
+  facebookPending?: boolean;
   guestPending?: boolean;
   guestError?: boolean;
   onEmailSuccess: () => void;
   tabActivo: "social" | "email";
   onCambiarTab: (tab: "social" | "email") => void;
+  facebookDisponible: boolean;
 }
 
 export const LoginFormCard: React.FC<LoginFormCardProps> = ({
   onGoogleClick,
+  onFacebookClick,
   onGuestClick,
   googlePending,
+  facebookPending,
   guestPending,
   guestError,
   onEmailSuccess,
   tabActivo,
   onCambiarTab,
+  facebookDisponible,
 }) => {
   return (
     <section className="login-panel login-panel--form" aria-label="Opciones de inicio de sesión">
@@ -67,6 +74,16 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
               onClick={onGoogleClick}
               isPending={googlePending}
             />
+
+            {facebookDisponible && (
+              <SocialLoginButton
+                tipo="facebook"
+                logo={facebookIcon}
+                label="Continuar con Facebook"
+                onClick={onFacebookClick}
+                isPending={facebookPending}
+              />
+            )}
 
             <div className="login-divider" role="separator" aria-hidden="true">
               <span className="login-divider__line"></span>
