@@ -61,6 +61,19 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
     }
   }, [isLoading, isError, temaDbId, eventMutation]);
 
+  const guardarProgresoFase = () => {
+    if (temaDbId && pasoActual?.id) {
+      const evento: EventoProgreso = {
+        evento_id_cliente: crypto.randomUUID(),
+        tipo_evento: "bloque_completado",
+        tema_id: temaDbId,
+        paso_id: pasoActual.id,
+        ocurrido_en_cliente: new Date().toISOString(),
+      };
+      eventMutation.mutate([evento]);
+    }
+  };
+
   const navigateTo = (path: string) => navigate({ to: path, params: { themeId } });
 
   return {
@@ -73,5 +86,6 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
     isLoading,
     isError,
     navigateTo,
+    guardarProgresoFase,
   };
 }

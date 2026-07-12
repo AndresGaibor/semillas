@@ -58,6 +58,19 @@ export function useRelatarPage({ themeId }: UseRelatarPageProps) {
     }
   }, [isLoading, isError, temaDbId, pasoActual, eventMutation]);
 
+  const guardarProgresoFase = () => {
+    if (temaDbId && pasoActual?.id) {
+      const evento: EventoProgreso = {
+        evento_id_cliente: crypto.randomUUID(),
+        tipo_evento: "bloque_completado",
+        tema_id: temaDbId,
+        paso_id: pasoActual.id,
+        ocurrido_en_cliente: new Date().toISOString()
+      };
+      eventMutation.mutate([evento]);
+    }
+  };
+
   return {
     themeId,
     pasoActual,
@@ -65,6 +78,7 @@ export function useRelatarPage({ themeId }: UseRelatarPageProps) {
     actividadesFase,
     isLoading,
     isError,
-    eventMutation
+    eventMutation,
+    guardarProgresoFase
   };
 }

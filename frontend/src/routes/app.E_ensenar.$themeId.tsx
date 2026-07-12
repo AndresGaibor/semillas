@@ -16,6 +16,7 @@ function EEnsenarPage() {
     actividadesFase,
     isLoading,
     isError,
+    guardarProgresoFase
   } = useEnsenarPage(themeId);
 
   return (
@@ -116,7 +117,10 @@ function EEnsenarPage() {
                   boxShadow:
                     "0 20px 25px -5px rgba(234, 179, 8, 0.3), 0 8px 10px -6px rgba(234, 179, 8, 0.1)",
                 }}
-                onClick={() => playSound("siguiente")}
+                onClick={() => {
+                  playSound("siguiente");
+                  guardarProgresoFase();
+                }}
               >
                 Siguiente Fase
               </Link>

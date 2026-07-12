@@ -11,7 +11,7 @@ export const Route = createFileRoute("/app/R_recompensar/$themeId")({
 
 function RRecompensarPage() {
   const { themeId } = Route.useParams();
-  const { tema, portadaQuery, contenidoPaso, isLoading, isError } = useRecompensarPage({ themeId });
+  const { tema, portadaQuery, contenidoPaso, perfil, isLoading, isError } = useRecompensarPage({ themeId });
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pb-16 animate-in fade-in duration-500 relative overflow-hidden">
@@ -56,7 +56,7 @@ function RRecompensarPage() {
           colorCarga="#f59e0b"
           mensajeCarga="Cargando fase Recompensar..."
         >
-          <ContentState tema={tema} portadaQuery={portadaQuery} contenidoPaso={contenidoPaso} />
+          <ContentState tema={tema} portadaQuery={portadaQuery} contenidoPaso={contenidoPaso} perfil={perfil} />
         </StateView>
       </div>
     </div>
@@ -67,9 +67,10 @@ interface ContentStateProps {
   tema: ReturnType<typeof useRecompensarPage>['tema'];
   portadaQuery: ReturnType<typeof useRecompensarPage>['portadaQuery'];
   contenidoPaso: ReturnType<typeof useRecompensarPage>['contenidoPaso'];
+  perfil: ReturnType<typeof useRecompensarPage>['perfil'];
 }
 
-function ContentState({ tema, portadaQuery, contenidoPaso }: ContentStateProps) {
+function ContentState({ tema, portadaQuery, contenidoPaso, perfil }: ContentStateProps) {
   return (
     <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-2xl shadow-slate-200/50 border border-slate-100 min-h-[400px] flex flex-col items-center w-full">
       
@@ -102,6 +103,12 @@ function ContentState({ tema, portadaQuery, contenidoPaso }: ContentStateProps) 
             )}
             <p className="text-2xl text-slate-700 font-bold mt-4 z-10 relative">Has completado con éxito el tema:</p>
             <p className="text-3xl text-[#43a047] font-black mt-2 z-10 relative">{tema.titulo}</p>
+            
+            {(tema.xp_recompensa || 0) > 0 && (
+              <div className="mt-6 inline-flex items-center gap-3 bg-amber-100 text-amber-700 px-6 py-3 rounded-full font-black text-2xl shadow-sm border border-amber-200 z-10 relative animate-in zoom-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+                <span className="drop-shadow-sm">{perfil?.apodo ? `${perfil.apodo}, ganaste` : 'Ganaste'} +{tema.xp_recompensa} XP</span>
+              </div>
+            )}
           </div>
         )}
 

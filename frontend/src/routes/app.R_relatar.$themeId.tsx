@@ -15,7 +15,8 @@ function RRelatarPage() {
     contenidoPaso,
     actividadesFase,
     isLoading,
-    isError
+    isError,
+    guardarProgresoFase
   } = useRelatarPage({ themeId });
 
   return (
@@ -101,7 +102,10 @@ function RRelatarPage() {
                 params={{ themeId }}
                 className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
                 style={{ backgroundColor: '#2563eb', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(37, 99, 235, 0.3), 0 8px 10px -6px rgba(37, 99, 235, 0.1)' }}
-                onClick={() => playSound('siguiente')}
+                onClick={() => {
+                  playSound('siguiente');
+                  guardarProgresoFase();
+                }}
               >
                 Siguiente Fase
               </Link>

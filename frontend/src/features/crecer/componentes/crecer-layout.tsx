@@ -13,6 +13,7 @@ interface BotonesAccion {
     themeId: string;
     label: string;
     color?: string;
+    onClick?: () => void;
   };
   regresar: {
     to: string;
@@ -131,6 +132,11 @@ function BotonesAccion({ botones, colorAccent }: BotonesAccionProps) {
       <Link
         to={botones.siguiente.to}
         params={{ themeId: botones.siguiente.themeId }}
+        onClick={(e) => {
+          if (botones.siguiente.onClick) {
+            botones.siguiente.onClick();
+          }
+        }}
         className="w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] font-black text-xl shadow-xl transition-all hover:-translate-y-1 active:translate-y-0 text-white"
         style={{ 
           backgroundColor: colorAccent, 

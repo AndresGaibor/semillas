@@ -16,7 +16,7 @@ interface UseExperimentarPageProps {
 }
 
 interface BotonesAccion {
-  siguiente: { to: string; themeId: string; label: string };
+  siguiente: { to: string; themeId: string; label: string; onClick?: () => void };
   regresar: { to: string; themeId: string };
 }
 
@@ -83,8 +83,26 @@ export function useExperimentarPage({ themeId }: UseExperimentarPageProps): Expe
     }
   }, [isLoading, isError, temaDbId, pasoActual, eventMutation]);
 
+  const guardarProgresoFase = () => {
+    if (temaDbId && pasoActual?.id) {
+      const evento: EventoProgreso = {
+        evento_id_cliente: crypto.randomUUID(),
+        tipo_evento: "bloque_completado",
+        tema_id: temaDbId,
+        paso_id: pasoActual.id,
+        ocurrido_en_cliente: new Date().toISOString()
+      };
+      eventMutation.mutate([evento]);
+    }
+  };
+
   const botonesAccion: BotonesAccion = {
-    siguiente: { to: "/app/R_recompensar/$themeId", themeId, label: "Siguiente Fase" },
+    siguiente: { 
+      to: "/app/R_recompensar/$themeId", 
+      themeId, 
+      label: "Siguiente Fase",
+      onClick: guardarProgresoFase
+    },
     regresar: { to: "/app/C_comprobar/$themeId", themeId },
   };
 

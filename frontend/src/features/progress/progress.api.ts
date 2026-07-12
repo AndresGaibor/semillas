@@ -25,10 +25,70 @@ export type ProgresoResumen = {
  * Endpoint: /progreso/eventos
  * Auth: Requerido
  */
-export function enviarEventosProgreso(eventos: EventoProgreso[]) {
-  return peticion<{ procesados: number; error?: string }>(RUTAS_API.SYNC.PUSH, {
+export async function enviarEventosProgreso(eventos: EventoProgreso[]) {
+  let procesados = 0;
+  let ultimoError: string | undefined;
+
+  for (const ev of eventos) {
+    if (ev.tipo_evento === "bloque_completado") {
+      console.log(`[Frontend] 🎉 Bloque de fase completado (Tema: ${ev.tema_id}, Paso: ${ev.paso_id}). ¡El progreso aumentará!`);
+    }
+
+    try {
+      const resp = await registrarEventoProgreso({
+        evento_id_cliente: ev.evento_id_cliente,
+        tipo_evento: ev.tipo_evento,
+        tema_id: ev.tema_id,
+        paso_id: ev.paso_id,
+        actividad_id: ev.actividad_id,
+        correcta: ev.correcta,
+        puntaje: ev.puntaje,
+        xp_otorgada: ev.xp_otorgada,
+        datos: ev.datos,
+        ocurrido_en_cliente: ev.ocurrido_en_cliente,
+        dispositivo_id: ev.dispositivo_id
+      });
+
+      if (!resp.duplicado) {
+        procesados++;
+      }
+    } catch (err: any) {
+      console.error("[Frontend] Error enviando evento de progreso:", err);
+      ultimoError = err.message;
+    }
+  }
+
+  return { procesados, error: ultimoError };
+}
+
+export type RegistrarEventoProgresoBody = {
+  evento_id_cliente: string;
+  tipo_evento: string;
+  tema_id?: string;
+  paso_id?: string;
+  actividad_id?: string;
+  correcta?: boolean;
+  puntaje?: number;
+  xp_otorgada?: number;
+  datos?: Record<string, unknown>;
+  ocurrido_en_cliente?: string;
+  dispositivo_id?: string;
+};
+
+export type RegistrarEventoProgresoRespuesta =
+  | {
+      duplicado: false;
+      evento: unknown;
+    }
+  | {
+      duplicado: true;
+      mensaje: string;
+    };
+
+export function registrarEventoProgreso(datos: RegistrarEventoProgresoBody) {
+  return peticion<RegistrarEventoProgresoRespuesta>("/progreso/eventos", {
     metodo: "POST",
-    cuerpo: { eventos },
+    cuerpo: datos,
   });
 }
 
@@ -39,6 +99,15 @@ export function enviarEventosProgreso(eventos: EventoProgreso[]) {
  * Endpoint: /progreso/mi
  * Auth: Requerido
  */
-export function obtenerMiProgreso() {
-  return peticion<ProgresoResumen>(RUTAS_API.PROGRESO.MI);
+export async function obtenerMiProgreso() {
+  const respuesta = await peticion<ProgresoResumen>(RUTAS_API.PROGRESO.MI);
+  
+  if (respuesta.progresos_tema && respuesta.progresos_tema.length > 0) {
+    console.log("[Frontend] 📊 Estado del progreso de temas actualizado:");
+    respuesta.progresos_tema.forEach(t => {
+      console.log(`  - Tema ${t.tema_id}: ${t.porcentaje}% (${t.estado})`);
+    });
+  }
+
+  return respuesta;
 }

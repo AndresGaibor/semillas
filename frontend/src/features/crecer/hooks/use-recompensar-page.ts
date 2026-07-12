@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { obtenerTema, obtenerPasos, obtenerActividades, obtenerUrlPortadaTema } from "../../../features/themes/themes.api";
-import { enviarEventosProgreso } from "../../../features/progress/progress.api";
+import { registrarEventoProgreso } from "../../../features/progress/progress.api";
+import { obtenerMiPerfil } from "../../../features/profile/profile.api";
 import { playSound } from "../../../lib/audio";
 import type { EventoProgreso } from "../../../shared/api/api";
 
@@ -20,6 +21,13 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
   });
   const tema = themeQuery.data;
   const temaDbId = tema?.id;
+
+  const profileQuery = useQuery({
+    queryKey: ["perfil-mi"],
+    queryFn: obtenerMiPerfil
+  });
+  const perfil = profileQuery.data?.perfil;
+  const usuario = profileQuery.data?.usuario;
 
   const portadaQuery = useQuery({
     queryKey: ["theme-portada", themeId],
@@ -48,9 +56,20 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
   const isError = themeQuery.isError || stepsQuery.isError || activitiesQuery.isError;
 
   const eventMutation = useMutation({
-    mutationFn: enviarEventosProgreso,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["progress"] });
+    mutationFn: registrarEventoProgreso,
+    onSuccess: (respuesta) => {
+      console.log("Respuesta de registrarEventoProgreso:", respuesta);
+      if (!respuesta.duplicado) {
+        console.log("¡Evento nuevo! Invalidando cachés para actualizar XP...");
+        queryClient.invalidateQueries({ queryKey: ["progress"] });
+        queryClient.invalidateQueries({ queryKey: ["perfil-mi"] });
+        queryClient.invalidateQueries({ queryKey: ["gamificacion"] });
+      } else {
+        console.log("El evento ya existía (Farmeo detectado):", respuesta.mensaje);
+      }
+    },
+    onError: (error) => {
+      console.error("Error al registrar evento de progreso:", error);
     }
   });
 
@@ -61,14 +80,18 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
 
     if (temaDbId && !eventSentRef.current) {
       eventSentRef.current = true;
-      const evento: EventoProgreso = {
+      const xp_ganado = tema?.xp_recompensa || 0;
+      
+      const evento = {
         evento_id_cliente: crypto.randomUUID(),
         tipo_evento: "tema_completado",
         tema_id: temaDbId,
-        xp_otorgada: tema?.xp_recompensa || 0,
+        xp_otorgada: xp_ganado,
         ocurrido_en_cliente: new Date().toISOString()
       };
-      eventMutation.mutate([evento]);
+      
+      console.log("Enviando evento de tema_completado al backend. Payload:", evento);
+      eventMutation.mutate(evento);
     }
   }, [temaDbId, tema?.xp_recompensa, eventMutation]);
 
@@ -79,6 +102,9 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
     portadaQuery,
     stepsQuery,
     activitiesQuery,
+    profileQuery,
+    perfil,
+    usuario,
     pasoActual,
     contenidoPaso,
     actividadesFase,

@@ -243,6 +243,39 @@ const REGENERADORES: Record<string, RendererActividad> = {
   },
 };
 
+const METADATA_ACTIVIDADES: Record<string, { badge: string; bg: string; label: string }> = {
+  actividad_audio: {
+    badge: "text-emerald-700",
+    bg: "bg-emerald-100",
+    label: "Audio",
+  },
+  aventura_decisiones: {
+    badge: "text-rose-700",
+    bg: "bg-rose-100",
+    label: "Aventura",
+  },
+  arrastrar_soltar: {
+    badge: "text-blue-700",
+    bg: "bg-blue-100",
+    label: "Arrastrar",
+  },
+  completar_versiculo: {
+    badge: "text-violet-700",
+    bg: "bg-violet-100",
+    label: "Versículo",
+  },
+  actividad_video: {
+    badge: "text-red-700",
+    bg: "bg-red-100",
+    label: "Video",
+  },
+  cancion: {
+    badge: "text-amber-700",
+    bg: "bg-amber-100",
+    label: "Canción",
+  },
+};
+
 interface ContenidoActividadProps {
   actividad: Actividad;
   onComplete: (actividadId: string, xp?: number) => void;
@@ -269,12 +302,19 @@ interface ActividadWrapperProps {
 }
 
 export function ActividadWrapper({ actividad, onComplete }: ActividadWrapperProps) {
+  const codigo = actividad.tipo_actividad?.codigo ?? "";
+  const meta = METADATA_ACTIVIDADES[codigo] || {
+    badge: "text-emerald-700",
+    bg: "bg-emerald-100",
+    label: actividad.tipo_actividad?.nombre ?? "Actividad",
+  };
+
   return (
     <ActividadCard
       actividad={actividad}
-      badgeColor="text-emerald-700"
-      badgeBgColor="bg-emerald-100"
-      tipoLabel={actividad.tipo_actividad?.nombre ?? "Actividad"}
+      badgeColor={meta.badge}
+      badgeBgColor={meta.bg}
+      tipoLabel={meta.label}
       onComplete={onComplete}
     />
   );

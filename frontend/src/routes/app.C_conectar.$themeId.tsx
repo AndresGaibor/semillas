@@ -17,13 +17,13 @@ const FASE_CONFIG = {
 
 function CConectarPage() {
   const { themeId } = Route.useParams();
-  const { contenidoPaso, actividadesFase, isLoading, isError, navigateTo } = useCrecerFase({
+  const { contenidoPaso, actividadesFase, isLoading, isError, navigateTo, guardarProgresoFase } = useCrecerFase({
     themeId,
     pasoCodigo: "conectar",
   });
 
   const botonesAccion = {
-    siguiente: { to: "/app/R_relatar/$themeId", themeId, label: "Siguiente Fase" },
+    siguiente: { to: "/app/R_relatar/$themeId", themeId, label: "Siguiente Fase", onClick: guardarProgresoFase },
     regresar: { to: "/app/temas/$themeId", themeId },
   };
 

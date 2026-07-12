@@ -8,6 +8,7 @@ import { FeaturesSection } from "@/features/landing/componentes/FeaturesSection"
 import { ClubesSection } from "@/features/landing/componentes/ClubesSection";
 import { MethodologySection } from "@/features/landing/componentes/MethodologySection";
 import { Footer } from "@/features/landing/componentes/Footer";
+import { WelcomeBanner } from "@/features/landing/componentes/WelcomeBanner";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/")({
 function LandingPage() {
   return (
     <div className="landing-wrapper" id="top">
+      <WelcomeBanner />
       <div className="landing-shell">
         <Navbar />
 
