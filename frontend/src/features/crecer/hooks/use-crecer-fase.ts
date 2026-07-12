@@ -49,23 +49,14 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
       (actividad) => actividad.paso_id === pasoActual?.id,
     );
     if (conPasoId.length > 0) return conPasoId;
-    const conOtroPaso = activitiesQuery.data.filter(
-      (actividad) => actividad.paso_id !== null && actividad.paso_id !== undefined,
+    const sinPasoId = activitiesQuery.data.filter(
+      (actividad) => actividad.paso_id === null || actividad.paso_id === undefined,
     );
-    if (conOtroPaso.length > 0 && pasoActual?.id) {
-      const idsPasosAsignados = new Set(
-        conOtroPaso.map((a) => a.paso_id).filter(Boolean),
-      );
-      const pasosAsignados = stepsQuery.data?.filter((p) => idsPasosAsignados.has(p.id)) ?? [];
-      const codigosAsignados = pasosAsignados
-        .map((p) => p.tipo_paso?.codigo)
-        .filter(Boolean);
-      if (codigosAsignados.length > 0 && !codigosAsignados.includes(pasoCodigo)) {
-        return [];
-      }
+    if (sinPasoId.length > 0 && pasoCodigo === "comprobar") {
+      return sinPasoId;
     }
-    return activitiesQuery.data;
-  }, [activitiesQuery.data, pasoActual?.id, pasoCodigo, stepsQuery.data]);
+    return [];
+  }, [activitiesQuery.data, pasoActual?.id, pasoCodigo]);
 
   const isLoading =
     meQuery.isLoading ||
