@@ -1,71 +1,22 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StoryRouter } from "@/storybook/story-router";
+import { DescargasBanner } from "@/features/descargas/componentes/descargas-banner";
 import { DescargasTabsFilter } from "@/features/descargas/componentes/descargas-tabs-filter";
 import { RecursoCard } from "@/features/descargas/componentes/recurso-card";
 import { StorageWidget } from "@/features/descargas/componentes/storage-widget";
-import { useState } from "react";
+import type { TemaDescargaUI } from "@/features/descargas/hooks/use-descargas-page";
+import "@/routes/app-descargas.css";
 
-const recursosMock = [
-  { id: "r1", titulo: "La Creación", tipo: "video" as const, edad: "5-8", sizeMB: 45, descripcion: "Video animado sobre la creación", imagen: "https://picsum.photos/200/120?random=1" },
-  { id: "r2", titulo: "Salmos para Niños", tipo: "audio" as const, edad: "9-12", sizeMB: 12, descripcion: "Audios de salmos narrados", imagen: "https://picsum.photos/200/120?random=2" },
-  { id: "r3", titulo: "Colorear la Biblia", tipo: "pdf" as const, edad: "5-8", sizeMB: 5, descripcion: "Hojas para colorear", imagen: "https://picsum.photos/200/120?random=3" },
-  { id: "r4", titulo: "Lecciones del Padre", tipo: "tema" as const, edad: "9-12", sizeMB: 120, descripcion: "Tema completo sobre el Padre", imagen: "https://picsum.photos/200/120?random=4" },
+const temas: TemaDescargaUI[] = [
+  { id: "1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor fiel y cercano de Dios.", imagenUrl: "https://picsum.photos/320/260?random=1", senda: "Senda del Padre", color: "#d68b13", minutos: 20, xp: 150, version: 1, descargado: true, actualizacionDisponible: false, tamanoBytes: 18_000_000, pasos: 6, actividades: 8, medios: 12, descargadoEn: new Date().toISOString(), progresoDescarga: null, errorDescarga: null },
+  { id: "2", titulo: "Jesús enseña con parábolas", descripcion: "Historias sencillas para comprender verdades profundas.", imagenUrl: "https://picsum.photos/320/260?random=2", senda: "Senda del Hijo", color: "#2676d2", minutos: 20, xp: 150, version: 2, descargado: false, actualizacionDisponible: false, tamanoBytes: null, pasos: null, actividades: null, medios: null, descargadoEn: null, progresoDescarga: null, errorDescarga: null },
 ];
 
 function DescargasPageStory() {
-  const [activeTab, setActiveTab] = useState("Todos");
-  const [downloadedIds, setDownloadedIds] = useState<string[]>(["r1"]);
-
-  const tipoRecurso = (tipo: "video" | "audio" | "pdf" | "tema") => {
-    if (tipo === "video") return "Historia";
-    if (tipo === "audio") return "Canción";
-    if (tipo === "pdf") return "Imprimible";
-    return "Actividad";
-  };
-
-  return (
-    <StoryRouter initialPath="/app/descargas">
-      <div className="w-full flex flex-col font-sans text-slate-800 text-left p-4 max-w-5xl mx-auto">
-        <DescargasTabsFilter
-          activeTab={activeTab}
-          onTabChange={(tab) => setActiveTab(tab)}
-          ageFilter="todos"
-          onAgeChange={() => {}}
-          sortOrder="recientes"
-          onSortChange={() => {}}
-          searchQuery=""
-          onSearchChange={() => {}}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8 mt-4">
-          {recursosMock.map((recurso) => (
-              <RecursoCard
-                key={recurso.id}
-                id={recurso.id}
-                titulo={recurso.titulo}
-                tipo={tipoRecurso(recurso.tipo)}
-                edad={recurso.edad}
-                sizeMB={recurso.sizeMB}
-              descripcion={recurso.descripcion}
-              imagen={recurso.imagen}
-              isDownloaded={downloadedIds.includes(recurso.id)}
-              progress={undefined}
-              onDownload={() => setDownloadedIds(prev => [...prev, recurso.id])}
-              onDelete={() => setDownloadedIds(prev => prev.filter(id => id !== recurso.id))}
-            />
-          ))}
-        </div>
-        <StorageWidget usedMB={177} totalMB={500} percentage={35} onGestionarClick={() => {}} />
-      </div>
-    </StoryRouter>
-  );
+  return <StoryRouter initialPath="/app/descargas"><div className="downloads-page mx-auto max-w-6xl p-4"><DescargasBanner visible isOnline downloadedCount={1} pendingCount={1} onCerrar={() => undefined} onGestionar={() => undefined} /><StorageWidget usageBytes={148_000_000} quotaBytes={2_000_000_000} packageBytes={18_000_000} percentage={7} persisted downloadedCount={1} isOnline pendingCount={1} onGestionarClick={() => undefined} onSync={() => undefined} isSyncing={false} /><DescargasTabsFilter activeTab="todos" onTabChange={() => undefined} counts={{ total: 2, descargados: 1, disponibles: 1, actualizaciones: 0 }} sortOrder="recientes" onSortChange={() => undefined} searchQuery="" onSearchChange={() => undefined} /><div className="downloads-grid">{temas.map((tema) => <RecursoCard key={tema.id} tema={tema} isOnline onDownload={() => undefined} onDelete={() => undefined} />)}</div></div></StoryRouter>;
 }
 
-const meta = {
-  title: "Pantallas/App/Descargas",
-  component: DescargasPageStory,
-  parameters: { layout: "fullscreen" },
-} satisfies Meta<typeof DescargasPageStory>;
-
+const meta = { title: "Pantallas/App/Descargas", component: DescargasPageStory, parameters: { layout: "fullscreen" } } satisfies Meta<typeof DescargasPageStory>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Escritorio: Story = {};

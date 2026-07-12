@@ -1457,6 +1457,16 @@ h6, .titulo-6 {
   display: block;
 }
 
+/* Las fases CRECER usan su propio shell y no heredan márgenes de la aplicación. */
+.app-shell--lesson .app-shell__main {
+  padding: 0;
+}
+
+.app-shell--lesson .app-shell__content {
+  width: 100%;
+  gap: 0;
+}
+
 /* Encabezado de usuario: no sticky y sin navegación duplicada. */
 .app-user-header {
   display: flex;
@@ -2534,4 +2544,24 @@ html[data-semillas-text-size="mediano"] {
 
 html[data-semillas-text-size="grande"] {
   font-size: 17px;
+}
+
+/* Modo de enfoque para las seis fases CRECER. La navegación principal se
+   oculta y cada pantalla muestra su propia barra de progreso y salida. */
+.app-shell--lesson {
+  display: block;
+  min-height: 100dvh;
+  background: #f7f9fc;
+}
+.app-shell--lesson .app-shell__workspace { min-height: 100dvh; }
+.app-shell--lesson .app-shell__main {
+  min-height: 100dvh;
+  padding: 0;
+  overflow: visible;
+}
+.app-shell--lesson .app-shell__content {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }

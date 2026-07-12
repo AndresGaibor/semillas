@@ -1,7 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { Zap, Loader, Play, CheckCircle, Clock } from "lucide-react";
-import { useTemaDetalle } from "../features/themes/hooks/use-tema-detalle";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpenCheck,
+  Check,
+  Clock3,
+  Download,
+  Play,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+  WifiOff,
+} from "lucide-react";
+import { StateView } from "@/componentes/ui/state-view";
+import { FASES_CRECER } from "@/features/crecer/crecer-fases";
+import { useTemaDetalle } from "@/features/themes/hooks/use-tema-detalle";
+import "./theme-detail.css";
 
 export const Route = createFileRoute("/app/temas/$themeId")({
   component: ThemeDetailPage,
@@ -12,122 +27,156 @@ export const Route = createFileRoute("/app/temas/$themeId")({
 
 function ThemeDetailPage() {
   const { themeId } = Route.useParams();
-  const {
-    themeQuery,
-    portadaQuery,
-    progresoReal,
-    theme,
-    handleIniciarClick,
-  } = useTemaDetalle(themeId);
+  const detalle = useTemaDetalle(themeId);
+  const theme = detalle.theme;
+  const isLoading = detalle.themeQuery.isLoading || detalle.meQuery.isLoading;
+  const isError = detalle.themeQuery.isError || detalle.meQuery.isError;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <StateView
+      cargando={isLoading}
+      error={isError ? "No pudimos cargar este tema. Intenta nuevamente." : null}
+      mensajeCarga="Preparando tu tema..."
+      colorCarga="#43a047"
+    >
+      <div className="theme-detail">
+        <Link to="/app/temas" search={{}} className="theme-detail__back">
+          <ArrowLeft aria-hidden="true" />
+          Mis temas
+        </Link>
 
-      {/* Título Principal */}
-      <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-800 tracking-tight leading-tight">
-          {theme?.titulo ?? "Cargando..."}
-        </h1>
-        {theme?.senda && (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white shadow-sm" style={{ color: theme.senda.color_hex }}>
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.senda.color_hex }}></span>
-            <span className="font-bold text-sm tracking-wide uppercase">{theme.senda.nombre}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-        {/* COLUMNA IZQUIERDA: Tarjeta de Resumen y Botón */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-
-          {/* Tarjeta principal (Card bonita) */}
-          <div className="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
-            <div className="absolute -top-10 -right-10 text-slate-50 opacity-50 pointer-events-none">
-              <Zap size={200} fill="currentColor" />
-            </div>
-
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                <span className="w-10 h-10 rounded-full bg-[#43a047]/10 flex items-center justify-center text-[#43a047]">
-                  <CheckCircle size={20} />
-                </span>
-                Acerca de esta lección
-              </h3>
-
-              {theme?.resumen ? (
-                <p className="text-lg sm:text-xl text-slate-600 leading-relaxed font-medium mb-6">
-                  {theme.resumen}
-                </p>
-              ) : (
-                <p className="text-lg text-slate-400 italic mb-6">No hay descripción disponible.</p>
-              )}
-
-              {/* Badges de stats dentro de la card */}
-              <div className="flex flex-wrap gap-4">
-                <div className="bg-amber-50 text-amber-600 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 border border-amber-100/50">
-                  <Zap size={22} fill="currentColor" />
-                  {theme?.xp_recompensa ?? 0} XP
-                </div>
-                <div className="bg-blue-50 text-blue-600 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 border border-blue-100/50">
-                  <Clock size={22} />
-                  {theme?.minutos_estimados ?? 10} min
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Progreso en una Card Pequeña */}
-          <div className="bg-white rounded-2xl py-3 px-5 shadow-xl shadow-slate-200/40 border border-slate-100">
-            <div className="flex justify-between items-center mb-1.5 px-1">
-              <span className="font-bold text-slate-700 text-sm">Tu progreso</span>
-              <span className="font-black text-[#43a047]">{progresoReal}%</span>
-            </div>
-            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner">
-              <div className="bg-[#43a047] h-full rounded-full transition-all duration-1000" style={{ width: `${progresoReal}%` }}></div>
-            </div>
-          </div>
-
-          {/* Botón de Iniciar / Reanudar */}
-          <div className="mt-auto shrink-0">
-            <Link
-              to="/app/C_conectar/$themeId"
-              params={{ themeId }}
-              className="flex items-center justify-center gap-3 w-full py-4 rounded-[1.5rem] font-black text-lg shadow-xl transition-all hover:-translate-y-1 active:translate-y-0"
-              style={{ backgroundColor: '#43a047', color: '#ffffff', boxShadow: '0 20px 25px -5px rgba(67, 160, 71, 0.3), 0 8px 10px -6px rgba(67, 160, 71, 0.1)' }}
-              onClick={handleIniciarClick}
-            >
-              <Play fill="currentColor" size={22} />
-              {progresoReal === 0 ? "Iniciar Actividad" : "Reanudar Actividad"}
-            </Link>
-          </div>
-
-        </div>
-
-        {/* COLUMNA DERECHA: Imagen en una Card */}
-        <div className="lg:col-span-5 flex items-start h-full">
-          <div className="bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-slate-200/50 border border-slate-100 w-full">
-            {portadaQuery.data?.url ? (
-              <div className="w-full rounded-[2rem] overflow-hidden bg-slate-50 flex items-center justify-center">
-                <img
-                  src={portadaQuery.data.url}
-                  alt={theme?.titulo ?? "Portada del tema"}
-                  className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
-                />
-              </div>
-            ) : themeQuery.isLoading ? (
-              <div className="w-full aspect-square rounded-[2rem] bg-slate-50 flex items-center justify-center animate-pulse">
-                <Loader className="animate-spin text-slate-300" size={40} />
-              </div>
+        <section className="theme-detail__hero">
+          <div className="theme-detail__media">
+            {detalle.portadaQuery.data?.url ? (
+              <img
+                src={detalle.portadaQuery.data.url}
+                alt={theme?.portada_recurso?.texto_alternativo || `Portada de ${theme?.titulo || "tema"}`}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
             ) : (
-              <div className="w-full aspect-square rounded-[2rem] bg-slate-50 flex items-center justify-center border-2 border-slate-200 border-dashed">
-                <span className="text-slate-400 font-bold">Sin portada</span>
+              <div className="theme-detail__media-empty">
+                <BookOpenCheck aria-hidden="true" />
+                <span>Portada no disponible</span>
               </div>
             )}
+            {detalle.temaDescargado ? (
+              <span className="theme-detail__offline-badge">
+                <Check size={15} aria-hidden="true" /> Disponible sin conexión
+              </span>
+            ) : null}
           </div>
-        </div>
 
+          <div className="theme-detail__intro">
+            <span
+              className="theme-detail__senda"
+              style={{
+                color: theme?.senda?.color_hex || "#2563eb",
+                backgroundColor: `${theme?.senda?.color_hex || "#2563eb"}12`,
+              }}
+            >
+              <span style={{ backgroundColor: theme?.senda?.color_hex || "#2563eb" }} />
+              {theme?.senda?.nombre || "Senda"}
+            </span>
+            <h1>{theme?.titulo || "Tema"}</h1>
+            <p className="theme-detail__summary">
+              {theme?.resumen || theme?.objetivo || "Descubre una nueva enseñanza de la Palabra de Dios."}
+            </p>
+
+            <div className="theme-detail__stats">
+              <span><Sparkles aria-hidden="true" /> {theme?.xp_recompensa ?? 0} XP</span>
+              <span><Clock3 aria-hidden="true" /> {theme?.minutos_estimados ?? 10} min</span>
+              <span><BookOpenCheck aria-hidden="true" /> {detalle.pasosDisponibles} pasos</span>
+            </div>
+
+            <div className="theme-detail__progress-card">
+              <div>
+                <strong>Tu progreso</strong>
+                <span>{detalle.progresoReal}%</span>
+              </div>
+              <div className="theme-detail__progress-track" aria-label={`${detalle.progresoReal}% completado`}>
+                <span style={{ width: `${detalle.progresoReal}%` }} />
+              </div>
+              <small>
+                {detalle.progresoReal === 0
+                  ? "Comienza con Conectar y avanza a tu ritmo."
+                  : detalle.progresoReal === 100
+                    ? "Tema completado. Puedes repasarlo cuando quieras."
+                    : "Retoma desde el último paso guardado."}
+              </small>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-3">
+              <div className="min-w-0 flex-1">
+                <p className="m-0 text-sm font-black text-slate-800">Contenido sin conexión</p>
+                <p className="m-0 mt-0.5 text-xs leading-relaxed text-slate-500">
+                  {detalle.temaDescargado
+                    ? detalle.actualizacionDisponible
+                      ? "Hay una versión más reciente disponible."
+                      : "Este tema está listo para abrirse sin internet."
+                    : "Guarda los pasos, imágenes, audios y actividades en este dispositivo."}
+                </p>
+                {detalle.downloadProgress !== null ? (
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-violet-100" aria-label={`Descarga ${detalle.downloadProgress}%`}>
+                    <div className="h-full rounded-full bg-violet-600 transition-all" style={{ width: `${detalle.downloadProgress}%` }} />
+                  </div>
+                ) : null}
+              </div>
+              {detalle.temaDescargado && !detalle.actualizacionDisponible ? (
+                <button type="button" onClick={() => void detalle.handleEliminarDescarga()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 text-sm font-black text-rose-600 hover:bg-rose-50">
+                  <Trash2 size={17} /> Eliminar
+                </button>
+              ) : (
+                <button type="button" onClick={() => void detalle.handleDescargar()} disabled={!detalle.isOnline || detalle.isDownloading} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-black text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+                  {!detalle.isOnline ? <WifiOff size={17} /> : detalle.actualizacionDisponible ? <RefreshCw size={17} className={detalle.isDownloading ? "animate-spin" : ""} /> : <Download size={17} />}
+                  {!detalle.isOnline ? "Sin conexión" : detalle.actualizacionDisponible ? "Actualizar" : detalle.isDownloading ? "Descargando..." : "Descargar"}
+                </button>
+              )}
+            </div>
+
+            <div className="theme-detail__actions">
+              <Link to={detalle.rutaContinuacion} params={{ themeId }} className="theme-detail__primary" onClick={detalle.handleIniciarClick}>
+                <Play fill="currentColor" aria-hidden="true" />
+                {detalle.progresoReal === 0 ? "Comenzar lección" : detalle.progresoReal === 100 ? "Repasar lección" : "Continuar lección"}
+                <ArrowRight aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="theme-detail__journey" aria-labelledby="journey-title">
+          <div className="theme-detail__section-heading">
+            <div>
+              <span>METODOLOGÍA CRECER</span>
+              <h2 id="journey-title">Tu recorrido en seis pasos</h2>
+            </div>
+            <p>Lee, participa y aplica cada enseñanza antes de recibir tu recompensa.</p>
+          </div>
+          <ol className="theme-detail__steps">
+            {FASES_CRECER.map((fase, index) => {
+              const isComplete = index < detalle.pasosEstimadosCompletados;
+              const isCurrent = detalle.progresoReal > 0 && index === Math.min(detalle.pasosEstimadosCompletados, FASES_CRECER.length - 1);
+              return (
+                <li key={fase.codigo} className={isComplete ? "is-complete" : isCurrent ? "is-current" : ""}>
+                  <span className="theme-detail__step-number">{isComplete ? <Check aria-hidden="true" /> : fase.numero}</span>
+                  <div>
+                    <strong>{fase.nombre}</strong>
+                    <p>{fase.descripcion}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+
+        <div className="theme-detail__mobile-dock">
+          <Link to={detalle.rutaContinuacion} params={{ themeId }} onClick={detalle.handleIniciarClick}>
+            <Play fill="currentColor" aria-hidden="true" />
+            {detalle.progresoReal === 0 ? "Comenzar" : "Continuar"}
+          </Link>
+        </div>
       </div>
-    </div>
+    </StateView>
   );
 }

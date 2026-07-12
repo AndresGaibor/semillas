@@ -1,51 +1,45 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CrecerLayout } from "../features/crecer/componentes";
-import { ActividadWrapper } from "../features/crecer/componentes/actividad-wrapper";
-import imagenFase from "../assets/images/Ilustraciones/Comprobar.png";
-import { useComprobarPage } from "../features/crecer/hooks/use-comprobar-page";
+import { CrecerLayout } from "@/features/crecer/componentes";
+import { ActividadWrapper } from "@/features/crecer/componentes/actividad-wrapper";
+import { obtenerFaseCrecer } from "@/features/crecer/crecer-fases";
+import { useCrecerFase } from "@/features/crecer/hooks/use-crecer-fase";
 
 export const Route = createFileRoute("/app/C_comprobar/$themeId")({
-  component: CComprobarPage
+  component: CComprobarPage,
 });
 
-const FASE_CONFIG = {
-  numero: 4,
-  nombre: "Comprobar",
-  imagenSrc: imagenFase,
-  colorAccent: '#7c3aed',
-  colorLoader: '#7c3aed',
-};
+const FASE = obtenerFaseCrecer("comprobar");
 
 function CComprobarPage() {
   const { themeId } = Route.useParams();
-  const {
-    activitiesQuery,
-    contenidoPaso,
-    isLoading,
-    isError,
-    botonesAccion,
-    handleLegacyComplete,
-  } = useComprobarPage({ themeId });
+  const fase = useCrecerFase({ themeId, pasoCodigo: "comprobar" });
 
   return (
     <CrecerLayout
-      fase={FASE_CONFIG}
-      paso={contenidoPaso ?? null}
-      isLoading={isLoading}
-      isError={isError}
-      botonesAccion={botonesAccion}
+      fase={FASE}
+      themeId={themeId}
+      themeTitle={fase.themeQuery.data?.titulo}
+      paso={fase.contenidoPaso ?? null}
+      pasoId={fase.pasoActual?.id}
+      isLoading={fase.isLoading}
+      isError={fase.isError}
+      activityCount={fase.actividadesFase.length}
+      isSavingProgress={fase.isSavingProgress}
+      progressError={fase.progressError}
+      onCompleteStep={fase.completeStep}
+      emptyMessage="Esta fase necesita al menos una actividad para comprobar lo aprendido."
+      botonesAccion={{
+        siguiente: { to: "/app/E_experimentar/$themeId", themeId, label: "Continuar" },
+        regresar: { to: "/app/E_ensenar/$themeId", themeId, label: "Anterior" },
+      }}
     >
-      {activitiesQuery.data && activitiesQuery.data.length > 0 ? (
-        <div className="w-full flex flex-col gap-12 mt-8">
-          {activitiesQuery.data.map((actividad) => (
-            <ActividadWrapper
-              key={actividad.id}
-              actividad={actividad}
-              onComplete={(actId: string) => handleLegacyComplete(actId)}
-            />
-          ))}
-        </div>
-      ) : null}
+      {fase.actividadesFase.map((actividad) => (
+        <ActividadWrapper
+          key={actividad.id}
+          actividad={actividad}
+          onComplete={fase.handleActivityComplete}
+        />
+      ))}
     </CrecerLayout>
   );
 }

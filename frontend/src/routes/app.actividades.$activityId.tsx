@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader, Check, X, ArrowLeft, Zap } from "lucide-react";
+import { Loader, Check, X, ArrowLeft, Zap, CloudOff } from "lucide-react";
 import { useActivityPage } from "../features/activities/hooks/use-activity-page";
 
 export const Route = createFileRoute("/app/actividades/$activityId")({
@@ -11,6 +11,7 @@ function ActivityPage() {
   const {
     activity,
     result,
+    resultadoOffline,
     selected,
     handleSelectOption,
     handleGoBack,
@@ -91,6 +92,16 @@ function ActivityPage() {
               {result.resultado.retroalimentacion
                 ?? (result.resultado.correcta ? `Ganaste ${result.resultado.xp_otorgada} XP` : "Sigue practicando")}
             </p>
+          </div>
+        )}
+
+        {resultadoOffline && (
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 p-4 text-violet-800" role="status">
+            <CloudOff size={20} className="mt-0.5 shrink-0" />
+            <div>
+              <strong className="block">Respuesta guardada en este dispositivo</strong>
+              <span className="text-sm text-violet-700">La validaremos y sumaremos el XP cuando vuelvas a tener conexión.</span>
+            </div>
           </div>
         )}
 

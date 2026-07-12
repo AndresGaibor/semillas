@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Actividad as ActividadAPI } from "../../../shared/api/api";
+import type { Actividad as ActividadAPI } from "@/shared/api/api";
 
 interface Opcion {
   id: string;
@@ -8,9 +8,7 @@ interface Opcion {
   correcta?: boolean;
 }
 
-type Actividad = ActividadAPI & {
-  opciones?: Opcion[];
-};
+type Actividad = Omit<ActividadAPI, "opciones"> & { opciones?: Opcion[] };
 
 interface PreguntaItemProps {
   actividad: Actividad;
@@ -19,12 +17,10 @@ interface PreguntaItemProps {
 
 export function PreguntaItem({ actividad, children }: PreguntaItemProps) {
   return (
-    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 shadow-sm">
-      <h3 className="text-xl font-bold text-slate-800 mb-2">{actividad.titulo}</h3>
-      {actividad.consigna && (
-        <p className="text-slate-600 mb-4">{actividad.consigna}</p>
-      )}
+    <article className="crecer-question-card">
+      <h3>{actividad.titulo}</h3>
+      {actividad.consigna ? <p>{actividad.consigna}</p> : null}
       {children}
-    </div>
+    </article>
   );
 }

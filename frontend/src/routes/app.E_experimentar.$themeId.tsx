@@ -1,54 +1,47 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CrecerLayout, PreguntaItem, OpcionesRespuesta, PreguntasReflexion } from "../features/crecer/componentes";
-import imagenFase from "../assets/images/Ilustraciones/Experimentar.png";
-import { useExperimentarPage } from "../features/crecer/hooks/use-experimentar-page";
-
-const FASE_CONFIG = {
-  numero: 5,
-  nombre: "Experimentar",
-  imagenSrc: imagenFase,
-  colorAccent: '#f43f5e',
-  colorLoader: '#f43f5e',
-};
+import { CrecerLayout, PreguntasReflexion } from "@/features/crecer/componentes";
+import { ActividadWrapper } from "@/features/crecer/componentes/actividad-wrapper";
+import { obtenerFaseCrecer } from "@/features/crecer/crecer-fases";
+import { useCrecerFase } from "@/features/crecer/hooks/use-crecer-fase";
 
 export const Route = createFileRoute("/app/E_experimentar/$themeId")({
-  component: EExperimentarPage
+  component: EExperimentarPage,
 });
+
+const FASE = obtenerFaseCrecer("experimentar");
 
 function EExperimentarPage() {
   const { themeId } = Route.useParams();
-
-  const {
-    contenidoPaso,
-    isLoading,
-    isError,
-    botonesAccion,
-    preguntasReflexion,
-    actividadesFase,
-  } = useExperimentarPage({ themeId });
+  const fase = useCrecerFase({ themeId, pasoCodigo: "experimentar" });
+  const preguntas = fase.pasoActual?.preguntas ?? [];
 
   return (
     <CrecerLayout
-      fase={FASE_CONFIG}
-      paso={contenidoPaso ?? null}
-      isLoading={isLoading}
-      isError={isError}
-      botonesAccion={botonesAccion}
-      emptyMessage="No hay contenido, preguntas ni actividades disponibles para esta fase."
+      fase={FASE}
+      themeId={themeId}
+      themeTitle={fase.themeQuery.data?.titulo}
+      paso={fase.contenidoPaso ?? null}
+      pasoId={fase.pasoActual?.id}
+      isLoading={fase.isLoading}
+      isError={fase.isError}
+      activityCount={fase.actividadesFase.length}
+      isSavingProgress={fase.isSavingProgress}
+      progressError={fase.progressError}
+      onCompleteStep={fase.completeStep}
+      emptyMessage="No hay preguntas ni actividades disponibles para esta fase."
+      botonesAccion={{
+        siguiente: { to: "/app/R_recompensar/$themeId", themeId, label: "Finalizar tema" },
+        regresar: { to: "/app/C_comprobar/$themeId", themeId, label: "Anterior" },
+      }}
     >
-      {preguntasReflexion.length > 0 && (
-        <PreguntasReflexion preguntas={preguntasReflexion} />
-      )}
-
-      {actividadesFase.length > 0 ? (
-        actividadesFase.map((actividad) => (
-          <PreguntaItem key={actividad.id} actividad={actividad}>
-            {actividad.tipo_actividad?.codigo === 'cuestionario' && actividad.opciones && (
-              <OpcionesRespuesta opciones={actividad.opciones} colorHover="#f43f5e" />
-            )}
-          </PreguntaItem>
-        ))
-      ) : null}
+      {preguntas.length > 0 ? <PreguntasReflexion preguntas={preguntas} /> : null}
+      {fase.actividadesFase.map((actividad) => (
+        <ActividadWrapper
+          key={actividad.id}
+          actividad={actividad}
+          onComplete={fase.handleActivityComplete}
+        />
+      ))}
     </CrecerLayout>
   );
 }

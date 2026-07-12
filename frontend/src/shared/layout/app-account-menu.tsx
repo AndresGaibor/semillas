@@ -117,7 +117,7 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
         >
           {OPCIONES_CUENTA.map((opcion) => (
             <Link
-              key={opcion.to}
+              key={`${opcion.to}-${opcion.label}`}
               to={opcion.to}
               search={opcion.search}
               role="menuitem"

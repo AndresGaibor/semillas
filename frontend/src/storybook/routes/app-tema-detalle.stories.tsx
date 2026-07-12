@@ -1,36 +1,60 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ArrowLeft, ArrowRight, BookOpenCheck, Check, Clock3, Play, Sparkles } from "lucide-react";
 import { StoryRouter } from "@/storybook/story-router";
-import { Link } from "@tanstack/react-router";
+import { FASES_CRECER } from "@/features/crecer/crecer-fases";
+import "@/routes/theme-detail.css";
 
 function TemaDetalleStory() {
   return (
     <StoryRouter initialPath="/app/temas/tema-amor">
-      <div className="max-w-2xl mx-auto p-4">
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
-          <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
-            <img src="https://picsum.photos/seed/tema-amor/600/300" alt="Tema" className="w-full h-full object-cover" />
-          </div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">PADRE</span>
-            <span className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">Exploradores</span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-800 mb-2">El Amor de Dios</h1>
-          <p className="text-slate-500 text-sm mb-4">Juan 3:16 — Para Dios amó tanto al mundo...</p>
-          <div className="flex gap-4 mb-6 text-sm text-slate-600">
-            <span>⏱ 20 min</span>
-            <span>⭐ 150 XP</span>
-            <span>📊 66%</span>
-          </div>
-          <div className="w-full bg-slate-100 rounded-full h-3 mb-6">
-            <div className="bg-green-500 h-3 rounded-full" style={{ width: "66%" }} />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            {["C", "R", "E", "C", "E", "R"].map((letra, i) => (
-              <button key={i} className="bg-slate-50 border border-slate-200 rounded-xl py-4 text-center font-black text-lg hover:bg-slate-100">
-                {letra}
-              </button>
-            ))}
-          </div>
+      <div className="min-h-screen bg-[#f7f9fc] p-4 sm:p-8">
+        <div className="theme-detail mx-auto max-w-[1420px]">
+          <button className="theme-detail__back" type="button">
+            <ArrowLeft aria-hidden="true" /> Mis temas
+          </button>
+          <section className="theme-detail__hero">
+            <div className="theme-detail__media">
+              <img src="https://picsum.photos/seed/tema-amor/900/900" alt="Jonás y la ballena" />
+            </div>
+            <div className="theme-detail__intro">
+              <span className="theme-detail__senda text-blue-600 bg-blue-50">
+                <span className="bg-blue-500" /> Senda del Padre
+              </span>
+              <h1>El Amor de Dios</h1>
+              <p className="theme-detail__summary">
+                Un recorrido tierno y alegre para recordar que el amor de Dios es grande, fiel y cercano.
+              </p>
+              <div className="theme-detail__stats">
+                <span><Sparkles /> 150 XP</span>
+                <span><Clock3 /> 20 min</span>
+                <span><BookOpenCheck /> 6 pasos</span>
+              </div>
+              <div className="theme-detail__progress-card">
+                <div><strong>Tu progreso</strong><span>33%</span></div>
+                <div className="theme-detail__progress-track"><span style={{ width: "33%" }} /></div>
+                <small>Retoma desde el último paso guardado.</small>
+              </div>
+              <div className="theme-detail__actions">
+                <button className="theme-detail__primary" type="button">
+                  <Play fill="currentColor" /> Continuar lección <ArrowRight />
+                </button>
+              </div>
+            </div>
+          </section>
+          <section className="theme-detail__journey">
+            <div className="theme-detail__section-heading">
+              <div><span>METODOLOGÍA CRECER</span><h2>Tu recorrido en seis pasos</h2></div>
+              <p>Lee, participa y aplica cada enseñanza antes de recibir tu recompensa.</p>
+            </div>
+            <ol className="theme-detail__steps">
+              {FASES_CRECER.map((fase, index) => (
+                <li key={fase.codigo} className={index < 2 ? "is-complete" : index === 2 ? "is-current" : ""}>
+                  <span className="theme-detail__step-number">{index < 2 ? <Check /> : fase.numero}</span>
+                  <div><strong>{fase.nombre}</strong><p>{fase.descripcion}</p></div>
+                </li>
+              ))}
+            </ol>
+          </section>
         </div>
       </div>
     </StoryRouter>

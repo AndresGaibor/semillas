@@ -1,9 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { obtenerTema, obtenerPasos, obtenerActividades } from "@/features/themes/themes.api";
-import { enviarEventosProgreso } from "@/features/progress/progress.api";
+import { obtenerMiPerfil } from "@/features/profile/profile.api";
 import type { EventoProgreso } from "@/shared/api/api";
+import { registrarEventosCrecer } from "../services/crecer-progress";
 
 type UseCrecerFaseOptions = {
   themeId: string;
@@ -11,67 +11,148 @@ type UseCrecerFaseOptions = {
 };
 
 export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const eventSentRef = useRef(false);
+  const [actividadesCompletadas, setActividadesCompletadas] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const meQuery = useQuery({
+    queryKey: ["me"],
+    queryFn: obtenerMiPerfil,
+  });
 
   const themeQuery = useQuery({
     queryKey: ["theme", themeId],
     queryFn: () => obtenerTema(themeId),
   });
   const temaDbId = themeQuery.data?.id;
+  const grupoEdadId = meQuery.data?.perfil?.grupo_edad_id ?? undefined;
 
   const stepsQuery = useQuery({
-    queryKey: ["theme", temaDbId, "steps"],
-    queryFn: () => obtenerPasos(temaDbId!),
-    enabled: !!temaDbId,
+    queryKey: ["theme", temaDbId, "steps", grupoEdadId],
+    queryFn: () => obtenerPasos(temaDbId!, grupoEdadId),
+    enabled: !!temaDbId && meQuery.isSuccess,
   });
 
   const activitiesQuery = useQuery({
-    queryKey: ["theme", temaDbId, "activities"],
-    queryFn: () => obtenerActividades(temaDbId!),
-    enabled: !!temaDbId,
+    queryKey: ["theme", temaDbId, "activities", grupoEdadId],
+    queryFn: () => obtenerActividades(temaDbId!, grupoEdadId),
+    enabled: !!temaDbId && meQuery.isSuccess,
   });
 
-  const pasoActual = stepsQuery.data?.find((p) => p.tipo_paso?.codigo === pasoCodigo);
+  const pasoActual = stepsQuery.data?.find((paso) => paso.tipo_paso?.codigo === pasoCodigo);
   const contenidoPaso = pasoActual?.contenidos?.[0];
-  const actividadesFase = activitiesQuery.data?.filter((a) => a.paso_id === pasoActual?.id) || [];
+  const actividadesFase = useMemo(
+    () => activitiesQuery.data?.filter((actividad) => actividad.paso_id === pasoActual?.id) ?? [],
+    [activitiesQuery.data, pasoActual?.id],
+  );
 
-  const isLoading = themeQuery.isLoading || (!!temaDbId && (stepsQuery.isLoading || activitiesQuery.isLoading));
-  const isError = themeQuery.isError || stepsQuery.isError || activitiesQuery.isError;
+  const isLoading =
+    meQuery.isLoading ||
+    themeQuery.isLoading ||
+    (!!temaDbId && (stepsQuery.isLoading || activitiesQuery.isLoading));
+  const isError =
+    meQuery.isError || themeQuery.isError || stepsQuery.isError || activitiesQuery.isError;
 
-  const queryClient = useQueryClient();
   const eventMutation = useMutation({
-    mutationFn: enviarEventosProgreso,
+    mutationFn: registrarEventosCrecer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["progress"] });
+      queryClient.invalidateQueries({ queryKey: ["sync"] });
     },
   });
 
-  const eventSentRef = useRef(false);
-
   useEffect(() => {
-    if (!isLoading && !isError && temaDbId && !eventSentRef.current) {
-      eventSentRef.current = true;
-      const evento: EventoProgreso = {
-        evento_id_cliente: crypto.randomUUID(),
-        tipo_evento: "tema_iniciado",
-        tema_id: temaDbId,
-        ocurrido_en_cliente: new Date().toISOString(),
-      };
-      eventMutation.mutate([evento]);
+    if (
+      isLoading ||
+      isError ||
+      !temaDbId ||
+      !pasoActual?.id ||
+      eventSentRef.current
+    ) {
+      return;
     }
-  }, [isLoading, isError, temaDbId, eventMutation]);
 
-  const navigateTo = (path: string) => navigate({ to: path, params: { themeId } });
+    eventSentRef.current = true;
+    const ocurridoEn = new Date().toISOString();
+    const eventos: EventoProgreso[] = [
+      ...(pasoCodigo === "conectar"
+        ? [
+            {
+              evento_id_cliente: crypto.randomUUID(),
+              tipo_evento: "tema_iniciado" as const,
+              tema_id: temaDbId,
+              ocurrido_en_cliente: ocurridoEn,
+            },
+          ]
+        : []),
+      {
+        evento_id_cliente: crypto.randomUUID(),
+        tipo_evento: "bloque_iniciado",
+        tema_id: temaDbId,
+        paso_id: pasoActual.id,
+        ocurrido_en_cliente: ocurridoEn,
+      },
+    ];
+
+    eventMutation.mutate(eventos);
+  }, [isLoading, isError, temaDbId, pasoActual?.id, pasoCodigo]);
+
+  const handleActivityComplete = useCallback(
+    async (actividadId: string, puntaje?: number) => {
+      if (!temaDbId) return;
+
+      await eventMutation.mutateAsync([
+        {
+          evento_id_cliente: crypto.randomUUID(),
+          tipo_evento: "actividad_completada",
+          tema_id: temaDbId,
+          paso_id: pasoActual?.id,
+          actividad_id: actividadId,
+          puntaje,
+          ocurrido_en_cliente: new Date().toISOString(),
+        },
+      ]);
+
+      setActividadesCompletadas((actuales) => {
+        const siguiente = new Set(actuales);
+        siguiente.add(actividadId);
+        return siguiente;
+      });
+    },
+    [eventMutation, pasoActual?.id, temaDbId],
+  );
+
+  const completeStep = useCallback(async () => {
+    if (!temaDbId || !pasoActual?.id) return;
+
+    await eventMutation.mutateAsync([
+      {
+        evento_id_cliente: crypto.randomUUID(),
+        tipo_evento: "bloque_completado",
+        tema_id: temaDbId,
+        paso_id: pasoActual.id,
+        ocurrido_en_cliente: new Date().toISOString(),
+      },
+    ]);
+  }, [eventMutation, pasoActual?.id, temaDbId]);
 
   return {
+    meQuery,
     themeQuery,
     stepsQuery,
     activitiesQuery,
+    temaDbId,
     pasoActual,
     contenidoPaso,
     actividadesFase,
+    actividadesCompletadas,
     isLoading,
     isError,
-    navigateTo,
+    isSavingProgress: eventMutation.isPending,
+    progressError: eventMutation.error,
+    handleActivityComplete,
+    completeStep,
   };
 }

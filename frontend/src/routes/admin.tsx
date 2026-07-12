@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin")({
         if (acceso.redireccion === "/login") {
           throw redirect({ to: "/login", search: { redirect: location.href } });
         }
-        throw redirect({ to: "/app" });
+        throw redirect({ to: "/acceso-denegado" });
       }
     } catch (error) {
       if (isRedirect(error)) throw error;

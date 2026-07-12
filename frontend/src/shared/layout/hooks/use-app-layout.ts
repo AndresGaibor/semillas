@@ -5,6 +5,7 @@ import { sessionStorageApi } from "@/shared/api/session";
 import { cerrarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerNavMovilActivo, obtenerNavegacionMovil } from "@/shared/layout/app-mobile-nav";
 import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { esRutaModoLeccion } from "@/features/crecer/crecer-fases";
 
 type PageHeaderInfo = {
   titulo: string;
@@ -85,6 +86,7 @@ export function useAppLayout() {
   const opcionesBottomNav = navegacionMovil.map(({ id, etiqueta, icono }) => ({ id, etiqueta, icono }));
   const activoMovil = obtenerNavMovilActivo(location.pathname);
   const esInicio = location.pathname === "/app" || location.pathname === "/app/";
+  const esModoLeccion = esRutaModoLeccion(location.pathname);
   const pageHeader = esInicio ? DEFAULT_HEADER : getPageHeaderInfo(location.pathname) ?? DEFAULT_HEADER;
 
   const navigateTo = (id: string) => {
@@ -102,6 +104,7 @@ export function useAppLayout() {
     pageHeader,
     path: location.pathname,
     esInicio,
+    esModoLeccion,
   };
 }
 

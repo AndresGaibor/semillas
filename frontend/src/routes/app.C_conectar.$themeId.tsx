@@ -1,49 +1,52 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CrecerLayout, PreguntaItem, OpcionesRespuesta } from "../features/crecer/componentes";
-import imagenFase from "../assets/images/Ilustraciones/Conectar.png";
-import { useCrecerFase } from "../features/crecer/hooks/use-crecer-fase";
+import { CrecerLayout } from "@/features/crecer/componentes";
+import { ActividadWrapper } from "@/features/crecer/componentes/actividad-wrapper";
+import { obtenerFaseCrecer } from "@/features/crecer/crecer-fases";
+import { useCrecerFase } from "@/features/crecer/hooks/use-crecer-fase";
 
 export const Route = createFileRoute("/app/C_conectar/$themeId")({
   component: CConectarPage,
 });
 
-const FASE_CONFIG = {
-  numero: 1,
-  nombre: "Conectar",
-  imagenSrc: imagenFase,
-  colorAccent: "#16a34a",
-  colorLoader: "#16a34a",
-};
+const FASE = obtenerFaseCrecer("conectar");
 
 function CConectarPage() {
   const { themeId } = Route.useParams();
-  const { contenidoPaso, actividadesFase, isLoading, isError, navigateTo } = useCrecerFase({
-    themeId,
-    pasoCodigo: "conectar",
-  });
-
-  const botonesAccion = {
-    siguiente: { to: "/app/R_relatar/$themeId", themeId, label: "Siguiente Fase" },
-    regresar: { to: "/app/temas/$themeId", themeId },
-  };
+  const fase = useCrecerFase({ themeId, pasoCodigo: "conectar" });
 
   return (
     <CrecerLayout
-      fase={FASE_CONFIG}
-      paso={contenidoPaso ?? null}
-      isLoading={isLoading}
-      isError={isError}
-      botonesAccion={botonesAccion}
+      fase={FASE}
+      themeId={themeId}
+      themeTitle={fase.themeQuery.data?.titulo}
+      paso={fase.contenidoPaso ?? null}
+      pasoId={fase.pasoActual?.id}
+      isLoading={fase.isLoading}
+      isError={fase.isError}
+      activityCount={fase.actividadesFase.length}
+      isSavingProgress={fase.isSavingProgress}
+      progressError={fase.progressError}
+      onCompleteStep={fase.completeStep}
+      botonesAccion={{
+        siguiente: {
+          to: "/app/R_relatar/$themeId",
+          themeId,
+          label: "Continuar",
+        },
+        regresar: {
+          to: "/app/temas/$themeId",
+          themeId,
+          label: "Volver al tema",
+        },
+      }}
     >
-      {actividadesFase.length > 0 ? (
-        actividadesFase.map((actividad) => (
-          <PreguntaItem key={actividad.id} actividad={actividad}>
-            {actividad.tipo_actividad?.codigo === "cuestionario" && actividad.opciones && (
-              <OpcionesRespuesta opciones={actividad.opciones} colorHover="#16a34a" />
-            )}
-          </PreguntaItem>
-        ))
-      ) : null}
+      {fase.actividadesFase.map((actividad) => (
+        <ActividadWrapper
+          key={actividad.id}
+          actividad={actividad}
+          onComplete={fase.handleActivityComplete}
+        />
+      ))}
     </CrecerLayout>
   );
 }

@@ -1,10 +1,20 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { hasSession } from "../shared/api/auth-guard";
 import { BottomNav } from "@/componentes/ui/bottom-nav";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppUserHeader } from "../shared/layout/app-user-header";
 import { useAppLayout } from "../shared/layout/hooks/use-app-layout";
 import { resolverAvatar } from "@/shared/constants/avatares";
+import { cerrarSesionAutenticada } from "@/shared/auth/supabase";
+import { sessionStorageApi } from "@/shared/api/session";
+import {
+  consumirConflictoVinculacion,
+  descartarConflictoVinculacion,
+  eventoConflictoVinculacion,
+} from "@/shared/auth/conflicto-vinculacion";
+import { router } from "@/router";
+import { DialogoConflictoVinculacion } from "@/componentes/ui/dialogo-conflicto-vinculacion";
 import "./app.css";
 
 export const Route = createFileRoute("/app")({
@@ -25,7 +35,58 @@ function AppLayout() {
     path,
     meQuery,
     esInicio,
+    esModoLeccion,
   } = useAppLayout();
+
+  const [mensajeConflicto, setMensajeConflicto] = useState<string | null>(null);
+
+  useEffect(() => {
+    const inicial = consumirConflictoVinculacion();
+    if (inicial) {
+      setMensajeConflicto(inicial);
+    }
+    const handler = () => {
+      const siguiente = consumirConflictoVinculacion();
+      if (siguiente) {
+        setMensajeConflicto(siguiente);
+      }
+    };
+    window.addEventListener(eventoConflictoVinculacion(), handler);
+    return () => {
+      window.removeEventListener(eventoConflictoVinculacion(), handler);
+    };
+  }, []);
+
+  const continuarComoInvitado = async () => {
+    descartarConflictoVinculacion();
+    setMensajeConflicto(null);
+    sessionStorageApi.clearAccessToken();
+    try {
+      await cerrarSesionAutenticada();
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn("Cerrar sesion OAuth durante conflicto fallo:", error);
+      }
+    }
+    if (typeof window !== "undefined") {
+      window.location.assign("/app");
+    }
+  };
+
+  const cambiarCuenta = async () => {
+    descartarConflictoVinculacion();
+    setMensajeConflicto(null);
+    sessionStorageApi.clearGuestSession();
+    sessionStorageApi.clearAccessToken();
+    try {
+      await cerrarSesionAutenticada();
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn("Cerrar sesion OAuth para cambiar cuenta fallo:", error);
+      }
+    }
+    await router.navigate({ to: "/login", search: { redirect: "/app" } });
+  };
 
   const avatarGuardado = meQuery.data?.perfil?.url_avatar || meQuery.data?.perfil?.clave_avatar || "1";
   const cuenta = {
@@ -38,38 +99,54 @@ function AppLayout() {
   };
 
   return (
-    <div className="app-shell app-shell--app">
-      <AppSidebar
-        activePage={path}
-        isOffline={isOffline}
-        isOpen={false}
-        onClose={() => undefined}
-        onLogout={handleLogout}
-        variant="app"
-      />
+    <>
+      <div className={`app-shell app-shell--app ${esModoLeccion ? "app-shell--lesson" : ""}`}>
+        {!esModoLeccion ? (
+          <AppSidebar
+            activePage={path}
+            isOffline={isOffline}
+            isOpen={false}
+            onClose={() => undefined}
+            onLogout={handleLogout}
+            variant="app"
+          />
+        ) : null}
 
-      <div className="app-shell__workspace">
-        <AppUserHeader
-          title={pageHeader.titulo}
-          subtitle={pageHeader.subtitulo}
-          nombreVisible={cuenta.nombre}
-          nivelTexto={cuenta.nivelTexto}
-          avatarUrl={cuenta.avatarUrl}
-          onLogout={handleLogout}
-          isOffline={isOffline}
-          esInicio={esInicio}
-        />
+        <div className="app-shell__workspace">
+          {!esModoLeccion ? (
+            <AppUserHeader
+              title={pageHeader.titulo}
+              subtitle={pageHeader.subtitulo}
+              nombreVisible={cuenta.nombre}
+              nivelTexto={cuenta.nivelTexto}
+              avatarUrl={cuenta.avatarUrl}
+              onLogout={handleLogout}
+              isOffline={isOffline}
+              esInicio={esInicio}
+            />
+          ) : null}
 
-        <main className="app-shell__main app-shell__main--app">
-          <div className="app-shell__content app-shell__content--app" data-path={path}>
-            <Outlet />
-          </div>
-        </main>
+          <main className="app-shell__main app-shell__main--app">
+            <div className="app-shell__content app-shell__content--app" data-path={path}>
+              <Outlet />
+            </div>
+          </main>
 
-        <nav className="app-shell__bottom-nav" aria-label="Navegación principal móvil">
-          <BottomNav opciones={opcionesBottomNav} activo={activoMovil} onCambiar={navigateTo} />
-        </nav>
+          {!esModoLeccion ? (
+            <nav className="app-shell__bottom-nav" aria-label="Navegación principal móvil">
+              <BottomNav opciones={opcionesBottomNav} activo={activoMovil} onCambiar={navigateTo} />
+            </nav>
+          ) : null}
+        </div>
       </div>
-    </div>
+
+      {mensajeConflicto ? (
+        <DialogoConflictoVinculacion
+          mensaje={mensajeConflicto}
+          onContinuarInvitado={continuarComoInvitado}
+          onCambiarCuenta={cambiarCuenta}
+        />
+      ) : null}
+    </>
   );
 }

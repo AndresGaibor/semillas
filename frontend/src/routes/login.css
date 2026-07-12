@@ -20,10 +20,8 @@
     radial-gradient(circle at top right, rgba(67, 160, 71, 0.08), transparent 28%),
     linear-gradient(180deg, #f7f8f6 0%, #f4f4f2 100%);
   color: var(--color-neutro-oscuro-max);
-  overflow: hidden;
-  @media (max-width: 767px) {
-    overflow-y: auto;
-  }
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .login-shell {
@@ -33,10 +31,7 @@
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 20px 60px rgba(17, 24, 39, 0.06);
-  overflow: hidden;
-  @media (max-width: 767px) {
-    overflow-y: auto;
-  }
+  overflow: visible;
 }
 
 .login-topbar {
@@ -118,10 +113,12 @@
   display: grid;
   grid-template-columns: minmax(360px, 520px) minmax(0, 1fr);
   gap: 40px;
-  align-items: center;
-  padding: 48px 64px 56px;
-  height: calc(100dvh - 96px);
-  overflow: hidden;
+  align-items: start;
+  align-content: start;
+  padding: 12px 64px 56px;
+  min-height: calc(100dvh - 96px);
+  height: auto;
+  overflow: visible;
 }
 
 .login-panel--form,
