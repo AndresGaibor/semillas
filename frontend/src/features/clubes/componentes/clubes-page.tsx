@@ -41,7 +41,7 @@ import type {
   MiembroClub,
   MiembroRankingClub,
   RetoCooperativo,
-} from "@/features/clubs/clubs.api";
+} from "@/features/clubes/clubes.api";
 import "./clubes-page.css";
 
 const VISTAS: Array<{ id: VistaClub; label: string; icon: typeof Trophy; soloLider?: boolean }> = [

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ClubHero, MiembrosClub, RankingClub, RetosClub } from "./clubes-page";
-import type { Club, MiembroClub, MiembroRankingClub, RetoCooperativo } from "@/features/clubs/clubs.api";
+import type { Club, MiembroClub, MiembroRankingClub, RetoCooperativo } from "@/features/clubes/clubes.api";
 
 const club: Club = {
   id: "club-1",

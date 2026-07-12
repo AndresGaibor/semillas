@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { obtenerGamificacionPropia } from "../../gamification/gamification.api";
-import { obtenerMiPerfil } from "../../profile/profile.api";
+import { obtenerMiPerfil } from "../../perfil/profile.api";
 import {
   actualizarClub,
   archivarClub,
@@ -20,7 +20,7 @@ import {
   transferirLiderazgoClub,
   unirseAClub,
   type CodigoMetricaReto,
-} from "../../clubs/clubs.api";
+} from "../clubes.api";
 
 export type VistaClub = "resumen" | "ranking" | "retos" | "miembros" | "ajustes";
 
