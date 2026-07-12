@@ -5,6 +5,7 @@ import type { AppBindings } from "../../config/env";
 import { createSupabaseAdmin, type DbClient } from "../../db/client";
 import { NotFoundError } from "../../shared/errors/http-error";
 import { responderError, responderExito } from "../../shared/http/respuesta";
+import { authMiddleware } from "../../shared/middleware/auth.middleware";
 import { crearThemesRepository } from "./themes.repository";
 import { crearThemesService } from "./themes.service";
 
@@ -18,7 +19,8 @@ type Dependencias = {
 
 export function crearModuloThemes({
   db,
-  createSupabaseAdmin: crearAdmin = createSupabaseAdmin
+  createSupabaseAdmin: crearAdmin = createSupabaseAdmin,
+  authMiddleware: middlewareAutenticacion = authMiddleware,
 }: Dependencias = {}) {
   const themesRoutes = new Hono<AppBindings>();
 
@@ -32,6 +34,28 @@ export function crearModuloThemes({
   themesRoutes.get("/", async (c) => {
     const sendaId = c.req.query("senda_id") ?? undefined;
     return responderExito(await obtenerServicio(c).listarTemasPublicos(sendaId));
+  });
+
+  themesRoutes.post("/:tema_id/paquete-offline", middlewareAutenticacion, async (c) => {
+    const temaId = c.req.param("tema_id");
+
+    if (!UUID_REGEX.test(temaId)) {
+      return responderError("El ID del tema debe ser un UUID válido", "VALIDATION_ERROR", 400);
+    }
+
+    const body: { grupo_edad_id?: string } = await c.req.json<{ grupo_edad_id?: string }>().catch(() => ({}));
+    if (!body.grupo_edad_id || !UUID_REGEX.test(body.grupo_edad_id)) {
+      return responderError("El grupo de edad es obligatorio", "VALIDATION_ERROR", 400);
+    }
+
+    const usuario = c.get("user");
+    const paquete = await obtenerServicio(c).crearPaqueteOffline(c.env, usuario.id, temaId, body.grupo_edad_id);
+
+    if (!paquete) {
+      throw new NotFoundError("Tema no encontrado");
+    }
+
+    return responderExito(paquete);
   });
 
   themesRoutes.get("/:tema_id/portada", async (c) => {

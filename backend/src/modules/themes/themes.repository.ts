@@ -1,4 +1,4 @@
-import { asc, and, eq } from "drizzle-orm";
+import { asc, and, eq, inArray } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
@@ -130,6 +130,87 @@ export function crearThemesRepository(db: DbClient) {
           return { actividad: registro.actividad, tipoActividad: registro.tipoActividad, opciones };
         })
       );
+    },
+
+    async obtenerGrupoEdadUsuario(usuarioId: string) {
+      const [perfil] = await db
+        .select({ grupoEdadId: schema.perfil.grupoEdadId })
+        .from(schema.perfil)
+        .where(eq(schema.perfil.usuarioId, usuarioId))
+        .limit(1);
+
+      return perfil?.grupoEdadId ?? null;
+    },
+
+    async temaDisponibleParaGrupo(temaId: string, grupoEdadId: string) {
+      const [temaGrupo] = await db
+        .select({ temaId: schema.temaGrupoEdad.temaId })
+        .from(schema.temaGrupoEdad)
+        .innerJoin(schema.tema, eq(schema.temaGrupoEdad.temaId, schema.tema.id))
+        .where(and(eq(schema.temaGrupoEdad.temaId, temaId), eq(schema.temaGrupoEdad.grupoEdadId, grupoEdadId), eq(schema.tema.estado, "publicado")))
+        .limit(1);
+
+      return Boolean(temaGrupo);
+    },
+
+    async listarRecursosPorIds(ids: string[]) {
+      if (ids.length === 0) return [];
+
+      return db
+        .select()
+        .from(schema.recursoMultimedia)
+        .where(inArray(schema.recursoMultimedia.id, ids));
+    },
+
+    async obtenerPaqueteOffline(temaId: string, versionContenido: number) {
+      const [paquete] = await db
+        .select()
+        .from(schema.paqueteSinConexion)
+        .where(and(eq(schema.paqueteSinConexion.temaId, temaId), eq(schema.paqueteSinConexion.versionContenido, versionContenido)))
+        .limit(1);
+
+      return paquete ?? null;
+    },
+
+    async guardarPaqueteOffline(datos: {
+      temaId: string;
+      versionContenido: number;
+      tamanoBytes: number;
+      manifiesto: Record<string, unknown>;
+    }) {
+      const [paquete] = await db
+        .insert(schema.paqueteSinConexion)
+        .values({
+          temaId: datos.temaId,
+          versionContenido: datos.versionContenido,
+          tamanoBytes: datos.tamanoBytes,
+          manifiesto: datos.manifiesto,
+        })
+        .onConflictDoUpdate({
+          target: [schema.paqueteSinConexion.temaId, schema.paqueteSinConexion.versionContenido],
+          set: {
+            tamanoBytes: datos.tamanoBytes,
+            manifiesto: datos.manifiesto,
+          },
+        })
+        .returning();
+
+      return paquete ?? null;
+    },
+
+    async registrarDescargaOffline(usuarioId: string, paqueteId: string) {
+      await db
+        .insert(schema.descargaSinConexionUsuario)
+        .values({
+          usuarioId,
+          paqueteId,
+          descargadoEn: new Date(),
+          ultimoAbiertoEn: null,
+        })
+        .onConflictDoUpdate({
+          target: [schema.descargaSinConexionUsuario.usuarioId, schema.descargaSinConexionUsuario.paqueteId],
+          set: { descargadoEn: new Date() },
+        });
     }
   };
 }

@@ -447,7 +447,9 @@ export const paqueteSinConexion = pgTable("paquete_sin_conexion", {
   tamanoBytes: integer("tamano_bytes").notNull(),
   manifiesto: jsonb("manifiesto"),
   creadoEn: timestamp("creado_en").notNull().defaultNow()
-});
+}, (tabla) => [
+  uniqueIndex("uq_paquete_sin_conexion_tema_version").on(tabla.temaId, tabla.versionContenido)
+]);
 
 // Descargas offline por usuario
 export const descargaSinConexionUsuario = pgTable("descarga_sin_conexion_usuario", {
@@ -455,7 +457,9 @@ export const descargaSinConexionUsuario = pgTable("descarga_sin_conexion_usuario
   paqueteId: uuid("paquete_id").notNull().references(() => paqueteSinConexion.id, { onDelete: "cascade" }),
   descargadoEn: timestamp("descargado_en").notNull().defaultNow(),
   ultimoAbiertoEn: timestamp("ultimo_abierto_en")
-});
+}, (tabla) => [
+  uniqueIndex("uq_descarga_sin_conexion_usuario_paquete").on(tabla.usuarioId, tabla.paqueteId)
+]);
 
 /**
  * ============================================================

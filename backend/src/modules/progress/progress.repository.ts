@@ -49,7 +49,7 @@ export function crearProgressRepository(db: DbClient) {
       const [data] = await db
         .insert(schema.eventoProgreso)
         .values(fila as never)
-        .onConflictDoNothing({ target: schema.eventoProgreso.idEventoCliente })
+        .onConflictDoNothing()
         .returning();
 
       return data ?? null;

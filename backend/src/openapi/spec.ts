@@ -278,6 +278,38 @@ const PasoTemaCrecerSchema = z
   })
   .openapi("PasoTemaCrecer");
 
+const PaqueteOfflineBody = z.object({
+  grupo_edad_id: z.string().uuid().openapi({ description: "Grupo etario usado para adaptar contenido", example: uuidExample })
+}).openapi("PaqueteOfflineBody");
+
+const RecursoOfflineSchema = z.object({
+  id: z.string().uuid(),
+  tipo: z.string(),
+  url_descarga: z.string().url(),
+  tipo_mime: z.string().nullable(),
+  tamano_bytes: z.number().int().nullable(),
+  titulo: z.string().nullable(),
+  texto_alternativo: z.string().nullable(),
+  duracion_seg: z.number().nullable(),
+  ancho_px: z.number().nullable(),
+  alto_px: z.number().nullable()
+}).passthrough().openapi("RecursoOffline");
+
+const PaqueteOfflineResponse = z.object({
+  exito: z.literal(true),
+  datos: z.object({
+    paquete_id: z.string().uuid().nullable(),
+    tamano_bytes: z.number().int().nonnegative(),
+    schema_version: z.number().int(),
+    generado_en: z.string().datetime(),
+    grupo_edad_id: z.string().uuid(),
+    tema: TemaResumido,
+    pasos: z.array(PasoTemaCrecerSchema),
+    actividades: z.array(ActividadSchema),
+    medios: z.array(RecursoOfflineSchema)
+  })
+}).openapi("PaqueteOfflineResponse");
+
 const ClubSchema = z.object({
   id: z.string().uuid(), nombre: z.string().openapi({ example: "Exploradores de la Fe" }),
   descripcion: z.string().nullable(), codigo_invitacion: z.string().openapi({ example: "ABC12345" }),
@@ -520,6 +552,13 @@ const AuthDevResponse = z.object({
 
 // ─── Actividades schemas ──────────────────────────────────────────────
 
+const LogroDesbloqueadoSchema = z.object({
+  id: z.string().uuid(),
+  codigo: z.string(),
+  nombre: z.string(),
+  bono_xp: z.number().int().nonnegative()
+}).openapi("LogroDesbloqueado");
+
 const ResponderActividadBody = z.object({
   evento_id_cliente: z.string().uuid().openapi({ description: "ID unico del evento (idempotencia)", example: uuidExample }),
   opcion_id_seleccionada: z.string().uuid().optional().openapi({ description: "ID de la opcion seleccionada", example: uuidExample }),
@@ -537,7 +576,10 @@ const ResponderActividadResponse = z.object({
       opcion_correcta_id: z.string().uuid().nullable().openapi({ example: uuidExample }),
       retroalimentacion: z.string().nullable().openapi({ example: "¡Muy bien!" })
     }),
-    duplicado: z.boolean().openapi({ example: false })
+    duplicado: z.boolean().openapi({ example: false }),
+    correcta: z.boolean().openapi({ example: true }),
+    xp_otorgada: z.number().int().nonnegative().openapi({ example: 15 }),
+    logros_desbloqueados: z.array(LogroDesbloqueadoSchema)
   })
 }).openapi("ResponderActividadResponse");
 
@@ -647,6 +689,10 @@ registry.register("AdminUserDeletedResponse", AdminUserDeletedResponse);
 registry.register("AuthDevResponse", AuthDevResponse);
 registry.register("ResponderActividadBody", ResponderActividadBody);
 registry.register("ResponderActividadResponse", ResponderActividadResponse);
+registry.register("LogroDesbloqueado", LogroDesbloqueadoSchema);
+registry.register("PaqueteOfflineBody", PaqueteOfflineBody);
+registry.register("RecursoOffline", RecursoOfflineSchema);
+registry.register("PaqueteOfflineResponse", PaqueteOfflineResponse);
 registry.register("ClubDetallado", ClubDetallado);
 registry.register("CreateClubBody", CreateClubBody);
 registry.register("JoinClubBody", JoinClubBody);
@@ -708,6 +754,11 @@ registry.registerPath({ method: "get", path: "/temas/{tema_id}/actividades", ope
   summary: "Actividades de un tema", description: "Filtrar por grupo etario (?grupo_edad_id=uuid)",
   request: { params: z.object({ tema_id: z.string().uuid() }), query: z.object({ grupo_edad_id: z.string().uuid().optional() }) },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ActividadSchema) }) } }, description: "Actividades del tema" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/temas/{tema_id}/paquete-offline", operationId: "createOfflineThemePackage", tags: ["temas", "sync"],
+  summary: "Preparar paquete offline", description: "Devuelve el tema, pasos CRECER, actividades y URLs temporales de todos los medios necesarios. El cliente debe consumir y guardar los medios inmediatamente en Cache Storage/IndexedDB.",
+  request: { params: z.object({ tema_id: z.string().uuid() }), body: { content: { "application/json": { schema: PaqueteOfflineBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: PaqueteOfflineResponse } }, description: "Paquete listo para descargar" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Grupo etario inválido" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "Tema no encontrado" } } });
 
 registry.registerPath({ method: "get", path: "/actividades/{actividad_id}", operationId: "getActivity", tags: ["actividades"],
   summary: "Obtener actividad", description: "Actividad con opciones de respuesta y tipo",
@@ -977,6 +1028,9 @@ const SyncPushResponse = z.object({
   datos: z.object({
     procesados: z.number().openapi({ description: "Eventos procesados exitosamente", example: 5 }),
     omitidos: z.number().openapi({ description: "Eventos omitidos (duplicados)", example: 2 }),
+    procesados_ids: z.array(z.string().uuid()),
+    omitidos_ids: z.array(z.string().uuid()),
+    logros_desbloqueados: z.array(LogroDesbloqueadoSchema),
     errores: z.array(z.object({
       evento_id_cliente: z.string().openapi({ example: uuidExample }),
       error: z.string().openapi({ example: "Error de base de datos" })
