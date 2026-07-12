@@ -208,9 +208,9 @@ export function ActividadAudio({ actividad, onComplete }: ActividadAudioProps) {
     
     if (correct) {
       playSound("acertado");
-      setTimeout(() => {
+      setTimeout(async () => {
         setCompleted(true);
-        playSound("insignia");
+        await playSound("insignia");
         onComplete(actividad.id, actividad.xp_recompensa || 0);
       }, 1500);
     } else {

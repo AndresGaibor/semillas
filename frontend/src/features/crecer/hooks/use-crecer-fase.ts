@@ -4,6 +4,7 @@ import { obtenerTema, obtenerPasos, obtenerActividades } from "@/features/themes
 import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import type { EventoProgreso } from "@/shared/api/api";
 import { registrarEventosCrecer } from "../services/crecer-progress";
+import { playSound } from "@/lib/audio";
 
 type UseCrecerFaseOptions = {
   themeId: string;
@@ -27,26 +28,44 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
     queryFn: () => obtenerTema(themeId),
   });
   const temaDbId = themeQuery.data?.id;
-  const grupoEdadId = meQuery.data?.perfil?.grupo_edad_id ?? undefined;
 
   const stepsQuery = useQuery({
-    queryKey: ["theme", temaDbId, "steps", grupoEdadId],
-    queryFn: () => obtenerPasos(temaDbId!, grupoEdadId),
+    queryKey: ["theme", temaDbId, "steps"],
+    queryFn: () => obtenerPasos(temaDbId!),
     enabled: !!temaDbId && meQuery.isSuccess,
   });
 
   const activitiesQuery = useQuery({
-    queryKey: ["theme", temaDbId, "activities", grupoEdadId],
-    queryFn: () => obtenerActividades(temaDbId!, grupoEdadId),
+    queryKey: ["theme", temaDbId, "activities"],
+    queryFn: () => obtenerActividades(temaDbId!),
     enabled: !!temaDbId && meQuery.isSuccess,
   });
 
   const pasoActual = stepsQuery.data?.find((paso) => paso.tipo_paso?.codigo === pasoCodigo);
   const contenidoPaso = pasoActual?.contenidos?.[0];
-  const actividadesFase = useMemo(
-    () => activitiesQuery.data?.filter((actividad) => actividad.paso_id === pasoActual?.id) ?? [],
-    [activitiesQuery.data, pasoActual?.id],
-  );
+  const actividadesFase = useMemo(() => {
+    if (!activitiesQuery.data || activitiesQuery.data.length === 0) return [];
+    const conPasoId = activitiesQuery.data.filter(
+      (actividad) => actividad.paso_id === pasoActual?.id,
+    );
+    if (conPasoId.length > 0) return conPasoId;
+    const conOtroPaso = activitiesQuery.data.filter(
+      (actividad) => actividad.paso_id !== null && actividad.paso_id !== undefined,
+    );
+    if (conOtroPaso.length > 0 && pasoActual?.id) {
+      const idsPasosAsignados = new Set(
+        conOtroPaso.map((a) => a.paso_id).filter(Boolean),
+      );
+      const pasosAsignados = stepsQuery.data?.filter((p) => idsPasosAsignados.has(p.id)) ?? [];
+      const codigosAsignados = pasosAsignados
+        .map((p) => p.tipo_paso?.codigo)
+        .filter(Boolean);
+      if (codigosAsignados.length > 0 && !codigosAsignados.includes(pasoCodigo)) {
+        return [];
+      }
+    }
+    return activitiesQuery.data;
+  }, [activitiesQuery.data, pasoActual?.id, pasoCodigo, stepsQuery.data]);
 
   const isLoading =
     meQuery.isLoading ||
@@ -108,8 +127,14 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
   }, [isLoading, isError, temaDbId, pasoActual?.id, pasoCodigo]);
 
   const handleActivityComplete = useCallback(
-    async (actividadId: string, puntaje?: number) => {
+    async (actividadId: string, xp?: number, puntaje?: number) => {
       if (!temaDbId) return;
+
+      const xpFinal = xp ?? actividadesFase.find((a) => a.id === actividadId)?.xp_recompensa ?? 0;
+
+      if (xpFinal > 0) {
+        await playSound("insignia");
+      }
 
       await progresoMutation.mutateAsync([
         {
@@ -118,6 +143,7 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
           tema_id: temaDbId,
           paso_id: pasoActual?.id,
           actividad_id: actividadId,
+          xp_otorgada: xpFinal,
           puntaje,
           ocurrido_en_cliente: new Date().toISOString(),
         },
@@ -129,11 +155,13 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
         return siguiente;
       });
     },
-    [pasoActual?.id, progresoMutation, temaDbId],
+    [pasoActual?.id, progresoMutation, temaDbId, actividadesFase],
   );
 
   const completeStep = useCallback(async () => {
     if (!temaDbId || !pasoActual?.id) return;
+
+    void playSound("siguiente");
 
     await progresoMutation.mutateAsync([
       {

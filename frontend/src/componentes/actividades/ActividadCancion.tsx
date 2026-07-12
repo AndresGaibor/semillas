@@ -58,8 +58,8 @@ export function ActividadCancion({ actividad, onComplete }: ActividadCancionProp
     if (!puedeCompletar) return;
     playSound("acertado");
     setCompleted(true);
-    setTimeout(() => {
-      playSound("insignia");
+    setTimeout(async () => {
+      await playSound("insignia");
       onComplete(actividad.id, actividad.xp_recompensa || 0);
     }, 500);
   };

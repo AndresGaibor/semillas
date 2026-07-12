@@ -29,13 +29,13 @@ export function useQuiz({ actividad, onComplete }: UseQuizProps) {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < preguntas.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     } else {
       if (!completed) {
         setCompleted(true);
-        playSound("insignia");
+        await playSound("insignia");
         onComplete(actividad.id, actividad.xp_recompensa || 0);
       }
     }

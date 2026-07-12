@@ -42,7 +42,7 @@ function ContenidoActividad({ actividad, onComplete }: ActividadWrapperProps) {
   };
 
   if (actividad.opciones.length > 0) {
-    return <OpcionMultipleServidor actividad={actividad} />;
+    return <OpcionMultipleServidor actividad={actividad} onComplete={onComplete} />;
   }
 
   switch (codigo) {

@@ -11,9 +11,10 @@ type ResultadoRespuesta = Awaited<ReturnType<typeof responderActividad>>;
 
 type Props = {
   actividad: Actividad;
+  onComplete?: (actividadId: string, xp?: number) => void;
 };
 
-export function OpcionMultipleServidor({ actividad }: Props) {
+export function OpcionMultipleServidor({ actividad, onComplete }: Props) {
   const queryClient = useQueryClient();
   const [seleccionada, setSeleccionada] = useState<string | null>(null);
   const [resultado, setResultado] = useState<ResultadoRespuesta | null>(null);
@@ -29,6 +30,11 @@ export function OpcionMultipleServidor({ actividad }: Props) {
     onSuccess(data) {
       setResultado(data);
       playSound(data.resultado.correcta ? "acertado" : "error");
+
+      if (data.resultado.correcta && onComplete) {
+        onComplete(actividad.id, data.resultado.xp_otorgada);
+      }
+
       queryClient.invalidateQueries({ queryKey: ["gamification", "me"] });
       queryClient.invalidateQueries({ queryKey: ["progress"] });
     },

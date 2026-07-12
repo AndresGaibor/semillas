@@ -40,9 +40,9 @@ export function useFlashcards({ actividad, onComplete }: UseFlashcardsProps) {
 
   function checkWinCondition(currentCards: FlashcardItem[]) {
     if (currentCards.every((card) => card.isFlipped)) {
-      setTimeout(() => {
+      setTimeout(async () => {
         setCompleted(true);
-        playSound("insignia");
+        await playSound("insignia");
         onComplete(actividad.id, actividad.xp_recompensa || 0);
       }, 800);
     }

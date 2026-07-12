@@ -25,15 +25,18 @@ Object.values(audioCache).forEach((audio) => {
   if (audio) audio.volume = VOLUMEN_POR_DEFECTO;
 });
 
-export const playSound = (type: TipoSonido) => {
+export const playSound = async (type: TipoSonido): Promise<void> => {
   try {
     const audioEnabled = typeof window === 'undefined' || window.localStorage.getItem('semillas-prefiere-audio') !== 'false';
     if (!audioEnabled) return;
     const audio = audioCache[type];
     if (audio) {
-      // Reiniciar el audio al principio por si se llama varias veces rápido
       audio.currentTime = 0;
-      audio.play().catch(e => console.error("Error playing audio", e));
+      try {
+        await audio.play();
+      } catch (e) {
+        console.error("Error playing audio", e);
+      }
     }
   } catch (e) {
     console.error("Audio playback error", e);
