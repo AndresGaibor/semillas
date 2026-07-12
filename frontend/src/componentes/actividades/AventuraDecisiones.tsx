@@ -10,18 +10,33 @@ interface AventuraDecisionesProps {
   onComplete: (actividadId: string, xp?: number) => void;
 }
 
+interface OpcionDecision {
+  texto: string;
+  correcta: boolean;
+}
+
+interface EscenaDecision {
+  texto: string;
+  imagen_url?: string;
+  opciones?: OpcionDecision[];
+}
+
+interface ConfiguracionAventuraDecisiones {
+  escenas?: EscenaDecision[];
+}
+
 export function AventuraDecisiones({ actividad, onComplete }: AventuraDecisionesProps) {
   const [completed, setCompleted] = useState(false);
   const [escenaActualIndex, setEscenaActualIndex] = useState(0);
   const [opcionErroneaIndex, setOpcionErroneaIndex] = useState<number | null>(null);
 
   // Extraer configuración
-  const configuracion = actividad.configuracion || {};
-  const escenas = (configuracion.escenas as any[]) || [];
+  const configuracion = actividad.configuracion as Partial<ConfiguracionAventuraDecisiones>;
+  const escenas = configuracion.escenas ?? [];
   
-  const escenaActual = escenas[escenaActualIndex];
+  const escenaActual = escenas[escenaActualIndex]!;
 
-  const handleSeleccionarOpcion = (opcion: any, index: number) => {
+  const handleSeleccionarOpcion = (opcion: OpcionDecision, index: number) => {
     if (opcion.correcta) {
       playSound("acertado");
       setOpcionErroneaIndex(null);
@@ -73,7 +88,7 @@ export function AventuraDecisiones({ actividad, onComplete }: AventuraDecisiones
           <div className="p-5 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center">
             {/* Imagen ilustrativa (Puede venir de la BD por cada escena) */}
             <div className="w-full max-w-[200px] md:max-w-none md:w-1/3 aspect-square bg-rose-50 rounded-2xl overflow-hidden shrink-0 border-4 border-white shadow-md relative mx-auto md:mx-0">
-              <img src={escenaActual.imagen_url || imagenDefault} alt="Escena" className="w-full h-full object-cover object-center" />
+                <img src={escenaActual.imagen_url || imagenDefault} alt="Escena" className="w-full h-full object-cover object-center" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
 
@@ -127,7 +142,7 @@ export function AventuraDecisiones({ actividad, onComplete }: AventuraDecisiones
           </div>
       ) : (
         <div className="w-full mt-4">
-          <CompletadoCard retroalimentacion={actividad.retroalimentacion} />
+          <CompletadoCard retroalimentacion={actividad.retroalimentacion ?? undefined} />
         </div>
       )}
     </div>

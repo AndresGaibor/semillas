@@ -5,13 +5,15 @@ export function obtenerMiPerfil() {
   return peticion<{ usuario: Usuario; perfil: Perfil }>("/perfil");
 }
 
-export function actualizarPerfil(datos: {
+export type ActualizarPerfilDatos = {
   apodo?: string;
   grupo_edad_id?: string | null;
   url_avatar?: string | null;
   prefiere_audio?: boolean;
   tamano_texto_preferido?: string;
-}) {
+};
+
+export function actualizarPerfil(datos: ActualizarPerfilDatos) {
   return peticion<Perfil>("/perfil/actualizar", {
     metodo: "PATCH",
     cuerpo: datos,

@@ -1,47 +1,84 @@
-import { Trophy } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Trophy } from "lucide-react";
 import type { GamificacionMiRespuesta } from "../profile.api";
 
-type LogroItem = GamificacionMiRespuesta["logros"][number];
-
 interface SeccionLogrosProps {
-  logros: LogroItem[];
+  logros: GamificacionMiRespuesta["logros"];
   totalActividades: number;
+  onVerLogros: () => void;
+  onEmpezar: () => void;
 }
 
-export function SeccionLogros({ logros, totalActividades }: SeccionLogrosProps) {
+function formatearFecha(fecha: string) {
+  try {
+    return new Intl.DateTimeFormat("es-EC", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(fecha));
+  } catch {
+    return "Recientemente";
+  }
+}
+
+export function SeccionLogros({
+  logros,
+  totalActividades,
+  onVerLogros,
+  onEmpezar,
+}: SeccionLogrosProps) {
   return (
-    <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <section className="profile-achievements-card">
+      <div className="profile-section-heading">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Progreso</p>
-          <h2 className="mt-1 text-xl font-black text-slate-800">Logros recientes</h2>
+          <p className="profile-eyebrow">Actividad</p>
+          <h2>Logros recientes</h2>
         </div>
-        <span className="text-sm font-bold text-slate-500">{totalActividades} actividades completadas</span>
+        <button type="button" className="profile-link-button" onClick={onVerLogros}>
+          Ver todos
+          <ArrowRight size={17} aria-hidden="true" />
+        </button>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
-        {logros.length > 0 ? (
-          logros.slice(0, 4).map((item) => (
-            <article key={item.logro_id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-white p-2 text-[#2E9E5B] shadow-sm ring-1 ring-slate-100">
-                  <Trophy className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-black text-slate-800">{item.logro?.nombre ?? "Logro desbloqueado"}</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    {item.logro?.descripcion ?? "Completa temas y actividades para seguir desbloqueando insignias."}
-                  </p>
-                </div>
+      {logros.length > 0 ? (
+        <div className="profile-achievements-list">
+          {logros.slice(0, 3).map((item) => (
+            <article key={item.logro_id} className="profile-achievement-item">
+              <span className="profile-achievement-item__icon" aria-hidden="true">
+                {item.logro?.url_icono ? (
+                  <img src={item.logro.url_icono} alt="" />
+                ) : (
+                  <Trophy size={22} />
+                )}
+              </span>
+              <div className="profile-achievement-item__copy">
+                <h3>{item.logro?.nombre ?? "Logro desbloqueado"}</h3>
+                <p>
+                  {item.logro?.descripcion ??
+                    "Completaste una meta importante dentro de Semillas."}
+                </p>
               </div>
+              <time dateTime={item.ganado_en}>{formatearFecha(item.ganado_en)}</time>
             </article>
-          ))
-        ) : (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm font-medium leading-6 text-slate-500 md:col-span-2">
-            Aún no tienes logros visibles. Completa temas y actividades para desbloquear tus primeras insignias.
+          ))}
+        </div>
+      ) : (
+        <div className="profile-empty-achievements">
+          <span className="profile-empty-achievements__icon" aria-hidden="true">
+            <BookOpenCheck size={28} />
+          </span>
+          <div>
+            <h3>Tu primera insignia está cerca</h3>
+            <p>
+              Has completado {totalActividades} actividades. Termina un tema para empezar a
+              desbloquear logros.
+            </p>
           </div>
-        )}
-      </div>
+          <button type="button" className="profile-primary-button" onClick={onEmpezar}>
+            Elegir un tema
+            <ArrowRight size={18} aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </section>
   );
 }

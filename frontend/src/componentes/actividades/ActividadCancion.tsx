@@ -9,13 +9,20 @@ interface ActividadCancionProps {
   onComplete: (actividadId: string, xp?: number) => void;
 }
 
+interface ConfiguracionCancion {
+  letra?: string[];
+  acciones?: string[];
+  audio_url?: string;
+  cancion_url?: string;
+}
+
 export function ActividadCancion({ actividad, onComplete }: ActividadCancionProps) {
   const [completed, setCompleted] = useState(false);
   const [accionesRealizadas, setAccionesRealizadas] = useState<Set<number>>(new Set());
 
-  const configuracion = actividad.configuracion || {};
-  const letra: string[] = configuracion.letra || [];
-  const acciones: string[] = configuracion.acciones || [];
+  const configuracion = actividad.configuracion as Partial<ConfiguracionCancion>;
+  const letra = configuracion.letra ?? [];
+  const acciones = configuracion.acciones ?? [];
   
   // URL de video (tratamos de usar audio_url o cancion_url si son embebibles)
   let rawUrl = (configuracion.audio_url as string) || (configuracion.cancion_url as string) || "";
@@ -195,7 +202,7 @@ export function ActividadCancion({ actividad, onComplete }: ActividadCancionProp
         </div>
       ) : (
         <div className="w-full mt-4">
-          <CompletadoCard retroalimentacion={actividad.retroalimentacion} />
+          <CompletadoCard retroalimentacion={actividad.retroalimentacion ?? undefined} />
         </div>
       )}
     </div>

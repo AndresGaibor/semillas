@@ -13,15 +13,22 @@ const recursosMock = [
 ];
 
 function DescargasPageStory() {
-  const [activeTab, setActiveTab] = useState<"todos" | "videos" | "audios" | "pdfs">("todos");
+  const [activeTab, setActiveTab] = useState("Todos");
   const [downloadedIds, setDownloadedIds] = useState<string[]>(["r1"]);
+
+  const tipoRecurso = (tipo: "video" | "audio" | "pdf" | "tema") => {
+    if (tipo === "video") return "Historia";
+    if (tipo === "audio") return "Canción";
+    if (tipo === "pdf") return "Imprimible";
+    return "Actividad";
+  };
 
   return (
     <StoryRouter initialPath="/app/descargas">
       <div className="w-full flex flex-col font-sans text-slate-800 text-left p-4 max-w-5xl mx-auto">
         <DescargasTabsFilter
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={(tab) => setActiveTab(tab)}
           ageFilter="todos"
           onAgeChange={() => {}}
           sortOrder="recientes"
@@ -31,13 +38,13 @@ function DescargasPageStory() {
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8 mt-4">
           {recursosMock.map((recurso) => (
-            <RecursoCard
-              key={recurso.id}
-              id={recurso.id}
-              titulo={recurso.titulo}
-              tipo={recurso.tipo}
-              edad={recurso.edad}
-              sizeMB={recurso.sizeMB}
+              <RecursoCard
+                key={recurso.id}
+                id={recurso.id}
+                titulo={recurso.titulo}
+                tipo={tipoRecurso(recurso.tipo)}
+                edad={recurso.edad}
+                sizeMB={recurso.sizeMB}
               descripcion={recurso.descripcion}
               imagen={recurso.imagen}
               isDownloaded={downloadedIds.includes(recurso.id)}

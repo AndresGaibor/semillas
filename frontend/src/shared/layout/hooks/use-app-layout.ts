@@ -60,6 +60,21 @@ export function useAppLayout() {
     };
   }, []);
 
+  useEffect(() => {
+    const rawSize = meQuery.data?.perfil?.tamano_texto_preferido;
+    const normalizedSize = rawSize === "grande" ? "grande" : rawSize === "pequeno" || rawSize === "pequeño" ? "pequeno" : "mediano";
+    document.documentElement.dataset.semillasTextSize = normalizedSize;
+
+    const prefersAudio = meQuery.data?.perfil?.prefiere_audio;
+    if (typeof prefersAudio === "boolean") {
+      window.localStorage.setItem("semillas-prefiere-audio", String(prefersAudio));
+    }
+
+    return () => {
+      delete document.documentElement.dataset.semillasTextSize;
+    };
+  }, [meQuery.data?.perfil?.prefiere_audio, meQuery.data?.perfil?.tamano_texto_preferido]);
+
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestSession();

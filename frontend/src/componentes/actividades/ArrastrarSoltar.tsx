@@ -9,13 +9,18 @@ interface ArrastrarSoltarProps {
   onComplete: (actividadId: string, xp?: number) => void;
 }
 
+interface ConfiguracionArrastrarSoltar {
+  items?: string[];
+  orden_correcto?: number[];
+}
+
 export function ArrastrarSoltar({ actividad, onComplete }: ArrastrarSoltarProps) {
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState(false);
 
-  const configuracion = actividad.configuracion || {};
-  const itemsOriginales = (configuracion.items as string[]) || [];
-  const ordenCorrecto = (configuracion.orden_correcto as number[]) || [];
+  const configuracion = actividad.configuracion as Partial<ConfiguracionArrastrarSoltar>;
+  const itemsOriginales = configuracion.items ?? [];
+  const ordenCorrecto = configuracion.orden_correcto ?? [];
 
   // Estado de los items actuales (mezclados inicialmente)
   const [items, setItems] = useState<{ id: number; text: string }[]>([]);
@@ -168,7 +173,7 @@ export function ArrastrarSoltar({ actividad, onComplete }: ArrastrarSoltarProps)
         </div>
       ) : (
         <div className="w-full mt-4">
-          <CompletadoCard retroalimentacion={actividad.retroalimentacion} />
+          <CompletadoCard retroalimentacion={actividad.retroalimentacion ?? undefined} />
         </div>
       )}
     </div>

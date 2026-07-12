@@ -22,5 +22,11 @@ export const MAPA_AVATARES: Record<string, string> = {
   "10": avatar10Img,
 };
 
-export const resolverAvatar = (indice?: string): string =>
-  (MAPA_AVATARES[indice || "1"] ?? MAPA_AVATARES["1"]) as string;
+const ES_URL_VALIDA = /^(https?:\/\/|data:|blob:|\/)/i;
+
+export const resolverAvatar = (valor?: string | null): string => {
+  if (!valor) return MAPA_AVATARES["1"] as string;
+  if (MAPA_AVATARES[valor]) return MAPA_AVATARES[valor] as string;
+  if (ES_URL_VALIDA.test(valor)) return valor;
+  return MAPA_AVATARES["1"] as string;
+};

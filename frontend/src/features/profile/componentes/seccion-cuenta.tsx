@@ -1,39 +1,68 @@
-import { Link2, Mail } from "lucide-react";
-import { ActionButton } from "@/features/perfil/componentes/ActionButton";
+import { CheckCircle2, Link2, Mail, ShieldCheck } from "lucide-react";
 
 interface SeccionCuentaProps {
   esInvitado: boolean;
+  proveedor: string;
+  correo?: string | null;
   onVincularGoogle: () => void;
   onVincularCorreo: () => void;
 }
 
 export function SeccionCuenta({
   esInvitado,
+  proveedor,
+  correo,
   onVincularGoogle,
   onVincularCorreo,
 }: SeccionCuentaProps) {
-  return (
-    <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Cuenta</p>
-      <h2 className="mt-1 text-xl font-black text-slate-800">Acceso</h2>
+  const esGoogle = proveedor === "google";
 
-      <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
-        <p className="text-sm font-black text-slate-800">{esInvitado ? "Cuenta invitada" : "Cuenta vinculada"}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          {esInvitado
-            ? "Conecta Google o correo para guardar tu avance."
-            : "Puedes agregar otro método de acceso sin perder tu progreso."}
-        </p>
+  return (
+    <section className="profile-side-card">
+      <div className="profile-side-card__heading">
+        <div>
+          <p className="profile-eyebrow">Cuenta</p>
+          <h2>Acceso y respaldo</h2>
+        </div>
+        <span className={`profile-side-card__status ${esInvitado ? "is-warning" : "is-success"}`}>
+          {esInvitado ? <Link2 size={17} /> : <ShieldCheck size={17} />}
+        </span>
       </div>
 
-      <div className="mt-4 grid gap-3">
+      <div className="profile-account-summary">
+        <strong>{esInvitado ? "Cuenta invitada" : "Cuenta vinculada"}</strong>
+        <p>
+          {esInvitado
+            ? "Tu avance vive en este dispositivo hasta que vincules una cuenta."
+            : esGoogle
+              ? "Tu progreso está protegido con Google."
+              : "Tu progreso está protegido con tu correo."}
+        </p>
+        {!esInvitado && correo ? <span>{correo}</span> : null}
+      </div>
+
+      <div className="profile-account-actions">
         {esInvitado ? (
           <>
-            <ActionButton icon={Link2} label="Vincular con Google" onClick={onVincularGoogle} />
-            <ActionButton icon={Mail} label="Vincular con correo" onClick={onVincularCorreo} />
+            <button type="button" className="profile-account-button" onClick={onVincularGoogle}>
+              <Link2 size={18} aria-hidden="true" />
+              Vincular con Google
+            </button>
+            <button type="button" className="profile-account-button" onClick={onVincularCorreo}>
+              <Mail size={18} aria-hidden="true" />
+              Vincular con correo
+            </button>
           </>
+        ) : esGoogle ? (
+          <div className="profile-account-verified">
+            <CheckCircle2 size={18} aria-hidden="true" />
+            Google vinculado
+          </div>
         ) : (
-          <ActionButton icon={Link2} label="Vincular Google" onClick={onVincularGoogle} />
+          <button type="button" className="profile-account-button" onClick={onVincularGoogle}>
+            <Link2 size={18} aria-hidden="true" />
+            Añadir acceso con Google
+          </button>
         )}
       </div>
     </section>

@@ -6,6 +6,7 @@ describe("AppAccountMenu", () => {
   it("expone las opciones secundarias esperadas", () => {
     expect(OPCIONES_CUENTA.map((opcion) => opcion.label)).toEqual([
       "Mi perfil",
+      "Preferencias",
       "Mis insignias",
       "Descargas",
     ]);

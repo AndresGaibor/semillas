@@ -2522,3 +2522,16 @@ h6, .titulo-6 {
     font-size: .56rem;
   }
 }
+
+/* Preferencia de tamaño de texto del perfil. Se aplica solo mientras el shell de /app está montado. */
+html[data-semillas-text-size="pequeno"] {
+  font-size: 15px;
+}
+
+html[data-semillas-text-size="mediano"] {
+  font-size: 16px;
+}
+
+html[data-semillas-text-size="grande"] {
+  font-size: 17px;
+}

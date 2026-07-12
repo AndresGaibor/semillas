@@ -4,7 +4,7 @@ import { BottomNav } from "@/componentes/ui/bottom-nav";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppUserHeader } from "../shared/layout/app-user-header";
 import { useAppLayout } from "../shared/layout/hooks/use-app-layout";
-import { MAPA_AVATARES } from "@/shared/constants/avatares";
+import { resolverAvatar } from "@/shared/constants/avatares";
 import "./app.css";
 
 export const Route = createFileRoute("/app")({
@@ -34,7 +34,7 @@ function AppLayout() {
       meQuery.data?.usuario?.proveedor === "invitado"
         ? "Invitado"
         : meQuery.data?.usuario?.correo || "Cuenta registrada",
-    avatarUrl: MAPA_AVATARES[avatarGuardado] || avatarGuardado || MAPA_AVATARES["1"] || "",
+    avatarUrl: resolverAvatar(avatarGuardado),
   };
 
   return (

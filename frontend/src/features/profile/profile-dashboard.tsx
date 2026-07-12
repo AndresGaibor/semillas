@@ -1,6 +1,9 @@
-import type { Perfil, Usuario } from "@/shared/api/api";
-import type { GamificacionMiRespuesta, ProgresoMiRespuesta } from "./profile.api";
+import type { GrupoEdad, Perfil, Usuario } from "@/shared/api/api";
+import type { ActualizarPerfilDatos, GamificacionMiRespuesta, ProgresoMiRespuesta } from "./profile.api";
 import { useProfileDashboard } from "./hooks/use-profile-dashboard";
+import { ProfileSectionNav, type ProfileSection } from "./componentes/profile-section-nav";
+import { ProfileEditForm } from "./componentes/profile-edit-form";
+import { ProfilePreferencesForm } from "./componentes/profile-preferences-form";
 import { SeccionEncabezado } from "./componentes/seccion-encabezado";
 import { SeccionMetricas } from "./componentes/seccion-metricas";
 import { SeccionLogros } from "./componentes/seccion-logros";
@@ -9,11 +12,18 @@ import { SeccionPreferencias } from "./componentes/seccion-preferencias";
 
 export type PerfilDashboardProps = {
   usuario: Usuario | undefined;
-  perfil: Perfil | null | undefined;
+  perfil: Perfil;
   gamificacion: GamificacionMiRespuesta | undefined;
   progreso: ProgresoMiRespuesta | undefined;
+  gruposEdad: GrupoEdad[];
+  activeSection: ProfileSection;
+  isSaving: boolean;
+  onSectionChange: (section: ProfileSection) => void;
+  onSaveProfile: (data: ActualizarPerfilDatos) => void;
   onVincularGoogle: () => void;
   onVincularCorreo: () => void;
+  onVerLogros: () => void;
+  onEmpezarTema: () => void;
 };
 
 export function ProfileDashboard({
@@ -21,59 +31,96 @@ export function ProfileDashboard({
   perfil,
   gamificacion,
   progreso,
+  gruposEdad,
+  activeSection,
+  isSaving,
+  onSectionChange,
+  onSaveProfile,
   onVincularGoogle,
   onVincularCorreo,
+  onVerLogros,
+  onEmpezarTema,
 }: PerfilDashboardProps) {
   const {
-    nivel,
     logros,
     completados,
     esInvitado,
     proveedorLabel,
     avatarUrl,
+    avatarClave,
     nombreVisible,
-  } = useProfileDashboard({
-    usuario,
-    perfil,
-    gamificacion,
-    progreso,
-    onVincularGoogle,
-    onVincularCorreo,
-  });
+    grupoEdadLabel,
+    tamanoTextoLabel,
+  } = useProfileDashboard({ usuario, perfil, gamificacion, progreso, gruposEdad });
 
   return (
-    <div className="grid grid-cols-1 gap-6 text-left lg:grid-cols-[1fr_320px]">
-      <div className="min-w-0 space-y-6">
-        <SeccionEncabezado
-          usuario={usuario}
+    <div className="profile-page">
+      <ProfileSectionNav active={activeSection} onChange={onSectionChange} />
+
+      {activeSection === "editar" ? (
+        <ProfileEditForm
           perfil={perfil}
-          esInvitado={esInvitado}
-          avatarUrl={avatarUrl}
-          nombreVisible={nombreVisible}
-          proveedorLabel={proveedorLabel}
+          gruposEdad={gruposEdad}
+          avatarClave={avatarClave}
+          isSaving={isSaving}
+          onSave={onSaveProfile}
+          onCancel={() => onSectionChange("resumen")}
         />
+      ) : null}
 
-        <SeccionMetricas
-          gamificacion={gamificacion}
-          progreso={progreso}
-          completados={completados}
+      {activeSection === "ajustes" ? (
+        <ProfilePreferencesForm
+          perfil={perfil}
+          isSaving={isSaving}
+          onSave={onSaveProfile}
+          onCancel={() => onSectionChange("resumen")}
         />
+      ) : null}
 
-        <SeccionLogros
-          logros={logros}
-          totalActividades={completados.actividades}
-        />
-      </div>
+      {activeSection === "resumen" ? (
+        <div className="profile-dashboard-grid">
+          <div className="profile-dashboard-grid__main">
+            <SeccionEncabezado
+              usuario={usuario}
+              esInvitado={esInvitado}
+              avatarUrl={avatarUrl}
+              nombreVisible={nombreVisible}
+              proveedorLabel={proveedorLabel}
+              grupoEdadLabel={grupoEdadLabel}
+              onEditar={() => onSectionChange("editar")}
+              onAjustes={() => onSectionChange("ajustes")}
+              onVincular={onVincularGoogle}
+            />
 
-      <aside className="space-y-6">
-        <SeccionCuenta
-          esInvitado={esInvitado}
-          onVincularGoogle={onVincularGoogle}
-          onVincularCorreo={onVincularCorreo}
-        />
+            <SeccionMetricas gamificacion={gamificacion} completados={completados} />
 
-        <SeccionPreferencias perfil={perfil} usuario={usuario} />
-      </aside>
+            <SeccionLogros
+              logros={logros}
+              totalActividades={completados.actividades}
+              onVerLogros={onVerLogros}
+              onEmpezar={onEmpezarTema}
+            />
+          </div>
+
+          <aside className="profile-dashboard-grid__aside">
+            <SeccionCuenta
+              esInvitado={esInvitado}
+              proveedor={usuario?.proveedor ?? "invitado"}
+              correo={usuario?.correo}
+              onVincularGoogle={onVincularGoogle}
+              onVincularCorreo={onVincularCorreo}
+            />
+
+            <SeccionPreferencias
+              grupoEdadLabel={grupoEdadLabel}
+              prefiereAudio={perfil.prefiere_audio}
+              tamanoTextoLabel={tamanoTextoLabel}
+              onEditarPerfil={() => onSectionChange("editar")}
+              onEditarPreferencias={() => onSectionChange("ajustes")}
+            />
+          </aside>
+        </div>
+      ) : null}
     </div>
   );
 }

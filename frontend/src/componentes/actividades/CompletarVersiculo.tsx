@@ -16,16 +16,22 @@ interface CompletarVersiculoProps {
   onComplete: (actividadId: string, xp?: number) => void;
 }
 
+interface ConfiguracionCompletarVersiculo {
+  frase?: string;
+  respuesta?: string;
+  opciones?: string[];
+}
+
 export function CompletarVersiculo({ actividad, onComplete }: CompletarVersiculoProps) {
   const [completed, setCompleted] = useState(false);
   
   // Extraer configuración
-  const configuracion = actividad.configuracion || {};
+  const configuracion = actividad.configuracion as Partial<ConfiguracionCompletarVersiculo>;
   
   // Parsear la frase desde la BD (ej. "Ama a tu ____ como a ti mismo")
-  const frase = configuracion.frase || "Versículo no configurado ____.";
-  const respuestaCorrecta = configuracion.respuesta || "error";
-  const opcionesOriginales: string[] = configuracion.opciones || [];
+  const frase = configuracion.frase ?? "Versículo no configurado ____.";
+  const respuestaCorrecta = configuracion.respuesta ?? "error";
+  const opcionesOriginales = configuracion.opciones ?? [];
 
   // Convertir la frase con "____" al formato interno de Partes
   const partes: ParteVersiculo[] = [];
@@ -56,7 +62,7 @@ export function CompletarVersiculo({ actividad, onComplete }: CompletarVersiculo
     const primerHuecoVacioIndex = partes.findIndex((parte, idx) => parte.tipo === "hueco" && !respuestasUsuario[idx]);
     
     if (primerHuecoVacioIndex !== -1) {
-      playSound("suish"); // Sonido sutil al colocar
+      playSound("siguiente"); // Sonido sutil al colocar
       setRespuestasUsuario(prev => ({ ...prev, [primerHuecoVacioIndex]: palabra }));
       setOpcionesDisponibles(prev => prev.filter(op => op !== palabra));
       // Limpiar errores si había
@@ -65,7 +71,7 @@ export function CompletarVersiculo({ actividad, onComplete }: CompletarVersiculo
   };
 
   const handleQuitarRespuesta = (index: number, palabra: string) => {
-    playSound("pop");
+    playSound("iniciar");
     setRespuestasUsuario(prev => {
       const next = { ...prev };
       delete next[index];
@@ -77,7 +83,7 @@ export function CompletarVersiculo({ actividad, onComplete }: CompletarVersiculo
   };
 
   const handleResetear = () => {
-    playSound("pop");
+    playSound("iniciar");
     setRespuestasUsuario({});
     setErrores([]);
     setAciertos([]);
@@ -220,7 +226,7 @@ export function CompletarVersiculo({ actividad, onComplete }: CompletarVersiculo
         </div>
       ) : (
         <div className="w-full mt-4">
-          <CompletadoCard retroalimentacion={actividad.retroalimentacion} />
+          <CompletadoCard retroalimentacion={actividad.retroalimentacion ?? undefined} />
         </div>
       )}
     </div>

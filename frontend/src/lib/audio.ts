@@ -21,6 +21,8 @@ Object.values(audioCache).forEach(audio => {
 
 export const playSound = (type: 'iniciar' | 'siguiente' | 'acertado' | 'error' | 'insignia') => {
   try {
+    const audioEnabled = typeof window === 'undefined' || window.localStorage.getItem('semillas-prefiere-audio') !== 'false';
+    if (!audioEnabled) return;
     const audio = audioCache[type];
     if (audio) {
       // Reiniciar el audio al principio por si se llama varias veces rápido

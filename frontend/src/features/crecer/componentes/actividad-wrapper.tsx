@@ -241,36 +241,6 @@ const REGENERADORES: Record<string, RendererActividad> = {
       />
     );
   },
-  actividad_audio: {
-    badge: "text-emerald-700",
-    bg: "bg-emerald-100",
-    label: "Audio",
-  },
-  aventura_decisiones: {
-    badge: "text-rose-700",
-    bg: "bg-rose-100",
-    label: "Aventura",
-  },
-  arrastrar_soltar: {
-    badge: "text-blue-700",
-    bg: "bg-blue-100",
-    label: "Arrastrar",
-  },
-  completar_versiculo: {
-    badge: "text-violet-700",
-    bg: "bg-violet-100",
-    label: "Versículo",
-  },
-  actividad_video: {
-    badge: "text-red-700",
-    bg: "bg-red-100",
-    label: "Video",
-  },
-  cancion: {
-    badge: "text-amber-700",
-    bg: "bg-amber-100",
-    label: "Canción",
-  },
 };
 
 interface ContenidoActividadProps {

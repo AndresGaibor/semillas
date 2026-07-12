@@ -1,12 +1,16 @@
-import type { Perfil, Usuario } from "@/shared/api/api";
+import { Link2, Pencil, Settings, ShieldCheck } from "lucide-react";
+import type { Usuario } from "@/shared/api/api";
 
 interface SeccionEncabezadoProps {
   usuario: Usuario | undefined;
-  perfil: Perfil | null | undefined;
   esInvitado: boolean;
   avatarUrl: string;
   nombreVisible: string;
   proveedorLabel: string;
+  grupoEdadLabel: string;
+  onEditar: () => void;
+  onAjustes: () => void;
+  onVincular: () => void;
 }
 
 export function SeccionEncabezado({
@@ -15,34 +19,61 @@ export function SeccionEncabezado({
   avatarUrl,
   nombreVisible,
   proveedorLabel,
+  grupoEdadLabel,
+  onEditar,
+  onAjustes,
+  onVincular,
 }: SeccionEncabezadoProps) {
   return (
-    <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-slate-100 bg-slate-50">
-            <img src={avatarUrl} alt={`Avatar de ${nombreVisible}`} className="h-full w-full object-cover" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-[#2E9E5B]">Mi perfil</p>
-            <h1 className="mt-1 truncate text-2xl font-black leading-tight text-slate-800 sm:text-3xl">
-              {nombreVisible}
-            </h1>
-            <p className="mt-1 break-all text-sm font-medium text-slate-500">
-              {esInvitado ? "Cuenta invitada" : usuario?.correo ?? "Cuenta registrada"}
-            </p>
+    <section className="profile-hero-card">
+      <div className="profile-hero-card__main">
+        <div className="profile-hero-card__avatar">
+          <img src={avatarUrl} alt={`Avatar de ${nombreVisible}`} />
+        </div>
+
+        <div className="profile-hero-card__identity">
+          <p className="profile-eyebrow">Mi perfil</p>
+          <h1>{nombreVisible}</h1>
+          <p className="profile-hero-card__group">{grupoEdadLabel}</p>
+          <div className="profile-hero-card__badges">
+            <span className="profile-status-badge">{proveedorLabel}</span>
+            {!esInvitado && usuario?.correo ? (
+              <span className="profile-account-email" title={usuario.correo}>
+                {usuario.correo}
+              </span>
+            ) : null}
           </div>
         </div>
 
-        <span className="inline-flex w-fit items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-600">
-          {proveedorLabel}
-        </span>
+        <div className="profile-hero-card__actions">
+          <button type="button" className="profile-action-button" onClick={onEditar}>
+            <Pencil size={18} aria-hidden="true" />
+            <span>Editar perfil</span>
+          </button>
+          <button type="button" className="profile-action-button profile-action-button--secondary" onClick={onAjustes}>
+            <Settings size={18} aria-hidden="true" />
+            <span>Preferencias</span>
+          </button>
+        </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium leading-6 text-slate-600">
-        {esInvitado
-          ? "Vincula tu cuenta para conservar tu avance si cambias de dispositivo."
-          : "Tu progreso, logros y preferencias están sincronizados con tu cuenta."}
+      <div className={`profile-hero-card__notice ${esInvitado ? "is-warning" : "is-success"}`}>
+        <span className="profile-hero-card__notice-icon" aria-hidden="true">
+          {esInvitado ? <Link2 size={20} /> : <ShieldCheck size={20} />}
+        </span>
+        <div>
+          <strong>{esInvitado ? "Protege tu progreso" : "Tu progreso está sincronizado"}</strong>
+          <p>
+            {esInvitado
+              ? "Vincula una cuenta para conservar tus temas, XP e insignias si cambias de dispositivo."
+              : "Tu perfil, preferencias y avances están asociados a tu cuenta."}
+          </p>
+        </div>
+        {esInvitado ? (
+          <button type="button" className="profile-notice-cta" onClick={onVincular}>
+            Vincular ahora
+          </button>
+        ) : null}
       </div>
     </section>
   );

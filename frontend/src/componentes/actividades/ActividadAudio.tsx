@@ -297,7 +297,7 @@ export function ActividadAudio({ actividad, onComplete }: ActividadAudioProps) {
 
       {completed && (
         <div className="w-full mt-4">
-          <CompletadoCard retroalimentacion={actividad.retroalimentacion} />
+          <CompletadoCard retroalimentacion={actividad.retroalimentacion ?? undefined} />
         </div>
       )}
     </div>

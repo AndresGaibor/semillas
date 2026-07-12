@@ -3,8 +3,66 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { ProfileDashboard } from "./profile-dashboard";
 
+const gruposEdad = [
+  {
+    id: "grupo-1",
+    codigo: "semillas",
+    nombre: "Semillas",
+    edad_minima: 5,
+    edad_maxima: 8,
+    descripcion: "Historias y actividades sencillas.",
+    orden: 1,
+  },
+];
+
+const perfilBase = {
+  id: "perfil-1",
+  usuario_id: "usuario-1",
+  apodo: "Semillero",
+  grupo_edad_id: "grupo-1",
+  url_avatar: "1",
+  clave_avatar: null,
+  prefiere_audio: true,
+  tamano_texto_preferido: "mediano",
+};
+
+const progresoBase = {
+  progresos_tema: [
+    {
+      usuario_id: "usuario-1",
+      tema_id: "tema-1",
+      estado: "completado",
+      porcentaje: 100,
+      iniciado_en: "2026-01-01T00:00:00.000Z",
+      completado_en: "2026-01-02T00:00:00.000Z",
+      ultimo_paso_id: "paso-1",
+      actualizado_en: "2026-01-02T00:00:00.000Z",
+    },
+  ],
+  progresos_actividad: [
+    {
+      usuario_id: "usuario-1",
+      actividad_id: "actividad-1",
+      intentos: 2,
+      mejor_puntaje: 100,
+      completado: true,
+      completado_en: "2026-01-02T00:00:00.000Z",
+      actualizado_en: "2026-01-02T00:00:00.000Z",
+    },
+  ],
+};
+
+const commonActions = {
+  onSectionChange: () => undefined,
+  onSaveProfile: () => undefined,
+  onVincularGoogle: () => undefined,
+  onVincularCorreo: () => undefined,
+  onVerLogros: () => undefined,
+  onEmpezarTema: () => undefined,
+};
+
 describe("ProfileDashboard", () => {
-  it("muestra resumen de XP, logros y progreso", () => {
+  it("muestra datos humanos, métricas reales y acciones de edición", () => {
     const html = renderToStaticMarkup(
       <ProfileDashboard
         usuario={{
@@ -14,16 +72,7 @@ describe("ProfileDashboard", () => {
           nombre_visible: "Semillero",
           correo: "semillero@ejemplo.com",
         }}
-        perfil={{
-          id: "perfil-1",
-          usuario_id: "usuario-1",
-          apodo: "Semillero",
-          grupo_edad_id: "grupo-1",
-          url_avatar: null,
-          clave_avatar: null,
-          prefiere_audio: true,
-          tamano_texto_preferido: "mediano",
-        }}
+        perfil={perfilBase}
         gamificacion={{
           nivel: {
             usuario_id: "usuario-1",
@@ -51,45 +100,22 @@ describe("ProfileDashboard", () => {
             },
           ],
         }}
-        progreso={{
-          progresos_tema: [
-            {
-              usuario_id: "usuario-1",
-              tema_id: "tema-1",
-              estado: "completado",
-              porcentaje: 100,
-              iniciado_en: "2026-01-01T00:00:00.000Z",
-              completado_en: "2026-01-02T00:00:00.000Z",
-              ultimo_paso_id: "paso-1",
-              actualizado_en: "2026-01-02T00:00:00.000Z",
-            },
-          ],
-          progresos_actividad: [
-            {
-              usuario_id: "usuario-1",
-              actividad_id: "actividad-1",
-              intentos: 2,
-              mejor_puntaje: 100,
-              completado: true,
-              completado_en: "2026-01-02T00:00:00.000Z",
-              actualizado_en: "2026-01-02T00:00:00.000Z",
-            },
-          ],
-        }}
-        onVincularGoogle={() => undefined}
-        onVincularCorreo={() => undefined}
+        progreso={progresoBase}
+        gruposEdad={gruposEdad}
+        activeSection="resumen"
+        isSaving={false}
+        {...commonActions}
       />,
     );
 
-    expect(html).toContain("XP total");
+    expect(html).toContain("Semillas · 5–8 años");
     expect(html).toContain("180");
     expect(html).toContain("Primer paso");
-    expect(html).toContain("Temas completados");
-    expect(html).toContain("1");
-    expect(html).toContain("Vincular Google");
+    expect(html).toContain("Editar perfil");
+    expect(html).toContain("Google vinculado");
   });
 
-  it("muestra acciones de vinculación para invitado", () => {
+  it("muestra formulario editable y acciones de vinculación para invitado", () => {
     const html = renderToStaticMarkup(
       <ProfileDashboard
         usuario={{
@@ -99,24 +125,18 @@ describe("ProfileDashboard", () => {
           nombre_visible: "Visitante",
           correo: null,
         }}
-        perfil={{
-          id: "perfil-guest",
-          usuario_id: "usuario-guest",
-          apodo: "Visitante",
-          grupo_edad_id: null,
-          url_avatar: null,
-          clave_avatar: null,
-          prefiere_audio: false,
-          tamano_texto_preferido: "mediano",
-        }}
+        perfil={{ ...perfilBase, usuario_id: "usuario-guest", apodo: "Visitante" }}
         gamificacion={{ nivel: null, logros: [] }}
         progreso={{ progresos_tema: [], progresos_actividad: [] }}
-        onVincularGoogle={() => undefined}
-        onVincularCorreo={() => undefined}
+        gruposEdad={gruposEdad}
+        activeSection="editar"
+        isSaving={false}
+        {...commonActions}
       />,
     );
 
-    expect(html).toContain("Vincular con Google");
-    expect(html).toContain("Vincular con correo");
+    expect(html).toContain("Edita tu perfil");
+    expect(html).toContain("Elige tu avatar");
+    expect(html).toContain("Franja de edad");
   });
 });

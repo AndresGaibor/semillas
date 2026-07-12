@@ -24,7 +24,7 @@ const actividadMock = {
   retroalimentacion: null,
   configuracion: {},
   tipo_actividad: { id: "cuestionario", codigo: "cuestionario", nombre: "Cuestionario", descripcion: "", es_juego: false, activo: true, creado_en: "2026-07-10T00:00:00.000Z" },
-  opciones: opciones.map(o => ({ ...o, actividad_id: "act-1" })),
+  opciones: opciones.map((o, index) => ({ ...o, actividad_id: "act-1", orden: index + 1 })),
 };
 
 const imgSrc = "https://picsum.photos/seed/conectar/800/400";

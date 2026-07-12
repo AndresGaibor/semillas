@@ -11,11 +11,24 @@ type AppAccountMenuProps = {
   onLogout: () => void | Promise<void>;
 };
 
-export const OPCIONES_CUENTA = [
+type OpcionCuenta = {
+  to: "/app/perfil" | "/app/logros" | "/app/descargas";
+  label: string;
+  icono: string;
+  search?: { seccion: "ajustes" };
+};
+
+export const OPCIONES_CUENTA: OpcionCuenta[] = [
   { to: "/app/perfil", label: "Mi perfil", icono: "fa-regular fa-user" },
+  {
+    to: "/app/perfil",
+    label: "Preferencias",
+    icono: "fa-solid fa-sliders",
+    search: { seccion: "ajustes" },
+  },
   { to: "/app/logros", label: "Mis insignias", icono: "fa-regular fa-medal" },
   { to: "/app/descargas", label: "Descargas", icono: "fa-regular fa-download" },
-] as const;
+];
 
 export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout }: AppAccountMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -106,6 +119,7 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
             <Link
               key={opcion.to}
               to={opcion.to}
+              search={opcion.search}
               role="menuitem"
               onClick={closeMenu}
               className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-neutro transition-colors hover:bg-black/5 hover:text-neutro-oscuro-max cursor-pointer"

@@ -9,14 +9,21 @@ interface ActividadVideoProps {
   onComplete: (actividadId: string, xp?: number) => void;
 }
 
+interface ConfiguracionVideo {
+  pregunta?: string;
+  opciones?: string[];
+  respuesta_correcta?: number;
+  video_url?: string;
+}
+
 export function ActividadVideo({ actividad, onComplete }: ActividadVideoProps) {
   const [completed, setCompleted] = useState(false);
   const [seleccion, setSeleccion] = useState<number | null>(null);
   const [errorIndex, setErrorIndex] = useState<number | null>(null);
 
-  const configuracion = actividad.configuracion || {};
-  const pregunta = configuracion.pregunta || "¿Qué aprendiste del video?";
-  const opciones: string[] = configuracion.opciones || [];
+  const configuracion = actividad.configuracion as Partial<ConfiguracionVideo>;
+  const pregunta = configuracion.pregunta ?? "¿Qué aprendiste del video?";
+  const opciones = configuracion.opciones ?? [];
   const respuestaCorrecta = configuracion.respuesta_correcta ?? 0;
 
   // Lógica de video y fallback
@@ -121,7 +128,7 @@ export function ActividadVideo({ actividad, onComplete }: ActividadVideoProps) {
         </div>
       ) : (
         <div className="w-full mt-4">
-          <CompletadoCard retroalimentacion={actividad.retroalimentacion} />
+          <CompletadoCard retroalimentacion={actividad.retroalimentacion ?? undefined} />
         </div>
       )}
     </div>
