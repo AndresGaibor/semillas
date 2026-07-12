@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
 import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
+import { Sun, Moon } from "lucide-react";
 
 type AppSidebarProps = {
   activePage: string;
@@ -80,15 +81,41 @@ export function AppSidebar({
       <aside
         className={`app-sidebar fixed left-0 top-0 z-[110] flex h-[100dvh] w-[280px] max-w-[82vw] flex-col overflow-y-auto overscroll-contain border-r px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+1.25rem)] shadow-2xl transition-[transform,opacity] duration-300 ease-out will-change-transform motion-reduce:transition-none md:sticky md:flex md:w-[88px] md:shrink-0 md:translate-x-0 md:overflow-visible md:px-3 md:py-5 md:opacity-100 md:shadow-none xl:w-[248px] xl:px-4 ${
           variant === "admin"
-            ? "border-[#1a3a2a] bg-[#0d1f17]"
+            ? "border-[#e7ebf2] bg-white"
             : "border-slate-200 bg-white"
         } ${
           isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 md:translate-x-0 md:opacity-100"
         }`}
       >
-        <div className="flex min-h-12 items-center justify-center gap-2.5 py-1 xl:justify-start">
-          <img src={logoImg} alt="Semillas" className="h-10 w-10 shrink-0 object-contain" />
-          <span className={`hidden text-[1.55rem] font-black leading-none xl:inline ${variant === "admin" ? "text-emerald-400" : "text-primario"}`}>Semillas</span>
+        <div className="flex min-h-12 items-center justify-center gap-2.5 py-1 xl:justify-between">
+          <div className="flex items-center gap-2.5">
+            <img src={logoImg} alt="Semillas" className="h-10 w-10 shrink-0 object-contain" />
+            <span className={`hidden text-[1.55rem] font-black leading-none xl:inline ${variant === "admin" ? "text-violet-600" : "text-primario"}`}>Semillas</span>
+          </div>
+          <button
+            type="button"
+            aria-label="Cambiar tema"
+            className="admin-theme-toggle xl:flex"
+            onClick={() => {
+              const html = document.documentElement;
+              if (variant === "admin") {
+                const current = html.getAttribute("data-theme");
+                const next = current === "admin-dark" ? "admin-light" : "admin-dark";
+                html.setAttribute("data-theme", next);
+                localStorage.setItem("admin-theme", next);
+              } else {
+                const current = html.getAttribute("data-theme");
+                const next = current === "app-dark" ? "app-light" : "app-dark";
+                html.setAttribute("data-theme", next);
+                localStorage.setItem("app-theme", next);
+              }
+              // Force re-render to update icon
+              setTimeout(() => window.dispatchEvent(new Event("theme-changed")), 0);
+            }}
+          >
+            <Moon size={16} className="text-slate-500 data-[theme~=dark]:hidden" />
+            <Sun size={16} className="hidden text-amber-400 data-[theme~=dark]:block" />
+          </button>
           <Button
             type="button"
             variant="ghost"
@@ -109,7 +136,7 @@ export function AppSidebar({
           {secciones.map((seccion) => (
             <div key={seccion.titulo ?? "principal"} className="flex flex-col gap-1.5">
               {seccion.titulo ? (
-                <p className={`hidden px-1 text-[10px] font-black uppercase tracking-[0.18em] xl:block ${variant === "admin" ? "text-emerald-800/60" : "text-neutro/50"}`}>
+                <p className={`hidden px-1 text-[10px] font-black uppercase tracking-[0.18em] xl:block ${variant === "admin" ? "text-slate-400" : "text-neutro/50"}`}>
                   {seccion.titulo}
                 </p>
               ) : null}
@@ -127,16 +154,16 @@ export function AppSidebar({
                     className={`group relative flex min-h-12 items-center justify-center gap-3 rounded-2xl px-3 text-[13px] font-semibold transition-all xl:justify-start xl:px-3.5 ${
                       activo
                         ? variant === "admin"
-                          ? "bg-emerald-900/50 text-emerald-300 shadow-[inset_0_0_0_1px_rgba(52,211,153,.15)]"
+                          ? "bg-violet-50 text-violet-700 shadow-[inset_0_0_0_1px_rgba(95,54,232,.12)]"
                           : "bg-primario-palido text-primario shadow-[inset_0_0_0_1px_rgba(67,160,71,.12)]"
                         : variant === "admin"
-                          ? "text-emerald-100/70 hover:bg-[#1a3a2a] hover:text-emerald-200"
+                          ? "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                           : "text-neutro hover:bg-slate-100 hover:text-neutro-oscuro-max"
                     }`}
                   >
                     <i className={`fa-solid ${item.icon} w-5 text-center text-[16px]`} aria-hidden="true" />
                     <span className="hidden xl:inline">{item.label}</span>
-                    {activo ? <span className={`absolute left-0 h-6 w-1 rounded-r-full xl:-left-1 ${variant === "admin" ? "bg-emerald-400" : "bg-primario"}`} aria-hidden="true" /> : null}
+                    {activo ? <span className={`absolute left-0 h-6 w-1 rounded-r-full xl:-left-1 ${variant === "admin" ? "bg-violet-600" : "bg-primario"}`} aria-hidden="true" /> : null}
                   </Link>
                 );
               })}
@@ -146,12 +173,12 @@ export function AppSidebar({
 
         <div className="mt-auto flex flex-col gap-3 pt-4">
           {isOffline ? (
-            <Card sombra="sm" className={`hidden p-3 xl:block ${variant === "admin" ? "bg-[#1a3a2a] border-[#2a4a3a]" : ""}`}>
-              <div className={`mb-1.5 flex items-center gap-2 text-xs font-bold ${variant === "admin" ? "text-emerald-200" : "text-neutro-oscuro-max"}`}>
+            <Card sombra="sm" className={`hidden p-3 xl:block ${variant === "admin" ? "bg-slate-50 border-slate-200" : ""}`}>
+              <div className={`mb-1.5 flex items-center gap-2 text-xs font-bold ${variant === "admin" ? "text-slate-700" : "text-neutro-oscuro-max"}`}>
                 <i className="fa-solid fa-cloud-arrow-up text-primario" aria-hidden="true" />
                 Sin conexión
               </div>
-              <p className={`text-[11px] leading-normal ${variant === "admin" ? "text-emerald-100/60" : "text-neutro"}`}>
+              <p className={`text-[11px] leading-normal ${variant === "admin" ? "text-slate-500" : "text-neutro"}`}>
                 Tu progreso se sincronizará cuando vuelva internet.
               </p>
             </Card>
