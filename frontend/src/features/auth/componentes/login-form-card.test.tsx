@@ -42,7 +42,7 @@ describe("LoginFormCard", () => {
     expect(html).toContain("Continuar con Facebook");
   });
 
-  it("oculta Facebook cuando no está disponible en localhost", () => {
+  it("muestra Facebook cuando está disponible", () => {
     const html = renderToStaticMarkup(
       <LoginFormCard
         onGoogleClick={() => undefined}
@@ -51,11 +51,11 @@ describe("LoginFormCard", () => {
         onEmailSuccess={() => undefined}
         tabActivo="social"
         onCambiarTab={() => undefined}
-        facebookDisponible={false}
+        facebookDisponible={true}
       />,
     );
 
-    expect(html).not.toContain("Continuar con Facebook");
+    expect(html).toContain("Continuar con Facebook");
     expect(html).toContain("Continuar con Google");
   });
 

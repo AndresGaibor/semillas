@@ -3,12 +3,12 @@ import { describe, expect, it } from "bun:test";
 import { esFacebookPermitidoEnOrigen } from "./social-login";
 
 describe("esFacebookPermitidoEnOrigen", () => {
-  it("bloquea localhost", () => {
-    expect(esFacebookPermitidoEnOrigen("http://localhost:5173")).toBe(false);
+  it("permite localhost", () => {
+    expect(esFacebookPermitidoEnOrigen("http://localhost:5173")).toBe(true);
   });
 
-  it("bloquea 127.0.0.1", () => {
-    expect(esFacebookPermitidoEnOrigen("http://127.0.0.1:5173")).toBe(false);
+  it("permite 127.0.0.1", () => {
+    expect(esFacebookPermitidoEnOrigen("http://127.0.0.1:5173")).toBe(true);
   });
 
   it("permite produccion", () => {

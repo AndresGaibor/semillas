@@ -1,8 +1,19 @@
 import { peticion } from "../../shared/api/api";
 import type { Perfil, Usuario } from "../../shared/api/api";
+import { db, type PerfilLocal } from "@/lib/offline/db";
 
-export function obtenerMiPerfil() {
-  return peticion<{ usuario: Usuario; perfil: Perfil }>("/perfil");
+export async function obtenerMiPerfil() {
+  if (!navigator.onLine) return obtenerPerfilLocalOError();
+
+  try {
+    const respuesta = await peticion<{ usuario: Usuario; perfil: Perfil }>("/perfil");
+    await guardarPerfilLocal(respuesta.usuario, respuesta.perfil);
+    return respuesta;
+  } catch (error) {
+    const local = await obtenerPerfilLocal();
+    if (local) return local;
+    throw error;
+  }
 }
 
 export type ActualizarPerfilDatos = {
@@ -13,11 +24,25 @@ export type ActualizarPerfilDatos = {
   tamano_texto_preferido?: string;
 };
 
-export function actualizarPerfil(datos: ActualizarPerfilDatos) {
-  return peticion<Perfil>("/perfil/actualizar", {
+export async function actualizarPerfil(datos: ActualizarPerfilDatos) {
+  const perfil = await peticion<Perfil>("/perfil/actualizar", {
     metodo: "PATCH",
     cuerpo: datos,
   });
+  const local = await db.perfil.toCollection().first();
+  if (local) {
+    await db.perfil.update(local.localId, {
+      apodo: perfil.apodo,
+      grupoEdadId: perfil.grupo_edad_id,
+      urlAvatar: perfil.url_avatar,
+      claveAvatar: perfil.clave_avatar,
+      prefiereAudio: perfil.prefiere_audio,
+      tamanoTextoPreferido: perfil.tamano_texto_preferido,
+      updatedAt: perfil.actualizado_en ?? new Date().toISOString(),
+      syncStatus: "synced",
+    });
+  }
+  return perfil;
 }
 
 export type GamificacionMiRespuesta = {
@@ -80,4 +105,60 @@ export function reclamarCuentaInvitada() {
   return peticion<{ vinculada: boolean; usuario: Usuario }>("/perfil/vincular-cuenta", {
     metodo: "POST",
   });
+}
+
+async function guardarPerfilLocal(usuario: Usuario, perfil: Perfil): Promise<void> {
+  const now = new Date().toISOString();
+  const existing = await db.perfil.toCollection().first();
+  const registro: PerfilLocal = {
+    localId: existing?.localId ?? perfil.id ?? crypto.randomUUID(),
+    serverId: perfil.id,
+    usuarioId: usuario.id,
+    usuarioRol: usuario.rol,
+    usuarioProveedor: usuario.proveedor,
+    usuarioNombreVisible: usuario.nombre_visible,
+    usuarioCorreo: usuario.correo,
+    apodo: perfil.apodo,
+    grupoEdadId: perfil.grupo_edad_id,
+    urlAvatar: perfil.url_avatar,
+    claveAvatar: perfil.clave_avatar,
+    prefiereAudio: perfil.prefiere_audio,
+    tamanoTextoPreferido: perfil.tamano_texto_preferido,
+    createdAt: perfil.creado_en ?? existing?.createdAt ?? now,
+    updatedAt: perfil.actualizado_en ?? now,
+    syncStatus: "synced",
+  };
+  await db.perfil.put(registro);
+}
+
+async function obtenerPerfilLocal() {
+  const local = await db.perfil.toCollection().first();
+  if (!local) return null;
+  return {
+    usuario: {
+      id: local.usuarioId,
+      rol: local.usuarioRol,
+      proveedor: local.usuarioProveedor,
+      nombre_visible: local.usuarioNombreVisible,
+      correo: local.usuarioCorreo,
+    } satisfies Usuario,
+    perfil: {
+      id: local.serverId ?? local.localId,
+      usuario_id: local.usuarioId,
+      apodo: local.apodo,
+      grupo_edad_id: local.grupoEdadId,
+      url_avatar: local.urlAvatar,
+      clave_avatar: local.claveAvatar,
+      prefiere_audio: local.prefiereAudio,
+      tamano_texto_preferido: local.tamanoTextoPreferido,
+      creado_en: local.createdAt,
+      actualizado_en: local.updatedAt,
+    } satisfies Perfil,
+  };
+}
+
+async function obtenerPerfilLocalOError() {
+  const local = await obtenerPerfilLocal();
+  if (!local) throw new Error("Abre Semillas con conexión al menos una vez antes de usar tu perfil offline.");
+  return local;
 }

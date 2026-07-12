@@ -8,6 +8,8 @@ describe("users.routes", () => {
   it("reclama una cuenta invitada para una sesión autenticada", async () => {
     const actualizacion: Record<string, unknown>[] = [];
 
+    let selectCallCount = 0;
+
     const dbMock = {
       update() {
         return {
@@ -38,18 +40,26 @@ describe("users.routes", () => {
             return {
               where() {
                 return {
-                  limit: async () => [
-                    {
-                      id: "perfil-1",
-                      usuarioId: "usuario-invitado",
-                      apodo: "Visitante",
-                      grupoEdadId: null,
-                      urlAvatar: null,
-                      claveAvatar: null,
-                      prefiereAudio: false,
-                      tamanoTextoPreferido: "mediano"
+                  limit: async () => {
+                    selectCallCount++;
+
+                    if (selectCallCount === 1) {
+                      return [];
                     }
-                  ]
+
+                    return [
+                      {
+                        id: "perfil-1",
+                        usuarioId: "usuario-invitado",
+                        apodo: "Visitante",
+                        grupoEdadId: null,
+                        urlAvatar: null,
+                        claveAvatar: null,
+                        prefiereAudio: false,
+                        tamanoTextoPreferido: "mediano"
+                      }
+                    ];
+                  }
                 };
               }
             };
