@@ -3,6 +3,7 @@
 import type { Preview } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
+import { ThemeProvider } from "../src/shared/theme";
 import "../src/styles.css";
 import "../src/routes/app.css";
 
@@ -52,9 +53,13 @@ const preview: Preview = {
   },
   decorators: [
     (Story) => createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(Story),
+      ThemeProvider,
+      null,
+      createElement(
+        QueryClientProvider,
+        { client: queryClient },
+        createElement(Story),
+      ),
     ),
   ],
   parameters: {

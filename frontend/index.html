@@ -1,6 +1,22 @@
 <!doctype html>
 <html lang="es">
   <head>
+    <script>
+      (() => {
+        try {
+          const preference = localStorage.getItem("semillas-pref-tema") || "sistema";
+          const dark = preference === "oscuro" ||
+            (preference === "sistema" && matchMedia("(prefers-color-scheme: dark)").matches);
+          const root = document.documentElement;
+          root.classList.toggle("dark", dark);
+          root.dataset.theme = dark ? "oscuro" : "claro";
+          root.dataset.themePreference = preference;
+          root.style.colorScheme = dark ? "dark" : "light";
+        } catch {
+          // La aplicación volverá a aplicar el tema al montar React.
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

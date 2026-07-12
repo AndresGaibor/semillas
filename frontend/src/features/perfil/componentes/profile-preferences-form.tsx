@@ -16,6 +16,7 @@ import {
 import type { Perfil, Usuario } from "@/shared/api/api";
 import type { ActualizarPerfilDatos } from "../profile.api";
 import { toast } from "sonner";
+import { useTheme, type ModoTema } from "@/shared/theme";
 
 interface ProfilePreferencesFormProps {
   perfil: Perfil;
@@ -69,9 +70,8 @@ export function ProfilePreferencesForm({
   const [parental, setParental] = useState(() => {
     return localStorage.getItem("semillas-pref-parental") === "true";
   });
-  const [tema, setTema] = useState<"sistema" | "claro" | "oscuro">(() => {
-    return (localStorage.getItem("semillas-pref-tema") || "sistema") as "sistema" | "claro" | "oscuro";
-  });
+  const { modo: temaActual, establecerModo } = useTheme();
+  const [tema, setTema] = useState<ModoTema>(temaActual);
 
   useEffect(() => {
     setAudio(Boolean(perfil.prefiere_audio));
@@ -121,18 +121,7 @@ export function ProfilePreferencesForm({
       document.documentElement.classList.remove("alto-contraste");
     }
 
-    // Aplicar tema al DOM
-    let esOscuro = false;
-    if (tema === "oscuro") {
-      esOscuro = true;
-    } else if (tema === "sistema") {
-      esOscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    }
-    if (esOscuro) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    establecerModo(tema);
 
     // Guardar cambios de API
     onSave({ prefiere_audio: audio, tamano_texto_preferido: textSize });
