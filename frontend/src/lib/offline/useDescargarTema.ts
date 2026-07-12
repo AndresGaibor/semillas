@@ -3,7 +3,7 @@ import { db, type TemaLocal } from "./db";
 import { cachearMediosPaqueteOffline, eliminarMedioDeCache } from "./media-cache";
 import { mapearPaqueteOfflineARegistros, type PaqueteOfflineRespuesta } from "./offline-package";
 import { queueEventoProgreso } from "./outbox";
-import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { peticion } from "@/shared/api/api";
 
 type DescargaTemaParams = {

@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { obtenerTemas } from "@/features/themes/themes.api";
 import { usePortadasFirmadas } from "@/features/themes/hooks/usePortadasFirmadas";
-import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import {
   eliminarTemaDescargado,
   useDescargaJobs,
