@@ -11,7 +11,8 @@
     "build-storybook": "storybook build",
     "test": "bun test src",
     "storybook:coverage": "node ../scripts/check-storybook-coverage.mjs",
-    "storybook:check": "bun run storybook:coverage && bun run build-storybook"
+    "storybook:check": "bun run storybook:coverage && bun run build-storybook",
+    "ui:check": "node ../scripts/check-ui-ux-slop.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -37,6 +38,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.5.0",
+    "@storybook/addon-interactions": "^8.6.14",
     "@storybook/react-vite": "^10.4.6",
     "@tailwindcss/vite": "4.3.2",
     "@tanstack/router-plugin": "1.168.19",

@@ -27,14 +27,19 @@ export interface PropiedadesCard
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof variantesCard> {
   clase?: string;
+  seleccionado?: boolean;
+  deshabilitado?: boolean;
+  estado?: "normal" | "error";
 }
 
 export const Card = React.forwardRef<HTMLDivElement, PropiedadesCard>(
-  ({ sombra, hoverEffect, clase, className, children, ...propiedades }, referencia) => {
+  ({ sombra, hoverEffect = "none", clase, className, children, seleccionado = false, deshabilitado = false, estado = "normal", ...propiedades }, referencia) => {
     return (
       <div
         ref={referencia}
-        className={unirClases(variantesCard({ sombra, hoverEffect }), className, clase)}
+        aria-disabled={deshabilitado || undefined}
+        data-state={seleccionado ? "selected" : estado}
+        className={unirClases(variantesCard({ sombra, hoverEffect }), seleccionado && "border-[var(--sem-color-brand)] ring-2", deshabilitado && "pointer-events-none opacity-60", estado === "error" && "border-[var(--sem-color-danger)]", className, clase)}
         {...propiedades}
       >
         {children}
@@ -78,3 +83,8 @@ export const CardFooter = ({ className, children, ...props }: React.HTMLAttribut
   </div>
 );
 CardFooter.displayName = "CardFooter";
+
+export const CardAction = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={unirClases("ml-auto self-start", className)} {...props}>{children}</div>
+);
+CardAction.displayName = "CardAction";

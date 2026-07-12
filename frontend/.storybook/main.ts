@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   framework: "@storybook/react-vite",
+  addons: ["@storybook/addon-a11y", "@storybook/addon-interactions"],
   async viteFinal(baseConfig) {
     baseConfig.plugins = (baseConfig.plugins ?? []).flat().filter((plugin) => {
       const nombrePlugin =
@@ -21,7 +22,8 @@ const config: StorybookConfig = {
       ...baseConfig.resolve,
       alias: {
         ...baseConfig.resolve?.alias,
-        "@": path.resolve(__dirname, "../src")
+        "@": path.resolve(__dirname, "../src"),
+        "virtual:pwa-register": path.resolve(__dirname, "./pwa-register-mock.ts"),
       }
     };
 

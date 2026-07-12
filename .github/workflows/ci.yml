@@ -42,6 +42,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://example.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'anon-key-for-build-only' }}
 
+      - name: UI UX structural checks
+        run: bun run --cwd frontend ui:check
+
   test:
     name: Tests
     runs-on: ubuntu-latest
