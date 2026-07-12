@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
   obtenerGamificacionPropia,
+  reclamarLogroApi,
   type LogroGamificacion,
   type ReglaNivelGamificacion,
 } from "../../gamification/gamification.api";
@@ -66,6 +67,8 @@ export type InsigniaPresentacion = LogroGamificacion & {
   criterio: string;
   obtenido: boolean;
   ganadoEn: string | null;
+  reclamadoEn: string | null;
+  pendienteReclamar: boolean;
   progresoActual: number;
   progresoObjetivo: number;
   porcentaje: number;
@@ -74,10 +77,21 @@ export type InsigniaPresentacion = LogroGamificacion & {
 export function useLogrosPage() {
   const [activeTab, setActiveTab] = useState<CategoriaLogro>("todas");
   const [sharedBadge, setSharedBadge] = useState<string | null>(null);
+  const [modalCelebracion, setModalCelebracion] = useState<{ nombre: string; bonoXp: number; imagen: string } | null>(null);
+  const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ["gamification", "me"],
     queryFn: obtenerGamificacionPropia,
+  });
+
+  const reclamarMutation = useMutation({
+    mutationFn: reclamarLogroApi,
+    onSuccess: async (resultado, logroId) => {
+      const logro = catalogo.find((item) => item.id === logroId);
+      setModalCelebracion({ nombre: resultado.nombre, bonoXp: resultado.bono_xp, imagen: logro?.url_icono ?? "" });
+      await queryClient.invalidateQueries({ queryKey: ["gamification", "me"] });
+    },
   });
 
   const nivel = query.data?.nivel;
@@ -131,6 +145,8 @@ export function useLogrosPage() {
         criterio: construirCriterio(logro.codigo_criterio, logro.valor_criterio),
         obtenido: Boolean(registro ?? datosServidor?.obtenido),
         ganadoEn: registro?.ganado_en ?? datosServidor?.ganado_en ?? null,
+        reclamadoEn: registro?.reclamado_en ?? datosServidor?.reclamado_en ?? null,
+        pendienteReclamar: Boolean(registro ?? datosServidor?.obtenido) && !(registro?.reclamado_en ?? datosServidor?.reclamado_en),
         progresoActual: actual,
         progresoObjetivo: objetivo,
         porcentaje: Math.min(100, Number(datosServidor?.porcentaje ?? Math.round((actual / objetivo) * 100))),
@@ -183,6 +199,8 @@ export function useLogrosPage() {
     }
   };
 
+  const handleReclamar = (logroId: string) => reclamarMutation.mutate(logroId);
+
   return {
     query,
     xpInfo,
@@ -194,6 +212,10 @@ export function useLogrosPage() {
     setActiveTab,
     sharedBadge,
     handleShare,
+    handleReclamar,
+    reclamandoId: reclamarMutation.isPending ? reclamarMutation.variables : null,
+    modalCelebracion,
+    cerrarModalCelebracion: () => setModalCelebracion(null),
     racha: query.data?.racha ?? { dias_actuales: 0, dias_maximos: 0, ultima_actividad_fecha: null },
     movimientosRecientes: query.data?.movimientos_recientes ?? [],
   };

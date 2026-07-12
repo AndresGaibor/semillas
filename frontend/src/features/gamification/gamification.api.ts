@@ -17,6 +17,7 @@ export type LogroUsuarioGamificacion = {
   usuario_id: string;
   logro_id: string;
   ganado_en: string;
+  reclamado_en: string | null;
   logro: LogroGamificacion | null;
 };
 
@@ -42,8 +43,11 @@ export type GamificacionPropia = {
     progreso_actual?: number;
     progreso_objetivo?: number;
     porcentaje?: number;
+    reclamado_en?: string | null;
   }>;
   reglas_nivel?: ReglaNivelGamificacion[];
+  /** Cantidad de logros desbloqueados que el usuario aún no ha reclamado. */
+  pendientes_reclamar?: number;
   racha?: { dias_actuales: number; dias_maximos: number; ultima_actividad_fecha: string | null };
   movimientos_recientes?: Array<{
     id: string;
@@ -73,6 +77,10 @@ export async function obtenerGamificacionPropia() {
     if (cached) return cached;
     throw error;
   }
+}
+
+export async function reclamarLogroApi(logroId: string): Promise<{ bono_xp: number; nombre: string }> {
+  return peticion<{ bono_xp: number; nombre: string }>(`/gamificacion/logros/${logroId}/reclamar`, { metodo: "POST" });
 }
 
 function leerCacheGamificacion(): GamificacionPropia | null {

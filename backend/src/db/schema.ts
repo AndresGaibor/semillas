@@ -26,7 +26,8 @@ import {
   real,
   date,
   pgEnum,
-  uniqueIndex
+  uniqueIndex,
+  primaryKey
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -390,8 +391,12 @@ export const logro = pgTable("logro", {
 export const logroUsuario = pgTable("logro_usuario", {
   logroId: uuid("logro_id").notNull().references(() => logro.id, { onDelete: "cascade" }),
   usuarioId: uuid("usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
-  ganadoEn: timestamp("ganado_en").notNull().defaultNow()
-});
+  ganadoEn: timestamp("ganado_en").notNull().defaultNow(),
+  // null = desbloqueado pero pendiente de reclamar; not null = reclamado por el usuario
+  reclamadoEn: timestamp("reclamado_en")
+}, (t) => ({
+  pk: primaryKey({ columns: [t.logroId, t.usuarioId] })
+}));
 
 // Progreso de un usuario en un tema específico
 export const progresoTemaUsuario = pgTable("progreso_tema_usuario", {

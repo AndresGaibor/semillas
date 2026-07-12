@@ -82,32 +82,6 @@ export async function evaluarYDesbloquearLogros(
 
       if (!registro) return false;
 
-      const bonoXp = Math.max(0, Number(logro.bonoXp ?? 0));
-      if (bonoXp > 0) {
-        await tx
-          .insert(schema.movimientoXp)
-          .values({
-            usuarioId,
-            origen: "logro",
-            origenId: logro.id,
-            cantidad: bonoXp,
-            metadatos: { logro_codigo: logro.codigo },
-          })
-          .onConflictDoNothing();
-      }
-
-      await tx.insert(schema.notificacionUsuario).values({
-        usuarioId,
-        tipo: "logro_desbloqueado",
-        titulo: `¡Ganaste ${logro.nombre}!`,
-        mensaje: logro.descripcion ?? "Sigue creciendo y aprendiendo en Semillas.",
-        datos: {
-          logro_id: logro.id,
-          logro_codigo: logro.codigo,
-          bono_xp: bonoXp,
-        },
-      });
-
       return true;
     });
 
@@ -122,4 +96,53 @@ export async function evaluarYDesbloquearLogros(
   }
 
   return desbloqueados;
+}
+
+/** Reclama un logro desbloqueado y otorga su XP una sola vez. */
+export async function reclamarLogro(
+  db: DbClient,
+  usuarioId: string,
+  logroId: string,
+): Promise<{ bonoXp: number; nombre: string } | null> {
+  return db.transaction(async (tx) => {
+    const [existente] = await tx
+      .select({
+        logroId: schema.logroUsuario.logroId,
+        reclamadoEn: schema.logroUsuario.reclamadoEn,
+        bonoXp: schema.logro.bonoXp,
+        nombre: schema.logro.nombre,
+        codigo: schema.logro.codigo,
+      })
+      .from(schema.logroUsuario)
+      .leftJoin(schema.logro, eq(schema.logroUsuario.logroId, schema.logro.id))
+      .where(and(
+        eq(schema.logroUsuario.usuarioId, usuarioId),
+        eq(schema.logroUsuario.logroId, logroId),
+      ))
+      .limit(1);
+
+    if (!existente) return null;
+    if (existente.reclamadoEn !== null) return { bonoXp: 0, nombre: existente.nombre ?? "" };
+
+    const ahora = new Date();
+    await tx.update(schema.logroUsuario)
+      .set({ reclamadoEn: ahora })
+      .where(and(
+        eq(schema.logroUsuario.usuarioId, usuarioId),
+        eq(schema.logroUsuario.logroId, logroId),
+      ));
+
+    const bonoXp = Math.max(0, Number(existente.bonoXp ?? 0));
+    if (bonoXp > 0) {
+      await tx.insert(schema.movimientoXp).values({
+        usuarioId,
+        origen: "logro",
+        origenId: logroId,
+        cantidad: bonoXp,
+        metadatos: { logro_codigo: existente.codigo ?? "", origen: "reclamacion_usuario" },
+      }).onConflictDoNothing();
+    }
+
+    return { bonoXp, nombre: existente.nombre ?? "" };
+  });
 }

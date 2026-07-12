@@ -2,6 +2,7 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 import { obtenerMetricasCriterio, obtenerResumenGamificacion } from "./gamification-engine";
+import { reclamarLogro } from "./gamification-awards";
 
 export type GamificationRepository = ReturnType<typeof crearGamificationRepository>;
 
@@ -17,7 +18,7 @@ export function crearGamificationRepository(db: DbClient) {
         db.select().from(schema.logroUsuario).where(eq(schema.logroUsuario.usuarioId, usuarioId)),
         obtenerMetricasCriterio(db, usuarioId),
       ]);
-      const ganadosMap = new Map(ganados.map((item) => [item.logroId, item.ganadoEn]));
+      const ganadosMap = new Map(ganados.map((item) => [item.logroId, item]));
 
       return catalogo.map((logro) => {
         const actual = Number(metricas[logro.codigoCriterio as keyof typeof metricas] ?? 0);
@@ -25,7 +26,8 @@ export function crearGamificationRepository(db: DbClient) {
         return {
           ...logro,
           obtenido: ganadosMap.has(logro.id),
-          ganadoEn: ganadosMap.get(logro.id) ?? null,
+          ganadoEn: ganadosMap.get(logro.id)?.ganadoEn ?? null,
+          reclamadoEn: ganadosMap.get(logro.id)?.reclamadoEn ?? null,
           progresoActual: Math.min(actual, objetivo),
           progresoObjetivo: objetivo,
           porcentaje: Math.min(100, Math.round((actual / objetivo) * 100)),
@@ -60,6 +62,7 @@ export function crearGamificationRepository(db: DbClient) {
           usuario_id: schema.logroUsuario.usuarioId,
           logro_id: schema.logroUsuario.logroId,
           ganado_en: schema.logroUsuario.ganadoEn,
+          reclamado_en: schema.logroUsuario.reclamadoEn,
           logro: schema.logro,
         })
         .from(schema.logroUsuario)
@@ -79,6 +82,18 @@ export function crearGamificationRepository(db: DbClient) {
         usuarios_con_xp: Number(usuarios?.total ?? 0),
         racha_promedio: Number(rachas?.promedio ?? 0),
       };
+    },
+
+    async reclamarLogro(usuarioId: string, logroId: string) {
+      return reclamarLogro(db, usuarioId, logroId);
+    },
+
+    async contarLogrosPendientesReclamar(usuarioId: string): Promise<number> {
+      const [resultado] = await db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(schema.logroUsuario)
+        .where(sql`${schema.logroUsuario.usuarioId} = ${usuarioId} AND ${schema.logroUsuario.reclamadoEn} IS NULL`);
+      return Number(resultado?.total ?? 0);
     },
   };
 }

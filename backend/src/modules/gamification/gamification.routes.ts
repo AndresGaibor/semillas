@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { Context } from "hono";
 import type { AppBindings } from "../../config/env";
 import { authMiddleware } from "../../shared/middleware/auth.middleware";
-import { responderExito } from "../../shared/http/respuesta";
+import { responderExito, responderError } from "../../shared/http/respuesta";
 import { crearGamificationRepository } from "./gamification.repository";
 import { crearCasoObtenerMiGamificacion } from "./casos-uso/obtener-mi";
 
@@ -68,4 +68,12 @@ gamificationRoutes.get("/historial-xp", async (c) => {
       creado_en: item.creadoEn.toISOString(),
     })),
   });
+});
+
+gamificationRoutes.post("/logros/:logroId/reclamar", async (c) => {
+  const { logroId } = c.req.param();
+  const repositorio = obtenerRepositorio(c);
+  const resultado = await repositorio.reclamarLogro(c.get("user").id, logroId);
+  if (!resultado) return responderError("Logro no encontrado o no pertenece al usuario", "NOT_FOUND", 404);
+  return responderExito({ reclamado: true, bono_xp: resultado.bonoXp, nombre: resultado.nombre });
 });

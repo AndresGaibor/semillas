@@ -188,7 +188,11 @@ export async function obtenerResumenGamificacion(db: DbClient, usuarioId: string
       .orderBy(desc(schema.movimientoXp.creadoEn))
       .limit(20),
     db
-      .select({ logro: schema.logro, ganadoEn: schema.logroUsuario.ganadoEn })
+      .select({
+        logro: schema.logro,
+        ganadoEn: schema.logroUsuario.ganadoEn,
+        reclamadoEn: schema.logroUsuario.reclamadoEn,
+      })
       .from(schema.logroUsuario)
       .innerJoin(schema.logro, eq(schema.logroUsuario.logroId, schema.logro.id))
       .where(eq(schema.logroUsuario.usuarioId, usuarioId))

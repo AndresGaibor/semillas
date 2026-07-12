@@ -19,10 +19,11 @@ function serializarLogro(logro: Record<string, unknown>) {
 
 export function crearCasoObtenerMiGamificacion(repositorio: GamificationRepository) {
   return async function obtenerMiGamificacion(usuarioId: string) {
-    const [resumen, catalogo, niveles] = await Promise.all([
+    const [resumen, catalogo, niveles, pendientes_reclamar] = await Promise.all([
       repositorio.obtenerResumen(usuarioId),
       repositorio.listarCatalogoLogros(usuarioId),
       repositorio.listarNiveles(),
+      repositorio.contarLogrosPendientesReclamar(usuarioId),
     ]);
 
     return {
@@ -53,6 +54,7 @@ export function crearCasoObtenerMiGamificacion(repositorio: GamificationReposito
         usuario_id: usuarioId,
         logro_id: item.logro.id,
         ganado_en: item.ganadoEn.toISOString(),
+        reclamado_en: item.reclamadoEn?.toISOString() ?? null,
         logro: serializarLogro(item.logro),
       })),
       catalogo_logros: catalogo.map((item) => ({
@@ -62,6 +64,7 @@ export function crearCasoObtenerMiGamificacion(repositorio: GamificationReposito
         progreso_actual: item.progresoActual,
         progreso_objetivo: item.progresoObjetivo,
         porcentaje: item.porcentaje,
+        reclamado_en: item.reclamadoEn?.toISOString() ?? null,
       })),
       reglas_nivel: niveles.map((nivel) => ({
         id: nivel.id,
@@ -78,6 +81,7 @@ export function crearCasoObtenerMiGamificacion(repositorio: GamificationReposito
         metadatos: movimiento.metadatos,
         creado_en: movimiento.creadoEn.toISOString(),
       })),
+      pendientes_reclamar,
     };
   };
 }

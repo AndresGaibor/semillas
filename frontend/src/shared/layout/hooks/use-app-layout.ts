@@ -6,6 +6,7 @@ import { cerrarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerNavMovilActivo, obtenerNavegacionMovil } from "@/shared/layout/app-mobile-nav";
 import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { esRutaModoLeccion } from "@/features/crecer/crecer-fases";
+import { obtenerGamificacionPropia } from "@/features/gamification/gamification.api";
 
 type PageHeaderInfo = {
   titulo: string;
@@ -47,7 +48,18 @@ export function useAppLayout() {
     queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
+  const gamificacionQuery = useQuery({
+    queryKey: ["gamification", "me"],
+    queryFn: obtenerGamificacionPropia,
+    // Refrescar cada 2 minutos para detectar nuevos logros desbloqueados
+    refetchInterval: 2 * 60 * 1000,
+    // Solo ejecutar si hay sesión (no bloquear el layout)
+    staleTime: 60 * 1000,
+  });
   const [isOffline, setIsOffline] = useState(false);
+
+  // true si hay al menos 1 logro desbloqueado pendiente de reclamar
+  const logrosBadge = (gamificacionQuery.data?.pendientes_reclamar ?? 0) > 0;
 
   useEffect(() => {
     setIsOffline(!navigator.onLine);
@@ -83,7 +95,13 @@ export function useAppLayout() {
   };
 
   const navegacionMovil = useMemo(() => obtenerNavegacionMovil(), []);
-  const opcionesBottomNav = navegacionMovil.map(({ id, etiqueta, icono }) => ({ id, etiqueta, icono }));
+  const opcionesBottomNav = navegacionMovil.map(({ id, etiqueta, icono }) => ({
+    id,
+    etiqueta,
+    icono,
+    // Mostrar badge en Logros si hay pendientes
+    badge: id === "logros" ? logrosBadge : false,
+  }));
   const activoMovil = obtenerNavMovilActivo(location.pathname);
   const esInicio = location.pathname === "/app" || location.pathname === "/app/";
   const esModoLeccion = esRutaModoLeccion(location.pathname);
@@ -107,6 +125,7 @@ export function useAppLayout() {
     esInicio,
     esModoLeccion,
     esDetalleTema,
+    logrosBadge,
   };
 }
 
