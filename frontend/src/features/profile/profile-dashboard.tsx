@@ -24,6 +24,7 @@ export type PerfilDashboardProps = {
   onVincularCorreo: () => void;
   onVerLogros: () => void;
   onEmpezarTema: () => void;
+  onCerrarSesion: () => void;
 };
 
 export function ProfileDashboard({
@@ -40,6 +41,7 @@ export function ProfileDashboard({
   onVincularCorreo,
   onVerLogros,
   onEmpezarTema,
+  onCerrarSesion,
 }: PerfilDashboardProps) {
   const {
     logros,
@@ -109,6 +111,7 @@ export function ProfileDashboard({
               correo={usuario?.correo}
               onVincularGoogle={onVincularGoogle}
               onVincularCorreo={onVincularCorreo}
+              onCerrarSesion={onCerrarSesion}
             />
 
             <SeccionPreferencias

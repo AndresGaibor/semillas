@@ -1,11 +1,14 @@
 import { CheckCircle2, Link2, Mail, ShieldCheck } from "lucide-react";
 
+import { Boton } from "@/componentes/ui/boton";
+
 interface SeccionCuentaProps {
   esInvitado: boolean;
   proveedor: string;
   correo?: string | null;
   onVincularGoogle: () => void;
   onVincularCorreo: () => void;
+  onCerrarSesion: () => void;
 }
 
 export function SeccionCuenta({
@@ -14,6 +17,7 @@ export function SeccionCuenta({
   correo,
   onVincularGoogle,
   onVincularCorreo,
+  onCerrarSesion,
 }: SeccionCuentaProps) {
   const esGoogle = proveedor === "google";
 
@@ -64,6 +68,14 @@ export function SeccionCuenta({
             Añadir acceso con Google
           </button>
         )}
+
+        <Boton
+          variante="contorno"
+          onClick={onCerrarSesion}
+          clase="profile-account-logout"
+        >
+          Cerrar sesión
+        </Boton>
       </div>
     </section>
   );

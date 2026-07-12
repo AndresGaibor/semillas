@@ -59,6 +59,7 @@ const commonActions = {
   onVincularCorreo: () => undefined,
   onVerLogros: () => undefined,
   onEmpezarTema: () => undefined,
+  onCerrarSesion: () => undefined,
 };
 
 describe("ProfileDashboard", () => {
