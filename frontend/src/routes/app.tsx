@@ -39,6 +39,7 @@ function AppLayout() {
     esInicio,
     esModoLeccion,
     esDetalleTema,
+    logrosBadge,
   } = useAppLayout();
 
   const [mensajeConflicto, setMensajeConflicto] = useState<string | null>(null);
@@ -121,6 +122,7 @@ function AppLayout() {
             onClose={() => undefined}
             onLogout={handleLogout}
             variant="app"
+            logrosBadge={logrosBadge}
           />
         ) : null}
 

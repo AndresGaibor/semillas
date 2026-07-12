@@ -5,6 +5,8 @@ export interface OpcionBottomNav {
   id: string;
   etiqueta: string;
   icono: React.ReactNode;
+  /** Si true, muestra un punto rojo de notificación sobre el ícono */
+  badge?: boolean;
 }
 
 export interface PropiedadesBottomNav {
@@ -42,9 +44,16 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
               className={unirClases(
                 "bottom-nav__icon",
                 esActivo ? "text-[#6C3AED]" : "text-slate-400",
+                "relative",
               )}
             >
               {op.icono}
+              {op.badge && (
+                <span
+                  className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white animate-pulse"
+                  aria-label="Tienes logros por reclamar"
+                />
+              )}
             </span>
             <span
               className={unirClases(

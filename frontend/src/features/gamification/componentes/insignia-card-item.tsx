@@ -1,9 +1,8 @@
 import * as React from "react";
-import { CheckCircle2, LockKeyhole, Sparkles } from "lucide-react";
-
-import confetti from "canvas-confetti";
+import { CheckCircle2, Gift, LockKeyhole, Sparkles, Share2, Loader2 } from "lucide-react";
 
 export interface InsigniaCardItemProps {
+  id: string;
   codigo: string;
   nombre: string;
   descripcion: string;
@@ -11,43 +10,69 @@ export interface InsigniaCardItemProps {
   bono_xp: number;
   imagen: string;
   obtenido: boolean;
+  pendienteReclamar: boolean;
   ganadoEn?: string | null;
+  reclamadoEn?: string | null;
+  reclamando?: boolean;
+  onReclamar?: (id: string) => void;
+  onCompartir?: () => void;
 }
 
 export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
+  id,
   nombre,
   descripcion,
   criterio,
   bono_xp,
   imagen,
   obtenido,
+  pendienteReclamar,
   ganadoEn,
+  reclamando = false,
+  onReclamar,
+  onCompartir,
 }) => {
-  const [mockReclamado, setMockReclamado] = React.useState(false);
+  const [compartiendo, setCompartiendo] = React.useState(false);
 
   const handleReclamar = (e: React.MouseEvent) => {
     e.preventDefault();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (rect.left + rect.width / 2) / window.innerWidth;
-    const y = (rect.top + rect.height / 2) / window.innerHeight;
-
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { x, y },
-      colors: ["#16a34a", "#22c55e", "#facc15", "#ffffff"]
-    });
-
-    setMockReclamado(true);
+    if (!reclamando && onReclamar) {
+      onReclamar(id);
+    }
   };
 
+  const handleClickCompartir = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (compartiendo || !onCompartir) return;
+    setCompartiendo(true);
+    try {
+      await onCompartir();
+    } finally {
+      setCompartiendo(false);
+    }
+  };
+
+  // Estado visual: pendiente de reclamar > obtenido > bloqueado
+  const claseEstado = pendienteReclamar
+    ? "is-claimable"
+    : obtenido
+      ? "is-earned"
+      : "is-locked";
+
   return (
-    <article className={`logro-card ${obtenido ? "is-earned" : "is-locked"}`}>
+    <article className={`logro-card ${claseEstado}`}>
       <div className="logro-card__visual">
         <img src={imagen} alt="" aria-hidden="true" loading="lazy" decoding="async" />
         <span className="logro-card__state-icon" aria-hidden="true">
-          {obtenido ? <CheckCircle2 size={18} /> : <LockKeyhole size={17} />}
+          {pendienteReclamar
+            ? <Gift size={18} className="logro-card__state-icon--claimable" />
+            : obtenido
+              ? <CheckCircle2 size={18} />
+              : <LockKeyhole size={17} />}
         </span>
+        {pendienteReclamar && (
+          <span className="logro-card__claim-pulse" aria-hidden="true" />
+        )}
       </div>
 
       <div className="logro-card__content">
@@ -62,42 +87,61 @@ export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
         <p className="logro-card__criterion">{criterio}</p>
         <p className="logro-card__description">{descripcion}</p>
 
-        <div className="logro-card__footer" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <span className={`logro-card__status ${obtenido ? "is-earned" : ""}`}>
-            {obtenido ? "Obtenida" : "Por obtener"}
-          </span>
-          {obtenido && ganadoEn && (
-            <time dateTime={ganadoEn} className="logro-card__date">
-              {new Intl.DateTimeFormat("es-EC", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(ganadoEn))}
-            </time>
-          )}
-          
-          {/* MOCK BUTTON FOR ANIMATION TEST */}
-          {obtenido && !mockReclamado && (
-            <button 
+        <div className="logro-card__footer">
+          {pendienteReclamar ? (
+            // Logro desbloqueado, pendiente de reclamar
+            <button
+              type="button"
+              className="logro-card__reclamar-btn"
               onClick={handleReclamar}
-              style={{
-                background: "linear-gradient(135deg, #16a34a, #22c55e)",
-                color: "white",
-                border: "none",
-                borderRadius: "20px",
-                padding: "4px 12px",
-                fontSize: "12px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 2px 4px rgba(22, 163, 74, 0.3)",
-                marginLeft: "auto",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                transition: "transform 0.2s"
-              }}
-              onMouseOver={e => e.currentTarget.style.transform = "scale(1.05)"}
-              onMouseOut={e => e.currentTarget.style.transform = "scale(1)"}
+              disabled={reclamando}
+              aria-label={`Reclamar insignia: ${nombre}`}
             >
-              <Sparkles size={12} />
-              Reclamar
+              {reclamando ? (
+                <>
+                  <span className="logro-card__reclamar-spinner" aria-hidden="true" />
+                  Reclamando…
+                </>
+              ) : (
+                <>
+                  <Gift size={14} aria-hidden="true" />
+                  ¡Reclamar!
+                </>
+              )}
             </button>
+          ) : (
+            // Logro bloqueado o ya reclamado
+            <span className={`logro-card__status ${obtenido ? "is-earned" : ""}`}>
+              {obtenido ? "Obtenida" : "Por obtener"}
+            </span>
+          )}
+
+          {obtenido && !pendienteReclamar && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {ganadoEn && (
+                <time dateTime={ganadoEn} className="logro-card__date">
+                  {new Intl.DateTimeFormat("es-EC", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(ganadoEn))}
+                </time>
+              )}
+              {onCompartir && (
+                <button
+                  type="button"
+                  className="logro-card__compartir-btn"
+                  onClick={(e) => void handleClickCompartir(e)}
+                  disabled={compartiendo}
+                  aria-label={`Compartir insignia: ${nombre}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.35rem',
+                    background: 'transparent', border: 'none', color: '#16a34a',
+                    fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                    padding: '0.2rem 0.5rem', borderRadius: '4px',
+                  }}
+                >
+                  {compartiendo ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
+                  Compartir
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

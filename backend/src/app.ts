@@ -84,7 +84,7 @@ app.use(
 
       return permitidos.includes(origin) ? origin : "";
     },
-    allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id", "X-Guest-Token", "X-Dev-Setup-Token"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id", "X-Guest-Token", "X-Dev-Setup-Token", "Cache-Control", "Pragma"],
     allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   })

@@ -10,45 +10,87 @@ export async function crearTarjetaInsignia(nombreInsignia: string, imagenUrl: st
     throw new Error("No se pudo crear la tarjeta de la insignia");
   }
 
-  const gradiente = ctx.createLinearGradient(0, 0, TAMANO, TAMANO);
-  gradiente.addColorStop(0, "#F4F0FF");
-  gradiente.addColorStop(.52, "#FFFFFF");
-  gradiente.addColorStop(1, "#ECFDF3");
-  ctx.fillStyle = gradiente;
+  // 1. Fondo Oscuro Premium (Gradiente Radial)
+  const gradienteFondo = ctx.createRadialGradient(TAMANO / 2, TAMANO / 2, 100, TAMANO / 2, TAMANO / 2, 800);
+  gradienteFondo.addColorStop(0, "#2e1065"); // Morado oscuro intenso
+  gradienteFondo.addColorStop(1, "#020617"); // Casi negro en los bordes
+  ctx.fillStyle = gradienteFondo;
   ctx.fillRect(0, 0, TAMANO, TAMANO);
 
-  ctx.fillStyle = "rgba(108, 53, 232, 0.08)";
-  ctx.beginPath();
-  ctx.arc(930, 125, 190, 0, Math.PI * 2);
-  ctx.fill();
+  // 2. Brillos decorativos en las esquinas
+  const brilloTop = ctx.createRadialGradient(0, 0, 0, 0, 0, 700);
+  brilloTop.addColorStop(0, "rgba(16, 185, 129, 0.2)"); // Verde esmeralda
+  brilloTop.addColorStop(1, "rgba(16, 185, 129, 0)");
+  ctx.fillStyle = brilloTop;
+  ctx.fillRect(0, 0, TAMANO, TAMANO);
 
-  ctx.fillStyle = "rgba(67, 160, 71, 0.08)";
-  ctx.beginPath();
-  ctx.arc(100, 960, 240, 0, Math.PI * 2);
-  ctx.fill();
+  const brilloBot = ctx.createRadialGradient(TAMANO, TAMANO, 0, TAMANO, TAMANO, 700);
+  brilloBot.addColorStop(0, "rgba(139, 92, 246, 0.2)"); // Morado brillante
+  brilloBot.addColorStop(1, "rgba(139, 92, 246, 0)");
+  ctx.fillStyle = brilloBot;
+  ctx.fillRect(0, 0, TAMANO, TAMANO);
 
+  // 3. Estrellas decorativas de fondo
+  const dibujarEstrella = (x: number, y: number, size: number, color: string) => {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.translate(x, y);
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.lineTo(0, size);
+      ctx.quadraticCurveTo(size / 6, size / 6, size, 0);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  };
+
+  dibujarEstrella(220, 320, 35, "#fde047");
+  dibujarEstrella(860, 420, 45, "#34d399");
+  dibujarEstrella(180, 650, 25, "#a78bfa");
+  dibujarEstrella(820, 720, 30, "#fde047");
+
+  // 4. Textos Superiores
   ctx.textAlign = "center";
-  ctx.fillStyle = "#43A047";
-  ctx.font = "800 42px Nunito, Arial, sans-serif";
-  ctx.fillText("SEMILLAS", TAMANO / 2, 105);
+  ctx.fillStyle = "#10b981"; // Esmeralda vibrante
+  ctx.font = "800 32px Nunito, Arial, sans-serif";
+  ctx.fillText("S E M I L L A S", TAMANO / 2, 110);
 
-  ctx.fillStyle = "#172033";
-  ctx.font = "900 68px Nunito, Arial, sans-serif";
-  ctx.fillText("¡Nueva insignia!", TAMANO / 2, 205);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 72px Nunito, Arial, sans-serif";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 4;
+  ctx.fillText("¡Insignia Desbloqueada!", TAMANO / 2, 195);
+  ctx.shadowColor = "transparent";
 
+  // 5. Dibujar la Insignia en el centro
   await dibujarInsignia(ctx, imagenUrl);
 
-  ctx.fillStyle = "#6D35E8";
-  ctx.font = "900 62px Nunito, Arial, sans-serif";
-  escribirTextoCentrado(ctx, nombreInsignia, TAMANO / 2, 745, 820, 72);
+  // 6. Nombre de la insignia (Gradiente Dorado)
+  const gradienteNombre = ctx.createLinearGradient(0, 780, 0, 860);
+  gradienteNombre.addColorStop(0, "#fef08a");
+  gradienteNombre.addColorStop(0.5, "#fde047");
+  gradienteNombre.addColorStop(1, "#eab308");
+  ctx.fillStyle = gradienteNombre;
+  ctx.font = "900 66px Nunito, Arial, sans-serif";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetY = 6;
+  escribirTextoCentrado(ctx, nombreInsignia.toUpperCase(), TAMANO / 2, 830, 920, 66);
+  ctx.shadowColor = "transparent";
 
-  ctx.fillStyle = "#475569";
-  ctx.font = "700 34px Nunito, Arial, sans-serif";
-  ctx.fillText("Sigue aprendiendo, creciendo y compartiendo.", TAMANO / 2, 910);
+  // 7. Textos Inferiores
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "600 32px Nunito, Arial, sans-serif";
+  ctx.fillText("Sigue aprendiendo, creciendo y compartiendo.", TAMANO / 2, 940);
 
-  ctx.fillStyle = "#2E7D32";
+  ctx.fillStyle = "#34d399";
   ctx.font = "800 28px Nunito, Arial, sans-serif";
-  ctx.fillText("Crecer en la Palabra, vivir Su verdad", TAMANO / 2, 980);
+  ctx.fillText("Crecer en la Palabra, vivir Su verdad", TAMANO / 2, 1000);
 
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((resultado) => {
@@ -73,15 +115,26 @@ export function descargarTarjetaInsignia(archivo: File): void {
 
 async function dibujarInsignia(ctx: CanvasRenderingContext2D, imagenUrl: string): Promise<void> {
   const centroX = TAMANO / 2;
-  const centroY = 470;
-  const radio = 220;
+  const centroY = 510;
+  const radio = 230;
 
   ctx.save();
-  ctx.shadowColor = "rgba(30, 41, 59, 0.18)";
-  ctx.shadowBlur = 45;
+  // Aura brillante detrás de la insignia
+  const aura = ctx.createRadialGradient(centroX, centroY, radio - 40, centroX, centroY, radio + 120);
+  aura.addColorStop(0, "rgba(250, 204, 21, 0.45)"); // Glow dorado intenso
+  aura.addColorStop(1, "rgba(250, 204, 21, 0)");
+  ctx.fillStyle = aura;
+  ctx.beginPath();
+  ctx.arc(centroX, centroY, radio + 120, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Círculo blanco de fondo para la imagen
+  ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 15;
   ctx.fillStyle = "#FFFFFF";
   ctx.beginPath();
-  ctx.arc(centroX, centroY, radio + 30, 0, Math.PI * 2);
+  ctx.arc(centroX, centroY, radio + 10, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 

@@ -12,6 +12,8 @@ type AppSidebarProps = {
   onClose: () => void;
   onLogout: () => void;
   variant?: "app" | "admin";
+  /** Si true, muestra badge rojo en el ítem Insignias */
+  logrosBadge?: boolean;
 };
 
 type SidebarItem = {
@@ -19,6 +21,7 @@ type SidebarItem = {
   label: string;
   icon: string;
   match: (path: string) => boolean;
+  badge?: boolean;
 };
 
 const items: SidebarItem[] = [
@@ -64,8 +67,15 @@ export function AppSidebar({
   onClose,
   onLogout,
   variant = "app",
+  logrosBadge = false,
 }: AppSidebarProps) {
-  const secciones = obtenerSeccionesSidebar(variant);
+  // Inyectar badge en el ítem de Insignias si corresponde
+  const secciones = obtenerSeccionesSidebar(variant).map((seccion) => ({
+    ...seccion,
+    items: seccion.items.map((item) =>
+      item.to === "/app/logros" ? { ...item, badge: logrosBadge } : item
+    ),
+  }));
 
   return (
     <>
@@ -137,7 +147,15 @@ export function AppSidebar({
                           : "text-neutro hover:bg-slate-100 hover:text-neutro-oscuro-max"
                     }`}
                   >
-                    <i className={`fa-solid ${item.icon} w-5 text-center text-[16px]`} aria-hidden="true" />
+                    <span className="relative">
+                      <i className={`fa-solid ${item.icon} w-5 text-center text-[16px]`} aria-hidden="true" />
+                      {item.badge && (
+                        <span
+                          className="absolute -right-1.5 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white animate-pulse"
+                          aria-label="Tienes logros por reclamar"
+                        />
+                      )}
+                    </span>
                     <span className="hidden xl:inline">{item.label}</span>
                     {activo ? <span className={`absolute left-0 h-6 w-1 rounded-r-full xl:-left-1 ${variant === "admin" ? "bg-violet-600" : "bg-primario"}`} aria-hidden="true" /> : null}
                   </Link>

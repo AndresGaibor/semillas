@@ -17,6 +17,8 @@ export type LogroUsuarioGamificacion = {
   usuario_id: string;
   logro_id: string;
   ganado_en: string;
+  /** null = desbloqueado pero pendiente de reclamar; string = ya reclamado */
+  reclamado_en: string | null;
   logro: LogroGamificacion | null;
 };
 
@@ -36,12 +38,14 @@ export type GamificacionPropia = {
   logros: LogroUsuarioGamificacion[];
   catalogo_logros?: LogroGamificacion[];
   reglas_nivel?: ReglaNivelGamificacion[];
+  /** Cantidad de logros desbloqueados que el usuario aún no ha reclamado */
+  pendientes_reclamar?: number;
 };
 
 const CACHE_KEY = "semillas_gamification_cache_v1";
 
 export async function obtenerGamificacionPropia() {
-  if (!navigator.onLine) return leerCacheGamificacion() ?? { nivel: null, logros: [], catalogo_logros: [], reglas_nivel: [] };
+  if (!navigator.onLine) return leerCacheGamificacion() ?? { nivel: null, logros: [], catalogo_logros: [], reglas_nivel: [], pendientes_reclamar: 0 };
 
   try {
     const data = await peticion<GamificacionPropia>("/gamificacion/mi");
@@ -56,6 +60,13 @@ export async function obtenerGamificacionPropia() {
     if (cached) return cached;
     throw error;
   }
+}
+
+/** Reclama un logro desbloqueado. Devuelve el bono XP otorgado. */
+export async function reclamarLogroApi(logroId: string): Promise<{ bono_xp: number; nombre: string }> {
+  return peticion<{ bono_xp: number; nombre: string }>(`/gamificacion/logros/${logroId}/reclamar`, {
+    metodo: "POST",
+  });
 }
 
 function leerCacheGamificacion(): GamificacionPropia | null {

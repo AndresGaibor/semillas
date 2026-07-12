@@ -82,9 +82,9 @@ async function obtenerMetricas(db: DbClient, usuarioId: string): Promise<Metrica
 }
 
 /**
- * Evalúa el catálogo administrable de logros después de reconciliar progreso.
- * La inserción en logro_usuario es la barrera de idempotencia. El bono XP se
- * registra como evento del servidor para que v_nivel_usuario lo contabilice.
+ * Evalúa el catálogo de logros y desbloquea los que el usuario cumple.
+ * Los logros se insertan con reclamado_en = NULL (pendientes de reclamar).
+ * La XP se otorga SOLO cuando el usuario hace clic en "Reclamar".
  */
 export async function evaluarYDesbloquearLogros(
   db: DbClient,
@@ -107,37 +107,14 @@ export async function evaluarYDesbloquearLogros(
     const requerido = Number(logro.valorCriterio ?? 1);
     if (metricas[criterio] < requerido) continue;
 
-    const nuevo = await db.transaction(async (tx) => {
-      const [registro] = await tx
-        .insert(schema.logroUsuario)
-        .values({ usuarioId, logroId: logro.id })
-        .onConflictDoNothing()
-        .returning();
+    // Insertar con reclamado_en = null (pendiente de reclamar, sin XP aún)
+    const [registro] = await db
+      .insert(schema.logroUsuario)
+      .values({ usuarioId, logroId: logro.id, reclamadoEn: null })
+      .onConflictDoNothing()
+      .returning();
 
-      if (!registro) return false;
-
-      const bonoXp = Math.max(0, Number(logro.bonoXp ?? 0));
-      if (bonoXp > 0) {
-        const ahora = new Date();
-        await tx.insert(schema.eventoProgreso).values({
-          usuarioId,
-          idEventoCliente: crypto.randomUUID(),
-          tipoEvento: "recompensa_reclamada",
-          datos: {
-            logro_id: logro.id,
-            logro_codigo: logro.codigo,
-            origen: "evaluacion_automatica",
-          },
-          xpOtorgada: bonoXp,
-          ocurridoEnCliente: ahora,
-          recibidoEnServidor: ahora,
-        });
-      }
-
-      return true;
-    });
-
-    if (nuevo) {
+    if (registro) {
       desbloqueados.push({
         id: logro.id,
         codigo: logro.codigo,
@@ -148,4 +125,74 @@ export async function evaluarYDesbloquearLogros(
   }
 
   return desbloqueados;
+}
+
+/**
+ * Reclama un logro desbloqueado: setea reclamado_en = now() y otorga el bono XP.
+ * Es idempotente: si ya estaba reclamado, no hace nada.
+ * Devuelve el bono XP otorgado (0 si ya estaba reclamado).
+ */
+export async function reclamarLogro(
+  db: DbClient,
+  usuarioId: string,
+  logroId: string,
+): Promise<{ bonoXp: number; nombre: string } | null> {
+  return db.transaction(async (tx) => {
+    // Verificar que el logro existe para este usuario y aún no fue reclamado
+    const [existente] = await tx
+      .select({
+        logroId: schema.logroUsuario.logroId,
+        reclamadoEn: schema.logroUsuario.reclamadoEn,
+        bonoXp: schema.logro.bonoXp,
+        nombre: schema.logro.nombre,
+        codigo: schema.logro.codigo,
+      })
+      .from(schema.logroUsuario)
+      .leftJoin(schema.logro, eq(schema.logroUsuario.logroId, schema.logro.id))
+      .where(
+        and(
+          eq(schema.logroUsuario.usuarioId, usuarioId),
+          eq(schema.logroUsuario.logroId, logroId),
+        )
+      )
+      .limit(1);
+
+    if (!existente) return null; // El logro no existe o no pertenece al usuario
+    if (existente.reclamadoEn !== null) {
+      // Ya fue reclamado, retornar info sin hacer nada
+      return { bonoXp: 0, nombre: existente.nombre ?? "" };
+    }
+
+    // Marcar como reclamado
+    const ahora = new Date();
+    await tx
+      .update(schema.logroUsuario)
+      .set({ reclamadoEn: ahora })
+      .where(
+        and(
+          eq(schema.logroUsuario.usuarioId, usuarioId),
+          eq(schema.logroUsuario.logroId, logroId),
+        )
+      );
+
+    // Otorgar bono XP si corresponde
+    const bonoXp = Math.max(0, Number(existente.bonoXp ?? 0));
+    if (bonoXp > 0) {
+      await tx.insert(schema.eventoProgreso).values({
+        usuarioId,
+        idEventoCliente: crypto.randomUUID(),
+        tipoEvento: "recompensa_reclamada",
+        datos: {
+          logro_id: logroId,
+          logro_codigo: existente.codigo ?? "",
+          origen: "reclamacion_usuario",
+        },
+        xpOtorgada: bonoXp,
+        ocurridoEnCliente: ahora,
+        recibidoEnServidor: ahora,
+      });
+    }
+
+    return { bonoXp, nombre: existente.nombre ?? "" };
+  });
 }

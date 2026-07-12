@@ -19,6 +19,7 @@ export function crearCasoObtenerMiGamificacion(repositorio: GamificationReposito
   return async function obtenerMiGamificacion(usuarioId: string) {
     const nivel = await repositorio.obtenerNivelUsuario(usuarioId);
     const logros = await repositorio.listarLogrosUsuario(usuarioId);
+    const pendientes_reclamar = await repositorio.contarLogrosPendientesReclamar(usuarioId);
 
     return {
       nivel: nivel
@@ -33,8 +34,11 @@ export function crearCasoObtenerMiGamificacion(repositorio: GamificationReposito
         usuario_id: String(logroUsuario.usuario_id ?? ""),
         logro_id: String(logroUsuario.logro_id ?? ""),
         ganado_en: logroUsuario.ganado_en.toISOString(),
+        reclamado_en: logroUsuario.reclamado_en ? logroUsuario.reclamado_en.toISOString() : null,
         ...(logroUsuario.logro ? { logro: serializarLogro({ ...logroUsuario.logro, creado_en: logroUsuario.logro.creadoEn.toISOString() }) } : {})
-      }))
+      })),
+      // Cantidad de logros desbloqueados pendientes de reclamar (para el badge del menú)
+      pendientes_reclamar,
     };
   };
 }

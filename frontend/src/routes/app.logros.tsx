@@ -7,6 +7,7 @@ import { InsigniaCardItem } from "../features/gamification/componentes/insignia-
 import { ProgresoXpWidget } from "../features/gamification/componentes/progreso-xp-widget";
 import { CompartirInsigniaWidget } from "../features/gamification/componentes/compartir-insignia-widget";
 import { ProximaInsigniaWidget } from "../features/gamification/componentes/proxima-insignia-widget";
+import { ModalCelebracion } from "../features/gamification/componentes/modal-celebracion";
 import { useLogrosPage } from "../features/logros/hooks/use-logros-page";
 
 import in1Img from "@/assets/images/Ilustraciones/in1.png";
@@ -29,9 +30,14 @@ function AchievementsPage() {
     setActiveTab,
     sharedBadge,
     handleShare,
+    handleReclamar,
+    reclamandoId,
+    modalCelebracion,
+    cerrarModalCelebracion,
   } = useLogrosPage();
 
   return (
+    <>
     <div className="logros-page">
       <section className="logros-mobile-overview" aria-label="Resumen de insignias">
         <div className="logros-mobile-overview__level">
@@ -74,6 +80,7 @@ function AchievementsPage() {
               {insignias.map((insignia) => (
                 <InsigniaCardItem
                   key={insignia.codigo}
+                  id={insignia.id}
                   codigo={insignia.codigo}
                   nombre={insignia.nombre}
                   descripcion={insignia.descripcion ?? "Sigue aprendiendo para descubrir este logro."}
@@ -81,7 +88,12 @@ function AchievementsPage() {
                   bono_xp={insignia.bono_xp}
                   imagen={obtenerImagenInsignia(insignia.codigo, insignia.url_icono)}
                   obtenido={insignia.obtenido}
+                  pendienteReclamar={insignia.pendienteReclamar}
                   ganadoEn={insignia.ganadoEn}
+                  reclamadoEn={insignia.reclamadoEn}
+                  reclamando={reclamandoId === insignia.id}
+                  onReclamar={handleReclamar}
+                  onCompartir={() => handleShare(insignia.nombre, obtenerImagenInsignia(insignia.codigo, insignia.url_icono))}
                 />
               ))}
             </div>
@@ -132,6 +144,17 @@ function AchievementsPage() {
         </aside>
       </div>
     </div>
+
+    {/* Modal de celebración al reclamar un logro */}
+    {modalCelebracion ? (
+      <ModalCelebracion
+        nombre={modalCelebracion.nombre}
+        bonoXp={modalCelebracion.bonoXp}
+        imagen={modalCelebracion.imagen || in2Img}
+        onCerrar={cerrarModalCelebracion}
+      />
+    ) : null}
+    </>
   );
 }
 
