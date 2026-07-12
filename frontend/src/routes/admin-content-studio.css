@@ -1,12 +1,12 @@
 /* Administración web: un único scroll de documento, sin paneles internos. */
-.app-shell--admin { min-width: 1180px; background: #0d1f17; }
+.app-shell--admin { min-width: 1180px; background: #111827; }
 .app-shell--admin .app-shell__main--admin { min-height: 100vh; height: auto; overflow: visible; padding: 0 2rem 3rem; }
 .app-shell--admin .app-shell__content--admin { width: min(100%, 1480px); padding-top: 1.5rem; }
-.app-shell--admin .app-topbar { position: relative; top: auto; z-index: 10; margin: 0 -2rem 0; min-height: 5.5rem; padding: 1rem 2rem; grid-template-columns: minmax(0, 1fr) auto; border-bottom: 1px solid #1a3a2a; background: rgba(13,31,23,.98); backdrop-filter: none; }
+.app-shell--admin .app-topbar { position: relative; top: auto; z-index: 10; margin: 0 -2rem 0; min-height: 5.5rem; padding: 1rem 2rem; grid-template-columns: minmax(0, 1fr) auto; border-bottom: 1px solid #374151; background: rgba(17,24,39,.98); backdrop-filter: none; }
 .app-shell--admin .app-topbar__menu, .app-shell--admin .app-topbar__mobile-spacer { display: none; }
 .app-shell--admin .app-topbar__heading { justify-content: flex-start; text-align: left; }
-.app-shell--admin .app-topbar__title { font-size: 1.25rem; color: #e8f5e9; }
-.app-shell--admin .app-topbar__subtitle { display: block; margin-top: .2rem; color: #81c784; font-size: .75rem; font-weight: 650; }
+.app-shell--admin .app-topbar__title { font-size: 1.25rem; color: #f9fafb; }
+.app-shell--admin .app-topbar__subtitle { display: block; margin-top: .2rem; color: #9ca3af; font-size: .75rem; font-weight: 650; }
 .app-shell--admin .app-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 
 .admin-eyebrow { display: inline-flex; align-items: center; gap: .4rem; color: #6d3cf2; font-size: .72rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
