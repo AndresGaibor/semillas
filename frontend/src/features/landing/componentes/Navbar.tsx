@@ -4,6 +4,7 @@ import { Button } from "@/componentes/ui/button";
 import { Download, Menu, Monitor, X } from "lucide-react";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 import { esEnlaceLandingActivo, obtenerHrefLandingInicial, crearScrollSpy } from "./Navbar.helpers";
+import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 
 interface NavbarProps {
   variante?: "landing" | "simple";
@@ -71,6 +72,7 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
         </nav>
 
         <div className="landing-navbar__actions">
+          <BotonTemaToggle />
           <Button
             asChild
             className="landing-button landing-button--ghost h-auto rounded-full px-5 py-3"

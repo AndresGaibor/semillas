@@ -87,6 +87,7 @@ export function useAppLayout() {
   const activoMovil = obtenerNavMovilActivo(location.pathname);
   const esInicio = location.pathname === "/app" || location.pathname === "/app/";
   const esModoLeccion = esRutaModoLeccion(location.pathname);
+  const esDetalleTema = /^\/app\/temas\/[^/]+\/?$/.test(location.pathname);
   const pageHeader = esInicio ? DEFAULT_HEADER : getPageHeaderInfo(location.pathname) ?? DEFAULT_HEADER;
 
   const navigateTo = (id: string) => {
@@ -105,6 +106,7 @@ export function useAppLayout() {
     path: location.pathname,
     esInicio,
     esModoLeccion,
+    esDetalleTema,
   };
 }
 

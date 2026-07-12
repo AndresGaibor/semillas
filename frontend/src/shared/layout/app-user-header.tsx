@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { AppAccountMenu } from "./app-account-menu";
 import { AppAccountMenuMobile } from "./app-account-menu-mobile";
 import logoImg from "@/assets/images/logos/Logotipo.png";
+import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 import "./app-account-menu-mobile.css";
 
 type AppUserHeaderProps = {
@@ -39,12 +40,15 @@ export function AppUserHeader({
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
 
-        <AppAccountMenu
-          nombreVisible={nombreVisible}
-          nivelTexto={nivelTexto}
-          avatarUrl={avatarUrl}
-          onLogout={onLogout}
-        />
+        <div className="flex items-center gap-4">
+          <BotonTemaToggle />
+          <AppAccountMenu
+            nombreVisible={nombreVisible}
+            nivelTexto={nivelTexto}
+            avatarUrl={avatarUrl}
+            onLogout={onLogout}
+          />
+        </div>
       </div>
 
       <div className="app-user-header__mobile-row">

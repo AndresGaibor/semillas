@@ -38,6 +38,7 @@ function AppLayout() {
     meQuery,
     esInicio,
     esModoLeccion,
+    esDetalleTema,
   } = useAppLayout();
 
   const [mensajeConflicto, setMensajeConflicto] = useState<string | null>(null);
@@ -102,8 +103,8 @@ function AppLayout() {
 
   return (
     <>
-      <div className={`app-shell app-shell--app ${esModoLeccion ? "app-shell--lesson" : ""}`}>
-        {!esModoLeccion ? (
+      <div className={`app-shell app-shell--app ${esModoLeccion || esDetalleTema ? "app-shell--lesson" : ""}`}>
+        {!esModoLeccion && !esDetalleTema ? (
           <AppSidebar
             activePage={path}
             isOffline={isOffline}
@@ -115,7 +116,7 @@ function AppLayout() {
         ) : null}
 
         <div className="app-shell__workspace">
-          {!esModoLeccion ? (
+          {!esModoLeccion && !esDetalleTema ? (
             <AppUserHeader
               title={pageHeader.titulo}
               subtitle={pageHeader.subtitulo}

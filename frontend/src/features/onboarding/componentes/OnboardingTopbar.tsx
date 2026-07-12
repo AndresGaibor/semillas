@@ -1,5 +1,6 @@
 import { HelpCircle } from "lucide-react";
 import logoImg from "@/assets/images/logos/Logotipo.png";
+import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 
 interface OnboardingTopbarProps {
   onHelpClick: () => void;
@@ -22,15 +23,18 @@ export function OnboardingTopbar({ onHelpClick }: OnboardingTopbarProps) {
         </div>
       </a>
 
-      <button
-        type="button"
-        onClick={onHelpClick}
-        className="onboarding-help-button"
-        aria-label="Abrir ayuda"
-      >
-        <HelpCircle size={20} aria-hidden="true" />
-        <span className="onboarding-help-button__label">Ayuda</span>
-      </button>
+      <div className="flex items-center gap-2">
+        <BotonTemaToggle />
+        <button
+          type="button"
+          onClick={onHelpClick}
+          className="onboarding-help-button"
+          aria-label="Abrir ayuda"
+        >
+          <HelpCircle size={20} aria-hidden="true" />
+          <span className="onboarding-help-button__label">Ayuda</span>
+        </button>
+      </div>
     </header>
   );
 }
