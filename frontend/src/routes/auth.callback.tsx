@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { obtenerMiPerfil } from "../features/perfil/profile.api";
 import { obtenerRutaPostLogin } from "../shared/auth/post-login";
 import { sincronizarSesionAutenticada } from "../shared/auth/supabase";
 

@@ -72,6 +72,17 @@ export const EmailAuthForm: React.FC<EmailAuthFormProps> = ({ onSuccess }) => {
         )}
       </div>
 
+      {isLogin && (
+        <div className="flex justify-end -mt-2 mb-2 pr-1">
+          <a
+            href="/recuperar-contrasena"
+            className="text-[11px] font-bold text-slate-400 hover:text-green-950 transition"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+      )}
+
       {!isLogin && (
         <div className="login-field-group">
           <label htmlFor="confirmarPassword" className="sr-only">

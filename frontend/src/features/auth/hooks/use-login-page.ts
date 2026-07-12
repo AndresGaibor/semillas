@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { crearSesionInvitado, iniciarSesionFacebook, iniciarSesionGoogle } from "@/features/auth/auth.api";
 import { sessionStorageApi } from "@/shared/api/session";
 import { sincronizarSesionAutenticada } from "@/shared/auth/supabase";
-import { obtenerMiPerfil, reclamarCuentaInvitada } from "@/features/profile/profile.api";
+import { obtenerMiPerfil, reclamarCuentaInvitada } from "@/features/perfil/profile.api";
 import { esFacebookPermitidoEnOrigen, obtenerRedirectGoogle, obtenerRedirectFacebook } from "@/features/auth/social-login";
 import { obtenerRutaPostLogin } from "@/shared/auth/post-login";
 
