@@ -16,7 +16,6 @@ export const Default: Story = {
     xpTotal: 1240,
     numeroNivel: 7,
     nombreNivel: "Explorador",
-    diasRacha: 12,
     totalInsignias: 3,
   },
 };

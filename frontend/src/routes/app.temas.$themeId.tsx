@@ -1,9 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { Zap, Loader, Play, CheckCircle, Clock } from "lucide-react";
 import { useTemaDetalle } from "../features/themes/hooks/use-tema-detalle";
 
 export const Route = createFileRoute("/app/temas/$themeId")({
   component: ThemeDetailPage,
+  validateSearch: z.object({
+    paso: z.string().optional(),
+  }),
 });
 
 function ThemeDetailPage() {

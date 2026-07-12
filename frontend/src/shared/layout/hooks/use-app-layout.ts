@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { sessionStorageApi } from "@/shared/api/session";
@@ -35,8 +35,8 @@ const PAGE_HEADER_MAP: Record<string, PageHeaderInfo> = {
 };
 
 const DEFAULT_HEADER: PageHeaderInfo = {
-  titulo: "Hola Semillero",
-  subtitulo: "Sigue aprendiendo y creciendo en la Palabra de Dios.",
+  titulo: "Inicio",
+  subtitulo: "Sigue creciendo hoy con una lección corta y una meta clara.",
 };
 
 export function useAppLayout() {
@@ -46,11 +46,7 @@ export function useAppLayout() {
     queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
-
-  const closeSidebar = () => setSidebarOpen(false);
-  const openSidebar = () => setSidebarOpen(true);
 
   useEffect(() => {
     setIsOffline(!navigator.onLine);
@@ -64,27 +60,17 @@ export function useAppLayout() {
     };
   }, []);
 
-  useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [sidebarOpen]);
-
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestSession();
     navigate({ to: "/login", search: { redirect: "/onboarding" } });
   };
 
-  const navegacionMovil = obtenerNavegacionMovil();
+  const navegacionMovil = useMemo(() => obtenerNavegacionMovil(), []);
   const opcionesBottomNav = navegacionMovil.map(({ id, etiqueta, icono }) => ({ id, etiqueta, icono }));
   const activoMovil = obtenerNavMovilActivo(location.pathname);
-
   const esInicio = location.pathname === "/app" || location.pathname === "/app/";
-  const pageHeader = esInicio
-    ? getDefaultHeaderInfo(meQuery.data?.perfil?.apodo || meQuery.data?.usuario?.nombre_visible)
-    : getPageHeaderInfo(location.pathname) ?? DEFAULT_HEADER;
+  const pageHeader = esInicio ? DEFAULT_HEADER : getPageHeaderInfo(location.pathname) ?? DEFAULT_HEADER;
 
   const navigateTo = (id: string) => {
     const destino = navegacionMovil.find((opcion) => opcion.id === id)?.to ?? "/app";
@@ -93,9 +79,6 @@ export function useAppLayout() {
 
   return {
     meQuery,
-    sidebarOpen,
-    closeSidebar,
-    openSidebar,
     isOffline,
     handleLogout,
     opcionesBottomNav,
@@ -103,18 +86,11 @@ export function useAppLayout() {
     navigateTo,
     pageHeader,
     path: location.pathname,
+    esInicio,
   };
 }
 
 function getPageHeaderInfo(path: string): PageHeaderInfo | undefined {
   const basePath = Object.keys(PAGE_HEADER_MAP).find((key) => path.startsWith(key));
   return basePath ? PAGE_HEADER_MAP[basePath]! : undefined;
-}
-
-function getDefaultHeaderInfo(nombre?: string | null): PageHeaderInfo {
-  const nombreVisible = nombre?.trim() || "Semillero";
-  return {
-    titulo: `Hola ${nombreVisible}`,
-    subtitulo: "Sigue creciendo hoy con una lección corta y una meta clara.",
-  };
 }

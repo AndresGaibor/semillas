@@ -4,9 +4,8 @@ import senderoPadreImg from "@/assets/images/Ilustraciones/Senda del Padre.png";
 import senderoHijoImg from "@/assets/images/Ilustraciones/Senda del hijo.png";
 import senderoEspirituImg from "@/assets/images/Ilustraciones/Senda del espiritu santo.png";
 import { InicioHero } from "@/features/home/componentes/inicio-hero";
-import { InsigniasWidget } from "@/features/home/componentes/insignias-widget";
 import { PathsGrid } from "@/features/home/componentes/paths-grid";
-import { RachaWidget } from "@/features/home/componentes/racha-widget";
+import { ProximoObjetivoWidget } from "@/features/home/componentes/proximo-objetivo-widget";
 import { ResumenProgreso } from "@/features/home/componentes/resumen-progreso";
 import { VersiculoDelDia } from "@/features/home/componentes/versiculo-del-dia";
 import { useAppHomePage } from "@/features/home/hooks/use-app-home-page";
@@ -18,8 +17,6 @@ export const Route = createFileRoute("/app/")({
 function AppHomePage() {
   const {
     verseOfTheDay,
-    diasRacha,
-    insignias,
     nombreUsuario,
     progreso,
     isError,
@@ -33,7 +30,6 @@ function AppHomePage() {
         xpTotal={progreso.xpTotal}
         numeroNivel={progreso.numeroNivel}
         nombreNivel={progreso.nombreNivel}
-        diasRacha={diasRacha}
         totalInsignias={progreso.totalInsignias}
       />
 
@@ -52,10 +48,12 @@ function AppHomePage() {
           />
         </div>
 
-        <aside className="app-home__aside" aria-label="Inspiración y progreso">
+        <aside className="app-home__aside" aria-label="Inspiración y próximo objetivo">
           <VersiculoDelDia texto={verseOfTheDay.text} referencia={verseOfTheDay.ref} />
-          <RachaWidget diasRacha={diasRacha} />
-          <InsigniasWidget insignias={insignias} />
+          <ProximoObjetivoWidget
+            xpTotal={progreso.xpTotal}
+            totalInsignias={progreso.totalInsignias}
+          />
         </aside>
       </div>
     </div>

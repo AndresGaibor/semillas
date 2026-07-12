@@ -8,6 +8,7 @@ export type ProgresoResumen = {
     porcentaje: number;
     iniciado_en: string | null;
     completado_en: string | null;
+    ultimo_paso_id: string | null;
   }>;
   progresos_actividad: Array<{
     actividad_id: string;

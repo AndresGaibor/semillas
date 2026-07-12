@@ -78,7 +78,7 @@ export function ResumenTemasCard({
     },
     {
       titulo: "Completados",
-      tituloCorto: "Listos",
+      tituloCorto: "Completados",
       valor: completados,
       icono: <CheckCircle className="size-5" strokeWidth={2.4} />,
       fondoIcono: "#ddf8e7",
@@ -86,7 +86,7 @@ export function ResumenTemasCard({
     },
     {
       titulo: "En progreso",
-      tituloCorto: "En curso",
+      tituloCorto: "En progreso",
       valor: enProgreso,
       icono: <Flame className="size-5" strokeWidth={2.4} />,
       fondoIcono: "#eaf2ff",

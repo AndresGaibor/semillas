@@ -9,7 +9,15 @@ interface InicioHeroProps {
 export function InicioHero({ imagenUrl, nombreUsuario }: InicioHeroProps) {
   return (
     <section className="home-hero" aria-labelledby="home-hero-title">
-      <img className="home-hero__image" src={imagenUrl} alt="Portada de Semillas" />
+      <img
+        className="home-hero__image"
+        src={imagenUrl}
+        alt=""
+        aria-hidden="true"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+      />
       <div className="home-hero__overlay" aria-hidden="true" />
 
       <div className="home-hero__content">

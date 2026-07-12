@@ -30,5 +30,6 @@ export function mapearTema(t: Tema, porcentajeReal: number): TemaUI {
     favorito: false,
     imagenUrl: null,
     estado,
+    progresoTema: null,
   };
 }

@@ -5,13 +5,12 @@ import { ResumenProgreso } from "./resumen-progreso";
 import { VersiculoDelDia } from "./versiculo-del-dia";
 
 describe("home dashboard layout", () => {
-  it("expone el resumen de progreso con cuatro métricas", () => {
+  it("expone únicamente métricas respaldadas por la API actual", () => {
     const html = renderToStaticMarkup(
       <ResumenProgreso
         xpTotal={1240}
         numeroNivel={7}
         nombreNivel="Explorador"
-        diasRacha={12}
         totalInsignias={3}
       />,
     );
@@ -19,8 +18,8 @@ describe("home dashboard layout", () => {
     expect(html).toContain('aria-label="Resumen de progreso"');
     expect(html).toContain("Nivel");
     expect(html).toContain("XP");
-    expect(html).toContain("Racha");
     expect(html).toContain("Insignias");
+    expect(html).not.toContain("Racha");
   });
 
   it("permite expandir un versículo largo", () => {

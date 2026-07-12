@@ -27,26 +27,42 @@
   display: none;
 }
 
+.temas-aside {
+  display: none;
+}
+
 .temas-page__mobile-summary {
   display: block;
   margin-bottom: 0.875rem;
 }
 
 .temas-senda-scroll,
-.temas-tabs-scroll {
+.temas-tabs-scroll,
+.temas-status-tabs {
+  display: flex;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
 .temas-senda-scroll::-webkit-scrollbar,
-.temas-tabs-scroll::-webkit-scrollbar {
+.temas-tabs-scroll::-webkit-scrollbar,
+.temas-status-tabs::-webkit-scrollbar {
   display: none;
+}
+
+.temas-senda-scroll > *,
+.temas-tabs-scroll > *,
+.temas-status-tab {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
 }
 
 @media (max-width: 767px) {
   .temas-page {
     gap: 0.875rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
   }
 
   .temas-page__filters {
@@ -59,15 +75,15 @@
 
   .theme-card--mobile-list {
     display: grid !important;
-    grid-template-columns: 126px minmax(0, 1fr);
-    min-height: 184px;
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    min-height: 17rem;
     border-radius: 24px !important;
   }
 
   .theme-card--mobile-list .theme-card__media {
-    width: 126px !important;
+    width: 9.5rem !important;
     height: 100% !important;
-    min-height: 184px;
+    min-height: 17rem;
     border-radius: 0;
   }
 
@@ -77,7 +93,7 @@
 
   .theme-card--mobile-list .theme-card__body {
     min-width: 0;
-    padding: 0.95rem !important;
+    padding: 1.25rem 1.1rem !important;
   }
 
   .theme-card--mobile-list .theme-card__content {
@@ -145,24 +161,24 @@
   .theme-card--mobile-list .theme-card__favorite {
     top: 0.65rem;
     right: 0.65rem;
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
 @media (max-width: 390px) {
   .theme-card--mobile-list {
-    grid-template-columns: 108px minmax(0, 1fr);
-    min-height: 176px;
+    grid-template-columns: 8.25rem minmax(0, 1fr);
+    min-height: 16rem;
   }
 
   .theme-card--mobile-list .theme-card__media {
-    width: 108px !important;
-    min-height: 176px;
+    width: 8.25rem !important;
+    min-height: 16rem;
   }
 
   .theme-card--mobile-list .theme-card__body {
-    padding: 0.85rem !important;
+    padding: 1rem .9rem !important;
   }
 
   .theme-card--mobile-list .theme-card__description {
@@ -196,9 +212,13 @@
   .temas-page__mobile-summary {
     display: none;
   }
+
+  .temas-aside {
+    display: flex;
+  }
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1500px) {
   .temas-page__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;

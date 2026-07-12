@@ -10,7 +10,7 @@ describe("ResumenTemasCard", () => {
     );
 
     expect(html).toContain("Temas");
-    expect(html).toContain("Listos");
-    expect(html).toContain("En curso");
+    expect(html).toContain("Completados");
+    expect(html).toContain("En progreso");
   });
 });

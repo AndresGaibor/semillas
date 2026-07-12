@@ -14,6 +14,7 @@ describe("TemasTabsFilter", () => {
     );
 
     expect(html).toContain("Todos");
+    expect(html).toContain("Favoritos");
     expect(html).toContain(">3<");
     expect(html).toContain("temas-tabs-scroll");
   });

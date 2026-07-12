@@ -25,6 +25,7 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
       {opciones.map((op) => {
         const esActivo = op.id === activo;
         const esPrincipal = op.id === "jugar";
+
         return (
           <button
             key={op.id}
@@ -40,7 +41,7 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
             <span
               className={unirClases(
                 "bottom-nav__icon",
-                esActivo || esPrincipal ? "text-[#6C3AED]" : "text-slate-400",
+                esActivo ? "text-[#6C3AED]" : "text-slate-400",
               )}
             >
               {op.icono}
@@ -48,12 +49,11 @@ export const BottomNav: React.FC<PropiedadesBottomNav> = ({
             <span
               className={unirClases(
                 "bottom-nav__label",
-                esActivo || esPrincipal ? "text-[#6C3AED]" : "text-slate-400",
+                esActivo ? "text-[#6C3AED]" : "text-slate-400",
               )}
             >
               {op.etiqueta}
             </span>
-
           </button>
         );
       })}

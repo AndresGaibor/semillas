@@ -36,7 +36,10 @@ export function SendaCard({ variante, imagenUrl, label, titulo, descripcion, has
           <div className="home-path-card__media">
             <img
               src={imagenUrl}
-              alt={`Senda del ${titulo}`}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
               className="home-path-card__image"
             />
             <div className="home-path-card__overlay" />

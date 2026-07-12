@@ -20,7 +20,7 @@ export const TemasTabsFilter: FC<TemasTabsFilterProps> = ({ activo, onChange, co
         { id: "progreso", label: "En progreso", count: counts?.progreso },
         { id: "favoritos", label: "Favoritos", count: counts?.favoritos },
       ]}
-      clase="temas-tabs-scroll !mb-3 !gap-5 overflow-x-auto whitespace-nowrap"
+      clase="temas-tabs-scroll !mb-3 !gap-5 flex-nowrap overflow-x-auto whitespace-nowrap"
     />
   );
 };

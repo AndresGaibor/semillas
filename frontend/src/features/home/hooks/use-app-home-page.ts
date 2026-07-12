@@ -35,8 +35,6 @@ export function useAppHomePage() {
     setVerseOfTheDay(VERSICULOS_DEL_DIA[verseIndex]!);
   }, []);
 
-  const diasRacha = 0;
-
   const insignias = useMemo(() => {
     const logros = gamificationQuery.data?.logros ?? [];
     return logros.map((l) => ({
@@ -60,7 +58,6 @@ export function useAppHomePage() {
     meQuery,
     gamificationQuery,
     verseOfTheDay,
-    diasRacha,
     insignias,
     progreso,
     nombreUsuario,

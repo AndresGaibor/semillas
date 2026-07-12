@@ -23,4 +23,31 @@ describe("ThemeCard mobile CTA", () => {
     expect(html).toContain("py-3");
     expect(html).toContain("theme-card--mobile-list");
   });
+
+  it("ajusta la acción según el estado del tema", () => {
+    const enProgreso = renderToStaticMarkup(
+      <ThemeCard
+        senda="Senda del Padre"
+        titulo="La Creación del Mundo"
+        descripcion="Descubre cómo Dios creó los cielos y la tierra."
+        duracion="10 min"
+        xp={100}
+        estado="enProgreso"
+      />,
+    );
+
+    const completada = renderToStaticMarkup(
+      <ThemeCard
+        senda="Senda del Padre"
+        titulo="La Creación del Mundo"
+        descripcion="Descubre cómo Dios creó los cielos y la tierra."
+        duracion="10 min"
+        xp={100}
+        estado="completada"
+      />,
+    );
+
+    expect(enProgreso).toContain("Continuar tema");
+    expect(completada).toContain("Repasar tema");
+  });
 });

@@ -47,6 +47,13 @@ export function useTemasPage({ searchSenda }: UseTemasPageOptions = {}) {
       return {
         ...mapearTema(t, porcentaje),
         favorito: favoritosLocales[t.slug] ?? false,
+        progresoTema: progresoActual
+          ? {
+              estado: progresoActual.estado,
+              porcentaje: progresoActual.porcentaje,
+              ultimoPasoId: progresoActual.ultimo_paso_id,
+            }
+          : null,
       };
     });
   }, [temasApi, favoritosLocales, progressApi]);

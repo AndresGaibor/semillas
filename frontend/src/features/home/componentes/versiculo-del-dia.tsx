@@ -38,7 +38,13 @@ export const VersiculoDelDia: React.FC<VersiculoDelDiaProps> = ({ texto, referen
         </div>
 
         <div className="home-verse-card__media">
-          <img src={versiculoImg} alt="Versículo del día" />
+          <img
+            src={versiculoImg}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
       </div>
     </Card>

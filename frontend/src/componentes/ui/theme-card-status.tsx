@@ -41,9 +41,9 @@ export function BadgeSinConexion({ visible }: BadgeSinConexionProps) {
 function obtenerEtiquetaEstado(estado: ThemeCardState): string {
   switch (estado) {
     case "completada":
-      return "Completado";
+      return "Repasar tema";
     case "enProgreso":
-      return "Continuar";
+      return "Continuar tema";
     case "bloqueada":
       return "Bloqueado";
     case "error":
@@ -79,7 +79,7 @@ export function BotonEstado({ estado }: BotonEstadoProps) {
   if (estado === "completada") {
     return (
       <span className="self-center rounded-full bg-purple-100 px-5 py-1.5 text-[10px] font-black text-purple-600">
-        Completado
+        Repasar tema
       </span>
     );
   }

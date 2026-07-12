@@ -99,9 +99,21 @@ function PaginaTemas() {
                   const slug = temasApi?.find((t) => t.id === tema.id)?.slug ?? tema.id;
                   toggleFavorito(slug);
                 }}
-                onAccion={() =>
-                  navigate({ to: "/app/temas/$themeId", params: { themeId: tema.id } })
-                }
+                onAccion={() => {
+                  const pasoActual = tema.progresoTema?.estado === "en_progreso"
+                    ? tema.progresoTema.ultimoPasoId
+                    : null;
+
+                  navigate(
+                    pasoActual
+                      ? {
+                          to: "/app/temas/$themeId",
+                          params: { themeId: tema.id },
+                          search: { paso: pasoActual },
+                        }
+                      : { to: "/app/temas/$themeId", params: { themeId: tema.id } },
+                  );
+                }}
                 senda={tema.senda}
               />
             ))}

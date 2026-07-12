@@ -25,7 +25,7 @@ interface SendaFilterRowProps {
 
 export function SendaFilterRow({ searchSenda, onSendaChange }: SendaFilterRowProps) {
   return (
-    <div className="temas-senda-scroll -mx-1 mb-3 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
+    <div className="temas-senda-scroll -mx-1 mb-3 flex flex-nowrap snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
       {SENDAS.map((senda) => {
         const activa = (senda.id === "todas" && !searchSenda) || searchSenda === senda.id;
         return (
