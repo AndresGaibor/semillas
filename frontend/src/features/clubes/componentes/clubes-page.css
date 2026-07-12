@@ -1,3 +1,221 @@
+/* ── Dark mode: app-dark ── */
+[data-theme="app-dark"] .clubes-page,
+[data-theme="app-dark"] .clubes-empty-layout {
+  --club-bg: #1e293b;
+  --club-bg-surface: #1e293b;
+  --club-bg-muted: #0f172a;
+  --club-border: #334155;
+  --club-border-light: #2d3a4f;
+  --club-text-primary: #f1f5f9;
+  --club-text-secondary: #94a3b8;
+  --club-text-muted: #64748b;
+  --club-accent: #a78bfa;
+  --club-accent-dark: #7c3aed;
+  --club-accent-light: #c4b5fd;
+  --club-success-bg: #052e16;
+  --club-success-border: #166534;
+  --club-warning-bg: #1c1408;
+  --club-tab-active: #6d28d9;
+  --club-tab-active-text: #fff;
+  --club-shimmer: #1e293b;
+  background-color: var(--club-bg-muted);
+}
+
+[data-theme="app-dark"] .clubes-eyebrow { color: var(--club-accent); }
+[data-theme="app-dark"] .club-switcher__item,
+[data-theme="app-dark"] .club-switcher__add {
+  background: var(--club-bg-surface);
+  border-color: var(--club-border);
+  color: var(--club-text-secondary);
+}
+[data-theme="app-dark"] .club-switcher__item:hover,
+[data-theme="app-dark"] .club-switcher__add:hover {
+  border-color: var(--club-accent);
+  color: var(--club-accent);
+}
+[data-theme="app-dark"] .club-switcher__item[data-active="true"] {
+  background: var(--club-success-bg);
+  border-color: var(--club-success-border);
+  color: #86efac;
+}
+[data-theme="app-dark"] .club-switcher__item > span:first-child,
+[data-theme="app-dark"] .club-switcher__item small {
+  background: var(--club-bg-muted);
+}
+[data-theme="app-dark"] .club-hero {
+  border-color: var(--club-border);
+  background: radial-gradient(circle at 75% 0%, rgba(167,139,250,.2), transparent 34%), linear-gradient(135deg, var(--club-bg-surface) 0%, #1e1b4b 57%, #052e16 100%);
+  box-shadow: 0 18px 42px rgba(0,0,0,.3);
+}
+[data-theme="app-dark"] .club-hero__badges span { background: var(--club-bg-surface); color: var(--club-text-secondary); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+[data-theme="app-dark"] .club-hero h2 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-hero__content > p { color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-hero__stats { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-hero__invite { background: rgba(30,41,59,.8); border-color: rgba(167,139,250,.2); }
+[data-theme="app-dark"] .club-hero__invite > strong { color: var(--club-accent-light); }
+[data-theme="app-dark"] .club-hero__invite button:last-child { background: var(--club-accent-dark); color: #fff; }
+[data-theme="app-dark"] .club-hero__invite button:first-child:not(:last-child) { background: rgba(167,139,250,.15); color: var(--club-accent); }
+
+[data-theme="app-dark"] .clubes-tab { color: var(--club-text-muted); }
+[data-theme="app-dark"] .clubes-tab:hover { background: var(--club-bg-surface); color: var(--club-accent); }
+[data-theme="app-dark"] .clubes-tab[data-active="true"] { background: var(--club-tab-active); color: var(--club-tab-active-text); }
+
+[data-theme="app-dark"] .club-panel,
+[data-theme="app-dark"] .club-section-card {
+  background: var(--club-bg-surface);
+  border-color: var(--club-border);
+  box-shadow: 0 12px 32px rgba(0,0,0,.2);
+}
+[data-theme="app-dark"] .club-panel--challenge { background: linear-gradient(145deg, var(--club-bg-surface), #1e1b4b); }
+[data-theme="app-dark"] .club-panel--invite { background: linear-gradient(135deg, var(--club-success-bg), var(--club-bg-surface)); }
+[data-theme="app-dark"] .club-panel h3,
+[data-theme="app-dark"] .club-section-card h2 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-panel > p,
+[data-theme="app-dark"] .club-section-card > header p { color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-panel__header > svg,
+[data-theme="app-dark"] .club-section-card > header > svg { color: var(--club-accent); }
+[data-theme="app-dark"] .club-link-button { color: var(--club-accent); }
+[data-theme="app-dark"] .challenge-progress-copy { color: var(--club-text-muted); }
+[data-theme="app-dark"] .challenge-progress { background: var(--club-border); }
+[data-theme="app-dark"] .challenge-meta { color: var(--club-text-muted); }
+
+[data-theme="app-dark"] .club-ranking-row {
+  background: var(--club-bg-surface);
+  border-color: var(--club-border);
+}
+[data-theme="app-dark"] .club-ranking-row[data-me="true"] { border-color: var(--club-accent); background: rgba(167,139,250,.08); }
+[data-theme="app-dark"] .club-ranking-row__position { background: var(--club-bg-muted); color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-ranking-row:nth-child(1) .club-ranking-row__position { background: #451a03; color: #fbbf24; }
+[data-theme="app-dark"] .club-ranking-row:nth-child(2) .club-ranking-row__position { background: var(--club-border); color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-ranking-row:nth-child(3) .club-ranking-row__position { background: #431407; color: #fb923c; }
+[data-theme="app-dark"] .club-ranking-row img { background: var(--club-bg-muted); }
+[data-theme="app-dark"] .club-ranking-row strong { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-ranking-row > div:nth-child(3) span { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-ranking-row__xp { color: #fbbf24; }
+[data-theme="app-dark"] .club-ranking-row__xp span { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-ranking-row[data-compact="true"] { border-bottom-color: var(--club-border); }
+[data-theme="app-dark"] .club-muted { color: var(--club-text-muted); }
+
+[data-theme="app-dark"] .club-challenges-grid { gap: 1rem; }
+[data-theme="app-dark"] .challenge-card {
+  background: var(--club-bg-surface);
+  border-color: var(--club-border);
+}
+[data-theme="app-dark"] .challenge-card[data-complete="true"] { border-color: var(--club-success-border); background: var(--club-success-bg); }
+[data-theme="app-dark"] .challenge-card__icon { background: rgba(167,139,250,.15); color: var(--club-accent); }
+[data-theme="app-dark"] .challenge-card__status { background: var(--club-bg-muted); color: var(--club-text-muted); }
+[data-theme="app-dark"] .challenge-card h3 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .challenge-card > p { color: var(--club-text-secondary); }
+[data-theme="app-dark"] .challenge-card footer { color: var(--club-text-muted); }
+
+[data-theme="app-dark"] .club-member-row {
+  background: var(--club-bg-surface);
+  border-color: var(--club-border);
+}
+[data-theme="app-dark"] .club-member-row > img { background: var(--club-bg-muted); }
+[data-theme="app-dark"] .club-member-row__identity strong { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-member-row__identity span,
+[data-theme="app-dark"] .club-member-row__stats span { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-role-pill { background: var(--club-bg-muted); color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-role-pill[data-leader="true"] { background: #451a03; color: #fbbf24; }
+[data-theme="app-dark"] .club-member-actions summary { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-member-actions[open] summary { background: var(--club-bg-muted); }
+[data-theme="app-dark"] .club-member-actions > div {
+  background: var(--club-bg-surface);
+  border-color: var(--club-border);
+  box-shadow: 0 16px 35px rgba(0,0,0,.4);
+}
+[data-theme="app-dark"] .club-member-actions button { color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-member-actions button:hover { background: var(--club-bg-muted); }
+
+[data-theme="app-dark"] .club-form label { color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-form input,
+[data-theme="app-dark"] .club-form textarea,
+[data-theme="app-dark"] .club-form select {
+  background: var(--club-bg-muted);
+  border-color: var(--club-border);
+  color: var(--club-text-primary);
+}
+[data-theme="app-dark"] .club-setting-action { border-color: var(--club-border); }
+[data-theme="app-dark"] .club-setting-action strong { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-setting-action p { color: var(--club-text-muted); }
+
+[data-theme="app-dark"] .club-invite-aside__icon { background: rgba(167,139,250,.15); color: var(--club-accent); }
+[data-theme="app-dark"] .club-invite-aside h3 { color: var(--club-accent-light); }
+[data-theme="app-dark"] .club-invite-aside > p:not(.clubes-eyebrow) { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-invite-aside button:last-child { background: var(--club-accent-dark); }
+[data-theme="app-dark"] .clubes-leave-button {
+  background: var(--club-bg-surface);
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+[data-theme="app-dark"] .clubes-empty-hero {
+  border-color: var(--club-border);
+  background: radial-gradient(circle at 50% -20%, rgba(167,139,250,.15), transparent 55%), var(--club-bg-surface);
+  box-shadow: 0 14px 35px rgba(0,0,0,.2);
+}
+[data-theme="app-dark"] .clubes-empty-hero h2 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .clubes-empty-hero > p { color: var(--club-text-secondary); }
+[data-theme="app-dark"] .clubes-empty-hero__features span { background: var(--club-bg-muted); color: var(--club-text-secondary); }
+[data-theme="app-dark"] .club-join-card__icon { background: rgba(167,139,250,.15); color: var(--club-accent); }
+[data-theme="app-dark"] .club-join-card h3,
+[data-theme="app-dark"] .club-create-card h3 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-join-card > div > p:last-child,
+[data-theme="app-dark"] .club-create-card > div > p:last-child { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-join-card__form label { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-join-card__form input { background: var(--club-bg-muted); border-color: var(--club-border); color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-create-card > span { background: rgba(167,139,250,.15); color: var(--club-accent); }
+
+[data-theme="app-dark"] .club-modal { background: rgba(0,0,0,.7); }
+[data-theme="app-dark"] .club-modal__sheet { background: var(--club-bg-surface); }
+[data-theme="app-dark"] .club-modal__sheet h2 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-modal__sheet header p { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-modal__sheet header > button { background: var(--club-bg-muted); color: var(--club-text-secondary); }
+
+[data-theme="app-dark"] .clubes-error-state h2,
+[data-theme="app-dark"] .club-empty-inline h3 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .clubes-error-state p,
+[data-theme="app-dark"] .clubes-inline-error p,
+[data-theme="app-dark"] .club-empty-inline p { color: var(--club-text-muted); }
+[data-theme="app-dark"] .clubes-skeleton span,
+[data-theme="app-dark"] .clubes-content-skeleton span {
+  background: linear-gradient(90deg, var(--club-border), var(--club-bg-muted), var(--club-border));
+  background-size: 200% 100%;
+}
+
+[data-theme="app-dark"] .club-modal-tabs { background: var(--club-bg-muted); }
+[data-theme="app-dark"] .club-modal-tabs button { color: var(--club-text-muted); }
+[data-theme="app-dark"] .club-modal-tabs button[data-active="true"] { background: var(--club-bg-surface); color: var(--club-accent); }
+[data-theme="app-dark"] .club-link-account-prompt > svg { color: var(--club-accent); }
+[data-theme="app-dark"] .club-link-account-prompt h3 { color: var(--club-text-primary); }
+[data-theme="app-dark"] .club-link-account-prompt p { color: var(--club-text-muted); }
+
+[data-theme="app-dark"] .clubes-page__body,
+[data-theme="app-dark"] .clubes-empty-layout { background-color: transparent; }
+
+/* ── Light mode defaults ── */
+[data-theme="app-light"] .clubes-page,
+[data-theme="app-light"] .clubes-empty-layout {
+  --club-bg: #fff;
+  --club-bg-surface: #fff;
+  --club-bg-muted: #f8fafc;
+  --club-border: #e7ebf2;
+  --club-border-light: #edf0f5;
+  --club-text-primary: #172033;
+  --club-text-secondary: #52637d;
+  --club-text-muted: #64748b;
+  --club-accent: #7c3aed;
+  --club-accent-dark: #6d28d9;
+  --club-accent-light: #a78bfa;
+  --club-success-bg: #edf8ee;
+  --club-success-border: #43a047;
+  --club-warning-bg: #fff4d4;
+  --club-tab-active: #6d28d9;
+  --club-tab-active-text: #fff;
+  --club-shimmer: #eef2f7;
+}
+
 .clubes-page,
 .clubes-empty-layout {
   width: 100%;
