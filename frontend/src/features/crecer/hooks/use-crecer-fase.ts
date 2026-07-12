@@ -55,12 +55,19 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
   const isError =
     meQuery.isError || themeQuery.isError || stepsQuery.isError || activitiesQuery.isError;
 
-  const eventMutation = useMutation({
+  const invalidarProgreso = () => {
+    queryClient.invalidateQueries({ queryKey: ["progress"] });
+    queryClient.invalidateQueries({ queryKey: ["sync"] });
+  };
+
+  const inicioMutation = useMutation({
     mutationFn: registrarEventosCrecer,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["progress"] });
-      queryClient.invalidateQueries({ queryKey: ["sync"] });
-    },
+    onSuccess: invalidarProgreso,
+  });
+
+  const progresoMutation = useMutation({
+    mutationFn: registrarEventosCrecer,
+    onSuccess: invalidarProgreso,
   });
 
   useEffect(() => {
@@ -96,14 +103,15 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
       },
     ];
 
-    eventMutation.mutate(eventos);
+    // El inicio de fase no debe bloquear la acción de continuar.
+    inicioMutation.mutate(eventos);
   }, [isLoading, isError, temaDbId, pasoActual?.id, pasoCodigo]);
 
   const handleActivityComplete = useCallback(
     async (actividadId: string, puntaje?: number) => {
       if (!temaDbId) return;
 
-      await eventMutation.mutateAsync([
+      await progresoMutation.mutateAsync([
         {
           evento_id_cliente: crypto.randomUUID(),
           tipo_evento: "actividad_completada",
@@ -121,13 +129,13 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
         return siguiente;
       });
     },
-    [eventMutation, pasoActual?.id, temaDbId],
+    [pasoActual?.id, progresoMutation, temaDbId],
   );
 
   const completeStep = useCallback(async () => {
     if (!temaDbId || !pasoActual?.id) return;
 
-    await eventMutation.mutateAsync([
+    await progresoMutation.mutateAsync([
       {
         evento_id_cliente: crypto.randomUUID(),
         tipo_evento: "bloque_completado",
@@ -136,7 +144,7 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
         ocurrido_en_cliente: new Date().toISOString(),
       },
     ]);
-  }, [eventMutation, pasoActual?.id, temaDbId]);
+  }, [pasoActual?.id, progresoMutation, temaDbId]);
 
   return {
     meQuery,
@@ -150,8 +158,8 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
     actividadesCompletadas,
     isLoading,
     isError,
-    isSavingProgress: eventMutation.isPending,
-    progressError: eventMutation.error,
+    isSavingProgress: progresoMutation.isPending,
+    progressError: progresoMutation.error,
     handleActivityComplete,
     completeStep,
   };
