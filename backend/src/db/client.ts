@@ -61,7 +61,8 @@ export function crearDb(env: Env) {
   }
 
   const clientePostgres = postgres(connectionString, {
-    prepare: false
+    prepare: false,
+    max: 5, // Limitar a 5 conexiones por request para desarrollo local y evitar bloqueos en cola
   });
 
   return drizzle(clientePostgres, { schema });

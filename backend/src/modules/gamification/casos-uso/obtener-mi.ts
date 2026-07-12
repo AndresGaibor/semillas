@@ -19,11 +19,20 @@ function serializarLogro(logro: Record<string, unknown>) {
 
 export function crearCasoObtenerMiGamificacion(repositorio: GamificationRepository) {
   return async function obtenerMiGamificacion(usuarioId: string) {
+    const medirConsulta = async <T>(nombre: string, promesa: Promise<T>): Promise<T> => {
+      const inicio = Date.now();
+      try {
+        return await promesa;
+      } finally {
+        console.info(`[gamificacion/mi] ${nombre} ${Date.now() - inicio}ms`);
+      }
+    };
+
     const [resumen, catalogo, niveles, pendientes_reclamar] = await Promise.all([
-      repositorio.obtenerResumen(usuarioId),
-      repositorio.listarCatalogoLogros(usuarioId),
-      repositorio.listarNiveles(),
-      repositorio.contarLogrosPendientesReclamar(usuarioId),
+      medirConsulta("resumen", repositorio.obtenerResumen(usuarioId)),
+      medirConsulta("catalogo", repositorio.listarCatalogoLogros(usuarioId)),
+      medirConsulta("niveles", repositorio.listarNiveles()),
+      medirConsulta("pendientes_reclamar", repositorio.contarLogrosPendientesReclamar(usuarioId)),
     ]);
 
     return {

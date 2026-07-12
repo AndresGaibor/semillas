@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, or, isNull, ne } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 import { BadRequestError, NotFoundError } from "../../shared/errors/http-error";
@@ -51,14 +51,22 @@ async function calcularPorcentajeTema(db: DbClient, usuarioId: string, temaId: s
     db
       .select({ total: sql<number>`count(*)::int` })
       .from(schema.pasoTema)
-      .where(and(eq(schema.pasoTema.temaId, temaId), eq(schema.pasoTema.obligatorio, true))),
+      .innerJoin(schema.tipoPasoCrecer, eq(schema.pasoTema.tipoPasoId, schema.tipoPasoCrecer.id))
+      .where(and(
+        eq(schema.pasoTema.temaId, temaId),
+        eq(schema.pasoTema.obligatorio, true),
+        ne(schema.tipoPasoCrecer.codigo, "recompensar")
+      )),
     db
       .select({ total: sql<number>`count(distinct ${schema.eventoProgreso.pasoId})::int` })
       .from(schema.eventoProgreso)
+      .innerJoin(schema.pasoTema, eq(schema.eventoProgreso.pasoId, schema.pasoTema.id))
+      .innerJoin(schema.tipoPasoCrecer, eq(schema.pasoTema.tipoPasoId, schema.tipoPasoCrecer.id))
       .where(and(
         eq(schema.eventoProgreso.usuarioId, usuarioId),
         eq(schema.eventoProgreso.temaId, temaId),
         eq(schema.eventoProgreso.tipoEvento, "bloque_completado"),
+        ne(schema.tipoPasoCrecer.codigo, "recompensar")
       )),
   ]);
 
@@ -67,18 +75,34 @@ async function calcularPorcentajeTema(db: DbClient, usuarioId: string, temaId: s
 }
 
 async function temaEsCompletable(db: DbClient, usuarioId: string, temaId: string) {
+  const [perfil] = await db
+    .select({ grupoEdadId: schema.perfil.grupoEdadId })
+    .from(schema.perfil)
+    .where(eq(schema.perfil.usuarioId, usuarioId))
+    .limit(1);
+
+  const grupoEdadId = perfil?.grupoEdadId;
+
   const [[pasos], [pasosCompletados], [actividades]] = await Promise.all([
     db
       .select({ total: sql<number>`count(*)::int` })
       .from(schema.pasoTema)
-      .where(and(eq(schema.pasoTema.temaId, temaId), eq(schema.pasoTema.obligatorio, true))),
+      .innerJoin(schema.tipoPasoCrecer, eq(schema.pasoTema.tipoPasoId, schema.tipoPasoCrecer.id))
+      .where(and(
+        eq(schema.pasoTema.temaId, temaId),
+        eq(schema.pasoTema.obligatorio, true),
+        ne(schema.tipoPasoCrecer.codigo, "recompensar")
+      )),
     db
       .select({ total: sql<number>`count(distinct ${schema.eventoProgreso.pasoId})::int` })
       .from(schema.eventoProgreso)
+      .innerJoin(schema.pasoTema, eq(schema.eventoProgreso.pasoId, schema.pasoTema.id))
+      .innerJoin(schema.tipoPasoCrecer, eq(schema.pasoTema.tipoPasoId, schema.tipoPasoCrecer.id))
       .where(and(
         eq(schema.eventoProgreso.usuarioId, usuarioId),
         eq(schema.eventoProgreso.temaId, temaId),
         eq(schema.eventoProgreso.tipoEvento, "bloque_completado"),
+        ne(schema.tipoPasoCrecer.codigo, "recompensar")
       )),
     db
       .select({
@@ -93,7 +117,12 @@ async function temaEsCompletable(db: DbClient, usuarioId: string, temaId: string
           eq(schema.progresoActividadUsuario.usuarioId, usuarioId),
         ),
       )
-      .where(eq(schema.actividad.temaId, temaId)),
+      .where(and(
+        eq(schema.actividad.temaId, temaId),
+        grupoEdadId
+          ? or(eq(schema.actividad.grupoEdadId, grupoEdadId), isNull(schema.actividad.grupoEdadId))
+          : isNull(schema.actividad.grupoEdadId)
+      )),
   ]);
 
   return Number(pasosCompletados?.total ?? 0) >= Number(pasos?.total ?? 0)

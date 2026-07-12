@@ -34,7 +34,8 @@ test("crearDb usa el binding Hyperdrive sin prepared statements", () => {
   crearDb(env);
 
   expect(crearClientePostgres).toHaveBeenCalledWith(connectionString, {
-    prepare: false
+    prepare: false,
+    max: 5
   });
   expect(crearClienteDrizzle).toHaveBeenCalledWith(expect.anything(), { schema });
 });

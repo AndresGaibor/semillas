@@ -460,6 +460,7 @@ CREATE TABLE IF NOT EXISTS logro_usuario (
   usuario_id          uuid NOT NULL REFERENCES usuario_app(id) ON DELETE CASCADE,
   logro_id   uuid NOT NULL REFERENCES logro(id),
   ganado_en        timestamptz NOT NULL DEFAULT now(),
+  reclamado_en     timestamptz,
   PRIMARY KEY (usuario_id, logro_id)
 );
 
