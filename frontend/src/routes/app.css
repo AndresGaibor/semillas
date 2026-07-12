@@ -2650,16 +2650,16 @@ html[data-semillas-text-size="grande"] {
   --color-blanco: #101520 !important;
   --color-bg-main: #080a10 !important;
   --color-bg-sidebar: #101520 !important;
-  --color-text-dark: #f1f5f9 !important;
+  --color-text-dark: #f8fafc !important;
   --color-text-muted: #94a3b8 !important;
   --color-border: #1e293b !important;
   --color-primary-light: #14532d !important;
   --color-blue-light: #1e3a8a !important;
   --color-purple-light: #3b0764 !important;
   --color-yellow-light: #78350f !important;
-  --color-neutro-oscuro-max: #f1f5f9 !important;
-  --color-neutro-oscuro-min: #cbd5e1 !important;
-  --color-neutro-oscuro: #94a3b8 !important;
+  --color-neutro-oscuro-max: #f8fafc !important;
+  --color-neutro-oscuro-min: #e2e8f0 !important;
+  --color-neutro-oscuro: #cbd5e1 !important;
   --color-neutro-palido: #1e293b !important;
 }
 
@@ -2670,11 +2670,11 @@ html[data-semillas-text-size="grande"] {
   color: var(--color-neutro-oscuro-max) !important;
 }
 
-.dark .bg-white,
+.dark .bg-white:not(button):not(a),
 .dark .profile-form-card,
-.dark .card,
-.dark .bg-slate-50,
-.dark .bg-slate-100 {
+.dark .card:not(.home-path-card__card),
+.dark .bg-slate-50:not(button):not(a),
+.dark .bg-slate-100:not(button):not(a) {
   background-color: var(--color-bg-sidebar) !important;
   border-color: var(--color-border) !important;
   color: var(--color-text-dark) !important;
@@ -2688,13 +2688,535 @@ html[data-semillas-text-size="grande"] {
   color: #ffffff !important;
 }
 
-.dark text,
-.dark p,
-.dark span,
-.dark h1,
-.dark h2,
-.dark h3,
-.dark strong {
+/* Aplicar color de texto por defecto sin sobreescribir colores específicos ni botones/enlaces ni iconos */
+.dark h1:not([class*="text-"]):not(a):not(button):not(a *):not(button *),
+.dark h2:not([class*="text-"]):not(a):not(button):not(a *):not(button *),
+.dark h3:not([class*="text-"]):not(.home-path-card__title):not(a):not(button):not(a *):not(button *),
+.dark h4:not([class*="text-"]):not(a):not(button):not(a *):not(button *),
+.dark h5:not([class*="text-"]):not(a):not(button):not(a *):not(button *),
+.dark h6:not([class*="text-"]):not(a):not(button):not(a *):not(button *),
+.dark p:not([class*="text-"]):not(.home-path-card__desc):not(a):not(button):not(a *):not(button *),
+.dark span:not([class*="text-"]):not(.home-path-card__label):not(a):not(button):not(a *):not(button *):not([class*="icon"]):not([class*="icon"] *),
+.dark strong:not([class*="text-"]):not(a):not(button):not(a *):not(button *),
+.dark li:not([class*="text-"]):not(a):not(button):not(a *):not(button *) {
+  color: var(--color-text-dark);
+}
+
+/* ── Estilos de Tarjetas de Senda (Neon) ── */
+.dark .home-path-card__card.bg-\[\#FEF6E1\] {
+  background-color: #1e150b !important;
+  border-color: #5c3e16 !important;
+}
+.dark .home-path-card__card.bg-\[\#FEF6E1\] .home-path-card__label,
+.dark .home-path-card__card.bg-\[\#FEF6E1\] .home-path-card__title {
+  color: #f59e0b !important;
+}
+
+.dark .home-path-card__card.bg-\[\#EBF4FC\] {
+  background-color: #0b1528 !important;
+  border-color: #173874 !important;
+}
+.dark .home-path-card__card.bg-\[\#EBF4FC\] .home-path-card__label,
+.dark .home-path-card__card.bg-\[\#EBF4FC\] .home-path-card__title {
+  color: #3b82f6 !important;
+}
+
+.dark .home-path-card__card.bg-\[\#F4EBFA\] {
+  background-color: #180b28 !important;
+  border-color: #4a197c !important;
+}
+.dark .home-path-card__card.bg-\[\#F4EBFA\] .home-path-card__label,
+.dark .home-path-card__card.bg-\[\#F4EBFA\] .home-path-card__title {
+  color: #a855f7 !important;
+}
+
+.dark .home-path-card__desc {
+  color: #94a3b8 !important;
+}
+
+/* ── Estilos de Tarjetas de Métricas (Dashboard) ── */
+.dark .home-stat {
+  background-color: #101520 !important;
+  border-color: #1e293b !important;
+}
+.dark .home-stat__value {
+  color: #f1f5f9 !important;
+}
+.dark .home-stat__label {
+  color: #94a3b8 !important;
+}
+.dark .home-stat__helper {
+  color: #64748b !important;
+}
+
+/* ── Estilos de Tarjeta de Versículo (Dashboard) ── */
+.dark .home-verse-card {
+  background: var(--color-bg-sidebar) !important;
+  border-color: #1e293b !important;
+}
+.dark .home-verse-card__icon {
+  background: #3b2311 !important;
+  color: #f59e0b !important;
+}
+.dark .home-verse-card__eyebrow {
+  color: #94a3b8 !important;
+}
+.dark .home-verse-card__toggle {
+  color: #a855f7 !important;
+}
+
+/* ── Mapeo de Colores Slate de Tailwind para Modo Oscuro ── */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600 {
   color: var(--color-text-dark) !important;
 }
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: var(--color-text-muted) !important;
+}
+
+/* ── Estilos de Detalle del Tema (theme-detail) en Modo Oscuro ── */
+.dark .theme-detail__hero,
+.dark .theme-detail__journey {
+  background-color: var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark .theme-detail__back {
+  color: var(--color-text-dark) !important;
+}
+.dark .theme-detail__back:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .theme-detail__intro h1 {
+  color: var(--color-text-dark) !important;
+}
+.dark .theme-detail__summary {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .theme-detail__stats span {
+  background: #1e293b !important;
+  color: var(--color-text-dark) !important;
+}
+
+.dark .theme-detail__progress-card {
+  background: #151d2a !important;
+  border-color: #1e293b !important;
+}
+.dark .theme-detail__progress-card strong {
+  color: var(--color-text-dark) !important;
+}
+.dark .theme-detail__progress-track {
+  background: #1e293b !important;
+}
+.dark .theme-detail__progress-card small {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .theme-detail__steps li {
+  background: #151d2a !important;
+  border-color: #1e293b !important;
+}
+.dark .theme-detail__steps strong {
+  color: var(--color-text-dark) !important;
+}
+.dark .theme-detail__steps p {
+  color: var(--color-text-muted) !important;
+}
+.dark .theme-detail__step-number {
+  background: #1e293b !important;
+  color: var(--color-text-muted) !important;
+}
+
+.dark .theme-detail__steps li.is-complete {
+  border-color: #064e3b !important;
+  background: #022c22 !important;
+}
+.dark .theme-detail__steps li.is-complete .theme-detail__step-number {
+  background: #047857 !important;
+  color: #fff !important;
+}
+
+.dark .theme-detail__steps li.is-current {
+  border-color: #4c1d95 !important;
+  background: #2e1065 !important;
+}
+.dark .theme-detail__steps li.is-current .theme-detail__step-number {
+  background: #6d28d9 !important;
+  color: #fff !important;
+}
+
+.dark .theme-detail__secondary {
+  border-color: #1e293b !important;
+  background-color: #101520 !important;
+  color: var(--color-text-dark) !important;
+}
+
+.dark .theme-detail__intro .border-violet-100 {
+  background-color: #16122d !important;
+  border-color: #2e1d52 !important;
+}
+
+/* ── Barra de Navegación Móvil (Bottom Nav) ── */
+.dark .bottom-nav {
+  background: rgba(16, 21, 32, 0.95) !important;
+  border-top-color: #1e293b !important;
+}
+.dark .bottom-nav__item:not(.bottom-nav__item--active) {
+  color: #64748b !important;
+}
+.dark .bottom-nav__item:not(.bottom-nav__item--active) .bottom-nav__icon {
+  color: #64748b !important;
+}
+.dark .bottom-nav__item--active {
+  background: #1e1b4b !important;
+}
+.dark .bottom-nav__item--active .bottom-nav__label {
+  color: #a855f7 !important;
+}
+.dark .bottom-nav__item--primary:not(.bottom-nav__item--active) .bottom-nav__icon {
+  border-color: #1e293b !important;
+  background: #101520 !important;
+  color: #64748b !important;
+}
+
+/* ── Detalle del Tema: Mobile Dock Gradient en Modo Oscuro ── */
+.dark .theme-detail__mobile-dock {
+  background: linear-gradient(180deg, transparent, rgba(8, 10, 16, 0.98) 30%) !important;
+}
+
+/* ── Clubes en Modo Oscuro ── */
+.dark .clubes-empty-hero {
+  background: radial-gradient(circle at 50% -20%, #1e1b4b, transparent 55%), var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+}
+.dark .clubes-empty-hero h2 {
+  color: var(--color-text-dark) !important;
+}
+.dark .clubes-empty-hero > p {
+  color: var(--color-text-muted) !important;
+}
+.dark .clubes-empty-hero__features span {
+  background-color: #1e293b !important;
+  color: var(--color-text-dark) !important;
+}
+
+.dark .club-join-card,
+.dark .club-create-card,
+.dark .club-panel,
+.dark .club-section-card {
+  background-color: var(--color-bg-sidebar) !important;
+  background-image: none !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark .club-panel h3,
+.dark .club-section-card h2,
+.dark .clubes-empty-actions h3,
+.dark .club-invite-aside h3 {
+  color: var(--color-text-dark) !important;
+}
+
+.dark .club-panel > p,
+.dark .club-section-card > header p,
+.dark .clubes-empty-actions p,
+.dark .club-invite-aside p {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .club-switcher__item,
+.dark .club-switcher__add {
+  background-color: var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+}
+.dark .club-switcher__item[data-active="true"] {
+  border-color: #43a047 !important;
+  background-color: #022c22 !important;
+  color: #4ade80 !important;
+}
+.dark .club-switcher__item > span:first-child {
+  background-color: #1e293b !important;
+}
+.dark .club-switcher__item[data-active="true"] > span:first-child {
+  background-color: #047857 !important;
+}
+.dark .club-switcher__item small {
+  background-color: #1e293b !important;
+  color: var(--color-text-muted) !important;
+}
+
+.dark .club-hero {
+  background: radial-gradient(circle at 75% 0%, rgba(139, 92, 246, 0.15), transparent 34%), var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+}
+.dark .club-hero h2 {
+  color: var(--color-text-dark) !important;
+}
+.dark .club-hero__content > p {
+  color: var(--color-text-muted) !important;
+}
+.dark .club-hero__badges span {
+  background-color: #1e293b !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+}
+.dark .club-hero__invite {
+  background-color: rgba(21, 29, 42, 0.9) !important;
+  border-color: #1e293b !important;
+}
+.dark .club-hero__invite > strong {
+  color: #a855f7 !important;
+}
+.dark .club-hero__invite button,
+.dark .club-invite-aside button {
+  background-color: #1e293b !important;
+  color: #c084fc !important;
+}
+.dark .club-hero__invite button:last-child,
+.dark .club-invite-aside button:last-child {
+  background-color: #6d28d9 !important;
+  color: #fff !important;
+}
+
+.dark .clubes-tab {
+  color: var(--color-text-muted) !important;
+}
+.dark .clubes-tab:hover {
+  background-color: #1e293b !important;
+  color: #c084fc !important;
+}
+.dark .clubes-tab[data-active="true"] {
+  background-color: #6d28d9 !important;
+  color: #fff !important;
+}
+
+.dark .club-ranking-row,
+.dark .club-member-row {
+  background-color: #151d2a !important;
+  border-color: var(--color-border) !important;
+}
+.dark .club-ranking-row[data-me="true"] {
+  border-color: #6d28d9 !important;
+  background-color: #1e1b4b !important;
+}
+.dark .club-ranking-row__position {
+  background-color: #1e293b !important;
+  color: var(--color-text-muted) !important;
+}
+.dark .club-ranking-row strong,
+.dark .club-member-row__identity strong {
+  color: var(--color-text-dark) !important;
+}
+.dark .club-ranking-row > div:nth-child(3) span,
+.dark .club-member-row__identity span,
+.dark .club-member-row__stats span {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .challenge-card {
+  background-color: #151d2a !important;
+  background-image: none !important;
+  border-color: var(--color-border) !important;
+}
+.dark .challenge-card[data-complete="true"] {
+  border-color: #064e3b !important;
+  background-color: #022c22 !important;
+}
+.dark .challenge-card h3 {
+  color: var(--color-text-dark) !important;
+}
+.dark .challenge-card > p {
+  color: var(--color-text-muted) !important;
+}
+.dark .challenge-card footer {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .club-form label {
+  color: var(--color-text-dark) !important;
+}
+.dark .club-form input,
+.dark .club-form textarea,
+.dark .club-form select {
+  background-color: #151d2a !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-dark) !important;
+}
+
+.dark .clubes-leave-button {
+  background-color: #1a1012 !important;
+  border-color: #7f1d1d !important;
+  color: #f87171 !important;
+}
+
+.dark .club-modal__sheet {
+  background-color: var(--color-bg-sidebar) !important;
+  border: 1px solid var(--color-border) !important;
+}
+.dark .club-modal__sheet h2 {
+  color: var(--color-text-dark) !important;
+}
+.dark .club-modal-tabs {
+  background-color: #151d2a !important;
+}
+.dark .club-modal-tabs button {
+  color: var(--color-text-muted) !important;
+}
+.dark .club-modal-tabs button[data-active="true"] {
+  background-color: #1e293b !important;
+  color: #c084fc !important;
+}
+
+/* ── Login y Formularios: Corregir campos con contenedores redondeados ── */
+.dark .login-form-wrapper {
+  background-color: var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark .login-welcome__title,
+.dark .login-welcome__subtitle,
+.dark .login-mobile-privacy span,
+.dark .login-mobile-highlights span {
+  color: var(--color-text-dark) !important;
+}
+
+.dark .login-welcome__eyebrow {
+  background-color: #1e293b !important;
+  color: #a855f7 !important;
+}
+
+.dark .login-tabs {
+  background-color: #151d2a !important;
+}
+
+.dark .login-tab:not(.is-active) {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .login-tab.is-active {
+  background-color: #1e293b !important;
+  color: #a855f7 !important;
+}
+
+.dark .login-field {
+  background-color: #151d2a !important;
+  border-color: #1e293b !important;
+}
+
+.dark .login-field:focus-within {
+  border-color: #43a047 !important;
+  box-shadow: 0 0 0 4px rgba(67, 160, 71, 0.15) !important;
+}
+
+.dark .login-field__input {
+  color: var(--color-text-dark) !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dark .login-field__input::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .login-social__btn:not(.login-social__btn--guest) {
+  background-color: #151d2a !important;
+  border-color: #1e293b !important;
+  color: var(--color-text-dark) !important;
+}
+
+.dark .login-social__btn--guest {
+  background-color: #1e1b4b !important;
+  border-color: #2e1d52 !important;
+  color: #c084fc !important;
+}
+
+.dark .login-social__btn:hover {
+  background-color: #1e293b !important;
+  border-color: #4c1d95 !important;
+}
+
+.dark .login-divider__line {
+  background-color: #1e293b !important;
+}
+
+.dark .login-divider__label {
+  color: var(--color-text-muted) !important;
+  background-color: var(--color-bg-sidebar) !important;
+}
+
+/* ── Perfil y Contenedores: Campo apodo redondeado ── */
+.dark .profile-input-shell {
+  background-color: #151d2a !important;
+  border-color: #1e293b !important;
+}
+
+.dark .profile-input-shell input {
+  color: var(--color-text-dark) !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dark .profile-input-shell span {
+  color: var(--color-text-muted) !important;
+}
+
+.dark .profile-field-label {
+  color: var(--color-text-dark) !important;
+}
+
+.dark .profile-field-help {
+  color: var(--color-text-muted) !important;
+}
+
+/* ── Sobreescribir inputs con fondos transparentes dentro de contenedores redondeados ── */
+.dark .login-field input,
+.dark .profile-input-shell input,
+.dark input.login-field__input,
+.dark input.profile-input-shell__input {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ── Botón Toggle del Tema (Sólo Web) ── */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid #dbe3ee;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  flex-shrink: 0;
+}
+.theme-toggle-btn:hover {
+  background-color: #f1f5f9;
+}
+.dark .theme-toggle-btn {
+  border-color: #1e293b;
+  background-color: #151d2a;
+}
+.dark .theme-toggle-btn:hover {
+  background-color: #1e293b;
+}
+
+@media (max-width: 767px) {
+  .theme-toggle-btn {
+    display: none !important;
+  }
+}
+
 

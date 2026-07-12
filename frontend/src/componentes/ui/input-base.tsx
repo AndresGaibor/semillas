@@ -14,9 +14,9 @@ const variantesInput = cva(
   {
     variants: {
       estado: {
-        default: ["border-gray-200", "focus:border-[#6C3AED] focus:ring-2 focus:ring-[#6C3AED]/15"],
-        error: ["border-red-400 bg-red-50/30", "focus:border-red-500 focus:ring-2 focus:ring-red-500/15"],
-        exito: ["border-[#16A34A]", "focus:border-[#16A34A] focus:ring-2 focus:ring-green-500/15"],
+        default: ["border-gray-200", "focus:border-[#6C3AED]"],
+        error: ["border-red-400 bg-red-50/30", "focus:border-red-500"],
+        exito: ["border-[#16A34A]", "focus:border-[#16A34A]"],
       },
       tamano: { mediano: "h-11 px-4 text-sm" },
       conIconoIzquierdo: { true: "pl-11", false: "" },

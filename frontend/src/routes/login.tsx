@@ -6,6 +6,7 @@ import { useLoginPage } from "../features/auth/hooks/use-login-page";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 import "../estilos.css";
 import "./login.css";
+import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -40,10 +41,13 @@ function LoginPage() {
             </div>
           </Link>
 
-          <div className="login-lang" aria-label="Idioma actual: Español">
-            <Globe size={20} aria-hidden="true" />
-            <span className="login-lang__label login-lang__label--full">Español</span>
-            <span className="login-lang__label login-lang__label--compact" aria-hidden="true">ES</span>
+          <div className="flex items-center gap-2">
+            <BotonTemaToggle />
+            <div className="login-lang" aria-label="Idioma actual: Español">
+              <Globe size={20} aria-hidden="true" />
+              <span className="login-lang__label login-lang__label--full">Español</span>
+              <span className="login-lang__label login-lang__label--compact" aria-hidden="true">ES</span>
+            </div>
           </div>
         </header>
 

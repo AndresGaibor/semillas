@@ -35,7 +35,7 @@ export const CampoBusqueda = React.forwardRef<HTMLInputElement, PropiedadesCampo
           onChange={(event) => onChange(event.target.value)}
           aria-label={ariaLabel ?? props.placeholder ?? "Campo de busqueda"}
           className={unirClases(
-            "w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-neutro-oscuro-max outline-none transition-colors focus:border-primario focus:ring-1 focus:ring-primario",
+            "w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-neutro-oscuro-max outline-none transition-colors focus:border-primario",
             inputClassName,
             className,
           )}

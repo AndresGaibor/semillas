@@ -45,7 +45,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, PropiedadesCheckbox>(
               "border-gray-300 bg-white",
               "checked:bg-[#6C3AED] checked:border-[#6C3AED]",
               "indeterminate:bg-[#6C3AED] indeterminate:border-[#6C3AED]",
-              "focus:outline-none focus:ring-2 focus:ring-[#6C3AED]/20 focus:ring-offset-1",
+              "focus:outline-none",
               "disabled:cursor-not-allowed disabled:opacity-50",
               className,
               clase,

@@ -330,7 +330,6 @@
 
 .login-field:focus-within {
   border-color: var(--color-primario);
-  box-shadow: 0 0 0 4px rgba(67, 160, 71, 0.12);
 }
 
 .login-field__icon {
