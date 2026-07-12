@@ -34,14 +34,40 @@ export type GamificacionPropia = {
     nombre_nivel: string;
   } | null;
   logros: LogroUsuarioGamificacion[];
-  /**
-   * Campos opcionales para que la API pueda dejar de depender de catálogos
-   * locales sin romper clientes antiguos.
-   */
   catalogo_logros?: LogroGamificacion[];
   reglas_nivel?: ReglaNivelGamificacion[];
 };
 
-export function obtenerGamificacionPropia() {
-  return peticion<GamificacionPropia>("/gamificacion/mi");
+const CACHE_KEY = "semillas_gamification_cache_v1";
+
+export async function obtenerGamificacionPropia() {
+  if (!navigator.onLine) return leerCacheGamificacion() ?? { nivel: null, logros: [], catalogo_logros: [], reglas_nivel: [] };
+
+  try {
+    const data = await peticion<GamificacionPropia>("/gamificacion/mi");
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: new Date().toISOString() }));
+    } catch {
+      // El contenido descargado sigue funcionando aunque el navegador bloquee localStorage.
+    }
+    return data;
+  } catch (error) {
+    const cached = leerCacheGamificacion();
+    if (cached) return cached;
+    throw error;
+  }
+}
+
+function leerCacheGamificacion(): GamificacionPropia | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { data?: GamificacionPropia };
+      if (parsed.data) return parsed.data;
+    }
+  } catch {
+    // Se devuelve un resumen vacío seguro si no hay cache legible.
+  }
+
+  return null;
 }
