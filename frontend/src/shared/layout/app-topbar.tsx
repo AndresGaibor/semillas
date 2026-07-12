@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/componentes/ui/button";
 import { AppAccountMenu } from "./app-account-menu";
-import { obtenerMiPerfil } from "../../features/profile/profile.api";
+import { obtenerMiPerfil } from "../../features/perfil/profile.api";
 
 import type { Perfil, Usuario } from "@/shared/api/api";
 import { MAPA_AVATARES } from "@/shared/constants/avatares";

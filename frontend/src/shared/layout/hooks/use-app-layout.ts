@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { sessionStorageApi } from "@/shared/api/session";
 import { cerrarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerNavMovilActivo, obtenerNavegacionMovil } from "@/shared/layout/app-mobile-nav";
-import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { esRutaModoLeccion } from "@/features/crecer/crecer-fases";
 
 type PageHeaderInfo = {

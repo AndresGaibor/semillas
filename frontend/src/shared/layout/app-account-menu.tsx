@@ -5,6 +5,7 @@ import {
   Download,
   LogOut,
   Medal,
+  RefreshCw,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -20,7 +21,7 @@ type AppAccountMenuProps = {
 };
 
 type OpcionCuenta = {
-  to: "/app/perfil" | "/app/logros" | "/app/descargas";
+  to: "/app/perfil" | "/app/logros" | "/app/descargas" | "/app/sincronizacion";
   label: string;
   Icono: LucideIcon;
   search?: { seccion: "ajustes" };
@@ -36,6 +37,7 @@ export const OPCIONES_CUENTA: OpcionCuenta[] = [
   },
   { to: "/app/logros", label: "Mis insignias", Icono: Medal },
   { to: "/app/descargas", label: "Descargas", Icono: Download },
+  { to: "/app/sincronizacion", label: "Sincronización", Icono: RefreshCw },
 ];
 
 export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout }: AppAccountMenuProps) {

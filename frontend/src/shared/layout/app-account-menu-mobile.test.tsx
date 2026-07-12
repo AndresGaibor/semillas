@@ -9,6 +9,7 @@ describe("AppAccountMenuMobile", () => {
       "Preferencias",
       "Mis insignias",
       "Descargas",
+      "Sincronización",
       "Cerrar sesión",
     ]);
   });

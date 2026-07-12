@@ -4,6 +4,7 @@ import {
   Download,
   LogOut,
   Medal,
+  RefreshCw,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -11,7 +12,7 @@ import {
 import { Boton } from "@/componentes/ui/boton";
 
 type OpcionCuenta = {
-  to: "/app/perfil" | "/app/logros" | "/app/descargas" | "/login";
+  to: "/app/perfil" | "/app/logros" | "/app/descargas" | "/app/sincronizacion" | "/login";
   label: string;
   Icono: LucideIcon;
   search?: { seccion: "ajustes" };
@@ -28,6 +29,7 @@ export const OPCIONES_CUENTA_MOVIL: OpcionCuenta[] = [
   },
   { to: "/app/logros", label: "Mis insignias", Icono: Medal },
   { to: "/app/descargas", label: "Descargas", Icono: Download },
+  { to: "/app/sincronizacion", label: "Sincronización", Icono: RefreshCw },
   {
     to: "/login",
     label: "Cerrar sesión",
