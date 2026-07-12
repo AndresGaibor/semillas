@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { ProfileDashboard } from "@/features/profile/profile-dashboard";
-import type { ProfileSection } from "@/features/profile/componentes/profile-section-nav";
+import { ProfileDashboard } from "@/features/perfil/profile-dashboard";
+import type { ProfileSection } from "@/features/perfil/componentes/profile-section-nav";
 import "@/routes/app-perfil.css";
 
 const gruposEdad = [

@@ -9,9 +9,9 @@ import {
   obtenerMiPerfil,
   obtenerMiProgreso,
   type ActualizarPerfilDatos,
-} from "@/features/profile/profile.api";
-import { ProfileDashboard } from "@/features/profile/profile-dashboard";
-import type { ProfileSection } from "@/features/profile/componentes/profile-section-nav";
+} from "@/features/perfil/profile.api";
+import { ProfileDashboard } from "@/features/perfil/profile-dashboard";
+import type { ProfileSection } from "@/features/perfil/componentes/profile-section-nav";
 import { iniciarSesionGoogle, vincularGoogle } from "@/shared/auth/supabase";
 import { useAppLayout } from "@/shared/layout/hooks/use-app-layout";
 import "./app-perfil.css";

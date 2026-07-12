@@ -73,9 +73,13 @@ export function ProfileDashboard({
       {activeSection === "ajustes" ? (
         <ProfilePreferencesForm
           perfil={perfil}
+          usuario={usuario}
           isSaving={isSaving}
           onSave={onSaveProfile}
           onCancel={() => onSectionChange("resumen")}
+          onVincularGoogle={onVincularGoogle}
+          onVincularCorreo={onVincularCorreo}
+          onLogout={onCerrarSesion}
         />
       ) : null}
 
