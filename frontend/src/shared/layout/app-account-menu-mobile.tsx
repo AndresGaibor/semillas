@@ -99,7 +99,7 @@ export function AppAccountMenuMobile({
           })}
         </div>
 
-        <Boton variante="contorno" tamano="mediano" onClick={onCerrar}>
+        <Boton variante="contorno" tamano="mediano" anchoCompleto onClick={onCerrar}>
           Cancelar
         </Boton>
       </div>
