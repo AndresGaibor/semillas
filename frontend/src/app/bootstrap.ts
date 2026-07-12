@@ -19,6 +19,12 @@ export function resolverRedireccionBootstrap(
   if (rutaPostLogin === "/app" && rutaActual.startsWith("/app")) {
     return null;
   }
+  if (rutaPostLogin === "/admin" && rutaActual.startsWith("/admin")) {
+    return null;
+  }
+  if (rutaPostLogin.startsWith("/onboarding") && rutaActual.startsWith("/onboarding")) {
+    return null;
+  }
 
   return rutaActual === rutaPostLogin ? null : rutaPostLogin;
 }

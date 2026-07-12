@@ -49,4 +49,16 @@ describe("resolverRedireccionBootstrap", () => {
       resolverRedireccionBootstrap("/app/temas/tema-1", "/onboarding"),
     ).toBe("/onboarding");
   });
+
+  it("conserva la ruta interna de administracion para perfiles admin", () => {
+    expect(
+      resolverRedireccionBootstrap("/admin/temas", "/admin"),
+    ).toBeNull();
+  });
+
+  it("conserva la ruta de onboarding si ya esta en onboarding", () => {
+    expect(
+      resolverRedireccionBootstrap("/onboarding/customize", "/onboarding"),
+    ).toBeNull();
+  });
 });

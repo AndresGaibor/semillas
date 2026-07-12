@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env";
+import { db } from "../../lib/offline/db";
+import { queryClient } from "../../app/query-client";
 import {
   cerrarSesionAutenticadaConCliente,
   escucharCambiosAutenticacionConCliente,
@@ -40,7 +42,15 @@ export async function vincularGoogle() {
 }
 
 export async function cerrarSesionAutenticada() {
-  return cerrarSesionAutenticadaConCliente(supabase);
+  await cerrarSesionAutenticadaConCliente(supabase);
+  await Promise.all([
+    db.perfil.clear(),
+    db.progresoUsuario.clear(),
+    db.eventosOutbox.clear(),
+    db.syncState.clear(),
+    db.descargaJobs.clear(),
+  ]);
+  queryClient.clear();
 }
 
 export async function registrarConCorreo(email: string, password: string) {
