@@ -1,6 +1,7 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
+import { evaluarYDesbloquearLogros } from "../gamification/gamification-awards";
 
 type RegistroEventoProgreso = {
   usuarioId: string;
@@ -138,7 +139,7 @@ export function crearActivitiesRepository(db: DbClient) {
           set: {
             intentos: sql`${schema.progresoActividadUsuario.intentos} + 1`,
             mejorPuntaje: sql`greatest(${schema.progresoActividadUsuario.mejorPuntaje}, ${correcta ? 100 : 0})`,
-            completado: correcta,
+            completado: sql`${schema.progresoActividadUsuario.completado} or ${correcta}`,
             completadoEn: correcta ? new Date() : sql`${schema.progresoActividadUsuario.completadoEn}`,
             actualizadoEn: new Date()
           }
@@ -158,11 +159,15 @@ export function crearActivitiesRepository(db: DbClient) {
         .onConflictDoUpdate({
           target: [schema.progresoTemaUsuario.usuarioId, schema.progresoTemaUsuario.temaId],
           set: {
-            estado: "en_progreso",
-            porcentaje: 0,
+            estado: sql`case when ${schema.progresoTemaUsuario.estado} = 'completado' then ${schema.progresoTemaUsuario.estado} else 'en_progreso' end`,
+            porcentaje: sql`greatest(${schema.progresoTemaUsuario.porcentaje}, 0)`,
             actualizadoEn: new Date()
           }
         });
+    },
+
+    async evaluarLogrosUsuario(usuarioId: string) {
+      return evaluarYDesbloquearLogros(db, usuarioId);
     }
   };
 }

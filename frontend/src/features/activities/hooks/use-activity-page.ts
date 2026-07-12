@@ -44,6 +44,7 @@ export function useActivityPage(activityId: string) {
   return {
     activity,
     result,
+    resultadoOffline: Boolean(result && "offline" in result && result.offline),
     selected,
     setSelected,
     handleSelectOption,

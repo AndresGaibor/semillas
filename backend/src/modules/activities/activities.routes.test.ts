@@ -17,6 +17,8 @@ describe("activities.routes", () => {
                 return chain;
               },
               where() {
+                if (!consulta) return Promise.resolve([]);
+
                 return {
                   limit: async () => {
                     const columnas = Object.keys(consulta ?? {}).join(",");
@@ -71,6 +73,15 @@ describe("activities.routes", () => {
                         actualizadoEn: new Date()
                       }
                     ];
+                  },
+                  groupBy() {
+                    return {
+                      orderBy() {
+                        return {
+                          limit: async () => [],
+                        };
+                      },
+                    };
                   },
                   orderBy: async () => []
                 };

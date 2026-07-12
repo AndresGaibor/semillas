@@ -66,13 +66,16 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
         duplicado: true,
         correcta,
         xp_otorgada: 0,
+        logros_desbloqueados: [],
       };
     }
 
     await actividades.upsertProgresoActividad(usuario.id, actividadId, correcta);
 
+    let logrosDesbloqueados: Array<{ id: string; codigo: string; nombre: string; bonoXp: number }> = [];
     if (correcta) {
       await actividades.upsertProgresoTema(usuario.id, actividad.temaId);
+      logrosDesbloqueados = await actividades.evaluarLogrosUsuario(usuario.id);
     }
 
     return {
@@ -85,6 +88,12 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
       duplicado: false,
       correcta,
       xp_otorgada: xpOtorgada,
+      logros_desbloqueados: logrosDesbloqueados.map((logro) => ({
+        id: logro.id,
+        codigo: logro.codigo,
+        nombre: logro.nombre,
+        bono_xp: logro.bonoXp,
+      })),
     };
   };
 }

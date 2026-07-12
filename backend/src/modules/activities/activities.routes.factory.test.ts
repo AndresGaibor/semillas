@@ -17,6 +17,8 @@ describe("activities factory", () => {
                 return chain;
               },
               where() {
+                if (!consulta) return Promise.resolve([]);
+
                 return {
                   limit: async () => {
                     llamadas.push(`select:${Object.keys(consulta ?? {}).join(",")}`);
@@ -30,6 +32,15 @@ describe("activities factory", () => {
                     }
 
                     return [];
+                  },
+                  groupBy() {
+                    return {
+                      orderBy() {
+                        return {
+                          limit: async () => [],
+                        };
+                      },
+                    };
                   },
                   orderBy: async () => {
                     llamadas.push(`select:${Object.keys(consulta ?? {}).join(",")}:orderBy`);
