@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StoryRouter } from "@/storybook/story-router";
 import { Link } from "@tanstack/react-router";
 
-const imgSrc = "https://picsum.photos/seed/relatar/800/400";
+const imgSrc = "/storybook/fixtures/cover.svg";
 
 const opciones = [
   { id: "r1", etiqueta: "A", texto: "Jesús sanó a 10 leprosos" },
@@ -61,7 +61,7 @@ function RRelatarStory() {
 }
 
 const meta = {
-  title: "Pantallas/CRECER/R_relatar",
+  title: "05 · Pantallas/CRECER/R_relatar",
   component: RRelatarStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof RRelatarStory>;

@@ -32,7 +32,7 @@ function PerfilCatalogo() {
 }
 
 const meta = {
-  title: "Features/Perfil y temas/Catálogo",
+  title: "06 · Flujos/Perfil y temas/Catálogo",
   component: PerfilCatalogo,
   parameters: { layout: "fullscreen" },
   globals: { backgrounds: { value: "grisApp", grid: false } },

@@ -33,7 +33,7 @@ function VistaUsuarios({ estado = "datos" }: { estado?: "datos" | "cargando" | "
   );
 }
 
-const meta = { title: "Pantallas/Administración/Usuarios", component: VistaUsuarios, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaUsuarios>;
+const meta = { title: "04 · Features/Admin/Usuarios", component: VistaUsuarios, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaUsuarios>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Escritorio: Story = {};

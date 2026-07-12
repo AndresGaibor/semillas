@@ -1,0 +1,25 @@
+---
+title: Storybook profesional de Semillas
+---
+
+# Storybook profesional de Semillas
+
+Este catálogo separa contratos técnicos, boards de producto, pantallas y QA visual. Las stories técnicas usan `autodocs` + `!dev`; los boards son las entradas principales para revisión humana.
+
+## Verificaciones locales
+
+```bash
+bun run storybook:categories
+bun run storybook:determinism
+bun run storybook:tags
+bun run storybook:coverage
+bun run storybook:build
+bun run storybook:test
+```
+
+## Reglas
+
+- Usa fixtures locales y fechas fijas.
+- Declara handlers MSW para toda red de una story conectada.
+- Revisa claro, oscuro, movimiento reducido y los cinco viewports oficiales.
+- Mantén los boards visibles y los contratos técnicos fuera de la barra lateral con `!dev`.

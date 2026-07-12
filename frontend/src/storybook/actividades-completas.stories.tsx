@@ -3,7 +3,7 @@ import type { Actividad } from "@/shared/api/api";
 import { ActividadWrapper } from "@/features/crecer/componentes/actividad-wrapper";
 
 const meta = {
-  title: "Componentes/Actividades/Catálogo completo",
+  title: "06 · Flujos/Actividades/Catálogo completo",
   component: ActividadWrapper,
   parameters: { layout: "fullscreen" },
   decorators: [

@@ -31,7 +31,7 @@ function AdminSendasStory() {
 }
 
 const meta = {
-  title: "Pantallas/Admin/Sendas",
+  title: "05 · Pantallas/Admin/Sendas",
   component: AdminSendasStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof AdminSendasStory>;

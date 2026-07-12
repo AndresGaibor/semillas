@@ -31,7 +31,7 @@ function AdminAjustesStory() {
 }
 
 const meta = {
-  title: "Pantallas/Admin/Ajustes",
+  title: "05 · Pantallas/Admin/Ajustes",
   component: AdminAjustesStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof AdminAjustesStory>;

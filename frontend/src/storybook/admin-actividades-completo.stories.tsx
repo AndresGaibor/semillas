@@ -56,7 +56,7 @@ function VistaActividades({ loading = false, empty = false }: { loading?: boolea
   );
 }
 
-const meta = { title: "Pantallas/Administración/Actividades", component: VistaActividades, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaActividades>;
+const meta = { title: "04 · Features/Admin/Actividades", component: VistaActividades, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaActividades>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Escritorio: Story = {};

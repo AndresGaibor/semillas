@@ -34,7 +34,8 @@ import "@/shared/layout/app-account-menu-mobile";
 import "@/shared/layout/app-user-header";
 
 const meta = {
-  title: "Fundamentos/Cobertura UI existente",
+  title: "07 · QA visual/Cobertura UI existente",
+  tags: ["!test"],
   component: Fragment,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof Fragment>;

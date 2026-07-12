@@ -14,7 +14,7 @@ function TemaDetalleStory() {
           </button>
           <section className="theme-detail__hero">
             <div className="theme-detail__media">
-              <img src="https://picsum.photos/seed/tema-amor/900/900" alt="Jonás y la ballena" />
+              <img src="/storybook/fixtures/cover.svg" alt="Jonás y la ballena" />
             </div>
             <div className="theme-detail__intro">
               <span className="theme-detail__senda text-blue-600 bg-blue-50">
@@ -62,7 +62,7 @@ function TemaDetalleStory() {
 }
 
 const meta = {
-  title: "Pantallas/App/TemaDetalle",
+  title: "05 · Pantallas/App/TemaDetalle",
   component: TemaDetalleStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof TemaDetalleStory>;

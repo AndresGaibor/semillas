@@ -31,7 +31,7 @@ function AdminClubesStory() {
 }
 
 const meta = {
-  title: "Pantallas/Admin/Clubes",
+  title: "05 · Pantallas/Admin/Clubes",
   component: AdminClubesStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof AdminClubesStory>;

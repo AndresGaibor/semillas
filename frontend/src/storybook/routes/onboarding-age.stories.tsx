@@ -80,7 +80,7 @@ function OnboardingEdadStory({ cargando = false }: { cargando?: boolean }) {
 }
 
 const meta = {
-  title: "Pantallas/Onboarding/Seleccionar edad",
+  title: "05 · Pantallas/Onboarding/Seleccionar edad",
   component: OnboardingEdadStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof OnboardingEdadStory>;
