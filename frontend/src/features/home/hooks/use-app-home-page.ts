@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo } from "react";
-import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { obtenerGamificacionPropia } from "@/features/gamification/gamification.api";
 import in1Img from "@/assets/images/Ilustraciones/in1.png";
 import in2Img from "@/assets/images/Ilustraciones/in2.png";

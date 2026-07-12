@@ -2,13 +2,19 @@ import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-r
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
 import { useAdminLayout } from "../features/admin/hooks/use-admin-layout";
-import { obtenerMiPerfil } from "../features/profile/profile.api";
+import { obtenerMiPerfil } from "../features/perfil/profile.api";
 import { sessionStorageApi } from "../shared/api/session";
 import { resolverAccesoAdmin } from "../shared/auth/admin-access";
+import { PantallaErrorRuta } from "@/componentes/estados/pantalla-error-ruta";
 import "./app.css";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
+    // Redirigir a admin-required si el ancho de pantalla es menor a 1024px (móvil y tablet)
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      throw redirect({ to: "/admin-required" });
+    }
+
     try {
       const { usuario } = await obtenerMiPerfil();
       const acceso = resolverAccesoAdmin(usuario);
@@ -26,6 +32,7 @@ export const Route = createFileRoute("/admin")({
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
+  errorComponent: PantallaErrorRuta,
   component: AdminLayout,
 });
 

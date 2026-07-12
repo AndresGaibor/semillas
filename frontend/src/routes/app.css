@@ -2610,3 +2610,91 @@ html[data-semillas-text-size="grande"] {
   max-width: none;
   margin: 0;
 }
+
+/* ── Alto Contraste ── */
+.alto-contraste {
+  filter: contrast(1.2);
+}
+.alto-contraste body,
+.alto-contraste .app-shell,
+.alto-contraste .app-shell__workspace {
+  background-color: #0c101a !important;
+  color: #f8fafc !important;
+}
+.alto-contraste .profile-form-card,
+.alto-contraste .profile-setting-row,
+.alto-contraste .card,
+.alto-contraste .bg-white,
+.alto-contraste .bg-slate-50 {
+  background-color: #131924 !important;
+  color: #f3f4f6 !important;
+  border-color: #374151 !important;
+}
+.alto-contraste text,
+.alto-contraste p,
+.alto-contraste span,
+.alto-contraste h1,
+.alto-contraste h2,
+.alto-contraste h3,
+.alto-contraste strong {
+  color: #ffffff !important;
+}
+.alto-contraste a,
+.alto-contraste button:not(.profile-primary-button) {
+  color: #f4b740 !important;
+}
+
+/* ── Modo Oscuro ── */
+.dark {
+  --color-crema: #080a10 !important;
+  --color-blanco: #101520 !important;
+  --color-bg-main: #080a10 !important;
+  --color-bg-sidebar: #101520 !important;
+  --color-text-dark: #f1f5f9 !important;
+  --color-text-muted: #94a3b8 !important;
+  --color-border: #1e293b !important;
+  --color-primary-light: #14532d !important;
+  --color-blue-light: #1e3a8a !important;
+  --color-purple-light: #3b0764 !important;
+  --color-yellow-light: #78350f !important;
+  --color-neutro-oscuro-max: #f1f5f9 !important;
+  --color-neutro-oscuro-min: #cbd5e1 !important;
+  --color-neutro-oscuro: #94a3b8 !important;
+  --color-neutro-palido: #1e293b !important;
+}
+
+.dark body,
+.dark .app-shell,
+.dark .app-shell__workspace {
+  background-color: var(--color-bg-main) !important;
+  color: var(--color-neutro-oscuro-max) !important;
+}
+
+.dark .bg-white,
+.dark .profile-form-card,
+.dark .card,
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-dark) !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.dark text,
+.dark p,
+.dark span,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark strong {
+  color: var(--color-text-dark) !important;
+}
+

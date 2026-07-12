@@ -160,19 +160,17 @@ Todos deben usar exactamente estas herramientas y versiones. Se recomienda confi
 | Área | Tecnología | Versión | Uso |
 |---|---|---|---|
 | Control de versiones | Git + GitHub | Git 2.4x | Repositorio y ramas |
-| Base de datos | PostgreSQL | 16.x | Datos y progreso |
-| Backend / API | NestJS, Node.js, TypeScript | Nest 10 · Node 22 LTS · TS 5 | API única REST |
-| ORM y migraciones | Prisma | 5.x | Acceso a datos y migraciones |
-| Frontend web | React + Vite, TypeScript | React 18.3 · Vite 5 | Web de juego y CMS, PWA |
-| Aplicación móvil | Flutter, Dart | Flutter 3.2x · Dart 3 | App Android offline |
-| Almacenamiento móvil | Drift SQLite + Hive | — | Cache y cola de sync offline |
-| Autenticación | OAuth 2.0, Google / Facebook | — | Inicio de sesión |
-| Contenedores | Docker | 27.x | Entornos reproducibles |
-| Integración continua | GitHub Actions | — | Compilación y pruebas por PR |
-| Gestor de paquetes | npm / pnpm, pub Flutter | npm 10.x | Dependencias |
-| Formato y linter TS | ESLint + Prettier | — | Estilo uniforme |
-| Formato y linter Dart | dart format + analyzer | — | Estilo uniforme |
-| Pruebas | Jest backend, Flutter test | — | Pruebas automáticas |
+| Base de datos | PostgreSQL (Supabase) | 16.x | Datos y progreso |
+| Backend / API | Hono, Bun, TypeScript | Hono 4.x · Bun 1.1 · TS 5 | API única REST en Cloudflare Workers |
+| ORM y migraciones | Drizzle / Supabase Client | 0.x | Acceso a datos y migraciones |
+| Frontend PWA | React + Vite, TypeScript | React 18.3 · Vite 5 | PWA de juego y CMS (Web/Móvil) |
+| Almacenamiento Local | Dexie (IndexedDB) | 4.x | Caché y cola de sync offline |
+| Autenticación | Supabase Auth, Google / Facebook | — | Inicio de sesión y roles |
+| Contenedores | Wrangler / Supabase CLI | — | Entornos reproducibles y emulación |
+| Integración continua | GitHub Actions | — | Compilación, lint y typecheck por PR |
+| Gestor de paquetes | Bun | Bun 1.1 | Dependencias y scripts |
+| Formato y linter TS | Biome | 1.x | Estilo uniforme y linting rápido |
+| Pruebas | Bun Test | Bun | Pruebas automáticas rápidas |
 
 ### Regla de oro de las versiones
 
@@ -180,12 +178,10 @@ Nadie instala “la versión que tenía en su computadora”.
 
 Las versiones se fijan en los archivos de bloqueo:
 
-- `package-lock.json`
-- `pnpm-lock.yaml`
-- `pubspec.lock`
+- `bun.lock`
 - `.nvmrc`
 
-Idealmente, todos levantan el entorno con Docker para eliminar el clásico problema de “en mi máquina sí funciona”.
+Idealmente, todos levantan el entorno con Wrangler y Supabase CLI para eliminar el clásico problema de “en mi máquina sí funciona”.
 
 ---
 
@@ -201,11 +197,10 @@ Cada elemento se nombra siempre de la misma manera.
 
 | Elemento | Convención | Ejemplo |
 |---|---|---|
-| Variables y funciones TS / Dart | camelCase | `contarPuntos` |
+| Variables y funciones TS | camelCase | `contarPuntos` |
 | Clases, componentes y widgets | PascalCase | `TarjetaTema` |
 | Constantes globales | UPPER_SNAKE_CASE | `XP_POR_ACIERTO` |
-| Archivos web / backend | kebab-case | `tema-service.ts` |
-| Archivos Flutter / Dart | snake_case | `tema_service.dart` |
+| Archivos web / backend / API | kebab-case | `tema-service.ts` |
 | Tablas y columnas SQL | snake_case en minúsculas | `versiculo_clave` |
 | Endpoints REST | minúsculas, en plural | `/temas/{id}/actividades` |
 | Ramas de Git | tipo/kebab-case | `feature/sync-offline` |
@@ -225,8 +220,7 @@ Recomendación:
 
 Configuren:
 
-- `ESLint + Prettier` para TypeScript.
-- `dart format + analyzer` para Flutter.
+- `Biome` para TypeScript/React.
 
 La configuración debe estar compartida en el repositorio.
 

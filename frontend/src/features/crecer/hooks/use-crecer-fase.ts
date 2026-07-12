@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { obtenerTema, obtenerPasos, obtenerActividades } from "@/features/themes/themes.api";
-import { obtenerMiPerfil } from "@/features/profile/profile.api";
+import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import type { EventoProgreso } from "@/shared/api/api";
 import { registrarEventosCrecer } from "../services/crecer-progress";
 

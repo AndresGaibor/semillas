@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerificarCorreoRouteImport } from './routes/verificar-correo'
+import { Route as RestablecerContrasenaRouteImport } from './routes/restablecer-contrasena'
+import { Route as RecuperarContrasenaRouteImport } from './routes/recuperar-contrasena'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
@@ -21,6 +24,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as OnboardingCustomizeRouteImport } from './routes/onboarding.customize'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AppSincronizacionRouteImport } from './routes/app.sincronizacion'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppLogrosRouteImport } from './routes/app.logros'
 import { Route as AppDescargasRouteImport } from './routes/app.descargas'
@@ -50,6 +54,21 @@ import { Route as AdminTemasThemeIdDetalleRouteImport } from './routes/admin.tem
 import { Route as AdminTemasThemeIdCrecerRouteImport } from './routes/admin.temas.$themeId.crecer'
 import { Route as AdminTemasThemeIdActivitiesRouteImport } from './routes/admin.temas.$themeId.activities'
 
+const VerificarCorreoRoute = VerificarCorreoRouteImport.update({
+  id: '/verificar-correo',
+  path: '/verificar-correo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestablecerContrasenaRoute = RestablecerContrasenaRouteImport.update({
+  id: '/restablecer-contrasena',
+  path: '/restablecer-contrasena',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarContrasenaRoute = RecuperarContrasenaRouteImport.update({
+  id: '/recuperar-contrasena',
+  path: '/recuperar-contrasena',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -109,6 +128,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppSincronizacionRoute = AppSincronizacionRouteImport.update({
+  id: '/sincronizacion',
+  path: '/sincronizacion',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
@@ -264,6 +288,9 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/recuperar-contrasena': typeof RecuperarContrasenaRoute
+  '/restablecer-contrasena': typeof RestablecerContrasenaRoute
+  '/verificar-correo': typeof VerificarCorreoRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/clubes': typeof AdminClubesRoute
@@ -277,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/sincronizacion': typeof AppSincronizacionRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
@@ -303,6 +331,9 @@ export interface FileRoutesByTo {
   '/acceso-denegado': typeof AccesoDenegadoRoute
   '/admin-required': typeof AdminRequiredRoute
   '/login': typeof LoginRoute
+  '/recuperar-contrasena': typeof RecuperarContrasenaRoute
+  '/restablecer-contrasena': typeof RestablecerContrasenaRoute
+  '/verificar-correo': typeof VerificarCorreoRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/clubes': typeof AdminClubesRoute
@@ -316,6 +347,7 @@ export interface FileRoutesByTo {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/sincronizacion': typeof AppSincronizacionRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin': typeof AdminIndexRoute
@@ -346,6 +378,9 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
+  '/recuperar-contrasena': typeof RecuperarContrasenaRoute
+  '/restablecer-contrasena': typeof RestablecerContrasenaRoute
+  '/verificar-correo': typeof VerificarCorreoRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/clubes': typeof AdminClubesRoute
@@ -359,6 +394,7 @@ export interface FileRoutesById {
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/sincronizacion': typeof AppSincronizacionRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/onboarding/customize': typeof OnboardingCustomizeRoute
   '/admin/': typeof AdminIndexRoute
@@ -390,6 +426,9 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/recuperar-contrasena'
+    | '/restablecer-contrasena'
+    | '/verificar-correo'
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
@@ -403,6 +442,7 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
+    | '/app/sincronizacion'
     | '/auth/callback'
     | '/onboarding/customize'
     | '/admin/'
@@ -429,6 +469,9 @@ export interface FileRouteTypes {
     | '/acceso-denegado'
     | '/admin-required'
     | '/login'
+    | '/recuperar-contrasena'
+    | '/restablecer-contrasena'
+    | '/verificar-correo'
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
@@ -442,6 +485,7 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
+    | '/app/sincronizacion'
     | '/auth/callback'
     | '/onboarding/customize'
     | '/admin'
@@ -471,6 +515,9 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/recuperar-contrasena'
+    | '/restablecer-contrasena'
+    | '/verificar-correo'
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
@@ -484,6 +531,7 @@ export interface FileRouteTypes {
     | '/app/descargas'
     | '/app/logros'
     | '/app/perfil'
+    | '/app/sincronizacion'
     | '/auth/callback'
     | '/onboarding/customize'
     | '/admin/'
@@ -514,11 +562,35 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
+  RecuperarContrasenaRoute: typeof RecuperarContrasenaRoute
+  RestablecerContrasenaRoute: typeof RestablecerContrasenaRoute
+  VerificarCorreoRoute: typeof VerificarCorreoRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verificar-correo': {
+      id: '/verificar-correo'
+      path: '/verificar-correo'
+      fullPath: '/verificar-correo'
+      preLoaderRoute: typeof VerificarCorreoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restablecer-contrasena': {
+      id: '/restablecer-contrasena'
+      path: '/restablecer-contrasena'
+      fullPath: '/restablecer-contrasena'
+      preLoaderRoute: typeof RestablecerContrasenaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-contrasena': {
+      id: '/recuperar-contrasena'
+      path: '/recuperar-contrasena'
+      fullPath: '/recuperar-contrasena'
+      preLoaderRoute: typeof RecuperarContrasenaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -602,6 +674,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/sincronizacion': {
+      id: '/app/sincronizacion'
+      path: '/sincronizacion'
+      fullPath: '/app/sincronizacion'
+      preLoaderRoute: typeof AppSincronizacionRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/perfil': {
       id: '/app/perfil'
@@ -857,6 +936,7 @@ interface AppRouteChildren {
   AppDescargasRoute: typeof AppDescargasRoute
   AppLogrosRoute: typeof AppLogrosRoute
   AppPerfilRoute: typeof AppPerfilRoute
+  AppSincronizacionRoute: typeof AppSincronizacionRoute
   AppIndexRoute: typeof AppIndexRoute
   AppC_comprobarThemeIdRoute: typeof AppC_comprobarThemeIdRoute
   AppC_conectarThemeIdRoute: typeof AppC_conectarThemeIdRoute
@@ -874,6 +954,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDescargasRoute: AppDescargasRoute,
   AppLogrosRoute: AppLogrosRoute,
   AppPerfilRoute: AppPerfilRoute,
+  AppSincronizacionRoute: AppSincronizacionRoute,
   AppIndexRoute: AppIndexRoute,
   AppC_comprobarThemeIdRoute: AppC_comprobarThemeIdRoute,
   AppC_conectarThemeIdRoute: AppC_conectarThemeIdRoute,
@@ -910,6 +991,9 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
+  RecuperarContrasenaRoute: RecuperarContrasenaRoute,
+  RestablecerContrasenaRoute: RestablecerContrasenaRoute,
+  VerificarCorreoRoute: VerificarCorreoRoute,
   AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport

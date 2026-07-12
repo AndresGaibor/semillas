@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { obtenerTema, obtenerPasos, obtenerActividades, obtenerUrlPortadaTema } from "../themes.api";
-import { obtenerMiPerfil } from "../../profile/profile.api";
+import { obtenerMiPerfil } from "../../perfil/profile.api";
 import { obtenerMiProgreso } from "../../progress/progress.api";
 import { playSound } from "../../../lib/audio";
 import {

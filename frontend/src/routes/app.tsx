@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { hasSession } from "../shared/api/auth-guard";
+import { PantallaErrorRuta } from "@/componentes/estados/pantalla-error-ruta";
 import { BottomNav } from "@/componentes/ui/bottom-nav";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppUserHeader } from "../shared/layout/app-user-header";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/app")({
   beforeLoad: () => {
     if (!hasSession()) throw redirect({ to: "/login", search: { redirect: "/app" } });
   },
+  errorComponent: PantallaErrorRuta,
   component: AppLayout,
 });
 

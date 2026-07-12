@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { actualizarPerfil } from "@/features/profile/profile.api";
+import { actualizarPerfil } from "@/features/perfil/profile.api";
 import { limpiarNombreSugeridoDeGoogle, leerNombreSugeridoDeGoogle } from "@/shared/auth/google-profile";
 
 export function useCustomizePage() {
