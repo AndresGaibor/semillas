@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 import { AppSidebar } from "../shared/layout/app-sidebar";
 import { AppTopbar } from "../shared/layout/app-topbar";
@@ -5,17 +6,11 @@ import { useAdminLayout } from "../features/admin/hooks/use-admin-layout";
 import { obtenerMiPerfil } from "../features/perfil/profile.api";
 import { sessionStorageApi } from "../shared/api/session";
 import { resolverAccesoAdmin } from "../shared/auth/admin-access";
-import { PantallaErrorRuta } from "@/componentes/estados/pantalla-error-ruta";
 import "./app.css";
 import "./admin-content-studio.css";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
-    // Redirigir a admin-required si el ancho de pantalla es menor a 1024px (móvil y tablet)
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      throw redirect({ to: "/admin-required" });
-    }
-
     try {
       const { usuario } = await obtenerMiPerfil();
       const acceso = resolverAccesoAdmin(usuario);
@@ -33,12 +28,20 @@ export const Route = createFileRoute("/admin")({
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
-  errorComponent: PantallaErrorRuta,
   component: AdminLayout,
 });
 
 function AdminLayout() {
   const { sidebarOpen, closeSidebar, openSidebar, handleLogout, pageHeader, activePage } = useAdminLayout();
+
+  useEffect(() => {
+    const saved = localStorage.getItem("admin-theme");
+    if (saved === "admin-dark" || saved === "admin-light") {
+      document.documentElement.setAttribute("data-theme", saved);
+    } else {
+      document.documentElement.setAttribute("data-theme", "admin-light");
+    }
+  }, []);
 
   return (
     <div className="app-shell app-shell--admin">

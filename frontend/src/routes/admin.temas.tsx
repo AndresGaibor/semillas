@@ -130,9 +130,9 @@ function AdminThemeLibrary() {
       {temasQuery.isLoading ? (
         <div className="admin-library-empty"><Loader2 className="mx-auto animate-spin text-violet-600" /><h3>Cargando temas</h3><p>Consultando la biblioteca editorial.</p></div>
       ) : temasQuery.isError ? (
-        <div className="admin-library-empty"><BookOpenCheck className="mx-auto text-emerald-400/50" /><h3>No se pudo cargar la biblioteca</h3><p>{temasQuery.error instanceof Error ? temasQuery.error.message : "Vuelve a intentarlo."}</p><button type="button" className="admin-primary-button mt-4" onClick={() => temasQuery.refetch()}>Reintentar</button></div>
+        <div className="admin-library-empty"><BookOpenCheck className="mx-auto text-slate-300" /><h3>No se pudo cargar la biblioteca</h3><p>{temasQuery.error instanceof Error ? temasQuery.error.message : "Vuelve a intentarlo."}</p><button type="button" className="admin-primary-button mt-4" onClick={() => temasQuery.refetch()}>Reintentar</button></div>
       ) : !data?.temas.length ? (
-        <div className="admin-library-empty"><BookOpenCheck className="mx-auto text-emerald-400/50" size={34} /><h3>No hay temas con estos filtros</h3><p>Cambia los filtros o crea una nueva lección.</p></div>
+        <div className="admin-library-empty"><BookOpenCheck className="mx-auto text-slate-300" size={34} /><h3>No hay temas con estos filtros</h3><p>Cambia los filtros o crea una nueva lección.</p></div>
       ) : (
         <section className="admin-theme-results" aria-label="Resultados de temas">
           {data.temas.map((tema) => (
@@ -188,9 +188,9 @@ function ThemeLibraryRow({ tema, menuOpen, onToggleMenu, onNavigate, onAction, a
       <button type="button" className="admin-theme-row__identity text-left" onClick={() => onNavigate("detalle")}>
         <strong>{tema.titulo}</strong><p>{tema.resumen || tema.objetivo}</p>
       </button>
-      <div className="admin-theme-row__meta"><i>🌱</i><div><strong className="block text-emerald-100">{tema.senda?.nombre ?? "Sin senda"}</strong><small>{ages}</small></div></div>
-      <div className="admin-theme-row__progress"><header><span>Completitud</span><strong>{tema.completitud.porcentaje}%</strong></header><div><span style={{ width: `${tema.completitud.porcentaje}%` }} /></div><small className="text-[10px] text-emerald-400/50">{tema.completitud.estadisticas.actividades} actividades · {tema.completitud.estadisticas.contenidos_creados}/{tema.completitud.estadisticas.contenidos_esperados} contenidos</small></div>
-      <div className="admin-theme-row__author"><span className="admin-state-pill bg-[#1a3a2a] text-emerald-200/70">{stateLabel}</span><small className="mt-2 block text-[10px] text-emerald-400/50">{formatDate(tema.actualizado_en)}</small></div>
+      <div className="admin-theme-row__meta"><i>🌱</i><div><strong className="block text-slate-700">{tema.senda?.nombre ?? "Sin senda"}</strong><small>{ages}</small></div></div>
+      <div className="admin-theme-row__progress"><header><span>Completitud</span><strong>{tema.completitud.porcentaje}%</strong></header><div><span style={{ width: `${tema.completitud.porcentaje}%` }} /></div><small className="text-[10px] text-slate-400">{tema.completitud.estadisticas.actividades} actividades · {tema.completitud.estadisticas.contenidos_creados}/{tema.completitud.estadisticas.contenidos_esperados} contenidos</small></div>
+      <div className="admin-theme-row__author"><span className="admin-state-pill bg-slate-100 text-slate-600">{stateLabel}</span><small className="mt-2 block text-[10px] text-slate-400">{formatDate(tema.actualizado_en)}</small></div>
       <div className="admin-theme-row__actions relative">
         <button type="button" className="admin-icon-button" title="Abrir estudio" onClick={() => onNavigate("detalle")}><Eye size={17} /></button>
         <button type="button" className="admin-icon-button" title="Editar información" onClick={() => onNavigate("editar")}><FilePenLine size={17} /></button>
@@ -198,9 +198,9 @@ function ThemeLibraryRow({ tema, menuOpen, onToggleMenu, onNavigate, onAction, a
         <button type="button" className="admin-icon-button" title="Actividades" onClick={() => onNavigate("actividades")}><Gamepad2 size={17} /></button>
         <button type="button" className="admin-icon-button" title="Más acciones" onClick={onToggleMenu}>{actionPending ? <Loader2 className="animate-spin" size={17} /> : <MoreHorizontal size={18} />}</button>
         {menuOpen ? (
-          <div className="absolute right-0 top-full z-30 mt-2 grid min-w-48 gap-1 rounded-xl border border-[#2a4a3a] bg-[#142e22] p-2 shadow-xl">
-            <button type="button" onClick={() => onNavigate("preview")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-emerald-200/70 hover:bg-[#1a3a2a]"><Eye size={15} /> Vista previa</button>
-            <button type="button" onClick={() => onAction("duplicar")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-emerald-200/70 hover:bg-[#1a3a2a]"><Copy size={15} /> Duplicar completo</button>
+          <div className="absolute right-0 top-full z-30 mt-2 grid min-w-48 gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+            <button type="button" onClick={() => onNavigate("preview")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-600 hover:bg-slate-50"><Eye size={15} /> Vista previa</button>
+            <button type="button" onClick={() => onAction("duplicar")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-600 hover:bg-slate-50"><Copy size={15} /> Duplicar completo</button>
             {tema.estado === "publicado" ? <button type="button" onClick={() => onAction("borrador")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-amber-700 hover:bg-amber-50"><FilePenLine size={15} /> Pasar a borrador</button> : <button type="button" disabled={!tema.completitud.listo_para_revision || tema.estado !== "aprobado"} onClick={() => onAction("publicar")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"><Send size={15} /> {tema.estado === "aprobado" ? "Publicar" : "Requiere aprobación"}</button>}
             <button type="button" onClick={() => onAction("archivar")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-red-600 hover:bg-red-50"><Archive size={15} /> Archivar</button>
           </div>

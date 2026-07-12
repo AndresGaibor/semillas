@@ -38,8 +38,7 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
   useEffect(() => {
     if (selectedAgeGroupId || !ageGroupsQuery.data?.length) return;
     const available = theme?.grupos_edad?.[0]?.id;
-    const firstId = ageGroupsQuery.data?.[0]?.id;
-    setSelectedAgeGroupId(available || firstId || "");
+    setSelectedAgeGroupId(available ?? ageGroupsQuery.data?.[0]?.id ?? "");
   }, [ageGroupsQuery.data, selectedAgeGroupId, theme?.grupos_edad]);
 
   const selectedAgeGroup = useMemo(() => ageGroupsQuery.data?.find((ag) => ag.id === selectedAgeGroupId) ?? null, [ageGroupsQuery.data, selectedAgeGroupId]);

@@ -115,7 +115,7 @@ function AdminThemeStudioPage() {
               {stepsOrder.map((code) => {
                 const step = pasos.find((item) => item.tipo_paso?.codigo === code);
                 const count = actividades.filter((actividad) => actividad.paso_id === step?.id).length;
-                return <div key={code} className="rounded-2xl bg-[#0d1f17] p-4"><strong className="block text-sm text-emerald-50">{stepLabels[code]}</strong><span className="mt-2 block text-2xl font-black text-violet-600">{count}</span><small className="text-xs text-emerald-400/50">actividades</small></div>;
+                return <div key={code} className="rounded-2xl bg-slate-50 p-4"><strong className="block text-sm text-slate-800">{stepLabels[code]}</strong><span className="mt-2 block text-2xl font-black text-violet-600">{count}</span><small className="text-xs text-slate-400">actividades</small></div>;
               })}
             </div>
             <Link to="/admin/temas/$themeId/activities" params={{ themeId }} className="admin-primary-button mt-4"><Gamepad2 size={17} /> Administrar actividades</Link>
@@ -140,7 +140,7 @@ function AdminThemeStudioPage() {
 
           <section className="admin-studio-card">
             <h3>Flujo editorial</h3>
-            <p className="mt-2 text-sm leading-6 text-emerald-300/60">{ultimaRevision ? `Último estado: ${ultimaRevision.estado}. ${ultimaRevision.notas ?? "Sin notas."}` : "Este tema todavía no se ha enviado a revisión."}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{ultimaRevision ? `Último estado: ${ultimaRevision.estado}. ${ultimaRevision.notas ?? "Sin notas."}` : "Este tema todavía no se ha enviado a revisión."}</p>
             <Link to="/admin/revision" className="admin-secondary-button mt-4 w-full"><Settings2 size={16} /> Abrir cola de revisión</Link>
           </section>
         </aside>
@@ -149,5 +149,5 @@ function AdminThemeStudioPage() {
   );
 }
 
-function SummaryLine({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="flex items-center justify-between rounded-xl bg-[#0d1f17] p-3"><span className="flex items-center gap-2 text-emerald-300/60">{icon}{label}</span><strong className="text-emerald-50">{value}</strong></div>; }
+function SummaryLine({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3"><span className="flex items-center gap-2 text-slate-500">{icon}{label}</span><strong className="text-slate-800">{value}</strong></div>; }
 function StudioState({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) { return <div className="admin-dashboard-state"><span>{icon}</span><h2>{title}</h2><p>{description}</p></div>; }
