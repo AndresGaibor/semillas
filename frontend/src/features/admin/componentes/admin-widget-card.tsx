@@ -34,9 +34,9 @@ export function AdminWidgetCard({
     <Card sombra={sombra} hoverEffect={hoverEffect} className={`flex flex-col text-left ${PADDING_MAP[padding]} ${className}`}>
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-extrabold text-slate-800 text-sm">{title}</h3>
+          <h3 className="font-extrabold text-emerald-50 text-sm">{title}</h3>
           {subtitle && (
-            <span className="text-[10px] text-slate-400 mt-1 font-semibold uppercase tracking-wider select-none">
+            <span className="text-[10px] text-emerald-400/50 mt-1 font-semibold uppercase tracking-wider select-none">
               {subtitle}
             </span>
           )}
@@ -44,7 +44,7 @@ export function AdminWidgetCard({
         {badge && <div className="shrink-0 pt-0.5">{badge}</div>}
       </div>
       {children}
-      {footer && <div className="mt-4 pt-4 border-t border-slate-100">{footer}</div>}
+      {footer && <div className="mt-4 pt-4 border-t border-[#1a3a2a]">{footer}</div>}
     </Card>
   );
 }

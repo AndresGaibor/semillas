@@ -42,7 +42,7 @@ function AdminActivitiesPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-6">
           <Loader className="animate-spin text-primario" size={24} />
-          <span className="ml-2 text-sm text-neutro">Cargando actividades del panel...</span>
+          <span className="ml-2 text-sm text-emerald-300/70">Cargando actividades del panel...</span>
         </div>
       )}
 
@@ -50,7 +50,7 @@ function AdminActivitiesPage() {
         <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
           <AdminActivitiesHeader />
 
-          <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm text-left flex flex-col gap-4">
+          <div className="bg-[#142e22] rounded-3xl border border-[#1a3a2a] p-5 shadow-sm text-left flex flex-col gap-4">
             <AdminActivitiesTabs activeTab={activeTab} onTabChange={setActiveTab} tabCounts={tabCounts} />
 
             <AdminActivitiesFilters

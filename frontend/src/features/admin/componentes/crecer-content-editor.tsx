@@ -1,22 +1,24 @@
-import type { ReactNode } from "react";
-import { Save, Loader, Check } from "lucide-react";
+import { useRef, type ReactNode } from "react";
+import {
+  Bold,
+  Check,
+  FileAudio,
+  Image,
+  Italic,
+  Link2,
+  List,
+  Loader,
+  Plus,
+  Quote,
+  Save,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import type { RecursoMultimedia } from "../../media/media.api";
+import type { ReflectionQuestion } from "../hooks/use-theme-crecer-page";
 
-interface CrecerStepInfo {
-  id: string;
-  codigo: string;
-  nombre: string;
-}
-
-interface AgeGroupInfo {
-  id: string;
-  nombre?: string | null;
-}
-
-interface ActiveStepContent {
-  titulo?: string | null;
-  cuerpo?: string | null;
-  instruccion_corta?: string | null;
-}
+interface CrecerStepInfo { id: string; codigo: string; nombre: string; }
+interface AgeGroupInfo { id: string; nombre?: string | null; }
 
 interface CrecerContentEditorProps {
   activeStep: CrecerStepInfo | undefined;
@@ -24,99 +26,107 @@ interface CrecerContentEditorProps {
   title: string;
   body: string;
   shortInstruction: string;
-  onTitleChange: (v: string) => void;
-  onBodyChange: (v: string) => void;
-  onShortInstructionChange: (v: string) => void;
+  resourceId: string | null;
+  audioResourceId: string | null;
+  resources: RecursoMultimedia[];
+  questions: ReflectionQuestion[];
+  onTitleChange: (value: string) => void;
+  onBodyChange: (value: string) => void;
+  onShortInstructionChange: (value: string) => void;
+  onResourceChange: (value: string | null) => void;
+  onAudioResourceChange: (value: string | null) => void;
+  onQuestionsChange: (questions: ReflectionQuestion[]) => void;
+  onUpload: (file: File, type: "imagen" | "audio" | "video") => void;
   onSave: () => void;
   isPending: boolean;
+  isUploading: boolean;
   isSuccess: boolean;
 }
 
-export function CrecerContentEditor({
-  activeStep,
-  selectedAgeGroup,
-  title,
-  body,
-  shortInstruction,
-  onTitleChange,
-  onBodyChange,
-  onShortInstructionChange,
-  onSave,
-  isPending,
-  isSuccess,
-}: CrecerContentEditorProps) {
+export function CrecerContentEditor(props: CrecerContentEditorProps) {
+  const imageInput = useRef<HTMLInputElement | null>(null);
+  const audioInput = useRef<HTMLInputElement | null>(null);
+  const bodyRef = useRef<HTMLTextAreaElement | null>(null);
+  const visualResources = props.resources.filter((resource) => resource.tipo === "imagen" || resource.tipo === "video");
+  const audioResources = props.resources.filter((resource) => resource.tipo === "audio");
+  const selectedVisual = props.resources.find((resource) => resource.id === props.resourceId) ?? null;
+  const selectedAudio = props.resources.find((resource) => resource.id === props.audioResourceId) ?? null;
+
+  const insertMarkdown = (before: string, after = before, placeholder = "texto") => {
+    const textarea = bodyRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = props.body.slice(start, end) || placeholder;
+    props.onBodyChange(`${props.body.slice(0, start)}${before}${selected}${after}${props.body.slice(end)}`);
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + before.length, start + before.length + selected.length);
+    });
+  };
+
   return (
-    <section className="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eefcf4] text-[#2e9e5b]">
-          <Save size={18} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-lg font-black text-slate-800">Editor de contenido</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
-            {activeStep?.nombre ?? "Paso CRECER"} · {selectedAgeGroup?.nombre ?? "Franja"}
-          </p>
-        </div>
+    <section className="admin-editor-section">
+      <div className="admin-editor-section__header">
+        <div><h2>{props.activeStep?.nombre ?? "Paso CRECER"}</h2><p>Versión para {props.selectedAgeGroup?.nombre ?? "la franja seleccionada"}. El contenido, medios y preguntas se guardan juntos.</p></div>
+        {props.isSuccess ? <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700"><Check size={15} /> Guardado</span> : null}
       </div>
 
-      <div className="mt-5 grid gap-4">
-        <Field label="Título" help="Nombre visible del contenido para esta franja.">
-          <input
-            value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-colors focus:border-[#2e9e5b]"
-            placeholder={activeStep?.nombre ?? "Título del bloque"}
-          />
+      <div className="admin-form-grid">
+        <Field label="Título del bloque" wide help="Debe ser corto y describir la idea central del paso."><input value={props.title} maxLength={120} onChange={(event) => props.onTitleChange(event.target.value)} placeholder={props.activeStep?.nombre ?? "Título"} /></Field>
+        <Field label="Instrucción corta" wide help="Guía de una sola frase que verá el estudiante antes de comenzar."><input value={props.shortInstruction} maxLength={240} onChange={(event) => props.onShortInstructionChange(event.target.value)} placeholder="Ejemplo: Escucha y piensa en una ocasión en que te sentiste amado." /></Field>
+
+        <Field label="Contenido principal" wide help="Admite Markdown simple. Mantén párrafos cortos para lectura en web y móvil.">
+          <div className="admin-rich-toolbar" aria-label="Herramientas de formato">
+            <ToolbarButton title="Negrita" onClick={() => insertMarkdown("**", "**")}><Bold size={15} /></ToolbarButton>
+            <ToolbarButton title="Cursiva" onClick={() => insertMarkdown("*", "*")}><Italic size={15} /></ToolbarButton>
+            <ToolbarButton title="Lista" onClick={() => insertMarkdown("- ", "", "elemento")}><List size={15} /></ToolbarButton>
+            <ToolbarButton title="Cita" onClick={() => insertMarkdown("> ", "", "cita bíblica")}><Quote size={15} /></ToolbarButton>
+            <ToolbarButton title="Enlace" onClick={() => insertMarkdown("[", "](https://)", "texto del enlace")}><Link2 size={15} /></ToolbarButton>
+          </div>
+          <textarea ref={bodyRef} rows={14} value={props.body} onChange={(event) => props.onBodyChange(event.target.value)} placeholder="Escribe el contenido pedagógico del paso..." />
         </Field>
 
-        <Field label="Contenido" help="Usa Markdown simple y párrafos cortos para que sea fácil de leer en móvil.">
-          <textarea
-            value={body}
-            onChange={(e) => onBodyChange(e.target.value)}
-            rows={10}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-7 text-slate-700 outline-none transition-colors focus:border-[#2e9e5b]"
-            placeholder="Escribe el contenido aquí..."
-          />
+        <Field label="Recurso visual" help="Imagen o video que acompaña este paso.">
+          <MediaSlot icon={<Image size={20} />} resource={selectedVisual} emptyText="Sin imagen o video" onUpload={() => imageInput.current?.click()} onRemove={() => props.onResourceChange(null)} />
+          <input ref={imageInput} type="file" className="hidden" accept="image/*,video/*" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onUpload(file, file.type.startsWith("video/") ? "video" : "imagen"); }} />
+          <select value={props.resourceId ?? ""} onChange={(event) => props.onResourceChange(event.target.value || null)}><option value="">Seleccionar desde Medios</option>{visualResources.map((resource) => <option key={resource.id} value={resource.id}>{resource.titulo}</option>)}</select>
         </Field>
 
-        <Field label="Instrucción corta" help="Una frase breve para guiar la actividad o reflexión.">
-          <input
-            value={shortInstruction}
-            onChange={(e) => onShortInstructionChange(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-colors focus:border-[#2e9e5b]"
-            placeholder="Breve instrucción para el niño"
-          />
+        <Field label="Narración o audio" help="Audio opcional para accesibilidad y niños que todavía no leen.">
+          <MediaSlot icon={<FileAudio size={20} />} resource={selectedAudio} emptyText="Sin audio" onUpload={() => audioInput.current?.click()} onRemove={() => props.onAudioResourceChange(null)} />
+          <input ref={audioInput} type="file" className="hidden" accept="audio/*" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onUpload(file, "audio"); }} />
+          <select value={props.audioResourceId ?? ""} onChange={(event) => props.onAudioResourceChange(event.target.value || null)}><option value="">Seleccionar desde Medios</option>{audioResources.map((resource) => <option key={resource.id} value={resource.id}>{resource.titulo}</option>)}</select>
         </Field>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#2e9e5b] px-5 py-3 text-sm font-bold text-white transition-colors hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPending ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
-            {isPending ? "Guardando..." : `Guardar ${activeStep?.nombre ?? "paso"}`}
-          </button>
+        <Field label="Preguntas de reflexión" wide help="Se muestran al finalizar el bloque y se adaptan a la franja actual.">
+          <div className="admin-question-list">
+            {props.questions.map((question, index) => (
+              <div key={`${question.orden}-${index}`} className="admin-question-row">
+                <span>{index + 1}</span>
+                <input value={question.pregunta} onChange={(event) => props.onQuestionsChange(props.questions.map((item, itemIndex) => itemIndex === index ? { ...item, pregunta: event.target.value } : item))} placeholder="Escribe una pregunta abierta..." />
+                <button type="button" aria-label="Eliminar pregunta" onClick={() => props.onQuestionsChange(props.questions.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, orden: itemIndex + 1 })))}><Trash2 size={15} /></button>
+              </div>
+            ))}
+            <button type="button" className="admin-secondary-button w-fit" onClick={() => props.onQuestionsChange([...props.questions, { pregunta: "", orden: props.questions.length + 1 }])}><Plus size={15} /> Agregar pregunta</button>
+          </div>
+        </Field>
+      </div>
 
-          {isSuccess ? (
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#eefcf4] px-3 py-2 text-sm font-semibold text-[#2e9e5b]">
-              <Check size={16} />
-              Guardado
-            </span>
-          ) : null}
-        </div>
+      <div className="admin-save-bar mt-5">
+        <p>{props.isUploading ? "Subiendo recurso multimedia..." : "Los cambios no se publican automáticamente; primero se guardan en este paso."}</p>
+        <button type="button" onClick={props.onSave} disabled={props.isPending || props.isUploading} className="admin-primary-button">
+          {props.isPending ? <Loader className="animate-spin" size={17} /> : <Save size={17} />}
+          {props.isPending ? "Guardando..." : "Guardar paso"}
+        </button>
       </div>
     </section>
   );
 }
 
-function Field({ label, help, children }: { label: string; help: string; children: ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{label}</span>
-      {children}
-      <span className="text-[10px] font-semibold leading-5 text-slate-400">{help}</span>
-    </label>
-  );
+function Field({ label, help, wide, children }: { label: string; help: string; wide?: boolean; children: ReactNode }) { return <label className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}<small>{help}</small></label>; }
+function ToolbarButton({ title, onClick, children }: { title: string; onClick: () => void; children: ReactNode }) { return <button type="button" title={title} aria-label={title} onClick={onClick}>{children}</button>; }
+function MediaSlot({ icon, resource, emptyText, onUpload, onRemove }: { icon: ReactNode; resource: RecursoMultimedia | null; emptyText: string; onUpload: () => void; onRemove: () => void }) {
+  return <div className="admin-media-slot"><div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div><div className="min-w-0 flex-1"><strong className="truncate">{resource?.titulo ?? emptyText}</strong><small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Sube un archivo o selecciónalo desde el módulo de medios."}</small><div className="flex gap-3"><button type="button" onClick={onUpload}><Upload size={13} className="inline" /> Subir</button>{resource ? <button type="button" onClick={onRemove} className="!text-red-600">Quitar</button> : null}</div></div></div>;
 }
+function formatBytes(bytes: number) { if (!bytes) return "0 KB"; const units = ["B", "KB", "MB", "GB"]; const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1); return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`; }

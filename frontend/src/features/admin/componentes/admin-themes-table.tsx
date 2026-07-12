@@ -32,7 +32,7 @@ export function AdminThemesTable({
         <input
           type="checkbox"
           aria-label="Seleccionar todos los temas"
-          className="rounded border-slate-300 text-primario focus:ring-primario"
+          className="rounded border-slate-300/30 text-primario focus:ring-primario"
         />
       ),
       className: "w-10 pl-6",
@@ -45,7 +45,7 @@ export function AdminThemesTable({
       contenido: (
         <span className="flex items-center gap-1">
           Última edición{" "}
-          <i className="fa-solid fa-sort text-slate-300 text-[10px]" />
+          <i className="fa-solid fa-sort text-emerald-400/50 text-[10px]" />
         </span>
       ),
       className: "font-semibold",

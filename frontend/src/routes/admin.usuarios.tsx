@@ -30,7 +30,7 @@ function AdminUsuariosPage() {
         <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
           <AdminSectionHeader
             icono={<img src={logoKids} alt="Usuarios" className="h-10 w-10 object-contain" />}
-            iconoContenedorClassName="flex h-14 w-14 items-center justify-center rounded-2xl overflow-hidden bg-slate-50 border border-slate-100"
+            iconoContenedorClassName="flex h-14 w-14 items-center justify-center rounded-2xl overflow-hidden bg-[#1a3a2a] border border-[#2a4a3a]"
             titulo="Gestión de usuarios"
             descripcion="Administra cuentas, roles y participación dentro de la plataforma."
             accionPrincipal="Nuevo usuario"

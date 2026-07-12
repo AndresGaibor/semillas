@@ -29,17 +29,17 @@ export function AdminMediaGrid({
 
   return (
     <>
-      <div className="text-xs text-slate-400 font-bold select-none">
+      <div className="text-xs text-emerald-400/50 font-bold select-none">
         {totalItems} recursos encontrados
       </div>
 
       {visibleCount === 0 ? (
         <Card sombra="sm" className="flex flex-col items-center justify-center py-20 text-center select-none">
-          <i className="fa-regular fa-image text-slate-300 text-5xl mb-4" />
-          <p className="text-sm text-slate-500 font-extrabold">
+          <i className="fa-regular fa-image text-emerald-400/30 text-5xl mb-4" />
+          <p className="text-sm text-emerald-300/60 font-extrabold">
             No se encontraron recursos
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-emerald-400/50 mt-1">
             Intenta ajustar los filtros de b&uacute;squeda.
           </p>
         </Card>
@@ -56,10 +56,10 @@ export function AdminMediaGrid({
                 className={`p-3 flex flex-col text-left transition-all relative cursor-pointer select-none group ${
                   isSelected
                     ? "border-2 border-green-600 shadow-md shadow-green-600/20"
-                    : "border-slate-100 hover:border-green-400 hover:shadow-sm"
+                    : "border-[#1a3a2a] hover:border-green-400 hover:shadow-sm"
                 }`}
               >
-                <div className="w-full h-32 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100/50 relative flex items-center justify-center shrink-0">
+                <div className="w-full h-32 rounded-2xl overflow-hidden bg-[#0d1f17] border border-[#1a3a2a]/50 relative flex items-center justify-center shrink-0">
                   <ImageWithFallback src={item.imgUrl} alt={item.nombre} tipo={item.tipo} />
 
                   <div className="absolute left-2.5 bottom-2.5 w-6 h-6 rounded-lg bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-[11px]">
@@ -77,7 +77,7 @@ export function AdminMediaGrid({
                 </div>
 
                 <div className="flex flex-col mt-3.5 min-w-0">
-                  <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-green-600 transition-colors sm:text-sm">
+                  <span className="font-extrabold text-emerald-50 text-xs truncate group-hover:text-green-600 transition-colors sm:text-sm">
                     {item.nombre}
                   </span>
 
@@ -85,7 +85,7 @@ export function AdminMediaGrid({
                     <MediaTypeBadge tipo={item.tipo} />
                   </div>
 
-                  <div className="mt-3 text-xs text-slate-400 font-bold">
+                  <div className="mt-3 text-xs text-emerald-400/50 font-bold">
                     {item.usadoEnCount === null ? "Uso no calculado" : `Usado en ${item.usadoEnCount} contenidos`}
                   </div>
                 </div>

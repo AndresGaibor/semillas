@@ -11,10 +11,13 @@ export type CrearTemaSolicitud = {
   minutos_estimados: number;
   xp_recompensa: number;
   grupo_edad_ids: string[];
+  portada_recurso_id?: string | null;
 };
 
 export type ActualizarTemaSolicitud = {
+  senda_id?: string;
   titulo?: string;
+  slug?: string;
   objetivo?: string;
   resumen?: string;
   minutos_estimados?: number;
@@ -30,6 +33,10 @@ export type GuardarParlanteSolicitud = {
   titulo: string;
   cuerpo: string;
   instruccion_corta?: string;
+  recurso_id?: string | null;
+  recurso_audio_id?: string | null;
+  datos_extra?: Record<string, unknown>;
+  preguntas?: Array<{ pregunta: string; orden: number }>;
 };
 
 export type CrearActividadSolicitud = {
@@ -42,6 +49,7 @@ export type CrearActividadSolicitud = {
   retroalimentacion?: string;
   orden: number;
   xp_recompensa: number;
+  limite_tiempo_seg?: number | null;
   dificultad: "facil" | "normal" | "dificil";
   obligatorio: boolean;
   configuracion?: Record<string, unknown>;
@@ -237,4 +245,102 @@ export function obtenerActividadesAdmin(params?: ObtenerActividadesAdminParams) 
   if (params?.offset) busqueda.set("offset", String(params.offset));
   const query = busqueda.toString();
   return peticion<{ actividades: ActividadAdmin[]; total: number }>(`/administracion/actividades${query ? `?${query}` : ""}`);
+}
+
+
+export type CompletitudTema = {
+  porcentaje: number;
+  listo_para_revision: boolean;
+  criterios: Array<{ codigo: string; etiqueta: string; completo: boolean; detalle?: string }>;
+  estadisticas: {
+    grupos_edad: number;
+    pasos_creados: number;
+    contenidos_creados: number;
+    contenidos_esperados: number;
+    actividades: number;
+  };
+};
+
+export type TemaListadoAdmin = Tema & { completitud: CompletitudTema };
+
+export type ListadoTemasAdmin = {
+  temas: TemaListadoAdmin[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type ResumenAdminDetallado = {
+  metricas: {
+    temas: number;
+    publicados: number;
+    usuarios_activos: number;
+    actividades: number;
+    clubes_activos: number;
+    pendientes_revision: number;
+  };
+  estados: Record<string, number>;
+  temas_recientes: Array<{ id: string; titulo: string; estado: string; actualizado_en: string | null; senda: string; autor: string }>;
+  revisiones: Array<{ id: string; tema_id: string; titulo: string; senda: string; estado: string; notas: string | null; creado_en: string; enviado_por: string }>;
+  actividad_reciente: Array<{ id: string; accion: string; tipo_entidad: string; entidad_id: string | null; creado_en: string; actor: string }>;
+  publicaciones_semana: Array<{ fecha: string; etiqueta: string; total: number }>;
+};
+
+export type EstudioTemaAdmin = {
+  tema: Tema;
+  pasos: Paso[];
+  actividades: ActividadAdmin[];
+  completitud: CompletitudTema;
+  revisiones: Array<{ id: string; estado: string; notas: string | null; creado_en: string; revisado_en: string | null }>;
+};
+
+export function obtenerResumenAdminDetallado() {
+  return peticion<ResumenAdminDetallado>("/administracion/resumen/detallado");
+}
+
+export function obtenerTemasAdminPaginados(params: {
+  q?: string;
+  estado?: string;
+  senda_id?: string;
+  grupo_edad_id?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const busqueda = new URLSearchParams();
+  if (params.q) busqueda.set("q", params.q);
+  if (params.estado && params.estado !== "todos") busqueda.set("estado", params.estado);
+  if (params.senda_id) busqueda.set("senda_id", params.senda_id);
+  if (params.grupo_edad_id) busqueda.set("grupo_edad_id", params.grupo_edad_id);
+  busqueda.set("limit", String(params.limit ?? 20));
+  busqueda.set("offset", String(params.offset ?? 0));
+  return peticion<ListadoTemasAdmin>(`/administracion/temas-listado?${busqueda.toString()}`);
+}
+
+export function obtenerEstudioTemaAdmin(idTema: string) {
+  return peticion<EstudioTemaAdmin>(`/administracion/temas/${idTema}/estudio`);
+}
+
+export function enviarTemaRevision(idTema: string, notas?: string) {
+  return peticion(`/administracion/temas/${idTema}/enviar-revision`, {
+    metodo: "POST",
+    cuerpo: { notas },
+  });
+}
+
+export function resolverRevisionTema(idTema: string, estado: "aprobado" | "cambios_solicitados" | "rechazado", notas?: string) {
+  return peticion(`/administracion/temas/${idTema}/resolver-revision`, {
+    metodo: "POST",
+    cuerpo: { estado, notas },
+  });
+}
+
+export function duplicarActividad(idActividad: string) {
+  return peticion<ActividadAdmin>(`/administracion/actividades/${idActividad}/duplicar`, { metodo: "POST" });
+}
+
+export function reordenarActividades(idTema: string, actividadIds: string[]) {
+  return peticion<{ actividades: ActividadAdmin[] }>(`/administracion/temas/${idTema}/actividades/reordenar`, {
+    metodo: "POST",
+    cuerpo: { actividad_ids: actividadIds },
+  });
 }

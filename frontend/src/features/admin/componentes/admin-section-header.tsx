@@ -30,8 +30,8 @@ export function AdminSectionHeader({
         <div className="flex items-center gap-4">
           <div className={iconoContenedorClassName}>{icono}</div>
           <div>
-            <h2 className="text-2xl font-black text-slate-800">{titulo}</h2>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">{descripcion}</p>
+            <h2 className="text-2xl font-black text-emerald-50">{titulo}</h2>
+            <p className="mt-1 text-xs text-emerald-300/60 sm:text-sm">{descripcion}</p>
           </div>
         </div>
 
@@ -40,7 +40,7 @@ export function AdminSectionHeader({
             <Boton variante="exito" tamano="mediano" className="h-full rounded-none px-5 text-sm" onClick={onAccionPrincipal}>
               {accionPrincipal}
             </Boton>
-            {accionSecundaria ? <div className="h-full w-px bg-white/20" /> : null}
+            {accionSecundaria ? <div className="h-full w-px bg-emerald-500/20" /> : null}
             {accionSecundaria ? (
               <Boton
                 variante="exito"

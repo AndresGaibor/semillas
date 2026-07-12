@@ -62,14 +62,14 @@ export function AdminUsersFilters({
   const tieneFiltros = !!(searchValue || selectedRol || selectedFranja || selectedEstado || selectedClub);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm text-left flex flex-col gap-4">
+    <div className="bg-[#142e22] rounded-3xl border border-[#1a3a2a] p-5 shadow-sm text-left flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <CampoBusqueda
           valor={searchValue}
           onChange={onSearchChange}
           placeholder="Buscar usuario por nombre o email..."
           contenedorClassName="flex-1 min-w-[220px]"
-          inputClassName="rounded-full pl-10 py-2.5 text-[13px] focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] placeholder:text-slate-400 placeholder:font-normal"
+          inputClassName="rounded-full pl-10 py-2.5 text-[13px] focus:ring-2 focus:ring-[#2E9E5B]/30 focus:border-[#2E9E5B] placeholder:text-emerald-400/50 placeholder:font-normal"
         />
 
         <div className="w-full lg:w-48">

@@ -28,7 +28,7 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
       percentage: getPercentage(counts.publicados),
       icon: "fa-circle-check",
       iconColor: "text-green-600",
-      iconBg: "bg-green-100",
+      iconBg: "bg-emerald-900/30",
     },
     {
       label: "En revisión",
@@ -36,7 +36,7 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
       percentage: getPercentage(counts.revision),
       icon: "fa-clock",
       iconColor: "text-violet-600",
-      iconBg: "bg-violet-100",
+      iconBg: "bg-violet-900/30",
     },
     {
       label: "Borradores",
@@ -44,15 +44,15 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
       percentage: getPercentage(counts.borradores),
       icon: "fa-pen-to-square",
       iconColor: "text-amber-500",
-      iconBg: "bg-amber-100",
+      iconBg: "bg-amber-900/30",
     },
     {
       label: "Archivados",
       count: counts.archivados,
       percentage: getPercentage(counts.archivados),
       icon: "fa-box-archive",
-      iconColor: "text-slate-400",
-      iconBg: "bg-slate-100",
+      iconColor: "text-emerald-400/50",
+      iconBg: "bg-[#1a3a2a]",
     },
   ];
 
@@ -73,9 +73,9 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
             }
             titulo={item.label}
             derecha={
-              <div className="flex items-center gap-4 text-xs font-extrabold text-slate-800 sm:text-sm">
+              <div className="flex items-center gap-4 text-xs font-extrabold text-emerald-50 sm:text-sm">
                 <span>{item.count}</span>
-                <span className="text-slate-400 font-semibold text-xs w-8 text-right">{item.percentage}%</span>
+                <span className="text-emerald-400/50 font-semibold text-xs w-8 text-right">{item.percentage}%</span>
               </div>
             }
             className="rounded-none border-0 bg-transparent p-0 pb-3 last:pb-0"
@@ -90,7 +90,7 @@ export function AdminThemesSummary({ counts, onVerReportes }: AdminThemesSummary
         <Boton
           type="button"
           onClick={onVerReportes}
-          className="mt-6 flex items-center justify-between w-full rounded-2xl bg-green-50 hover:bg-green-100 text-green-600 py-3 px-4 text-xs font-bold transition-all border border-transparent shadow-xs cursor-pointer"
+          className="mt-6 flex items-center justify-between w-full rounded-2xl bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 py-3 px-4 text-xs font-bold transition-all border border-transparent shadow-xs cursor-pointer"
           variante="texto"
         >
           <span>Ver reportes de temas</span>

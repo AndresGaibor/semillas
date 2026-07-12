@@ -29,33 +29,33 @@ function AdminRequiredPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EC] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 md:p-10 text-center flex flex-col items-center gap-6 border border-slate-100">
+    <div className="min-h-screen bg-[#0d1f17] flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-[#1a3a2a] rounded-3xl shadow-xl p-8 md:p-10 text-center flex flex-col items-center gap-6 border border-[#2a4a3a]">
         {/* Ilustración de Flujo de Dispositivo */}
-        <div className="flex items-center gap-4 bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
-          <Smartphone className="size-10 text-rose-500 animate-pulse" />
-          <span className="text-xl text-slate-300 font-black">→</span>
-          <Monitor className="size-10 text-emerald-600" />
+        <div className="flex items-center gap-4 bg-[#0d1f17] px-6 py-4 rounded-2xl border border-[#2a4a3a]">
+          <Smartphone className="size-10 text-rose-400 animate-pulse" />
+          <span className="text-xl text-emerald-700 font-black">→</span>
+          <Monitor className="size-10 text-emerald-400" />
         </div>
 
         {/* Mensaje Informativo */}
         <div className="space-y-2">
-          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-rose-400 bg-rose-900/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
             Solo Escritorio
           </span>
-          <h1 className="text-2xl font-black text-green-950 mt-2">
+          <h1 className="text-2xl font-black text-emerald-200 mt-2">
             Panel de Administración
           </h1>
-          <p className="text-sm text-slate-600 leading-relaxed max-w-xs mx-auto">
+          <p className="text-sm text-emerald-100/70 leading-relaxed max-w-xs mx-auto">
             Por razones de espacio y usabilidad, la creación y edición de lecciones, momentos CRECER y actividades no están disponibles en pantallas móviles.
           </p>
-          <p className="text-xs text-slate-400 font-bold max-w-xs mx-auto pt-1">
+          <p className="text-xs text-emerald-400/50 font-bold max-w-xs mx-auto pt-1">
             Por favor, ingresa desde una computadora.
           </p>
         </div>
 
         {/* Separador */}
-        <div className="w-full border-t border-slate-100 my-1" />
+        <div className="w-full border-t border-[#2a4a3a] my-1" />
 
         {/* Acciones */}
         <div className="flex flex-col gap-2 w-full">
@@ -73,7 +73,7 @@ function AdminRequiredPage() {
           <Link
             to="/login"
             search={{ redirect: "/onboarding" }}
-            className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3.5 text-xs transition h-12"
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#2a4a3a] hover:bg-[#2a4a3a] text-emerald-200 font-bold py-3.5 text-xs transition h-12"
           >
             <ArrowLeft size={16} />
             <span>Volver a Iniciar Sesión</span>
@@ -81,7 +81,7 @@ function AdminRequiredPage() {
 
           <Link
             to="/"
-            className="w-full flex items-center justify-center gap-2 rounded-xl text-slate-400 hover:text-slate-600 font-bold py-2 text-xs transition"
+            className="w-full flex items-center justify-center gap-2 rounded-xl text-emerald-400/50 hover:text-emerald-300 font-bold py-2 text-xs transition"
           >
             <Home size={14} />
             <span>Ir al inicio de la página</span>

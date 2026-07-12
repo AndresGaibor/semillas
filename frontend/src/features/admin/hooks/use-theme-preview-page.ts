@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { obtenerTemaAdmin, obtenerPasosAdmin } from "@/features/admin/admin.api";
-import { obtenerActividades, obtenerUrlPortadaTema } from "@/features/themes/themes.api";
+import { obtenerTemaAdmin, obtenerPasosAdmin, obtenerActividadesAdmin } from "@/features/admin/admin.api";
+import { obtenerUrlPortadaTema } from "@/features/themes/themes.api";
 import { obtenerEstadoTema } from "@/features/admin/componentes/theme-view.utils";
 import type { Actividad } from "@/shared/api/api";
 
@@ -24,7 +24,7 @@ export function useThemePreviewPage({ themeId }: UseThemePreviewPageOptions) {
 
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities"],
-    queryFn: () => obtenerActividades(themeId),
+    queryFn: () => obtenerActividadesAdmin({ tema_id: themeId, limit: 500 }),
   });
 
   const portadaQuery = useQuery({
@@ -37,7 +37,7 @@ export function useThemePreviewPage({ themeId }: UseThemePreviewPageOptions) {
   const theme = themeQuery.data;
   const portadaUrl = portadaQuery.data?.url ?? theme?.portada_recurso?.url_publica ?? null;
   const estado = obtenerEstadoTema(theme?.estado ?? "borrador");
-  const actividades = (activitiesQuery.data ?? []) as Actividad[];
+  const actividades = (activitiesQuery.data?.actividades ?? []) as unknown as Actividad[];
 
   const navigateToEdit = () => navigate({ to: "/admin/temas/$themeId/edit", params: { themeId } });
   const navigateToDetalle = () => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } });

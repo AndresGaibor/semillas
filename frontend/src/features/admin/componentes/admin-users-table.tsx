@@ -20,7 +20,7 @@ export type AdminUsersTableProps = {
 };
 
 const ENCABEZADOS: EncabezadoTabla[] = [
-  { contenido: <input type="checkbox" aria-label="Seleccionar todos los usuarios" className="rounded border-slate-300 text-green-600 focus:ring-green-600 cursor-pointer" />, className: "w-[40px] text-center" },
+  { contenido: <input type="checkbox" aria-label="Seleccionar todos los usuarios" className="rounded border-slate-300/30 text-green-600 focus:ring-green-600 cursor-pointer" />, className: "w-[40px] text-center" },
   { contenido: "Usuario", className: "w-[25%]" },
   { contenido: "Rol" },
   { contenido: "Franja" },
@@ -43,7 +43,7 @@ export function AdminUsersTable({
 }: AdminUsersTableProps) {
   if (isError) {
     return (
-      <Card sombra="sm" className="flex items-center gap-3 border-red-200 bg-red-50 px-5 py-4">
+      <Card sombra="sm" className="flex items-center gap-3 border-red-900/30 bg-red-950/30 px-5 py-4">
         <i className="fa-solid fa-circle-exclamation text-red-500 text-lg" />
         <div>
           <p className="font-bold text-red-700 text-sm">Error al cargar usuarios</p>
@@ -67,13 +67,13 @@ export function AdminUsersTable({
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col text-left">
+    <div className="bg-[#142e22] rounded-3xl border border-[#1a3a2a] p-6 shadow-sm flex flex-col text-left">
       <div className="w-full overflow-x-auto select-none">
         <TablaBase
           encabezados={ENCABEZADOS}
           estadoVacio={<EstadoVacio />}
           colSpanVacio={9}
-          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-slate-400 uppercase"
+          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-emerald-400/50 uppercase"
         >
           {isLoading ? (
             <TablaSkeleton filas={6} columnas={9} />
@@ -91,7 +91,7 @@ export function AdminUsersTable({
         porPagina={10}
         onCambiarPagina={onCambiarPagina}
         opcionesPorPagina={[10, 20]}
-        className="mt-6 pt-4 border-t border-slate-100"
+        className="mt-6 pt-4 border-t border-[#1a3a2a]"
       />
     </div>
   );

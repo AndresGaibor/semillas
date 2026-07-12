@@ -19,7 +19,7 @@ export function AdminTemaDetalleHeader({ onBack }: AdminTemaDetalleHeaderProps) 
   return (
     <button
       onClick={handleBack}
-      className="flex items-center gap-1 text-sm text-neutro mb-6 hover:text-neutro-oscuro transition-colors"
+      className="flex items-center gap-1 text-sm text-emerald-300/60 mb-6 hover:text-emerald-100 transition-colors"
     >
       <ArrowLeft size={16} /> Volver a temas
     </button>

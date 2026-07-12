@@ -19,10 +19,10 @@ export function AdminThemesTabs({ activeTab, onTabChange, counts }: AdminThemesT
       activo={activeTab}
       onCambiar={onTabChange}
       opciones={[
-        { id: "todos", label: "Todos", count: counts.todos, badgeClassName: "bg-slate-100 text-slate-700", mostrarBadge: true },
-        { id: "borrador", label: "Borradores", count: counts.borradores, badgeClassName: "bg-amber-100 text-amber-700 font-bold" },
-        { id: "revision", label: "En revisión", count: counts.revision, badgeClassName: "bg-violet-100 text-violet-600 font-bold" },
-        { id: "publicado", label: "Publicados", count: counts.publicados, badgeClassName: "bg-green-100 text-green-600 font-bold" },
+        { id: "todos", label: "Todos", count: counts.todos, badgeClassName: "bg-[#1a3a2a] text-emerald-200/70", mostrarBadge: true },
+        { id: "borrador", label: "Borradores", count: counts.borradores, badgeClassName: "bg-amber-900/30 text-amber-400 font-bold" },
+        { id: "revision", label: "En revisión", count: counts.revision, badgeClassName: "bg-violet-900/30 text-violet-400 font-bold" },
+        { id: "publicado", label: "Publicados", count: counts.publicados, badgeClassName: "bg-emerald-900/30 text-emerald-400 font-bold" },
       ]}
       clase="mb-6"
     />

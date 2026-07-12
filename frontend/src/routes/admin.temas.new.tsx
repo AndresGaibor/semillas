@@ -1,93 +1,163 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Loader } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  FileImage,
+  ImagePlus,
+  Loader2,
+  Save,
+  Sparkles,
+  Upload,
+} from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
-import { AdminTemasNewHeader } from "../features/admin/componentes/admin-temas-new-header";
-import { PasoInformacionGeneral } from "../features/admin/componentes/paso-informacion-general";
-import { PasoPreview } from "../features/admin/componentes/paso-preview";
-import { FormNavigation } from "../features/admin/componentes/form-navigation";
-import { useNewThemePage } from "../features/admin/hooks/use-new-theme-page";
+import { crearTema, type CrearTemaSolicitud } from "../features/admin/admin.api";
+import { obtenerGruposEdad, obtenerVersionesBiblicas } from "../features/catalog/catalog.api";
+import { subirArchivo, type RecursoMultimedia } from "../features/media/media.api";
+import { obtenerSendas } from "../features/sendas/sendas.api";
 
-export const Route = createFileRoute("/admin/temas/new")({
-  component: NewThemePage
-});
+export const Route = createFileRoute("/admin/temas/new")({ component: NewThemePage });
+
+type Destination = "detalle" | "crecer";
+
+const initialForm: CrearTemaSolicitud = {
+  titulo: "",
+  slug: "",
+  senda_id: "",
+  grupo_edad_ids: [],
+  version_biblica_id: "",
+  objetivo: "",
+  resumen: "",
+  minutos_estimados: 20,
+  xp_recompensa: 100,
+  portada_recurso_id: null,
+};
 
 function NewThemePage() {
-  const {
-    sendasQuery,
-    ageGroupsQuery,
-    bibleVersionsQuery,
-    register,
-    liveTitle,
-    tagsInput,
-    onTagsInputChange,
-    tagsList,
-    onAddTag,
-    onRemoveTag,
-    clubVisibilities,
-    onClubVisibilitiesChange,
-    onSlugManualEdit,
-    liveResumen,
-    liveDuration,
-    liveXp,
-    activeVersion,
-    checkedClubsCount,
-    createMutation,
-    onSubmitForm,
-    onSaveDraft,
-    isLoading,
-    navigate
-  } = useNewThemePage();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const fileInput = useRef<HTMLInputElement | null>(null);
+  const [form, setForm] = useState<CrearTemaSolicitud>(initialForm);
+  const [cover, setCover] = useState<RecursoMultimedia | null>(null);
+  const [destination, setDestination] = useState<Destination>("crecer");
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader className="animate-spin text-primario" size={24} />
-        <span className="text-sm text-neutro ml-2">Cargando datos del catálogo...</span>
-      </div>
-    );
-  }
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
+  const edadesQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
+  const versionesQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
+
+  const update = <K extends keyof CrearTemaSolicitud>(key: K, value: CrearTemaSolicitud[K]) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const coverMutation = useMutation({
+    mutationFn: (file: File) => subirArchivo(file, "imagen", `Portada del tema ${form.titulo || "nuevo"}`),
+    onSuccess: (resource) => {
+      setCover(resource);
+      update("portada_recurso_id", resource.id);
+      toast.success("Portada cargada");
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo subir la portada"),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => crearTema({ ...form, titulo: form.titulo.trim(), slug: form.slug.trim(), objetivo: form.objetivo.trim(), resumen: form.resumen.trim() }),
+    onSuccess: async (theme) => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "themes"] });
+      toast.success("Tema creado como borrador");
+      if (destination === "crecer") {
+        navigate({ to: "/admin/temas/$themeId/crecer", params: { themeId: theme.id } });
+      } else {
+        navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId: theme.id } });
+      }
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo crear el tema"),
+  });
+
+  const validation = useMemo(() => {
+    const missing: string[] = [];
+    if (form.titulo.trim().length < 3) missing.push("título");
+    if (form.slug.trim().length < 3) missing.push("slug");
+    if (!form.senda_id) missing.push("senda");
+    if (!form.version_biblica_id) missing.push("versión bíblica");
+    if (form.objetivo.trim().length < 10) missing.push("objetivo");
+    if (form.resumen.trim().length < 10) missing.push("resumen");
+    if (!form.grupo_edad_ids.length) missing.push("franja de edad");
+    return { valid: missing.length === 0, missing };
+  }, [form]);
+
+  const submit = (nextDestination: Destination) => {
+    setDestination(nextDestination);
+    if (!validation.valid) {
+      toast.error(`Completa: ${validation.missing.join(", ")}`);
+      return;
+    }
+    createMutation.mutate();
+  };
+
+  const isCatalogLoading = sendasQuery.isLoading || edadesQuery.isLoading || versionesQuery.isLoading;
+  if (isCatalogLoading) return <div className="admin-dashboard-state"><span><Loader2 className="animate-spin" /></span><h2>Preparando editor</h2><p>Cargando sendas, franjas y versiones bíblicas.</p></div>;
 
   return (
-    <div className="flex flex-col gap-6 text-left">
-      <AdminTemasNewHeader onBack={() => navigate({ to: "/admin/temas" })} />
-
-      <form onSubmit={onSubmitForm} className="grid grid-cols-1 gap-6 lg:grid-cols-4 select-none">
-
-        <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
-          <PasoInformacionGeneral
-            register={register}
-            sendas={sendasQuery.data}
-            gruposEdad={ageGroupsQuery.data}
-            bibleVersions={bibleVersionsQuery.data}
-            liveTitle={liveTitle}
-            tagsInput={tagsInput}
-            onTagsInputChange={onTagsInputChange}
-            tagsList={tagsList}
-            onAddTag={onAddTag}
-            onRemoveTag={onRemoveTag}
-            clubVisibilities={clubVisibilities}
-            onClubVisibilitiesChange={onClubVisibilitiesChange}
-            onSlugManualEdit={onSlugManualEdit}
-          />
+    <div className="admin-theme-studio">
+      <header className="admin-theme-library__hero">
+        <div className="flex items-center gap-4">
+          <button type="button" className="admin-icon-button" onClick={() => navigate({ to: "/admin/temas" })}><ArrowLeft size={19} /></button>
+          <div><span className="admin-eyebrow">Nuevo contenido</span><h2>Crear tema</h2><p>Crea el borrador con datos reales y continúa al recorrido CRECER.</p></div>
         </div>
-
-        <div className="flex flex-col gap-6">
-          <PasoPreview
-            liveTitle={liveTitle}
-            liveResumen={liveResumen}
-            liveDuration={liveDuration}
-            liveXp={liveXp}
-            activeVersion={activeVersion}
-            clubVisibilities={clubVisibilities}
-            checkedClubsCount={checkedClubsCount}
-          />
-          <FormNavigation
-            isPending={createMutation.isPending}
-            onSaveDraft={onSaveDraft}
-          />
+        <div className="flex gap-2">
+          <button type="button" className="admin-secondary-button" disabled={createMutation.isPending} onClick={() => submit("detalle")}><Save size={17} /> Guardar borrador</button>
+          <button type="button" className="admin-primary-button" disabled={createMutation.isPending} onClick={() => submit("crecer")}>{createMutation.isPending ? <Loader2 className="animate-spin" size={17} /> : <Sparkles size={17} />} Crear y editar CRECER</button>
         </div>
+      </header>
 
-      </form>
+      <div className="admin-editor-shell">
+        <main className="admin-editor-main">
+          <section className="admin-editor-section">
+            <div className="admin-editor-section__header"><div><h2>Información general</h2><p>Estos campos se almacenan en PostgreSQL y se utilizan en la app, búsqueda y paquetes offline.</p></div></div>
+            <div className="admin-form-grid">
+              <Field label="Título" wide><input value={form.titulo} maxLength={120} onChange={(event) => { const titulo = event.target.value; update("titulo", titulo); if (!form.slug || form.slug === slugify(form.titulo)) update("slug", slugify(titulo)); }} /></Field>
+              <Field label="Slug"><input value={form.slug} maxLength={140} onChange={(event) => update("slug", slugify(event.target.value))} /></Field>
+              <Field label="Senda"><select value={form.senda_id} onChange={(event) => update("senda_id", event.target.value)}><option value="">Selecciona una senda</option>{sendasQuery.data?.map((senda) => <option key={senda.id} value={senda.id}>{senda.nombre}</option>)}</select></Field>
+              <Field label="Versión bíblica"><select value={form.version_biblica_id} onChange={(event) => update("version_biblica_id", event.target.value)}><option value="">Selecciona una versión</option>{versionesQuery.data?.map((version) => <option key={version.id} value={version.id}>{version.nombre}</option>)}</select></Field>
+              <Field label="Resumen" wide><textarea rows={3} maxLength={400} value={form.resumen} onChange={(event) => update("resumen", event.target.value)} /></Field>
+              <Field label="Objetivo pedagógico" wide><textarea rows={5} maxLength={1000} value={form.objetivo} onChange={(event) => update("objetivo", event.target.value)} /></Field>
+              <Field label="Duración estimada"><input type="number" min={1} max={120} value={form.minutos_estimados} onChange={(event) => update("minutos_estimados", Number(event.target.value))} /></Field>
+              <Field label="XP por completar"><input type="number" min={0} max={500} value={form.xp_recompensa} onChange={(event) => update("xp_recompensa", Number(event.target.value))} /></Field>
+              <Field label="Franjas disponibles" wide><div className="grid grid-cols-3 gap-3">{edadesQuery.data?.map((group) => { const selected = form.grupo_edad_ids.includes(group.id); return <button key={group.id} type="button" onClick={() => update("grupo_edad_ids", selected ? form.grupo_edad_ids.filter((id) => id !== group.id) : [...form.grupo_edad_ids, group.id])} className={`rounded-2xl border p-4 text-left ${selected ? "border-violet-400 bg-violet-50" : "border-[#2a4a3a] bg-[#142e22]"}`}><span className="flex items-center justify-between font-bold text-emerald-50">{group.nombre}{selected ? <CheckCircle2 size={18} className="text-violet-600" /> : <span className="h-4 w-4 rounded-full border-2 border-emerald-400/50" />}</span><small className="mt-1 block text-emerald-400/50">{group.edad_minima}–{group.edad_maxima} años</small></button>; })}</div></Field>
+            </div>
+          </section>
+
+          <section className="admin-editor-section">
+            <div className="admin-editor-section__header"><div><h2>Portada</h2><p>Opcional al crear. Puedes reemplazarla más adelante desde Información del tema.</p></div></div>
+            <input ref={fileInput} className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) coverMutation.mutate(file); }} />
+            <div className="admin-media-slot">
+              <div className="admin-media-slot__preview">{cover ? <img src={cover.url_publica} alt="Vista previa de portada" /> : <FileImage size={30} />}</div>
+              <div><strong>{cover ? cover.titulo || "Portada cargada" : "Añade una portada 16:9"}</strong><small>WebP o JPG, mínimo 1200 × 675 px. Se registra en el módulo Medios.</small><button type="button" className="admin-secondary-button mt-3" disabled={coverMutation.isPending} onClick={() => fileInput.current?.click()}>{coverMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />} {cover ? "Reemplazar" : "Subir portada"}</button></div>
+            </div>
+          </section>
+        </main>
+
+        <aside className="admin-editor-aside">
+          <section className="admin-editor-section">
+            <span className="admin-eyebrow">Vista previa</span>
+            <div className="mt-4 overflow-hidden rounded-3xl border border-[#2a4a3a] bg-[#142e22]">
+              <div className="aspect-video bg-[#1a3a2a]">{cover ? <img src={cover.url_publica} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-emerald-400/50"><ImagePlus size={42} /></div>}</div>
+              <div className="p-5"><small className="font-bold uppercase tracking-[.16em] text-violet-600">{sendasQuery.data?.find((senda) => senda.id === form.senda_id)?.nombre ?? "Sin senda"}</small><h3 className="mt-2 text-2xl font-black text-emerald-50">{form.titulo || "Título del tema"}</h3><p className="mt-2 text-sm leading-6 text-emerald-300/60">{form.resumen || "El resumen aparecerá aquí."}</p></div>
+            </div>
+          </section>
+          <section className="admin-editor-section"><span className="admin-eyebrow">Completitud inicial</span><p className="mt-3 text-sm leading-6 text-emerald-300/60">Después de crear el tema deberás completar sus seis fases CRECER para cada franja, asignar al menos una actividad y enviarlo a revisión.</p><div className="admin-completeness-list mt-4"><div className={`admin-completeness-item ${validation.valid ? "admin-completeness-item--complete" : ""}`}><span>Información requerida</span>{validation.valid ? <CheckCircle2 size={16} /> : <span>{validation.missing.length} pendientes</span>}</div><div className={`admin-completeness-item ${cover ? "admin-completeness-item--complete" : ""}`}><span>Portada</span>{cover ? <CheckCircle2 size={16} /> : <span>Opcional ahora</span>}</div></div></section>
+        </aside>
+      </div>
     </div>
   );
+}
+
+function Field({ label, wide, children }: { label: string; wide?: boolean; children: React.ReactNode }) {
+  return <label className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}</label>;
+}
+
+function slugify(value: string) {
+  return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 140);
 }

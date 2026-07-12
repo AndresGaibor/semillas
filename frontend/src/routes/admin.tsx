@@ -7,6 +7,7 @@ import { sessionStorageApi } from "../shared/api/session";
 import { resolverAccesoAdmin } from "../shared/auth/admin-access";
 import { PantallaErrorRuta } from "@/componentes/estados/pantalla-error-ruta";
 import "./app.css";
+import "./admin-content-studio.css";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
@@ -56,7 +57,7 @@ function AdminLayout() {
           subtitle={pageHeader.subtitulo}
           onOpenSidebar={openSidebar}
           onLogout={handleLogout}
-          showMenuButton
+          showMenuButton={false}
         />
 
         <div className="app-shell__content app-shell__content--admin">

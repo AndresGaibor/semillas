@@ -10,7 +10,7 @@ export function AdminMediaLoadingState({ isLoading }: AdminMediaLoadingStateProp
   return (
     <div className="flex items-center justify-center py-6">
       <Loader className="animate-spin text-primario" size={24} />
-      <span className="text-sm text-neutro ml-2">
+      <span className="text-sm text-emerald-300/60 ml-2">
         Cargando recursos multimedia...
       </span>
     </div>
