@@ -2,37 +2,46 @@ import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export function BotonTemaToggle({ className }: { className?: string }) {
-  const [esOscuro, setEsOscuro] = useState(() => {
-    if (typeof document !== "undefined") {
-      return document.documentElement.classList.contains("dark");
-    }
-    return false;
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof document === "undefined") return "light";
+    const attr = document.documentElement.getAttribute("data-theme");
+    if (attr === "app-dark" || attr === "admin-dark") return "dark";
+    return "light";
   });
 
   useEffect(() => {
     if (typeof document === "undefined") return;
 
-    // Escuchar si cambia por otras pantallas
     const observer = new MutationObserver(() => {
-      setEsOscuro(document.documentElement.classList.contains("dark"));
+      const attr = document.documentElement.getAttribute("data-theme");
+      if (attr === "app-dark" || attr === "admin-dark") {
+        setTheme("dark");
+      } else {
+        setTheme("light");
+      }
     });
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["class"],
+      attributeFilter: ["data-theme"],
     });
     return () => observer.disconnect();
   }, []);
 
   const toggleTema = () => {
-    const nuevoEsOscuro = !esOscuro;
-    if (nuevoEsOscuro) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("semillas-pref-tema", "oscuro");
+    const isAdmin = window.location.pathname.startsWith("/admin");
+    const html = document.documentElement;
+
+    if (theme === "dark") {
+      const next = isAdmin ? "admin-light" : "app-light";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem(isAdmin ? "admin-theme" : "app-theme", next);
+      setTheme("light");
     } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("semillas-pref-tema", "claro");
+      const next = isAdmin ? "admin-dark" : "app-dark";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem(isAdmin ? "admin-theme" : "app-theme", next);
+      setTheme("dark");
     }
-    setEsOscuro(nuevoEsOscuro);
   };
 
   return (
@@ -40,9 +49,13 @@ export function BotonTemaToggle({ className }: { className?: string }) {
       type="button"
       onClick={toggleTema}
       className={`theme-toggle-btn ${className || ""}`}
-      aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
     >
-      {esOscuro ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-600" />}
+      {theme === "dark" ? (
+        <Sun size={20} className="text-amber-400" />
+      ) : (
+        <Moon size={20} className="text-slate-600" />
+      )}
     </button>
   );
 }

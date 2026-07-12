@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/componentes/ui/button";
 import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
-import { Sun, Moon } from "lucide-react";
+
 
 type AppSidebarProps = {
   activePage: string;
@@ -92,30 +92,6 @@ export function AppSidebar({
             <img src={logoImg} alt="Semillas" className="h-10 w-10 shrink-0 object-contain" />
             <span className={`hidden text-[1.55rem] font-black leading-none xl:inline ${variant === "admin" ? "text-violet-600" : "text-primario"}`}>Semillas</span>
           </div>
-          <button
-            type="button"
-            aria-label="Cambiar tema"
-            className="admin-theme-toggle xl:flex"
-            onClick={() => {
-              const html = document.documentElement;
-              if (variant === "admin") {
-                const current = html.getAttribute("data-theme");
-                const next = current === "admin-dark" ? "admin-light" : "admin-dark";
-                html.setAttribute("data-theme", next);
-                localStorage.setItem("admin-theme", next);
-              } else {
-                const current = html.getAttribute("data-theme");
-                const next = current === "app-dark" ? "app-light" : "app-dark";
-                html.setAttribute("data-theme", next);
-                localStorage.setItem("app-theme", next);
-              }
-              // Force re-render to update icon
-              setTimeout(() => window.dispatchEvent(new Event("theme-changed")), 0);
-            }}
-          >
-            <Moon size={16} className="text-slate-500 data-[theme~=dark]:hidden" />
-            <Sun size={16} className="hidden text-amber-400 data-[theme~=dark]:block" />
-          </button>
           <Button
             type="button"
             variant="ghost"
