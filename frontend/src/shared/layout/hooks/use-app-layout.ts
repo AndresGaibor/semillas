@@ -26,8 +26,8 @@ const PAGE_HEADER_MAP: Record<string, PageHeaderInfo> = {
     subtitulo: "Administra tu avatar y configuración.",
   },
   "/app/clubes": {
-    titulo: "Mi club",
-    subtitulo: "Aprende y participa con tu iglesia, curso o familia.",
+    titulo: "Clubes",
+    subtitulo: "Aprende, participa y avanza con tu iglesia, curso o familia.",
   },
   "/app/descargas": {
     titulo: "Descargas",

@@ -1,26 +1,27 @@
 import { describe, expect, it } from "bun:test";
 
-import { OPCIONES_CUENTA } from "./app-account-menu";
+import { OPCIONES_CUENTA_MOVIL } from "./app-account-menu-mobile";
 
-describe("AppAccountMenu", () => {
+describe("AppAccountMenuMobile", () => {
   it("expone las opciones secundarias esperadas", () => {
-    expect(OPCIONES_CUENTA.map((opcion) => opcion.label)).toEqual([
+    expect(OPCIONES_CUENTA_MOVIL.map((opcion) => opcion.label)).toEqual([
       "Mi perfil",
       "Preferencias",
       "Mis insignias",
       "Descargas",
+      "Cerrar sesión",
     ]);
   });
 
-  it("asigna iconos lucide-react por opcion", () => {
-    for (const opcion of OPCIONES_CUENTA) {
+  it("incluye un Icono de lucide-react por opcion", () => {
+    for (const opcion of OPCIONES_CUENTA_MOVIL) {
       expect(typeof opcion.Icono).toBe("object");
       expect((opcion.Icono as { displayName?: string }).displayName).toBeDefined();
     }
   });
 
   it("no depende de clases CSS de Font Awesome", () => {
-    for (const opcion of OPCIONES_CUENTA) {
+    for (const opcion of OPCIONES_CUENTA_MOVIL) {
       expect(typeof opcion.Icono).not.toBe("string");
     }
   });

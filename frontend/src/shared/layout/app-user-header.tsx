@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AppAccountMenu } from "./app-account-menu";
+import { AppAccountMenuMobile } from "./app-account-menu-mobile";
 import logoImg from "@/assets/images/logos/Logotipo.png";
+import "./app-account-menu-mobile.css";
 
 type AppUserHeaderProps = {
   title: string;
@@ -23,8 +26,13 @@ export function AppUserHeader({
   isOffline,
   esInicio = false,
 }: AppUserHeaderProps) {
+  const [cuentaAbierta, setCuentaAbierta] = useState(false);
+
   return (
-    <header className={`app-user-header ${esInicio ? "app-user-header--home" : ""}`} aria-label="Encabezado de la pantalla">
+    <header
+      className={`app-user-header ${esInicio ? "app-user-header--home" : ""}`}
+      aria-label="Encabezado de la pantalla"
+    >
       <div className="app-user-header__desktop-row">
         <div className="app-user-header__page-copy">
           <h1>{title}</h1>
@@ -46,13 +54,25 @@ export function AppUserHeader({
 
         <h1 className="app-user-header__mobile-title">{title}</h1>
 
-        <AppAccountMenu
-          nombreVisible={nombreVisible}
-          nivelTexto={nivelTexto}
-          avatarUrl={avatarUrl}
-          onLogout={onLogout}
-        />
+        <button
+          type="button"
+          className="app-user-header__mobile-avatar"
+          aria-label="Abrir menú de cuenta"
+          aria-expanded={cuentaAbierta}
+          aria-haspopup="dialog"
+          onClick={() => setCuentaAbierta(true)}
+        >
+          <span className="app-user-header__mobile-avatar-circle">
+            <img src={avatarUrl} alt="" />
+          </span>
+        </button>
       </div>
+
+      <AppAccountMenuMobile
+        visible={cuentaAbierta}
+        onCerrar={() => setCuentaAbierta(false)}
+        onCerrarSesion={onLogout}
+      />
 
       {isOffline ? (
         <div className="app-user-header__offline" role="status">

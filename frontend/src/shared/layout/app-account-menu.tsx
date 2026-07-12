@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import {
+  CircleUserRound,
+  Download,
+  LogOut,
+  Medal,
+  Settings,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/componentes/ui/button";
 import { Card } from "@/componentes/ui/card-base";
@@ -14,20 +22,20 @@ type AppAccountMenuProps = {
 type OpcionCuenta = {
   to: "/app/perfil" | "/app/logros" | "/app/descargas";
   label: string;
-  icono: string;
+  Icono: LucideIcon;
   search?: { seccion: "ajustes" };
 };
 
 export const OPCIONES_CUENTA: OpcionCuenta[] = [
-  { to: "/app/perfil", label: "Mi perfil", icono: "fa-regular fa-user" },
+  { to: "/app/perfil", label: "Mi perfil", Icono: CircleUserRound },
   {
     to: "/app/perfil",
     label: "Preferencias",
-    icono: "fa-solid fa-sliders",
+    Icono: Settings,
     search: { seccion: "ajustes" },
   },
-  { to: "/app/logros", label: "Mis insignias", icono: "fa-regular fa-medal" },
-  { to: "/app/descargas", label: "Descargas", icono: "fa-regular fa-download" },
+  { to: "/app/logros", label: "Mis insignias", Icono: Medal },
+  { to: "/app/descargas", label: "Descargas", Icono: Download },
 ];
 
 export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout }: AppAccountMenuProps) {
@@ -85,8 +93,12 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
     };
   }, []);
 
+  const renderIcono = (Icono: LucideIcon, className?: string) => (
+    <Icono size={18} aria-hidden="true" className={className} />
+  );
+
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className="account-menu-desktop relative">
       <Button
         type="button"
         variant="ghost"
@@ -103,42 +115,48 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
           <span className="text-[13.6px] font-bold text-foreground">{nombreVisible}</span>
           <span className="text-xs text-neutro">{nivelTexto}</span>
         </div>
-        <i className="fa-solid fa-chevron-down ml-1 hidden text-xs text-neutro md:block"></i>
       </Button>
- 
+
       {isRendered && (
         <Card
           role="menu"
           aria-label="Menú de cuenta"
           sombra="lg"
-          className={`absolute right-0 top-full z-[160] mt-2 w-56 origin-top-right rounded-2xl border border-[#e5e7eb] p-2 transition-all duration-200 ease-out motion-reduce:transition-none before:content-[''] before:absolute before:-top-1.5 before:right-6 before:w-3 before:h-3 before:bg-white before:rotate-45 before:border-l before:border-t before:border-[#e5e7eb] ${
+          className={`account-menu absolute right-0 top-full z-[160] mt-2 w-60 origin-top-right rounded-2xl border border-[#e5e7eb] p-2 transition-all duration-200 ease-out motion-reduce:transition-none before:content-[''] before:absolute before:-top-1.5 before:right-6 before:w-3 before:h-3 before:bg-white before:rotate-45 before:border-l before:border-t before:border-[#e5e7eb] ${
             isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-1 scale-95 opacity-0"
           }`}
         >
-          {OPCIONES_CUENTA.map((opcion) => (
-            <Link
-              key={`${opcion.to}-${opcion.label}`}
-              to={opcion.to}
-              search={opcion.search}
-              role="menuitem"
-              onClick={closeMenu}
-              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-neutro transition-colors hover:bg-black/5 hover:text-neutro-oscuro-max cursor-pointer"
-            >
-              <i className={`${opcion.icono} w-4 text-center`}></i>
-              {opcion.label}
-            </Link>
-          ))}
- 
+          {OPCIONES_CUENTA.map((opcion) => {
+            const Icono = opcion.Icono;
+            return (
+              <Link
+                key={`${opcion.to}-${opcion.label}`}
+                to={opcion.to}
+                search={opcion.search}
+                role="menuitem"
+                onClick={closeMenu}
+                className="account-menu__item flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-neutro transition-colors hover:bg-black/5 hover:text-neutro-oscuro-max cursor-pointer"
+              >
+                <span className="account-menu__icon flex h-7 w-7 items-center justify-center rounded-lg bg-[#eef6f1] text-[#2e9e5b]">
+                  {renderIcono(Icono)}
+                </span>
+                {opcion.label}
+              </Link>
+            );
+          })}
+
           <button
             type="button"
             role="menuitem"
-            onClick={() => {
+            onClick={async () => {
               closeMenu();
-              void onLogout();
+              await onLogout();
             }}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 cursor-pointer"
+            className="account-menu__item account-menu__item--danger flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 cursor-pointer"
           >
-            <i className="fa-solid fa-right-from-bracket w-4 text-center"></i>
+            <span className="account-menu__icon flex h-7 w-7 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+              {renderIcono(LogOut)}
+            </span>
             Cerrar sesión
           </button>
         </Card>
