@@ -91,9 +91,18 @@ export async function obtenerActividades(idTema: string, idGrupoEdad?: string) {
   }
 
   try {
-    return await peticion<Actividad[]>(`/temas/${idTema}/actividades${query ? `?${query}` : ""}`, {
-      autenticar: false,
-    });
+    const actividadesFiltradas = await peticion<Actividad[]>(
+      `/temas/${idTema}/actividades${query ? `?${query}` : ""}`,
+      { autenticar: false },
+    );
+    if (actividadesFiltradas.length > 0) return actividadesFiltradas;
+    if (idGrupoEdad) {
+      const todas = await peticion<Actividad[]>(`/temas/${idTema}/actividades`, {
+        autenticar: false,
+      });
+      if (todas.length > 0) return todas;
+    }
+    return actividadesFiltradas;
   } catch (error) {
     const locales = await obtenerActividadesLocalesPorTema(idTema);
     if (locales.length > 0) return locales;

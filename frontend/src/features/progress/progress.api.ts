@@ -20,7 +20,7 @@ export type ProgresoResumen = {
 
 /**
  * Registra y procesa eventos de progreso del usuario de manera segura e idempotente.
- * 
+ *
  * HTTP Verb: POST
  * Endpoint: /progreso/eventos
  * Auth: Requerido
@@ -28,6 +28,14 @@ export type ProgresoResumen = {
 export async function enviarEventosProgreso(eventos: EventoProgreso[]) {
   let procesados = 0;
   let ultimoError: string | undefined;
+  const logrosGanados: Array<{
+    id: string;
+    nombre: string;
+    codigo: string;
+    descripcion: string | null;
+    bono_xp: number;
+    url_icono: string | null;
+  }> = [];
 
   for (const ev of eventos) {
     if (ev.tipo_evento === "bloque_completado") {
@@ -51,6 +59,9 @@ export async function enviarEventosProgreso(eventos: EventoProgreso[]) {
 
       if (!resp.duplicado) {
         procesados++;
+        if (resp.logros_ganados && resp.logros_ganados.length > 0) {
+          logrosGanados.push(...resp.logros_ganados);
+        }
       }
     } catch (err: any) {
       console.error("[Frontend] Error enviando evento de progreso:", err);
@@ -58,7 +69,7 @@ export async function enviarEventosProgreso(eventos: EventoProgreso[]) {
     }
   }
 
-  return { procesados, error: ultimoError };
+  return { procesados, error: ultimoError, logros_ganados: logrosGanados };
 }
 
 export type RegistrarEventoProgresoBody = {
@@ -79,6 +90,14 @@ export type RegistrarEventoProgresoRespuesta =
   | {
       duplicado: false;
       evento: unknown;
+      logros_ganados?: Array<{
+        id: string;
+        nombre: string;
+        codigo: string;
+        descripcion: string | null;
+        bono_xp: number;
+        url_icono: string | null;
+      }>;
     }
   | {
       duplicado: true;
