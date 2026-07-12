@@ -1,14 +1,68 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-*:focus {
-  outline: none !important;
-  box-shadow: none !important;
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --sem-color-brand: #2e9e5b;
+  --sem-color-brand-hover: #247f49;
+  --sem-color-father: #f4b740;
+  --sem-color-son: #3d8bd4;
+  --sem-color-spirit: #6c3aed;
+  --sem-color-success: #168a4a;
+  --sem-color-warning: #b7791f;
+  --sem-color-danger: #c73939;
+  --sem-color-info: #2563b8;
+  --sem-surface-page: #f7f4ec;
+  --sem-surface-card: #ffffff;
+  --sem-surface-subtle: #f8fafc;
+  --sem-surface-elevated: #ffffff;
+  --sem-border: #dfe5eb;
+  --sem-text-primary: #17372c;
+  --sem-text-secondary: #56665f;
+  --sem-text-muted: #74817b;
+  --sem-focus: #2563eb;
+  --sem-space-1: 4px;
+  --sem-space-2: 8px;
+  --sem-space-3: 12px;
+  --sem-space-4: 16px;
+  --sem-space-5: 20px;
+  --sem-space-6: 24px;
+  --sem-space-8: 32px;
+  --sem-space-10: 40px;
+  --sem-space-12: 48px;
+  --sem-radius-sm: 8px;
+  --sem-radius-md: 12px;
+  --sem-radius-lg: 16px;
+  --sem-radius-xl: 24px;
+  --sem-radius-pill: 999px;
+  --sem-motion-fast: 120ms;
+  --sem-motion-standard: 200ms;
+  --sem-motion-slow: 300ms;
+  --sem-ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --sem-ease-exit: cubic-bezier(.4, 0, 1, 1);
+  --sem-target-min: 44px;
+  --sem-content-reading: 68ch;
+  --sem-content-app: 1180px;
+  --sem-content-admin: 1440px;
 }
 
-*:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
+.dark {
+  --sem-color-brand: #58c982;
+  --sem-color-brand-hover: #72d596;
+  --sem-color-success: #4ade80;
+  --sem-color-warning: #facc15;
+  --sem-color-danger: #f87171;
+  --sem-color-info: #60a5fa;
+  --sem-surface-page: #08130f;
+  --sem-surface-card: #102019;
+  --sem-surface-subtle: #142820;
+  --sem-surface-elevated: #183027;
+  --sem-border: #2b493c;
+  --sem-text-primary: #edf8f2;
+  --sem-text-secondary: #c1d6ca;
+  --sem-text-muted: #96aa9f;
+  --sem-focus: #86efac;
 }
 
 @theme {
@@ -77,9 +131,17 @@
     margin: 0;
     font-family: var(--font-sans);
     line-height: 1.5;
-    background: white;
-    color: var(--color-verde-profundo);
+    background: #ffffff;
+    color: var(--sem-text-primary);
     -webkit-font-smoothing: antialiased;
+    transition: background-color var(--sem-motion-standard) var(--sem-ease-standard), color var(--sem-motion-standard) var(--sem-ease-standard);
+  }
+  :focus-visible {
+    outline: 3px solid var(--sem-focus);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--sem-color-brand) 30%, transparent);
   }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; }
