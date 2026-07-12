@@ -1,4 +1,4 @@
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, count } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
@@ -189,9 +189,114 @@ export function crearProgressRepository(db: DbClient) {
         }
       }
 
-      return data ?? null;
+      // ────────────────────────────────────────────────────────
+      // MOTOR DE LOGROS: Verificar y otorgar logros automáticamente
+      // ────────────────────────────────────────────────────────
+      const logrosGanados = data ? await verificarYOtorgarLogros(db, usuarioId, data.tipoEvento) : [];
+
+      return { data: data ?? null, logrosGanados };
     }
   };
+}
+
+/**
+ * Verifica si el usuario cumple los criterios de algún logro y los otorga.
+ * Solo evalúa logros relevantes al tipo de evento ocurrido para optimizar consultas.
+ * Es completamente seguro: usa doble validación anti-duplicado.
+ */
+async function verificarYOtorgarLogros(
+  db: DbClient,
+  usuarioId: string,
+  tipoEvento: string
+): Promise<Array<{ id: string; nombre: string; codigo: string; descripcion: string | null; bono_xp: number; url_icono: string | null }>> {
+
+  // Solo ejecutar el motor en eventos que pueden desbloquear logros
+  const eventosRelevantes = ["tema_completado", "actividad_completada", "bloque_completado"];
+  if (!eventosRelevantes.includes(tipoEvento)) return [];
+
+  // 1. Traer todos los logros activos de la BD
+  const todosLosLogros = await db
+    .select()
+    .from(schema.logro)
+    .where(eq(schema.logro.activo, true));
+
+  if (todosLosLogros.length === 0) return [];
+
+  // 2. Traer los logros que el usuario YA tiene (para no volver a darlos)
+  const logrosYaGanados = await db
+    .select({ logroId: schema.logroUsuario.logroId })
+    .from(schema.logroUsuario)
+    .where(eq(schema.logroUsuario.usuarioId, usuarioId));
+
+  const idsYaGanados = new Set(logrosYaGanados.map((l) => l.logroId));
+
+  // 3. Calcular métricas del usuario (solo las que necesitamos)
+  const logrosNoPoseidos = todosLosLogros.filter((l) => !idsYaGanados.has(l.id));
+  if (logrosNoPoseidos.length === 0) return [];
+
+  // Determinar qué criterios necesitamos calcular
+  const criteriosNecesarios = new Set(logrosNoPoseidos.map((l) => l.codigoCriterio));
+  const metricas: Record<string, number> = {};
+
+  if (criteriosNecesarios.has("temas_completados")) {
+    const [res] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(schema.progresoTemaUsuario)
+      .where(and(
+        eq(schema.progresoTemaUsuario.usuarioId, usuarioId),
+        eq(schema.progresoTemaUsuario.estado, "completado")
+      ));
+    metricas["temas_completados"] = Number(res?.total ?? 0);
+    console.log(`[LOGROS] temas_completados = ${metricas["temas_completados"]}`);
+  }
+
+  if (criteriosNecesarios.has("actividades_completadas")) {
+    const [res] = await db
+      .select({ total: sql<number>`count(distinct ${schema.eventoProgreso.actividadId})` })
+      .from(schema.eventoProgreso)
+      .where(and(
+        eq(schema.eventoProgreso.usuarioId, usuarioId),
+        eq(schema.eventoProgreso.tipoEvento, "actividad_completada"),
+        sql`${schema.eventoProgreso.actividadId} IS NOT NULL`
+      ));
+    metricas["actividades_completadas"] = Number(res?.total ?? 0);
+    console.log(`[LOGROS] actividades_completadas = ${metricas["actividades_completadas"]}`);
+  }
+
+  // dias_racha: se salta por ahora (requiere tabla de rachas dedicada)
+
+  // 4. Verificar qué logros cumple y otorgarlos
+  const logrosGanados: Array<{ id: string; nombre: string; codigo: string; descripcion: string | null; bono_xp: number; url_icono: string | null }> = [];
+
+  for (const logro of logrosNoPoseidos) {
+    const criterio = logro.codigoCriterio;
+    const valorRequerido = logro.valorCriterio ?? 0;
+
+    if (criterio === "dias_racha") continue; // Pendiente de implementar
+
+    const valorActual = metricas[criterio] ?? 0;
+
+    if (valorActual >= valorRequerido) {
+      console.log(`[LOGROS] ¡Logro desbloqueado! ${logro.nombre} (criterio: ${criterio} = ${valorActual}/${valorRequerido})`);
+
+      // Insertar en logro_usuario (ON CONFLICT DO NOTHING como segunda capa anti-duplicado)
+      await db
+        .insert(schema.logroUsuario)
+        .values({ logroId: logro.id, usuarioId, ganadoEn: new Date() })
+        .onConflictDoNothing();
+
+      logrosGanados.push({
+        id: logro.id,
+        nombre: logro.nombre,
+        codigo: logro.codigo,
+        descripcion: logro.descripcion ?? null,
+        bono_xp: logro.bonoXp,
+        url_icono: logro.urlIcono ?? null,
+      });
+    }
+  }
+
+  return logrosGanados;
 }
 
 export type ProgressRepository = ReturnType<typeof crearProgressRepository>;

@@ -18,12 +18,22 @@ type Entrada = {
 
 export function crearCasoRegistrarEvento({ progreso }: Dependencias) {
   return async function registrarEvento(usuarioId: string, entrada: Entrada) {
-    const data = await progreso.registrarEvento(usuarioId, entrada);
+    const resultado = await progreso.registrarEvento(usuarioId, entrada);
+
+    if (!resultado) {
+      return { duplicado: true, mensaje: "Evento ya procesado" };
+    }
+
+    const { data, logrosGanados } = resultado;
 
     if (!data) {
       return { duplicado: true, mensaje: "Evento ya procesado" };
     }
 
-    return { duplicado: false, evento: data };
+    return {
+      duplicado: false,
+      evento: data,
+      logros_ganados: logrosGanados ?? [],
+    };
   };
 }
