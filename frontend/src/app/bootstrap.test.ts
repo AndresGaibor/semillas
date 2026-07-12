@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { ErrorApi } from "@/shared/api/error-api";
-import { clasificarErrorVinculacion } from "./bootstrap";
+import { clasificarErrorVinculacion, resolverRedireccionBootstrap } from "./bootstrap";
 
 describe("clasificarErrorVinculacion", () => {
   it("devuelve conflicto para ErrorApi 409", () => {
@@ -30,5 +30,23 @@ describe("clasificarErrorVinculacion", () => {
     const resultado = clasificarErrorVinculacion(new Error("red caida"));
 
     expect(resultado.tipo).toBe("error");
+  });
+});
+
+describe("resolverRedireccionBootstrap", () => {
+  it("conserva la ruta interna de la aplicación para perfiles con onboarding completo", () => {
+    expect(
+      resolverRedireccionBootstrap("/app/C_conectar/tema-1", "/app"),
+    ).toBeNull();
+  });
+
+  it("redirige desde login al inicio de la aplicación", () => {
+    expect(resolverRedireccionBootstrap("/auth/callback", "/app")).toBe("/app");
+  });
+
+  it("prioriza una ruta obligatoria de onboarding", () => {
+    expect(
+      resolverRedireccionBootstrap("/app/temas/tema-1", "/onboarding"),
+    ).toBe("/onboarding");
   });
 });

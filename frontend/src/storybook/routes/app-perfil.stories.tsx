@@ -80,6 +80,7 @@ function PerfilStory({ invitado = false }: { invitado?: boolean }) {
           onVincularCorreo={() => undefined}
           onVerLogros={() => undefined}
           onEmpezarTema={() => undefined}
+          onCerrarSesion={() => undefined}
         />
       </div>
     </div>

@@ -142,6 +142,8 @@
 
 /* ── Reset y base ────────────────────────────────────────────
    Elimina estilos por defecto del navegador.
+   Debe vivir en @layer base para que las utility classes
+   de Tailwind (bg-*, text-*) puedan sobreescribirlas.
    ─────────────────────────────────────────────────────────── */
 @layer base {
   *, *::before, *::after {
@@ -149,38 +151,38 @@
     margin    : 0;
     padding   : 0;
   }
+
+  html {
+    font-size      : 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family            : var(--fuente-base);
+    font-size              : var(--fuente-tam-base);
+    font-weight            : var(--fuente-peso-normal);
+    line-height            : var(--linea-normal);
+    color                  : var(--color-neutro-oscuro-max);
+    background             : var(--color-blanco);
+    -webkit-font-smoothing : antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  img, video, svg { display: block; max-width: 100%; }
+
+  a {
+    color          : var(--color-primario);
+    text-decoration: none;
+    transition     : color var(--transicion-rapida);
+  }
+  a:hover { color: var(--color-primario-oscuro-min); }
+
+  ul, ol { list-style: none; }
+
+  button, input, select, textarea { font-family: inherit; font-size: inherit; }
+  button { cursor: pointer; border: none; }
 }
-
-html {
-  font-size      : 16px;
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  font-family            : var(--fuente-base);
-  font-size              : var(--fuente-tam-base);
-  font-weight            : var(--fuente-peso-normal);
-  line-height            : var(--linea-normal);
-  color                  : var(--color-neutro-oscuro-max);
-  background             : var(--color-blanco);
-  -webkit-font-smoothing : antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-img, video, svg { display: block; max-width: 100%; }
-
-a {
-  color          : var(--color-primario);
-  text-decoration: none;
-  transition     : color var(--transicion-rapida);
-}
-a:hover { color: var(--color-primario-oscuro-min); }
-
-ul, ol { list-style: none; }
-
-button, input, select, textarea { font-family: inherit; font-size: inherit; }
-button { cursor: pointer; border: none; background: transparent; }
 
 
 /* ── Escala tipografica ──────────────────────────────────────
@@ -1512,6 +1514,39 @@ h6, .titulo-6 {
   white-space: nowrap;
 }
 
+.app-user-header__mobile-avatar {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.app-user-header__mobile-avatar:focus-visible {
+  outline: 3px solid rgba(108, 58, 237, 0.45);
+  outline-offset: 2px;
+}
+
+.app-user-header__mobile-avatar-circle {
+  width: 2.55rem;
+  height: 2.55rem;
+  overflow: hidden;
+  border: 2px solid var(--color-primario, #2E9E5B);
+  border-radius: 9999px;
+  background: #fde0c1;
+}
+
+.app-user-header__mobile-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .app-user-header__offline {
   padding: .7rem .85rem;
   border: 1px solid #bfdbfe;
@@ -1520,6 +1555,16 @@ h6, .titulo-6 {
   color: #1d4ed8;
   font-size: .76rem;
   font-weight: 750;
+}
+
+.account-menu-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .account-menu-desktop {
+    display: inline-flex;
+  }
 }
 
 /* Topbar heredada por administración. */

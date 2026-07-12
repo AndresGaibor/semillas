@@ -14,7 +14,7 @@ import { useAutoSync } from "@/lib/offline";
 import { OfflineBanner } from "@/componentes/ui/sync-status-badge";
 import { PantallaCargaSesion } from "@/componentes/estados/pantalla-carga-sesion";
 import { PwaLifecycle } from "@/componentes/ui/pwa-lifecycle";
-import { clasificarErrorVinculacion } from "./bootstrap";
+import { clasificarErrorVinculacion, resolverRedireccionBootstrap } from "./bootstrap";
 import { publicarConflictoVinculacion } from "@/shared/auth/conflicto-vinculacion";
 
 async function vincularCuentaPendiente() {
@@ -34,8 +34,9 @@ async function redirigirSegunOnboarding() {
   const perfilRespuesta = await obtenerMiPerfil();
   const ruta = obtenerRutaPostLogin(perfilRespuesta.perfil, perfilRespuesta.usuario);
 
-  if (window.location.pathname !== ruta) {
-    await router.navigate({ to: ruta as never, replace: true });
+  const redireccion = resolverRedireccionBootstrap(window.location.pathname, ruta);
+  if (redireccion) {
+    await router.navigate({ to: redireccion as never, replace: true });
   }
 }
 

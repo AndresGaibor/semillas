@@ -13,6 +13,7 @@ import {
 import { ProfileDashboard } from "@/features/profile/profile-dashboard";
 import type { ProfileSection } from "@/features/profile/componentes/profile-section-nav";
 import { iniciarSesionGoogle, vincularGoogle } from "@/shared/auth/supabase";
+import { useAppLayout } from "@/shared/layout/hooks/use-app-layout";
 import "./app-perfil.css";
 
 function normalizarSeccion(value: unknown): ProfileSection {
@@ -35,6 +36,7 @@ function ProfilePage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const queryClient = useQueryClient();
+  const { handleLogout } = useAppLayout();
 
   const meQuery = useQuery({
     queryKey: ["perfil", "me"],
@@ -174,6 +176,7 @@ function ProfilePage() {
       onVincularCorreo={linkCorreo}
       onVerLogros={() => void navigate({ to: "/app/logros" })}
       onEmpezarTema={() => void navigate({ to: "/app/temas" })}
+      onCerrarSesion={() => void handleLogout()}
     />
   );
 }

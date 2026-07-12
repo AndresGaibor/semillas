@@ -235,8 +235,12 @@ export const RUTAS_API = {
     UNIRSE: "/clubes/unirse",
     DETALLE: (id: string) => `/clubes/${id}`,
     SALIR: (id: string) => `/clubes/${id}/salir`,
+    REGENERAR_CODIGO: (id: string) => `/clubes/${id}/regenerar-codigo`,
+    TRANSFERIR: (id: string) => `/clubes/${id}/transferir-liderazgo`,
+    MIEMBRO: (id: string, usuarioId: string) => `/clubes/${id}/miembros/${usuarioId}`,
     RANKING: (id: string) => `/clubes/${id}/ranking`,
     RETOS: (id: string) => `/clubes/${id}/retos`,
+    RECLAMAR_RETO: (id: string, retoId: string) => `/clubes/${id}/retos/${retoId}/reclamar`,
   },
   SYNC: {
     PUSH: "/sync/push",

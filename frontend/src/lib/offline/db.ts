@@ -239,6 +239,10 @@ class SemillasDatabase extends Dexie {
       mediaCache: "++id, &serverId, tipo, urlOriginal, cachedAt, accessedAt",
       descargaJobs: "temaServerId, estado, updatedAt",
     });
+
+    this.version(3).stores({
+      mediaCache: "++id, &serverId, temaLocalId, tipo, urlOriginal, cachedAt, accessedAt",
+    });
   }
 }
 

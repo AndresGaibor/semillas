@@ -11,3 +11,14 @@ export function clasificarErrorVinculacion(error: unknown): ResultadoManejoVincu
   }
   return { tipo: "error", error };
 }
+
+export function resolverRedireccionBootstrap(
+  rutaActual: string,
+  rutaPostLogin: string,
+): string | null {
+  if (rutaPostLogin === "/app" && rutaActual.startsWith("/app")) {
+    return null;
+  }
+
+  return rutaActual === rutaPostLogin ? null : rutaPostLogin;
+}

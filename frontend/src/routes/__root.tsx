@@ -1,5 +1,6 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { PantallaNoEncontrado } from "@/componentes/estados/pantalla-no-encontrado";
+import { InstalacionPrompt } from "@/features/instalacion";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -7,5 +8,10 @@ export const Route = createRootRoute({
 });
 
 function RootLayout() {
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <InstalacionPrompt />
+    </>
+  );
 }

@@ -139,6 +139,8 @@
 
 /* ── Reset y base ────────────────────────────────────────────
    Elimina estilos por defecto del navegador.
+   Debe vivir en @layer base para que las utility classes
+   de Tailwind (bg-*, text-*) puedan sobreescribirlas.
    ─────────────────────────────────────────────────────────── */
 @layer base {
   *, *::before, *::after {
@@ -146,38 +148,38 @@
     margin    : 0;
     padding   : 0;
   }
+
+  html {
+    font-size      : 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family            : var(--fuente-base);
+    font-size              : var(--fuente-tam-base);
+    font-weight            : var(--fuente-peso-normal);
+    line-height            : var(--linea-normal);
+    color                  : var(--color-neutro-oscuro-max);
+    background             : var(--color-blanco);
+    -webkit-font-smoothing : antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  img, video, svg { display: block; max-width: 100%; }
+
+  a {
+    color          : var(--color-primario);
+    text-decoration: none;
+    transition     : color var(--transicion-rapida);
+  }
+  a:hover { color: var(--color-primario-oscuro-min); }
+
+  ul, ol { list-style: none; }
+
+  button, input, select, textarea { font-family: inherit; font-size: inherit; }
+  button { cursor: pointer; border: none; }
 }
-
-html {
-  font-size      : 16px;
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  font-family            : var(--fuente-base);
-  font-size              : var(--fuente-tam-base);
-  font-weight            : var(--fuente-peso-normal);
-  line-height            : var(--linea-normal);
-  color                  : var(--color-neutro-oscuro-max);
-  background             : var(--color-blanco);
-  -webkit-font-smoothing : antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-img, video, svg { display: block; max-width: 100%; }
-
-a {
-  color          : var(--color-primario);
-  text-decoration: none;
-  transition     : color var(--transicion-rapida);
-}
-a:hover { color: var(--color-primario-oscuro-min); }
-
-ul, ol { list-style: none; }
-
-button, input, select, textarea { font-family: inherit; font-size: inherit; }
-button { cursor: pointer; border: none; background: transparent; }
 
 /* ── Escala tipografica ──────────────────────────────────────
    Clases de utilidad para aplicar jerarquia textual.
