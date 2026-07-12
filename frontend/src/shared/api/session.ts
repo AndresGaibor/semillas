@@ -1,6 +1,7 @@
 const GUEST_USER_ID_KEY = "semillas_guest_user_id";
 const ACCESS_TOKEN_KEY = "semillas_access_token";
 const GUEST_TOKEN_KEY = "semillas_guest_token";
+const CONFLICTO_MENSAJE_KEY = "semillas_conflicto_vinculacion";
 
 export const sessionStorageApi = {
   getGuestUserId() {
@@ -42,5 +43,17 @@ export const sessionStorageApi = {
 
   clearAccessToken() {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
-  }
+  },
+
+  getConflictoMensaje() {
+    return localStorage.getItem(CONFLICTO_MENSAJE_KEY);
+  },
+
+  setConflictoMensaje(mensaje: string) {
+    localStorage.setItem(CONFLICTO_MENSAJE_KEY, mensaje);
+  },
+
+  clearConflictoMensaje() {
+    localStorage.removeItem(CONFLICTO_MENSAJE_KEY);
+  },
 };

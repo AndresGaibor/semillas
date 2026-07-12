@@ -5,10 +5,12 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 30,
       retry: 1,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      networkMode: "offlineFirst"
     },
     mutations: {
-      retry: 0
+      retry: 0,
+      networkMode: "always"
     }
   }
 });

@@ -1,5 +1,6 @@
 import { env } from "../config/env";
 import { sessionStorageApi } from "./session";
+import { ErrorApi } from "./error-api";
 
 export async function peticion<T>(
   ruta: string,
@@ -31,7 +32,9 @@ export async function peticion<T>(
   const resultado = await res.json().catch(() => null);
 
   if (!res.ok || !resultado?.exito) {
-    throw new Error(resultado?.error ?? "Error de conexión");
+    const mensaje = resultado?.error ?? "Error de conexión";
+    const codigo = resultado?.codigo;
+    throw new ErrorApi(mensaje, res.status, codigo);
   }
 
   return resultado.datos as T;
@@ -175,6 +178,9 @@ export interface Paso {
     titulo: string;
     cuerpo: string;
     instruccion_corta: string | null;
+    recurso_id?: string | null;
+    recurso_audio_id?: string | null;
+    datos_extra?: Record<string, unknown> | null;
   }>;
   preguntas?: Array<{
     id: string;
@@ -216,6 +222,8 @@ export interface Actividad {
     etiqueta: string | null;
     texto: string;
     orden: number;
+    correcta?: boolean;
+    retroalimentacion?: string | null;
   }>;
 }
 

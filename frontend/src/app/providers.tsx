@@ -12,6 +12,10 @@ import { obtenerRutaPostLogin } from "../shared/auth/post-login";
 import { obtenerMiPerfil } from "../features/profile/profile.api";
 import { useAutoSync } from "@/lib/offline";
 import { OfflineBanner } from "@/componentes/ui/sync-status-badge";
+import { PantallaCargaSesion } from "@/componentes/estados/pantalla-carga-sesion";
+import { PwaLifecycle } from "@/componentes/ui/pwa-lifecycle";
+import { clasificarErrorVinculacion } from "./bootstrap";
+import { publicarConflictoVinculacion } from "@/shared/auth/conflicto-vinculacion";
 
 async function vincularCuentaPendiente() {
   const guestUserId = sessionStorageApi.getGuestUserId();
@@ -40,9 +44,25 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
   useAutoSync(true);
 
   useEffect(() => {
+    async function intentarVinculacion() {
+      try {
+        await vincularCuentaPendiente();
+        await redirigirSegunOnboarding();
+      } catch (error) {
+        const resultado = clasificarErrorVinculacion(error);
+        if (resultado.tipo === "conflicto") {
+          publicarConflictoVinculacion(resultado.mensaje);
+          return;
+        }
+        if (import.meta.env.DEV) {
+          console.warn("Bootstrap: vinculacion no completada", error);
+        }
+      }
+    }
+
     const detenerEscucha = escucharCambiosAutenticacion((session) => {
       guardarNombreSugeridoDeGoogle(session);
-      void vincularCuentaPendiente().catch(() => undefined);
+      void intentarVinculacion();
     });
 
     sincronizarSesionAutenticada()
@@ -53,9 +73,7 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
           return undefined;
         }
 
-        return vincularCuentaPendiente()
-          .then(() => redirigirSegunOnboarding())
-          .catch(() => undefined);
+        return intentarVinculacion();
       })
       .catch(() => undefined)
       .finally(() => setListo(true));
@@ -66,11 +84,7 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
   }, []);
 
   if (!listo) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm font-medium text-slate-500">
-        Preparando sesión...
-      </div>
-    );
+    return <PantallaCargaSesion />;
   }
 
   return (
@@ -84,10 +98,11 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
 export function AppProviders() {
   return (
     <QueryClientProvider client={queryClient}>
+      <PwaLifecycle />
       <AuthBootstrap>
         <RouterProvider router={router} />
       </AuthBootstrap>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" richColors />
     </QueryClientProvider>
   );
 }
