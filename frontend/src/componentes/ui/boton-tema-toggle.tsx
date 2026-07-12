@@ -1,61 +1,23 @@
-import { useEffect, useState } from "react";
-import { Sun, Moon } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "@/shared/theme";
+import { cn } from "@/lib/utils";
 
 export function BotonTemaToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof document === "undefined") return "light";
-    const attr = document.documentElement.getAttribute("data-theme");
-    if (attr === "app-dark" || attr === "admin-dark") return "dark";
-    return "light";
-  });
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-
-    const observer = new MutationObserver(() => {
-      const attr = document.documentElement.getAttribute("data-theme");
-      if (attr === "app-dark" || attr === "admin-dark") {
-        setTheme("dark");
-      } else {
-        setTheme("light");
-      }
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  const toggleTema = () => {
-    const isAdmin = window.location.pathname.startsWith("/admin");
-    const html = document.documentElement;
-
-    if (theme === "dark") {
-      const next = isAdmin ? "admin-light" : "app-light";
-      html.setAttribute("data-theme", next);
-      localStorage.setItem(isAdmin ? "admin-theme" : "app-theme", next);
-      setTheme("light");
-    } else {
-      const next = isAdmin ? "admin-dark" : "app-dark";
-      html.setAttribute("data-theme", next);
-      localStorage.setItem(isAdmin ? "admin-theme" : "app-theme", next);
-      setTheme("dark");
-    }
-  };
+  const { esOscuro, alternarTema } = useTheme();
 
   return (
     <button
       type="button"
-      onClick={toggleTema}
-      className={`theme-toggle-btn ${className || ""}`}
-      aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-    >
-      {theme === "dark" ? (
-        <Sun size={20} className="text-amber-400" />
-      ) : (
-        <Moon size={20} className="text-slate-600" />
+      onClick={alternarTema}
+      className={cn(
+        "inline-flex size-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-verde-brote focus-visible:ring-offset-2 active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:focus-visible:ring-offset-slate-950",
+        className,
       )}
+      aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      aria-pressed={esOscuro}
+      title={esOscuro ? "Usar modo claro" : "Usar modo oscuro"}
+    >
+      {esOscuro ? <Sun className="size-5 text-amber-400" aria-hidden="true" /> : <Moon className="size-5" aria-hidden="true" />}
     </button>
   );
 }
