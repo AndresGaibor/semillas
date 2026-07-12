@@ -1,8 +1,5 @@
 import * as React from "react";
-import { Lock, CheckCircle } from "lucide-react";
-import { Card } from "@/componentes/ui/card-base";
-import { EtiquetaPildora } from "@/componentes/ui/etiqueta-pildora";
-import { AvatarCircular } from "@/componentes/ui/avatar-circular";
+import { CheckCircle2, LockKeyhole, Sparkles } from "lucide-react";
 
 export interface InsigniaCardItemProps {
   codigo: string;
@@ -12,6 +9,7 @@ export interface InsigniaCardItemProps {
   bono_xp: number;
   imagen: string;
   obtenido: boolean;
+  ganadoEn?: string | null;
 }
 
 export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
@@ -21,46 +19,40 @@ export const InsigniaCardItem: React.FC<InsigniaCardItemProps> = ({
   bono_xp,
   imagen,
   obtenido,
+  ganadoEn,
 }) => {
   return (
-    <Card
-      className={`p-0 overflow-hidden flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${
-        !obtenido ? "opacity-75 bg-slate-50/50" : "bg-white"
-      }`}
-    >
-      <div className="relative mt-6">
-        <AvatarCircular
-          src={imagen}
-          alt={nombre}
-          tamano="lg"
-          clase={obtenido ? "" : "opacity-50"}
-        />
-        {!obtenido && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Lock className="text-slate-400" size={36} />
-          </div>
-        )}
+    <article className={`logro-card ${obtenido ? "is-earned" : "is-locked"}`}>
+      <div className="logro-card__visual">
+        <img src={imagen} alt="" aria-hidden="true" loading="lazy" decoding="async" />
+        <span className="logro-card__state-icon" aria-hidden="true">
+          {obtenido ? <CheckCircle2 size={18} /> : <LockKeyhole size={17} />}
+        </span>
       </div>
 
-      <div className="p-5 flex-1 flex flex-col items-center">
-        <h3 className="mb-1 text-base font-extrabold leading-tight text-slate-800 sm:text-lg">
-          {nombre}
-        </h3>
-        <p className="text-xs font-semibold text-violet-600 mb-3">
-          +{bono_xp} XP • {criterio}
-        </p>
-        <p className="text-xs text-slate-500 leading-relaxed mb-4 flex-1">
-          {descripcion}
-        </p>
+      <div className="logro-card__content">
+        <div className="logro-card__heading">
+          <h2>{nombre}</h2>
+          <span className="logro-card__xp">
+            <Sparkles size={14} aria-hidden="true" />
+            +{bono_xp} XP
+          </span>
+        </div>
 
-        {obtenido ? (
-          <EtiquetaPildora variante="exito">
-            <CheckCircle size={10} /> Obtenida
-          </EtiquetaPildora>
-        ) : (
-          <EtiquetaPildora variante="pendiente">En progreso</EtiquetaPildora>
-        )}
+        <p className="logro-card__criterion">{criterio}</p>
+        <p className="logro-card__description">{descripcion}</p>
+
+        <div className="logro-card__footer">
+          <span className={`logro-card__status ${obtenido ? "is-earned" : ""}`}>
+            {obtenido ? "Obtenida" : "Por obtener"}
+          </span>
+          {obtenido && ganadoEn ? (
+            <time dateTime={ganadoEn} className="logro-card__date">
+              {new Intl.DateTimeFormat("es-EC", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(ganadoEn))}
+            </time>
+          ) : null}
+        </div>
       </div>
-    </Card>
+    </article>
   );
 };

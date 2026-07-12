@@ -10,15 +10,20 @@ const meta: Meta<typeof LogrosTabsFilter> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const totales = { total: 3, obtenidas: 1, pendientes: 2 };
+
 export const Todas: Story = {
   args: {
     activo: "todas",
+    totales,
     onChange: (tab) => console.log("Category changed to", tab),
   },
 };
-export const Especiales: Story = {
+
+export const Pendientes: Story = {
   args: {
-    activo: "especial",
+    activo: "pendientes",
+    totales,
     onChange: (tab) => console.log("Category changed to", tab),
   },
 };

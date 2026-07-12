@@ -1548,7 +1548,7 @@ h6, .titulo-6 {
 /* Bottom navigation: solo una opción puede verse activa. */
 .bottom-nav {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: end;
   width: 100%;
   min-height: calc(4.35rem + env(safe-area-inset-bottom));
@@ -2499,5 +2499,26 @@ h6, .titulo-6 {
   .bottom-nav__icon,
   .app-sidebar {
     transition: none !important;
+  }
+}
+
+/* Navegación móvil con acceso directo a Logros. */
+@media (max-width: 390px) {
+  .bottom-nav {
+    padding-inline: .25rem;
+  }
+
+  .bottom-nav__item {
+    min-height: 3.2rem;
+    border-radius: .85rem;
+  }
+
+  .bottom-nav__icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .bottom-nav__label {
+    font-size: .56rem;
   }
 }

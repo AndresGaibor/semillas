@@ -20,6 +20,12 @@ export type LogroUsuarioGamificacion = {
   logro: LogroGamificacion | null;
 };
 
+export type ReglaNivelGamificacion = {
+  numero_nivel: number;
+  nombre: string;
+  xp_minima: number;
+};
+
 export type GamificacionPropia = {
   nivel: {
     usuario_id: string | null;
@@ -28,6 +34,12 @@ export type GamificacionPropia = {
     nombre_nivel: string;
   } | null;
   logros: LogroUsuarioGamificacion[];
+  /**
+   * Campos opcionales para que la API pueda dejar de depender de catálogos
+   * locales sin romper clientes antiguos.
+   */
+  catalogo_logros?: LogroGamificacion[];
+  reglas_nivel?: ReglaNivelGamificacion[];
 };
 
 export function obtenerGamificacionPropia() {

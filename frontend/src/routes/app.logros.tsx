@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader } from "lucide-react";
+import type { ReactNode } from "react";
+import { Award, CheckCircle2, LockKeyhole, RefreshCw } from "lucide-react";
 
 import { LogrosTabsFilter } from "../features/gamification/componentes/logros-tabs-filter";
 import { InsigniaCardItem } from "../features/gamification/componentes/insignia-card-item";
 import { ProgresoXpWidget } from "../features/gamification/componentes/progreso-xp-widget";
 import { CompartirInsigniaWidget } from "../features/gamification/componentes/compartir-insignia-widget";
+import { ProximaInsigniaWidget } from "../features/gamification/componentes/proxima-insignia-widget";
 import { useLogrosPage } from "../features/logros/hooks/use-logros-page";
 
 import in1Img from "@/assets/images/Ilustraciones/in1.png";
 import in2Img from "@/assets/images/Ilustraciones/in2.png";
+import "./app-logros.css";
 
 export const Route = createFileRoute("/app/logros")({
   component: AchievementsPage,
@@ -19,80 +22,130 @@ function AchievementsPage() {
     query,
     xpInfo,
     insignias,
+    resumen,
     primerLogroObtenido,
+    proximaInsignia,
     activeTab,
     setActiveTab,
     sharedBadge,
     handleShare,
-    handleVerDetalles,
   } = useLogrosPage();
 
   return (
-    <div className="w-full flex flex-col font-sans text-slate-800 text-left">
-      <div className="flex flex-col lg:flex-row gap-8 w-full items-start">
-        
-        {/* COLUMNA IZQUIERDA: Listado de Insignias y Filtros */}
-        <div className="flex-1 lg:flex-[3] flex flex-col w-full">
-          <LogrosTabsFilter activo={activeTab} onChange={setActiveTab} />
+    <div className="logros-page">
+      <section className="logros-mobile-overview" aria-label="Resumen de insignias">
+        <div className="logros-mobile-overview__level">
+          <span>Nivel {xpInfo.numNivel}</span>
+          <strong>{xpInfo.nombreNivel}</strong>
+        </div>
+        <ResumenItem icono={<Award size={19} />} valor={resumen.total} etiqueta="Total" />
+        <ResumenItem icono={<CheckCircle2 size={19} />} valor={resumen.obtenidas} etiqueta="Obtenidas" />
+        <ResumenItem icono={<LockKeyhole size={18} />} valor={resumen.pendientes} etiqueta="Pendientes" />
+        <div className="logros-mobile-overview__bar" aria-hidden="true">
+          <span style={{ width: `${xpInfo.porcentaje}%` }} />
+        </div>
+      </section>
 
-          {query.isLoading && (
-            <div className="flex justify-center py-20 w-full">
-              <Loader className="animate-spin text-[#7E57C2]" size={32} />
-            </div>
-          )}
+      <div className="logros-layout">
+        <section className="logros-main" aria-label="Catálogo de insignias">
+          <LogrosTabsFilter activo={activeTab} onChange={setActiveTab} totales={resumen} />
 
-          {query.isError ? (
-            <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
-              No se pudieron cargar tus logros. Revisa tu conexión e inténtalo de nuevo.
+          {query.isLoading ? (
+            <div className="logros-grid" aria-label="Cargando insignias" aria-busy="true">
+              {[1, 2, 3].map((item) => <div key={item} className="logro-card-skeleton" />)}
             </div>
           ) : null}
 
-          {!query.isLoading && !query.isError && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+          {query.isError ? (
+            <div role="alert" className="logros-state-card logros-state-card--error">
+              <RefreshCw size={24} aria-hidden="true" />
+              <div>
+                <h2>No pudimos cargar tus insignias</h2>
+                <p>Revisa tu conexión e inténtalo nuevamente.</p>
+              </div>
+              <button type="button" onClick={() => void query.refetch()}>
+                Reintentar
+              </button>
+            </div>
+          ) : null}
+
+          {!query.isLoading && !query.isError && insignias.length > 0 ? (
+            <div className="logros-grid">
               {insignias.map((insignia) => (
                 <InsigniaCardItem
                   key={insignia.codigo}
                   codigo={insignia.codigo}
                   nombre={insignia.nombre}
-                  descripcion={insignia.descripcion}
+                  descripcion={insignia.descripcion ?? "Sigue aprendiendo para descubrir este logro."}
                   criterio={insignia.criterio}
                   bono_xp={insignia.bono_xp}
-                  imagen={insignia.codigo.includes("primera") || insignia.codigo.includes("crecer") ? in1Img : in2Img}
+                  imagen={obtenerImagenInsignia(insignia.codigo, insignia.url_icono)}
                   obtenido={insignia.obtenido}
+                  ganadoEn={insignia.ganadoEn}
                 />
               ))}
-
-              {insignias.length === 0 && (
-                <p className="text-center text-slate-400 py-12 col-span-full">
-                  No hay insignias en esta categoría.
-                </p>
-              )}
             </div>
-          )}
-        </div>
+          ) : null}
 
-        {/* COLUMNA DERECHA: Widgets de Progreso y Racha */}
-        <aside className="w-full lg:w-[320px] flex flex-col gap-6">
+          {!query.isLoading && !query.isError && insignias.length === 0 ? (
+            <div className="logros-state-card">
+              <Award size={26} aria-hidden="true" />
+              <div>
+                <h2>No hay insignias en este filtro</h2>
+                <p>Prueba otra categoría para ver el catálogo completo.</p>
+              </div>
+              <button type="button" onClick={() => setActiveTab("todas")}>Ver todas</button>
+            </div>
+          ) : null}
+        </section>
+
+        <aside className="logros-aside" aria-label="Progreso y siguiente objetivo">
           <ProgresoXpWidget
             xpTotal={xpInfo.xpTotal}
             numNivel={xpInfo.numNivel}
             nombreNivel={xpInfo.nombreNivel}
             xpRestantes={xpInfo.xpRestantes}
             porcentaje={xpInfo.porcentaje}
-            onVerDetalles={handleVerDetalles}
+            nombreSiguienteNivel={xpInfo.nombreSiguienteNivel}
+            esNivelMaximo={xpInfo.esNivelMaximo}
           />
 
           {primerLogroObtenido ? (
             <CompartirInsigniaWidget
               nombreInsignia={primerLogroObtenido.nombre}
-              imagenInsignia={primerLogroObtenido.codigo.includes("primera") || primerLogroObtenido.codigo.includes("crecer") ? in1Img : in2Img}
-              onCompartir={() => void handleShare(primerLogroObtenido.nombre)}
+              imagenInsignia={obtenerImagenInsignia(primerLogroObtenido.codigo, primerLogroObtenido.url_icono)}
+              onCompartir={() =>
+                void handleShare(
+                  primerLogroObtenido.nombre,
+                  obtenerImagenInsignia(primerLogroObtenido.codigo, primerLogroObtenido.url_icono),
+                )
+              }
               compartido={sharedBadge !== null}
+            />
+          ) : proximaInsignia ? (
+            <ProximaInsigniaWidget
+              nombre={proximaInsignia.nombre}
+              criterio={proximaInsignia.criterio}
+              bonoXp={proximaInsignia.bono_xp}
             />
           ) : null}
         </aside>
-
       </div>
     </div>
   );
+}
+
+function ResumenItem({ icono, valor, etiqueta }: { icono: ReactNode; valor: number; etiqueta: string }) {
+  return (
+    <div className="logros-mobile-overview__item">
+      <span aria-hidden="true">{icono}</span>
+      <strong>{valor}</strong>
+      <small>{etiqueta}</small>
+    </div>
+  );
+}
+
+function obtenerImagenInsignia(codigo: string, urlIcono: string | null): string {
+  if (urlIcono) return urlIcono;
+  return codigo === "primera_leccion" ? in1Img : in2Img;
 }

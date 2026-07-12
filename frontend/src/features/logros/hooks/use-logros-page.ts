@@ -1,46 +1,74 @@
-import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
-import { obtenerGamificacionPropia } from "../../gamification/gamification.api";
+import { useMemo, useState } from "react";
+import {
+  obtenerGamificacionPropia,
+  type LogroGamificacion,
+  type ReglaNivelGamificacion,
+} from "../../gamification/gamification.api";
 import type { CategoriaLogro } from "../../gamification/componentes/logros-tabs-filter";
+import { crearTarjetaInsignia, descargarTarjetaInsignia } from "../utils/crear-tarjeta-insignia";
 
-const INSIGNIAS_CATALOGO = [
+/**
+ * Fallback alineado con los INSERT iniciales del SQL de Semillas.
+ * La fuente preferida es `catalogo_logros` entregada por la API.
+ */
+const LOGROS_FALLBACK: LogroGamificacion[] = [
   {
+    id: "fallback-primera-leccion",
     codigo: "primera_leccion",
     nombre: "Primer paso",
     descripcion: "Completaste tu primera lección.",
-    criterio: "Completa 1 tema",
+    url_icono: null,
+    codigo_criterio: "temas_completados",
+    valor_criterio: 1,
     bono_xp: 20,
-    categoria: "especial" as CategoriaLogro,
+    activo: true,
+    creado_en: "",
   },
   {
-    codigo: "explorador_palabra",
-    nombre: "Explorador de la Fe",
-    descripcion: "Completa 10 actividades en total.",
-    criterio: "Completa 10 actividades",
-    bono_xp: 50,
-    categoria: "hijo" as CategoriaLogro,
-  },
-  {
+    id: "fallback-racha-siete-dias",
     codigo: "racha_siete_dias",
     nombre: "Semilla constante",
     descripcion: "Mantén una racha de 7 días seguidos.",
-    criterio: "7 días de racha",
+    url_icono: null,
+    codigo_criterio: "dias_racha",
+    valor_criterio: 7,
     bono_xp: 50,
-    categoria: "padre" as CategoriaLogro,
+    activo: true,
+    creado_en: "",
   },
   {
-    codigo: "crecer_completo",
-    nombre: "Cosechador del Saber",
-    descripcion: "Completa todos los pasos CRECER de un tema.",
-    criterio: "Completa un tema CRECER",
-    bono_xp: 100,
-    categoria: "especial" as CategoriaLogro,
-  }
+    id: "fallback-explorador-palabra",
+    codigo: "explorador_palabra",
+    nombre: "Explorador de la Palabra",
+    descripcion: "Completa 10 actividades en total.",
+    url_icono: null,
+    codigo_criterio: "actividades_completadas",
+    valor_criterio: 10,
+    bono_xp: 50,
+    activo: true,
+    creado_en: "",
+  },
 ];
 
+/** Fallback alineado con `regla_nivel` del SQL. */
+const REGLAS_NIVEL_FALLBACK: ReglaNivelGamificacion[] = [
+  { numero_nivel: 1, nombre: "Brote", xp_minima: 0 },
+  { numero_nivel: 2, nombre: "Raíz", xp_minima: 100 },
+  { numero_nivel: 3, nombre: "Tallo", xp_minima: 250 },
+  { numero_nivel: 4, nombre: "Rama", xp_minima: 500 },
+  { numero_nivel: 5, nombre: "Árbol", xp_minima: 1000 },
+  { numero_nivel: 6, nombre: "Cosecha", xp_minima: 2000 },
+  { numero_nivel: 7, nombre: "Explorador", xp_minima: 3000 },
+];
+
+export type InsigniaPresentacion = LogroGamificacion & {
+  criterio: string;
+  obtenido: boolean;
+  ganadoEn: string | null;
+};
+
 export function useLogrosPage() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<CategoriaLogro>("todas");
   const [sharedBadge, setSharedBadge] = useState<string | null>(null);
 
@@ -51,77 +79,125 @@ export function useLogrosPage() {
 
   const nivel = query.data?.nivel;
   const logrosObtenidos = query.data?.logros ?? [];
+  const catalogo = useMemo(
+    () => (query.data?.catalogo_logros?.length ? query.data.catalogo_logros : LOGROS_FALLBACK).filter((logro) => logro.activo),
+    [query.data?.catalogo_logros],
+  );
+
+  const reglasNivel = useMemo(
+    () => (query.data?.reglas_nivel?.length ? query.data.reglas_nivel : REGLAS_NIVEL_FALLBACK).slice().sort((a, b) => a.xp_minima - b.xp_minima),
+    [query.data?.reglas_nivel],
+  );
 
   const xpInfo = useMemo(() => {
     const xpTotal = nivel?.xp_total ?? 0;
-    const numNivel = nivel?.numero_nivel ?? 1;
-    const xpEnNivel = xpTotal % 1000;
-    const xpRestantes = 1000 - xpEnNivel;
-    const porcentaje = Math.round((xpEnNivel / 1000) * 100);
+    const reglaActual =
+      reglasNivel
+        .filter((regla) => regla.xp_minima <= xpTotal)
+        .at(-1) ?? reglasNivel[0] ?? REGLAS_NIVEL_FALLBACK[0]!;
+    const siguienteRegla = reglasNivel.find((regla) => regla.xp_minima > xpTotal) ?? null;
+    const tramo = siguienteRegla ? siguienteRegla.xp_minima - reglaActual.xp_minima : 1;
+    const avance = Math.max(0, xpTotal - reglaActual.xp_minima);
+    const porcentaje = siguienteRegla ? Math.min(100, Math.round((avance / tramo) * 100)) : 100;
 
     return {
       xpTotal,
-      numNivel,
-      nombreNivel: nivel?.nombre_nivel || "Semilla",
-      xpEnNivel,
-      xpRestantes,
+      numNivel: nivel?.numero_nivel ?? reglaActual.numero_nivel,
+      nombreNivel: nivel?.nombre_nivel || reglaActual.nombre,
+      xpRestantes: siguienteRegla ? Math.max(0, siguienteRegla.xp_minima - xpTotal) : 0,
       porcentaje,
+      nombreSiguienteNivel: siguienteRegla?.nombre ?? null,
+      esNivelMaximo: siguienteRegla === null,
     };
-  }, [nivel]);
+  }, [nivel, reglasNivel]);
 
-  const insignias = useMemo(() => {
-    return INSIGNIAS_CATALOGO.filter(
-      (insignia) => activeTab === "todas" || insignia.categoria === activeTab
-    ).map((insignia) => {
-      const obtenido = logrosObtenidos.some(
-        (l) => l.logro?.codigo === insignia.codigo
-      );
+  const insigniasCompletas = useMemo<InsigniaPresentacion[]>(() => {
+    const obtenidosPorCodigo = new Map(
+      logrosObtenidos
+        .filter((registro) => registro.logro?.codigo)
+        .map((registro) => [registro.logro!.codigo, registro]),
+    );
+
+    return catalogo.map((logro) => {
+      const registro = obtenidosPorCodigo.get(logro.codigo);
       return {
-        ...insignia,
-        obtenido,
+        ...logro,
+        criterio: construirCriterio(logro.codigo_criterio, logro.valor_criterio),
+        obtenido: Boolean(registro),
+        ganadoEn: registro?.ganado_en ?? null,
       };
     });
-  }, [activeTab, logrosObtenidos]);
+  }, [catalogo, logrosObtenidos]);
 
-  const primerLogroObtenido = useMemo(() => {
-    const primerObtenido = INSIGNIAS_CATALOGO.find((insignia) =>
-      logrosObtenidos.some((l) => l.logro?.codigo === insignia.codigo)
-    );
-    return primerObtenido ?? null;
-  }, [logrosObtenidos]);
+  const insignias = useMemo(() => {
+    if (activeTab === "obtenidas") return insigniasCompletas.filter((insignia) => insignia.obtenido);
+    if (activeTab === "pendientes") return insigniasCompletas.filter((insignia) => !insignia.obtenido);
+    return insigniasCompletas;
+  }, [activeTab, insigniasCompletas]);
 
-  const handleShare = async (badgeNombre: string) => {
+  const resumen = useMemo(() => {
+    const obtenidas = insigniasCompletas.filter((insignia) => insignia.obtenido).length;
+    return {
+      total: insigniasCompletas.length,
+      obtenidas,
+      pendientes: Math.max(0, insigniasCompletas.length - obtenidas),
+    };
+  }, [insigniasCompletas]);
+
+  const primerLogroObtenido = insigniasCompletas.find((insignia) => insignia.obtenido) ?? null;
+  const proximaInsignia = insigniasCompletas.find((insignia) => !insignia.obtenido) ?? null;
+
+  const handleShare = async (badgeNombre: string, imagenUrl: string) => {
     const texto = `¡Obtuve la insignia "${badgeNombre}" en Semillas!`;
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "Mi logro en Semillas", text: texto });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(texto);
+      const archivo = await crearTarjetaInsignia(badgeNombre, imagenUrl);
+      const puedeCompartirArchivo =
+        typeof navigator.share === "function" &&
+        typeof navigator.canShare === "function" &&
+        navigator.canShare({ files: [archivo] });
+
+      if (puedeCompartirArchivo) {
+        await navigator.share({
+          title: "Mi logro en Semillas",
+          text: texto,
+          files: [archivo],
+        });
       } else {
-        throw new Error("Este navegador no permite compartir ni copiar al portapapeles");
+        descargarTarjetaInsignia(archivo);
       }
+
       setSharedBadge(badgeNombre);
-      setTimeout(() => setSharedBadge(null), 2000);
+      window.setTimeout(() => setSharedBadge(null), 2000);
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       console.error("No se pudo compartir la insignia", error);
     }
   };
 
-  const handleVerDetalles = () => {
-    navigate({ to: "/app/perfil" });
-  };
-
   return {
     query,
-    nivel,
     xpInfo,
     insignias,
+    resumen,
     primerLogroObtenido,
+    proximaInsignia,
     activeTab,
     setActiveTab,
     sharedBadge,
     handleShare,
-    handleVerDetalles,
   };
+}
+
+function construirCriterio(codigo: string, valor: number | null): string {
+  const cantidad = valor ?? 1;
+  switch (codigo) {
+    case "temas_completados":
+      return `Completa ${cantidad} ${cantidad === 1 ? "tema" : "temas"}`;
+    case "actividades_completadas":
+      return `Completa ${cantidad} actividades`;
+    case "dias_racha":
+      return `${cantidad} días de racha`;
+    default:
+      return "Sigue aprendiendo para desbloquearla";
+  }
 }

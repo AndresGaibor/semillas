@@ -1,10 +1,5 @@
 import * as React from "react";
-import { Zap } from "lucide-react";
-
-import { CabeceraSeccion } from "@/componentes/ui/cabecera-seccion";
-import { ProgresoCircular } from "@/componentes/ui/progreso-circular";
-import { BarraProgreso } from "@/componentes/ui/barra-progreso";
-import { Card } from "@/componentes/ui/card-base";
+import { Award, Zap } from "lucide-react";
 
 export interface ProgresoXpWidgetProps {
   xpTotal: number;
@@ -12,6 +7,8 @@ export interface ProgresoXpWidgetProps {
   nombreNivel: string;
   xpRestantes: number;
   porcentaje: number;
+  nombreSiguienteNivel?: string | null;
+  esNivelMaximo?: boolean;
   onVerDetalles?: () => void;
 }
 
@@ -21,44 +18,52 @@ export const ProgresoXpWidget: React.FC<ProgresoXpWidgetProps> = ({
   nombreNivel,
   xpRestantes,
   porcentaje,
+  nombreSiguienteNivel,
+  esNivelMaximo = false,
   onVerDetalles,
 }) => {
   return (
-    <Card sombra="sm" className="p-6 flex flex-col">
-      <CabeceraSeccion titulo="Tu progreso" textoBoton={onVerDetalles ? "Ver detalles" : undefined} onBotonClick={onVerDetalles} />
-
-      <div className="flex items-center gap-5">
-        {/* Progreso Circular */}
-        <ProgresoCircular 
-          porcentaje={porcentaje} 
-          etiqueta="" 
-          color="verde" 
-          tamano={80} 
-          className="[&_span]:hidden" // Ocultar la etiqueta span inferior de la versión circular
-        />
-
-        {/* Información */}
-        <div className="flex flex-col text-left flex-1 min-w-0">
-          <span className="text-base font-extrabold text-indigo-950 truncate">
-            Nivel {numNivel}
-          </span>
-          <span className="text-xs font-extrabold text-green-600 mb-2">
-            {nombreNivel}
-          </span>
-          <div className="flex items-center gap-1.5 text-slate-700 mb-1">
-            <Zap size={14} className="text-amber-500 fill-amber-500" />
-            <span className="text-xs font-extrabold">{xpTotal} XP</span>
-          </div>
-          <p className="text-[10px] text-slate-400">
-            {xpRestantes} XP para subir
-          </p>
+    <section className="logros-progress-card" aria-labelledby="logros-progress-title">
+      <div className="logros-progress-card__header">
+        <span className="logros-progress-card__icon" aria-hidden="true">
+          <Award size={21} />
+        </span>
+        <div className="logros-progress-card__copy">
+          <p className="logros-progress-card__eyebrow">Tu progreso</p>
+          <h2 id="logros-progress-title">Nivel {numNivel} · {nombreNivel}</h2>
         </div>
+        {onVerDetalles ? (
+          <button type="button" className="logros-progress-card__details" onClick={onVerDetalles}>
+            Ver perfil
+          </button>
+        ) : null}
       </div>
 
-      {/* Barra de progreso lineal */}
-      <div className="mt-4">
-        <BarraProgreso valor={porcentaje} color="morado" mostrarEtiquetas={false} />
+      <div className="logros-progress-card__stats">
+        <div>
+          <span className="logros-progress-card__value">{xpTotal}</span>
+          <span className="logros-progress-card__label">XP acumulados</span>
+        </div>
+        <div className="logros-progress-card__percent">{porcentaje}%</div>
       </div>
-    </Card>
+
+      <div
+        className="logros-progress-card__bar"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={porcentaje}
+        aria-label="Progreso hacia el siguiente nivel"
+      >
+        <span style={{ width: `${porcentaje}%` }} />
+      </div>
+
+      <p className="logros-progress-card__next">
+        <Zap size={15} aria-hidden="true" />
+        {esNivelMaximo
+          ? "Alcanzaste el nivel máximo disponible."
+          : `${xpRestantes} XP para ${nombreSiguienteNivel ?? "el siguiente nivel"}`}
+      </p>
+    </section>
   );
 };

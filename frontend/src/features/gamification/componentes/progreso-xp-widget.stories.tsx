@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ProgresoXpWidget } from "./progreso-xp-widget";
+import "@/routes/app-logros.css";
 
 const meta: Meta<typeof ProgresoXpWidget> = {
   title: "Features/Gamification/ProgresoXpWidget",
@@ -12,21 +13,23 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    xpTotal: 1250,
-    numNivel: 7,
-    nombreNivel: "Explorador",
-    xpRestantes: 750,
-    porcentaje: 25,
-    onVerDetalles: () => console.log("Ver detalles clicked"),
+    xpTotal: 80,
+    numNivel: 1,
+    nombreNivel: "Brote",
+    xpRestantes: 20,
+    porcentaje: 80,
+    nombreSiguienteNivel: "Raíz",
+    onVerDetalles: () => console.log("Ver perfil clicked"),
   },
 };
-export const CasiSiguienteNivel: Story = {
+
+export const NivelMaximo: Story = {
   args: {
-    xpTotal: 1950,
+    xpTotal: 3200,
     numNivel: 7,
     nombreNivel: "Explorador",
-    xpRestantes: 50,
-    porcentaje: 95,
-    onVerDetalles: () => console.log("Ver detalles clicked"),
+    xpRestantes: 0,
+    porcentaje: 100,
+    esNivelMaximo: true,
   },
 };
