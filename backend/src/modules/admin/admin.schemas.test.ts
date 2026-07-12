@@ -2,6 +2,9 @@ import { describe, expect, it } from "bun:test";
 import {
   createActivitySchema,
   createThemeSchema,
+  reorderActivitiesSchema,
+  resolveReviewSchema,
+  submitReviewSchema,
   updateActivitySchema,
   updateThemeSchema,
   upsertStepContentSchema
@@ -23,7 +26,8 @@ describe("admin.schemas", () => {
       version_biblica_id: temaId,
       minutos_estimados: 10,
       xp_recompensa: 50,
-      grupo_edad_ids: [grupoEdadId]
+      grupo_edad_ids: [grupoEdadId],
+      portada_recurso_id: actividadId
     });
 
     expect(resultado.success).toBe(true);
@@ -31,7 +35,9 @@ describe("admin.schemas", () => {
 
   it("acepta el DTO canónico en español para actualizar temas", () => {
     const resultado = updateThemeSchema.safeParse({
+      senda_id: temaId,
       titulo: "La creación",
+      slug: "la-creacion-actualizada",
       objetivo: "Que el niño entienda que Dios creó todo",
       resumen: "Historia de la creación",
       version_biblica_id: temaId,
@@ -49,7 +55,13 @@ describe("admin.schemas", () => {
       grupo_edad_id: grupoEdadId,
       titulo: "Conectar",
       cuerpo: "Conecta con la historia bíblica",
-      instruccion_corta: "Mira y escucha"
+      instruccion_corta: "Mira y escucha",
+      recurso_id: actividadId,
+      recurso_audio_id: temaId,
+      datos_extra: { color: "verde", mostrar_versiculo: true },
+      preguntas: [
+        { pregunta: "¿Cómo has experimentado el amor de Dios?", orden: 1 }
+      ]
     });
 
     expect(resultado.success).toBe(true);
@@ -108,4 +120,18 @@ describe("admin.schemas", () => {
 
     expect(resultado.success).toBe(true);
   });
+  it("valida el orden persistente de actividades", () => {
+    const resultado = reorderActivitiesSchema.safeParse({
+      actividad_ids: [actividadId, temaId]
+    });
+
+    expect(resultado.success).toBe(true);
+  });
+
+  it("valida el flujo de revisión editorial", () => {
+    expect(submitReviewSchema.safeParse({ notas: "Listo para revisión" }).success).toBe(true);
+    expect(resolveReviewSchema.safeParse({ estado: "aprobado", notas: "Contenido verificado" }).success).toBe(true);
+    expect(resolveReviewSchema.safeParse({ estado: "publicado" }).success).toBe(false);
+  });
+
 });

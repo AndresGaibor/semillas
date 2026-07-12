@@ -65,7 +65,10 @@ export function mapStep(step: Record<string, unknown>) {
         grupo_edad_id: String((content as Record<string, unknown>).grupo_edad_id ?? ""),
         titulo: String((content as Record<string, unknown>).titulo ?? ""),
         cuerpo: String((content as Record<string, unknown>).cuerpo ?? ""),
-        instruccion_corta: ((content as Record<string, unknown>).instruccion_corta ?? null) as string | null
+        instruccion_corta: ((content as Record<string, unknown>).instruccion_corta ?? null) as string | null,
+        recurso_id: ((content as Record<string, unknown>).recurso_id ?? null) as string | null,
+        recurso_audio_id: ((content as Record<string, unknown>).recurso_audio_id ?? null) as string | null,
+        datos_extra: ((content as Record<string, unknown>).datos_extra ?? {}) as Record<string, unknown>
       }))
     : [];
 
@@ -82,7 +85,17 @@ export function mapStep(step: Record<string, unknown>) {
           color_hex: (tipoPasoRaw.color_hex ?? null) as string | null
         }
       : null,
-    contenidos
+    contenidos,
+    preguntas: Array.isArray(step.preguntas)
+      ? (step.preguntas as Array<Record<string, unknown>>)
+          .map((pregunta) => ({
+            id: String(pregunta.id ?? ""),
+            grupo_edad_id: String(pregunta.grupo_edad_id ?? ""),
+            pregunta: String(pregunta.pregunta ?? ""),
+            orden: Number(pregunta.orden ?? 0)
+          }))
+          .sort((a, b) => a.orden - b.orden)
+      : []
   };
 }
 

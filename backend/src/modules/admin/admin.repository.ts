@@ -2,10 +2,10 @@ import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "../../db/database.types";
 import { schema, type DbClient } from "../../db/client";
-import { NotFoundError } from "../../shared/errors/http-error";
+import { BadRequestError, NotFoundError } from "../../shared/errors/http-error";
 import { z } from "zod";
 import { crearSlugCopia, crearTituloCopia, mapActivity, mapStep, mapTheme } from "./admin.formatters";
-import { createActivitySchema, createThemeSchema, updateActivitySchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
+import { createActivitySchema, createThemeSchema, reorderActivitiesSchema, resolveReviewSchema, submitReviewSchema, updateActivitySchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
 
 export type AdminUser = {
   id: string;
@@ -24,6 +24,9 @@ type UpsertStepContentInput = z.infer<typeof upsertStepContentSchema>;
 type CreateActivityInput = z.infer<typeof createActivitySchema>;
 type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 type UpdateUserInput = z.infer<typeof updateUserSchema>;
+type ReorderActivitiesInput = z.infer<typeof reorderActivitiesSchema>;
+type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
+type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;
 
 export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
   function requerirDrizzle() {
@@ -31,6 +34,69 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       throw new Error("Cliente Drizzle no disponible: configura HYPERDRIVE o SUPABASE_DATABASE_URL");
     }
     return drizzle;
+  }
+
+  async function registrarAuditoria(input: {
+    actorId?: string | null;
+    accion: string;
+    tipoEntidad: string;
+    entidadId?: string | null;
+    antes?: unknown;
+    despues?: unknown;
+  }) {
+    const { error } = await supabase.from("registro_auditoria").insert({
+      actor_usuario_id: input.actorId ?? null,
+      accion: input.accion,
+      tipo_entidad: input.tipoEntidad,
+      entidad_id: input.entidadId ?? null,
+      datos_antes: (input.antes ?? null) as Json,
+      datos_despues: (input.despues ?? null) as Json
+    });
+    if (error) console.warn("No se pudo registrar auditoría", error.message);
+  }
+
+  async function calcularCompletitudTema(temaId: string) {
+    const [temaResult, gruposResult, pasosResult, actividadesResult] = await Promise.all([
+      supabase.from("tema").select("id, titulo, slug, objetivo, resumen, portada_recurso_id, version_biblica_id, senda_id, xp_recompensa, minutos_estimados").eq("id", temaId).single(),
+      supabase.from("tema_grupo_edad").select("grupo_edad_id").eq("tema_id", temaId),
+      supabase.from("paso_tema").select("id, tipo_paso_id, contenidos:contenido_paso_tema(id, grupo_edad_id, titulo, cuerpo)").eq("tema_id", temaId),
+      supabase.from("actividad").select("id, paso_id, grupo_edad_id, titulo, consigna, tipo_actividad_id").eq("tema_id", temaId)
+    ]);
+
+    if (temaResult.error || !temaResult.data) throw new NotFoundError("Tema no encontrado");
+    if (gruposResult.error) throw gruposResult.error;
+    if (pasosResult.error) throw pasosResult.error;
+    if (actividadesResult.error) throw actividadesResult.error;
+
+    const tema = temaResult.data;
+    const grupos = gruposResult.data ?? [];
+    const pasos = pasosResult.data ?? [];
+    const actividades = actividadesResult.data ?? [];
+    const esperados = Math.max(grupos.length * 6, 1);
+    const contenidosValidos = pasos.flatMap((paso: any) => paso.contenidos ?? []).filter((contenido: any) => contenido.titulo?.trim() && contenido.cuerpo?.trim()).length;
+
+    const criterios = [
+      { codigo: "informacion", etiqueta: "Información general", completo: Boolean(tema.titulo && tema.slug && tema.objetivo && tema.resumen && tema.senda_id) },
+      { codigo: "portada", etiqueta: "Portada", completo: Boolean(tema.portada_recurso_id) },
+      { codigo: "publico", etiqueta: "Público objetivo", completo: grupos.length > 0 },
+      { codigo: "crecer", etiqueta: "Recorrido CRECER", completo: contenidosValidos >= esperados, detalle: `${contenidosValidos}/${esperados} contenidos` },
+      { codigo: "actividades", etiqueta: "Actividades", completo: actividades.length > 0, detalle: `${actividades.length} actividades` },
+      { codigo: "configuracion", etiqueta: "Configuración", completo: Boolean(tema.version_biblica_id && tema.minutos_estimados > 0 && tema.xp_recompensa >= 0) }
+    ];
+    const porcentaje = Math.round((criterios.filter((criterio) => criterio.completo).length / criterios.length) * 100);
+
+    return {
+      porcentaje,
+      listo_para_revision: criterios.every((criterio) => criterio.completo),
+      criterios,
+      estadisticas: {
+        grupos_edad: grupos.length,
+        pasos_creados: pasos.length,
+        contenidos_creados: contenidosValidos,
+        contenidos_esperados: esperados,
+        actividades: actividades.length
+      }
+    };
   }
 
   return {
@@ -52,6 +118,127 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         usuarios: users.count ?? 0,
         actividades: activities.count ?? 0
       };
+    },
+
+    async obtenerResumenDetallado() {
+      const ahora = new Date();
+      const inicioSemana = new Date(ahora);
+      inicioSemana.setDate(ahora.getDate() - 6);
+      inicioSemana.setHours(0, 0, 0, 0);
+
+      const [temasResult, usuariosResult, actividadesResult, clubesResult, revisionesResult, auditoriaResult] = await Promise.all([
+        supabase.from("tema").select("id, titulo, estado, actualizado_en, publicado_en, senda:senda_id(nombre), autor:creado_por(nombre_visible)").order("actualizado_en", { ascending: false }),
+        supabase.from("usuario_app").select("id", { count: "exact", head: true }).eq("activo", true),
+        supabase.from("actividad").select("id", { count: "exact", head: true }),
+        supabase.from("club").select("id", { count: "exact", head: true }).eq("activo", true),
+        supabase.from("revision_contenido").select("id, tema_id, estado, notas, creado_en, revisado_en, tema:tema_id(titulo, senda:senda_id(nombre)), enviado:enviado_por(nombre_visible)").in("estado", ["enviado", "cambios_solicitados"]).order("creado_en", { ascending: false }).limit(8),
+        supabase.from("registro_auditoria").select("id, accion, tipo_entidad, entidad_id, creado_en, actor:actor_usuario_id(nombre_visible)").order("creado_en", { ascending: false }).limit(10)
+      ]);
+
+      for (const resultado of [temasResult, usuariosResult, actividadesResult, clubesResult, revisionesResult, auditoriaResult]) {
+        if (resultado.error) throw resultado.error;
+      }
+
+      const temas = temasResult.data ?? [];
+      const estados = ["borrador", "revision", "aprobado", "publicado", "archivado"].reduce<Record<string, number>>((acumulado, estado) => {
+        acumulado[estado] = temas.filter((tema) => tema.estado === estado).length;
+        return acumulado;
+      }, {});
+
+      const publicacionesSemana = Array.from({ length: 7 }, (_, indice) => {
+        const fecha = new Date(inicioSemana);
+        fecha.setDate(inicioSemana.getDate() + indice);
+        const clave = fecha.toISOString().slice(0, 10);
+        return {
+          fecha: clave,
+          etiqueta: new Intl.DateTimeFormat("es-EC", { weekday: "short" }).format(fecha),
+          total: temas.filter((tema) => tema.publicado_en?.slice(0, 10) === clave).length
+        };
+      });
+
+      return {
+        metricas: {
+          temas: temas.length,
+          publicados: estados.publicado ?? 0,
+          usuarios_activos: usuariosResult.count ?? 0,
+          actividades: actividadesResult.count ?? 0,
+          clubes_activos: clubesResult.count ?? 0,
+          pendientes_revision: revisionesResult.data?.length ?? 0
+        },
+        estados,
+        temas_recientes: temas.slice(0, 6).map((tema: any) => ({
+          id: tema.id,
+          titulo: tema.titulo,
+          estado: tema.estado,
+          actualizado_en: tema.actualizado_en,
+          senda: tema.senda?.nombre ?? "Sin senda",
+          autor: tema.autor?.nombre_visible ?? "Sin autor"
+        })),
+        revisiones: (revisionesResult.data ?? []).map((revision: any) => ({
+          id: revision.id,
+          tema_id: revision.tema_id,
+          titulo: revision.tema?.titulo ?? "Tema",
+          senda: revision.tema?.senda?.nombre ?? "Sin senda",
+          estado: revision.estado,
+          notas: revision.notas,
+          creado_en: revision.creado_en,
+          enviado_por: revision.enviado?.nombre_visible ?? "Administrador"
+        })),
+        actividad_reciente: (auditoriaResult.data ?? []).map((evento: any) => ({
+          id: evento.id,
+          accion: evento.accion,
+          tipo_entidad: evento.tipo_entidad,
+          entidad_id: evento.entidad_id,
+          creado_en: evento.creado_en,
+          actor: evento.actor?.nombre_visible ?? "Sistema"
+        })),
+        publicaciones_semana: publicacionesSemana
+      };
+    },
+
+    async listarTemasPaginados(filtros: { q?: string; estado?: string; sendaId?: string; grupoEdadId?: string; limit: number; offset: number }) {
+      let themeIdsByAge: string[] | null = null;
+      if (filtros.grupoEdadId) {
+        const { data: relaciones, error: relacionesError } = await supabase.from("tema_grupo_edad").select("tema_id").eq("grupo_edad_id", filtros.grupoEdadId);
+        if (relacionesError) throw relacionesError;
+        themeIdsByAge = [...new Set((relaciones ?? []).map((relacion) => relacion.tema_id))];
+        if (themeIdsByAge.length === 0) return { temas: [], total: 0, limit: filtros.limit, offset: filtros.offset };
+      }
+
+      let query = supabase
+        .from("tema")
+        .select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))", { count: "exact" })
+        .order("actualizado_en", { ascending: false })
+        .range(filtros.offset, filtros.offset + filtros.limit - 1);
+
+      if (filtros.q) {
+        const q = filtros.q.replace(/[,%()]/g, " ").trim();
+        if (q) query = query.or(`titulo.ilike.%${q}%,resumen.ilike.%${q}%,slug.ilike.%${q}%`);
+      }
+      if (filtros.estado && filtros.estado !== "todos") query = query.eq("estado", filtros.estado as Database["public"]["Enums"]["estado_publicacion"]);
+      if (filtros.sendaId) query = query.eq("senda_id", filtros.sendaId);
+      if (themeIdsByAge) query = query.in("id", themeIdsByAge);
+
+      const { data, error, count } = await query;
+      if (error) throw error;
+      const temas = await Promise.all((data ?? []).map(async (theme: Record<string, unknown>) => ({
+        ...mapTheme(theme),
+        completitud: await calcularCompletitudTema(String(theme.id))
+      })));
+
+      return { temas, total: count ?? 0, limit: filtros.limit, offset: filtros.offset };
+    },
+
+    async obtenerEstudioTema(temaId: string) {
+      const [tema, pasos, actividades, completitud, revisionesResult] = await Promise.all([
+        this.obtenerTema(temaId),
+        this.listarPasosTema(temaId),
+        this.listarActividades({ temaId, limit: 500, offset: 0 }),
+        calcularCompletitudTema(temaId),
+        supabase.from("revision_contenido").select("*").eq("tema_id", temaId).order("creado_en", { ascending: false }).limit(10)
+      ]);
+      if (revisionesResult.error) throw revisionesResult.error;
+      return { tema, pasos, actividades: actividades.actividades, completitud, revisiones: revisionesResult.data ?? [] };
     },
 
     async listarActividades(filtros: { temaId?: string; tipoId?: string; grupoEdadId?: string; estado?: string; limit: number; offset: number }) {
@@ -133,6 +320,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
           estado: "borrador",
           xp_recompensa: body.xp_recompensa,
           minutos_estimados: body.minutos_estimados,
+          portada_recurso_id: body.portada_recurso_id ?? null,
           creado_por: userId
         })
         .select("*")
@@ -154,7 +342,9 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       const { data: theme, error } = await supabase
         .from("tema")
         .update({
+          ...(body.senda_id !== undefined ? { senda_id: body.senda_id } : {}),
           ...(body.titulo !== undefined ? { titulo: body.titulo } : {}),
+          ...(body.slug !== undefined ? { slug: body.slug } : {}),
           ...(body.objetivo !== undefined ? { objetivo: body.objetivo } : {}),
           ...(body.resumen !== undefined ? { resumen: body.resumen } : {}),
           ...(body.minutos_estimados !== undefined ? { minutos_estimados: body.minutos_estimados } : {}),
@@ -204,13 +394,44 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       const sortOrder = stepType?.orden ?? 1;
       const { data: step, error: stepError } = await supabase.from("paso_tema").upsert({ tema_id: temaId, tipo_paso_id: body.tipo_paso_id, orden: sortOrder, obligatorio: true }, { onConflict: "tema_id,tipo_paso_id" }).select("*").single();
       if (stepError || !step) throw stepError;
-      const { data: content, error: contentError } = await supabase.from("contenido_paso_tema").upsert({ paso_id: step.id, grupo_edad_id: body.grupo_edad_id, titulo: body.titulo, cuerpo: body.cuerpo, instruccion_corta: body.instruccion_corta ?? null }, { onConflict: "paso_id,grupo_edad_id" }).select("*").single();
+      const { data: content, error: contentError } = await supabase.from("contenido_paso_tema").upsert({
+        paso_id: step.id,
+        grupo_edad_id: body.grupo_edad_id,
+        titulo: body.titulo,
+        cuerpo: body.cuerpo,
+        instruccion_corta: body.instruccion_corta ?? null,
+        recurso_id: body.recurso_id ?? null,
+        recurso_audio_id: body.recurso_audio_id ?? null,
+        datos_extra: (body.datos_extra ?? {}) as Json
+      }, { onConflict: "paso_id,grupo_edad_id" }).select("*").single();
       if (contentError) throw contentError;
-      return { paso: mapStep(step as Record<string, unknown>), contenido: { id: String(content.id), paso_id: String(content.paso_id), grupo_edad_id: String(content.grupo_edad_id), titulo: String(content.titulo), cuerpo: String(content.cuerpo), instruccion_corta: (content.instruccion_corta ?? null) as string | null } };
+
+      if (body.preguntas) {
+        const { error: deleteQuestionsError } = await supabase.from("pregunta_reflexion").delete().eq("paso_id", step.id).eq("grupo_edad_id", body.grupo_edad_id);
+        if (deleteQuestionsError) throw deleteQuestionsError;
+        if (body.preguntas.length > 0) {
+          const { error: insertQuestionsError } = await supabase.from("pregunta_reflexion").insert(body.preguntas.map((pregunta) => ({
+            paso_id: step.id,
+            grupo_edad_id: body.grupo_edad_id,
+            pregunta: pregunta.pregunta,
+            orden: pregunta.orden
+          })));
+          if (insertQuestionsError) throw insertQuestionsError;
+        }
+      }
+
+      return { paso: mapStep(step as Record<string, unknown>), contenido: {
+        id: String(content.id), paso_id: String(content.paso_id), grupo_edad_id: String(content.grupo_edad_id),
+        titulo: String(content.titulo), cuerpo: String(content.cuerpo),
+        instruccion_corta: (content.instruccion_corta ?? null) as string | null,
+        recurso_id: (content.recurso_id ?? null) as string | null,
+        recurso_audio_id: (content.recurso_audio_id ?? null) as string | null,
+        datos_extra: (content.datos_extra ?? {}) as Record<string, unknown>
+      } };
     },
 
     async listarPasosTema(temaId: string) {
-      const { data: steps, error } = await supabase.from("paso_tema").select(`*, tipo_paso:tipo_paso_id(*), contenidos:contenido_paso_tema(*)`).eq("tema_id", temaId).order("orden", { ascending: true });
+      const { data: steps, error } = await supabase.from("paso_tema").select(`*, tipo_paso:tipo_paso_id(*), contenidos:contenido_paso_tema(*), preguntas:pregunta_reflexion(*)`).eq("tema_id", temaId).order("orden", { ascending: true });
       if (error) throw error;
       return (steps ?? []).map((step: Record<string, unknown>) => mapStep(step));
     },
@@ -287,12 +508,100 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       return { deleted: true };
     },
 
+    async reordenarActividades(temaId: string, body: ReorderActivitiesInput) {
+      const { data: actividades, error } = await supabase.from("actividad").select("id").eq("tema_id", temaId).in("id", body.actividad_ids);
+      if (error) throw error;
+      if ((actividades ?? []).length !== body.actividad_ids.length) throw new BadRequestError("Una o más actividades no pertenecen al tema");
+
+      for (let indice = 0; indice < body.actividad_ids.length; indice += 1) {
+        const { error: updateError } = await supabase.from("actividad").update({ orden: 1000 + indice }).eq("id", body.actividad_ids[indice]);
+        if (updateError) throw updateError;
+      }
+      for (let indice = 0; indice < body.actividad_ids.length; indice += 1) {
+        const { error: updateError } = await supabase.from("actividad").update({ orden: indice + 1, actualizado_en: new Date().toISOString() }).eq("id", body.actividad_ids[indice]);
+        if (updateError) throw updateError;
+      }
+      return this.listarActividades({ temaId, limit: 500, offset: 0 });
+    },
+
+    async duplicarActividad(actividadId: string) {
+      const { data: origen, error } = await supabase.from("actividad").select("*, opciones:opcion_actividad(*)").eq("id", actividadId).single();
+      if (error || !origen) throw new NotFoundError("Actividad no encontrada");
+      const { data: creada, error: createError } = await supabase.from("actividad").insert({
+        tema_id: origen.tema_id,
+        paso_id: origen.paso_id,
+        grupo_edad_id: origen.grupo_edad_id,
+        tipo_actividad_id: origen.tipo_actividad_id,
+        titulo: crearTituloCopia(origen.titulo),
+        consigna: origen.consigna,
+        retroalimentacion: origen.retroalimentacion,
+        orden: Number(origen.orden ?? 0) + 1,
+        xp_recompensa: origen.xp_recompensa,
+        limite_tiempo_seg: origen.limite_tiempo_seg,
+        dificultad: origen.dificultad,
+        obligatorio: origen.obligatorio,
+        configuracion: origen.configuracion
+      }).select("*").single();
+      if (createError || !creada) throw createError;
+      const opciones = Array.isArray(origen.opciones) ? origen.opciones : [];
+      if (opciones.length > 0) {
+        const { error: optionsError } = await supabase.from("opcion_actividad").insert(opciones.map((opcion: any) => ({
+          actividad_id: creada.id,
+          etiqueta: opcion.etiqueta,
+          texto: opcion.texto,
+          correcta: opcion.correcta,
+          orden: opcion.orden,
+          retroalimentacion: opcion.retroalimentacion
+        })));
+        if (optionsError) throw optionsError;
+      }
+      return this.obtenerActividad(creada.id);
+    },
+
+    async enviarTemaRevision(temaId: string, body: SubmitReviewInput, userId: string) {
+      const completitud = await calcularCompletitudTema(temaId);
+      if (!completitud.listo_para_revision) {
+        throw new BadRequestError("Completa la información, CRECER y actividades antes de enviar a revisión", completitud);
+      }
+      const { data, error } = await supabase.from("revision_contenido").insert({
+        tema_id: temaId,
+        enviado_por: userId,
+        estado: "enviado",
+        notas: body.notas ?? null
+      }).select("*").single();
+      if (error) throw error;
+      await supabase.from("tema").update({ estado: "revision", actualizado_en: new Date().toISOString() }).eq("id", temaId);
+      await registrarAuditoria({ actorId: userId, accion: "enviar_revision", tipoEntidad: "tema", entidadId: temaId, despues: data });
+      return data;
+    },
+
+    async resolverRevisionTema(temaId: string, body: ResolveReviewInput, userId: string) {
+      const { data: revision, error: revisionError } = await supabase.from("revision_contenido").select("id").eq("tema_id", temaId).eq("estado", "enviado").order("creado_en", { ascending: false }).limit(1).maybeSingle();
+      if (revisionError) throw revisionError;
+      if (!revision) throw new BadRequestError("El tema no tiene una revisión pendiente");
+      const { data, error } = await supabase.from("revision_contenido").update({
+        estado: body.estado,
+        notas: body.notas ?? null,
+        revisado_por: userId,
+        revisado_en: new Date().toISOString()
+      }).eq("id", revision.id).select("*").single();
+      if (error) throw error;
+      const estadoTema = body.estado === "aprobado" ? "aprobado" : "borrador";
+      await supabase.from("tema").update({ estado: estadoTema, actualizado_en: new Date().toISOString() }).eq("id", temaId);
+      await registrarAuditoria({ actorId: userId, accion: `revision_${body.estado}`, tipoEntidad: "tema", entidadId: temaId, despues: data });
+      return data;
+    },
+
     async publicarTema(temaId: string, userId: string) {
-      const { data: theme, error: themeError } = await supabase.from("tema").select("id, version_contenido").eq("id", temaId).single();
+      const completitud = await calcularCompletitudTema(temaId);
+      if (!completitud.listo_para_revision) throw new BadRequestError("El tema todavía no está completo para publicarse", completitud);
+      const { data: theme, error: themeError } = await supabase.from("tema").select("id, estado, version_contenido").eq("id", temaId).single();
       if (themeError || !theme) throw new NotFoundError("Tema no encontrado");
+      if (theme.estado !== "aprobado" && theme.estado !== "publicado") throw new BadRequestError("El tema debe aprobarse antes de publicarse");
       const currentVersion = theme.version_contenido ?? 0;
       const { data, error } = await supabase.from("tema").update({ estado: "publicado", version_contenido: currentVersion + 1, publicado_por: userId, publicado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() }).eq("id", temaId).select("*").single();
       if (error) throw error;
+      await registrarAuditoria({ actorId: userId, accion: "publicar", tipoEntidad: "tema", entidadId: temaId, despues: data });
       return mapTheme(data as Record<string, unknown>);
     },
 
@@ -309,20 +618,117 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     },
 
     async duplicarTema(temaId: string, user: AdminUser) {
-      const { data: temaOrigen, error: temaOrigenError } = await supabase.from("tema").select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))").eq("id", temaId).single();
-      if (temaOrigenError || !temaOrigen) throw new NotFoundError("Tema no encontrado");
-      const temaBase = temaOrigen as Record<string, unknown>;
-      const { data: temaDuplicado, error: duplicadoError } = await supabase.from("tema").insert({ senda_id: String(temaBase.senda_id ?? ""), titulo: crearTituloCopia(String(temaBase.titulo ?? "Tema")), slug: crearSlugCopia(String(temaBase.slug ?? "tema")), objetivo: String(temaBase.objetivo ?? ""), resumen: (temaBase.resumen ?? null) as string | null, portada_recurso_id: (temaBase.portada_recurso_id ?? null) as string | null, estado: "borrador", version_biblica_id: (temaBase.version_biblica_id ?? null) as string | null, xp_recompensa: Number(temaBase.xp_recompensa ?? 0), minutos_estimados: Number(temaBase.minutos_estimados ?? 0), version_contenido: 0, creado_por: user.id, actualizado_en: new Date().toISOString() }).select("*").single();
-      if (duplicadoError || !temaDuplicado) throw duplicadoError ?? new NotFoundError("Tema duplicado no encontrado");
-      const gruposEdad = Array.isArray(temaBase.grupos_edad) ? temaBase.grupos_edad.map((grupo) => { const grupoEdadRaw = (grupo as Record<string, unknown>).grupo_edad as Record<string, unknown> | undefined; const grupoEdad = grupoEdadRaw ?? (grupo as Record<string, unknown>); return { tema_id: String((temaDuplicado as Record<string, unknown>).id ?? ""), grupo_edad_id: String(grupoEdad.id ?? "") }; }) : [];
-      if (gruposEdad.length > 0) {
-        const { error: gruposError } = await supabase.from("tema_grupo_edad").insert(gruposEdad);
-        if (gruposError) {
-          await supabase.from("tema").delete().eq("id", String((temaDuplicado as Record<string, unknown>).id ?? ""));
-          throw gruposError;
+      const [temaOrigenResult, pasosResult, actividadesResult] = await Promise.all([
+        supabase.from("tema").select("*, path:senda_id(id, codigo, nombre, color_hex), created_by:creado_por(id, nombre_visible), portada_recurso:portada_recurso_id(id, url_publica, texto_alternativo, titulo), grupos_edad:tema_grupo_edad(grupo_edad:grupo_edad_id(id, codigo, nombre))").eq("id", temaId).single(),
+        supabase.from("paso_tema").select("*, contenidos:contenido_paso_tema(*), preguntas:pregunta_reflexion(*)").eq("tema_id", temaId).order("orden"),
+        supabase.from("actividad").select("*, opciones:opcion_actividad(*)").eq("tema_id", temaId).order("orden")
+      ]);
+      if (temaOrigenResult.error || !temaOrigenResult.data) throw new NotFoundError("Tema no encontrado");
+      if (pasosResult.error) throw pasosResult.error;
+      if (actividadesResult.error) throw actividadesResult.error;
+
+      const temaBase = temaOrigenResult.data as any;
+      const { data: temaDuplicado, error: duplicadoError } = await supabase.from("tema").insert({
+        senda_id: temaBase.senda_id,
+        titulo: crearTituloCopia(temaBase.titulo ?? "Tema"),
+        slug: crearSlugCopia(temaBase.slug ?? "tema"),
+        objetivo: temaBase.objetivo,
+        resumen: temaBase.resumen,
+        portada_recurso_id: temaBase.portada_recurso_id,
+        estado: "borrador",
+        version_biblica_id: temaBase.version_biblica_id,
+        xp_recompensa: temaBase.xp_recompensa,
+        minutos_estimados: temaBase.minutos_estimados,
+        version_contenido: 0,
+        creado_por: user.id,
+        actualizado_en: new Date().toISOString()
+      }).select("*").single();
+      if (duplicadoError || !temaDuplicado) throw duplicadoError ?? new Error("No se pudo duplicar el tema");
+
+      try {
+        const gruposEdad = Array.isArray(temaBase.grupos_edad) ? temaBase.grupos_edad.map((grupo: any) => ({
+          tema_id: temaDuplicado.id,
+          grupo_edad_id: grupo.grupo_edad?.id ?? grupo.id
+        })) : [];
+        if (gruposEdad.length > 0) {
+          const { error } = await supabase.from("tema_grupo_edad").insert(gruposEdad);
+          if (error) throw error;
         }
+
+        const pasoIdMap = new Map<string, string>();
+        for (const paso of pasosResult.data ?? []) {
+          const { data: nuevoPaso, error } = await supabase.from("paso_tema").insert({
+            tema_id: temaDuplicado.id,
+            tipo_paso_id: paso.tipo_paso_id,
+            orden: paso.orden,
+            obligatorio: paso.obligatorio
+          }).select("*").single();
+          if (error || !nuevoPaso) throw error;
+          pasoIdMap.set(paso.id, nuevoPaso.id);
+
+          const contenidos = Array.isArray(paso.contenidos) ? paso.contenidos : [];
+          if (contenidos.length > 0) {
+            const { error: contentError } = await supabase.from("contenido_paso_tema").insert(contenidos.map((contenido: any) => ({
+              paso_id: nuevoPaso.id,
+              grupo_edad_id: contenido.grupo_edad_id,
+              titulo: contenido.titulo,
+              cuerpo: contenido.cuerpo,
+              instruccion_corta: contenido.instruccion_corta,
+              recurso_id: contenido.recurso_id,
+              recurso_audio_id: contenido.recurso_audio_id,
+              datos_extra: contenido.datos_extra
+            })));
+            if (contentError) throw contentError;
+          }
+          const preguntas = Array.isArray(paso.preguntas) ? paso.preguntas : [];
+          if (preguntas.length > 0) {
+            const { error: questionsError } = await supabase.from("pregunta_reflexion").insert(preguntas.map((pregunta: any) => ({
+              paso_id: nuevoPaso.id,
+              grupo_edad_id: pregunta.grupo_edad_id,
+              pregunta: pregunta.pregunta,
+              orden: pregunta.orden
+            })));
+            if (questionsError) throw questionsError;
+          }
+        }
+
+        for (const actividad of actividadesResult.data ?? []) {
+          const { data: nuevaActividad, error } = await supabase.from("actividad").insert({
+            tema_id: temaDuplicado.id,
+            paso_id: actividad.paso_id ? pasoIdMap.get(actividad.paso_id) ?? null : null,
+            grupo_edad_id: actividad.grupo_edad_id,
+            tipo_actividad_id: actividad.tipo_actividad_id,
+            titulo: actividad.titulo,
+            consigna: actividad.consigna,
+            retroalimentacion: actividad.retroalimentacion,
+            orden: actividad.orden,
+            xp_recompensa: actividad.xp_recompensa,
+            limite_tiempo_seg: actividad.limite_tiempo_seg,
+            dificultad: actividad.dificultad,
+            obligatorio: actividad.obligatorio,
+            configuracion: actividad.configuracion
+          }).select("*").single();
+          if (error || !nuevaActividad) throw error;
+          const opciones = Array.isArray(actividad.opciones) ? actividad.opciones : [];
+          if (opciones.length > 0) {
+            const { error: optionsError } = await supabase.from("opcion_actividad").insert(opciones.map((opcion: any) => ({
+              actividad_id: nuevaActividad.id,
+              etiqueta: opcion.etiqueta,
+              texto: opcion.texto,
+              correcta: opcion.correcta,
+              orden: opcion.orden,
+              retroalimentacion: opcion.retroalimentacion
+            })));
+            if (optionsError) throw optionsError;
+          }
+        }
+      } catch (error) {
+        await supabase.from("tema").delete().eq("id", temaDuplicado.id);
+        throw error;
       }
-      return mapTheme({ ...(temaBase as Record<string, unknown>), ...(temaDuplicado as Record<string, unknown>), path: temaBase.path, created_by: { id: user.id, nombre_visible: user.displayName }, portada_recurso: temaBase.portada_recurso, grupos_edad: temaBase.grupos_edad });
+
+      await registrarAuditoria({ actorId: user.id, accion: "duplicar", tipoEntidad: "tema", entidadId: temaDuplicado.id, despues: { origen_id: temaId } });
+      return this.obtenerTema(temaDuplicado.id);
     },
 
     async listarUsuarios(params: { q?: string; rol?: string; limit: number; offset: number }) {

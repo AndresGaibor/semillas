@@ -4,6 +4,7 @@ type RepositorioAdmin = ReturnType<typeof crearAdminRepository>;
 
 export function crearCasoObtenerResumen(repositorio: RepositorioAdmin) {
   return {
-    ejecutar: () => repositorio.obtenerResumen()
+    ejecutar: () => repositorio.obtenerResumen(),
+    ejecutarDetallado: () => repositorio.obtenerResumenDetallado(),
   };
 }

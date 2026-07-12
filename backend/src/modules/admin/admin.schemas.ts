@@ -8,6 +8,11 @@ const opcionActividadSchema = z.object({
   retroalimentacion: z.string().optional()
 });
 
+const preguntaReflexionSchema = z.object({
+  pregunta: z.string().min(3).max(500),
+  orden: z.number().int().min(1)
+});
+
 export const createThemeSchema = z.object({
   senda_id: z.string().uuid(),
   titulo: z.string().min(3).max(120),
@@ -17,11 +22,14 @@ export const createThemeSchema = z.object({
   version_biblica_id: z.string().uuid(),
   minutos_estimados: z.number().int().min(1).max(120).default(10),
   xp_recompensa: z.number().int().min(0).max(500).default(50),
-  grupo_edad_ids: z.array(z.string().uuid()).min(1)
+  grupo_edad_ids: z.array(z.string().uuid()).min(1),
+  portada_recurso_id: z.string().uuid().nullable().optional()
 });
 
 export const updateThemeSchema = z.object({
+  senda_id: z.string().uuid().optional(),
   titulo: z.string().min(3).max(120).optional(),
+  slug: z.string().min(3).max(140).optional(),
   objetivo: z.string().min(10).optional(),
   resumen: z.string().min(10).optional(),
   minutos_estimados: z.number().int().min(1).max(120).optional(),
@@ -36,7 +44,11 @@ export const upsertStepContentSchema = z.object({
   grupo_edad_id: z.string().uuid(),
   titulo: z.string().min(2).max(120),
   cuerpo: z.string().min(5),
-  instruccion_corta: z.string().optional()
+  instruccion_corta: z.string().max(240).optional(),
+  recurso_id: z.string().uuid().nullable().optional(),
+  recurso_audio_id: z.string().uuid().nullable().optional(),
+  datos_extra: z.record(z.string(), z.unknown()).optional(),
+  preguntas: z.array(preguntaReflexionSchema).max(12).optional()
 });
 
 export const updateActivitySchema = z.object({
@@ -53,11 +65,7 @@ export const updateActivitySchema = z.object({
   dificultad: z.enum(["facil", "normal", "dificil"]).optional(),
   obligatorio: z.boolean().optional(),
   configuracion: z.record(z.string(), z.unknown()).optional(),
-  opciones: z
-    .array(
-      opcionActividadSchema
-    )
-    .optional()
+  opciones: z.array(opcionActividadSchema).optional()
 });
 
 export const updateUserSchema = z.object({
@@ -79,9 +87,18 @@ export const createActivitySchema = z.object({
   dificultad: z.enum(["facil", "normal", "dificil"]).default("facil"),
   obligatorio: z.boolean().default(true),
   configuracion: z.record(z.string(), z.unknown()).default({}),
-  opciones: z
-    .array(
-      opcionActividadSchema
-    )
-    .default([])
+  opciones: z.array(opcionActividadSchema).default([])
+});
+
+export const reorderActivitiesSchema = z.object({
+  actividad_ids: z.array(z.string().uuid()).min(1).max(200)
+});
+
+export const submitReviewSchema = z.object({
+  notas: z.string().max(2000).optional()
+});
+
+export const resolveReviewSchema = z.object({
+  estado: z.enum(["aprobado", "cambios_solicitados", "rechazado"]),
+  notas: z.string().max(2000).optional()
 });

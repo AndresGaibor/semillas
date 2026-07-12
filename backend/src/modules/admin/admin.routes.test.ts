@@ -184,15 +184,21 @@ describe("admin.routes", () => {
       },
       {
         metodo: "GET",
-        path: "/rest/v1/tema_grupo_edad",
+        path: "/rest/v1/paso_tema",
         responder: () =>
-          new Response(
-            JSON.stringify([
-              { tema_id: "tema-1", grupo_edad_id: "grupo-1", grupo_edad: { id: "grupo-1", codigo: "semillas", nombre: "Semillas" } },
-              { tema_id: "tema-1", grupo_edad_id: "grupo-2", grupo_edad: { id: "grupo-2", codigo: "exploradores", nombre: "Exploradores" } }
-            ]),
-            { status: 200, headers: { "content-type": "application/json" } }
-          )
+          new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          })
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/actividad",
+        responder: () =>
+          new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          })
       },
       {
         metodo: "POST",
@@ -241,6 +247,48 @@ describe("admin.routes", () => {
             headers: { "content-type": "application/json" }
           });
         }
+      },
+      {
+        metodo: "POST",
+        path: "/rest/v1/registro_auditoria",
+        responder: () =>
+          new Response(JSON.stringify({}), {
+            status: 201,
+            headers: { "content-type": "application/json" }
+          })
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/tema",
+        responder: () =>
+          new Response(
+            JSON.stringify({
+              id: "tema-duplicado",
+              senda_id: "senda-1",
+              titulo: "La creación (copia)",
+              slug: "la-creacion-copia-12345678",
+              objetivo: "Aprender sobre la creación",
+              resumen: "Dios creó todo",
+              portada_recurso_id: "portada-1",
+              estado: "borrador",
+              version_biblica_id: "biblia-1",
+              xp_recompensa: 100,
+              minutos_estimados: 10,
+              version_contenido: 0,
+              publicado_en: null,
+              creado_en: "2026-01-03T00:00:00.000Z",
+              actualizado_en: "2026-01-03T00:00:00.000Z",
+              creado_por: "usuario-admin",
+              path: { id: "senda-1", codigo: "padre", nombre: "Padre", color_hex: "#3D8BD4" },
+              created_by: { id: "usuario-admin", nombre_visible: "Admin" },
+              portada_recurso: { id: "portada-1", url_publica: "https://cdn.test/portada.png", texto_alternativo: "Portada", titulo: "Portada" },
+              grupos_edad: [
+                { grupo_edad: { id: "grupo-1", codigo: "semillas", nombre: "Semillas" } },
+                { grupo_edad: { id: "grupo-2", codigo: "exploradores", nombre: "Exploradores" } }
+              ]
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          )
       }
     ]);
 

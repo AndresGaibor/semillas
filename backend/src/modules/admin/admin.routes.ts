@@ -8,6 +8,9 @@ import { responderExito } from "../../shared/http/respuesta";
 import {
   createActivitySchema,
   createThemeSchema,
+  reorderActivitiesSchema,
+  resolveReviewSchema,
+  submitReviewSchema,
   updateActivitySchema,
   updateThemeSchema,
   updateUserSchema,
@@ -40,12 +43,22 @@ export function crearModuloAdmin() {
     const casos = obtenerCasosUso(c);
     return responderExito(await casos.resumen.ejecutar());
   });
+  adminRoutes.get("/resumen/detallado", async (c) => responderExito(await obtenerCasosUso(c).resumen.ejecutarDetallado()));
   adminRoutes.get("/actividades", async (c) => {
     const casos = obtenerCasosUso(c);
     return responderExito(await casos.actividades.listar({ temaId: c.req.query("tema_id") ?? undefined, tipoId: c.req.query("tipo_actividad_id") ?? undefined, grupoEdadId: c.req.query("grupo_edad_id") ?? undefined, estado: c.req.query("estado") ?? undefined, limit: Math.min(Math.max(Number(c.req.query("limit") ?? "100"), 1), 500), offset: Math.max(Number(c.req.query("offset") ?? "0"), 0) }));
   });
   adminRoutes.get("/actividades/:actividad_id", async (c) => responderExito(await obtenerCasosUso(c).actividades.obtener(c.req.param("actividad_id"))));
   adminRoutes.get("/temas", async (c) => responderExito(await obtenerCasosUso(c).temas.listar(c.req.query("status") ?? undefined)));
+  adminRoutes.get("/temas-listado", async (c) => responderExito(await obtenerCasosUso(c).temas.listarPaginados({
+    q: c.req.query("q") ?? undefined,
+    estado: c.req.query("estado") ?? undefined,
+    sendaId: c.req.query("senda_id") ?? undefined,
+    grupoEdadId: c.req.query("grupo_edad_id") ?? undefined,
+    limit: Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100),
+    offset: Math.max(Number(c.req.query("offset") ?? "0"), 0)
+  })));
+  adminRoutes.get("/temas/:tema_id/estudio", async (c) => responderExito(await obtenerCasosUso(c).temas.obtenerEstudio(c.req.param("tema_id"))));
   adminRoutes.get("/temas/:tema_id", async (c) => responderExito(await obtenerCasosUso(c).temas.obtener(c.req.param("tema_id"))));
   adminRoutes.post("/temas", zValidator("json", createThemeSchema), async (c) => responderExito(await obtenerCasosUso(c).temas.crear(c.req.valid("json"), c.get("user").id), 201));
   adminRoutes.patch("/temas/:tema_id", zValidator("json", updateThemeSchema), async (c) => responderExito(await obtenerCasosUso(c).temas.actualizar(c.req.param("tema_id"), c.req.valid("json"))));
@@ -56,6 +69,10 @@ export function crearModuloAdmin() {
   adminRoutes.post("/actividades", zValidator("json", createActivitySchema), async (c) => responderExito(await obtenerCasosUso(c).actividades.crear(c.req.valid("json")), 201));
   adminRoutes.patch("/actividades/:actividad_id", zValidator("json", updateActivitySchema), async (c) => responderExito(await obtenerCasosUso(c).actividades.actualizar(c.req.param("actividad_id"), c.req.valid("json"))));
   adminRoutes.delete("/actividades/:actividad_id", async (c) => responderExito(await obtenerCasosUso(c).actividades.eliminar(c.req.param("actividad_id"))));
+  adminRoutes.post("/actividades/:actividad_id/duplicar", async (c) => responderExito(await obtenerCasosUso(c).actividades.duplicar(c.req.param("actividad_id")), 201));
+  adminRoutes.post("/temas/:tema_id/actividades/reordenar", zValidator("json", reorderActivitiesSchema), async (c) => responderExito(await obtenerCasosUso(c).actividades.reordenar(c.req.param("tema_id"), c.req.valid("json"))));
+  adminRoutes.post("/temas/:tema_id/enviar-revision", zValidator("json", submitReviewSchema), async (c) => responderExito(await obtenerCasosUso(c).temas.enviarRevision(c.req.param("tema_id"), c.req.valid("json"), c.get("user").id)));
+  adminRoutes.post("/temas/:tema_id/resolver-revision", zValidator("json", resolveReviewSchema), async (c) => responderExito(await obtenerCasosUso(c).temas.resolverRevision(c.req.param("tema_id"), c.req.valid("json"), c.get("user").id)));
   adminRoutes.post("/temas/:tema_id/publicar", async (c) => responderExito(await obtenerCasosUso(c).temas.publicar(c.req.param("tema_id"), c.get("user").id)));
   adminRoutes.post("/temas/:tema_id/borrador", async (c) => responderExito(await obtenerCasosUso(c).temas.guardarBorrador(c.req.param("tema_id"))));
   adminRoutes.post("/temas/:tema_id/archivar", async (c) => responderExito(await obtenerCasosUso(c).temas.archivar(c.req.param("tema_id"))));

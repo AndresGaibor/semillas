@@ -8,6 +8,8 @@ export function crearCasosUsoActividades(repositorio: RepositorioAdmin) {
     obtener: (actividadId: string) => repositorio.obtenerActividad(actividadId),
     crear: (body: Parameters<RepositorioAdmin["crearActividad"]>[0]) => repositorio.crearActividad(body),
     actualizar: (actividadId: string, body: Parameters<RepositorioAdmin["actualizarActividad"]>[1]) => repositorio.actualizarActividad(actividadId, body),
-    eliminar: (actividadId: string) => repositorio.borrarActividad(actividadId)
+    eliminar: (actividadId: string) => repositorio.borrarActividad(actividadId),
+    duplicar: (actividadId: string) => repositorio.duplicarActividad(actividadId),
+    reordenar: (temaId: string, body: Parameters<RepositorioAdmin["reordenarActividades"]>[1]) => repositorio.reordenarActividades(temaId, body),
   };
 }
