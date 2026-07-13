@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 
 import { unirClases } from "@/lib/utilidades";
 import { ContenidoBoton } from "./boton-iconos";
@@ -28,6 +29,7 @@ export interface PropiedadesBoton
   disabled?: boolean;
   estadoVisual?: EstadoVisualBoton;
   clase?: string;
+  asChild?: boolean;
 }
 
 export const Boton = React.forwardRef<HTMLButtonElement, PropiedadesBoton>(
@@ -48,6 +50,7 @@ export const Boton = React.forwardRef<HTMLButtonElement, PropiedadesBoton>(
       className,
       children,
       type = "button",
+      asChild = false,
       ...propiedades
     },
     referencia,
@@ -57,18 +60,32 @@ export const Boton = React.forwardRef<HTMLButtonElement, PropiedadesBoton>(
     const claseEstadoVisual =
       estadoVisual === "normal" ? "" : clasesEstadoVisual[variante]?.[estadoVisual];
 
+    const classes = unirClases(
+      variantesBoton({ variante, tamano, forma, anchoCompleto }),
+      claseEstadoVisual,
+      className,
+      clase,
+    );
+
+    if (asChild) {
+      return (
+        <Slot
+          ref={referencia}
+          className={classes}
+          {...propiedades}
+        >
+          {children}
+        </Slot>
+      );
+    }
+
     return (
       <button
         ref={referencia}
         type={type}
         disabled={estaDeshabilitado}
         aria-busy={cargando || undefined}
-        className={unirClases(
-          variantesBoton({ variante, tamano, forma, anchoCompleto }),
-          claseEstadoVisual,
-          className,
-          clase,
-        )}
+        className={classes}
         {...propiedades}
       >
         <ContenidoBoton

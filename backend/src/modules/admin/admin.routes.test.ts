@@ -431,4 +431,104 @@ describe("admin.routes", () => {
     });
     expect(body.datos.imagen_recurso_id).toBe(imagenRecursoId);
   });
+
+  it("obtiene y persiste los ajustes administrativos", async () => {
+    let patchBody: Record<string, unknown> | null = null;
+
+    responderSupabase([
+      {
+        metodo: "GET",
+        path: "/rest/v1/usuario_app",
+        responder: () =>
+          new Response(JSON.stringify({
+            id: "usuario-admin",
+            rol: "administrador",
+            proveedor: "invitado",
+            nombre_visible: "Admin",
+            correo: null,
+            activo: true,
+            token_invitado_hash: TOKEN_INVITADO_HASH
+          }), { headers: { "content-type": "application/json" } })
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/usuario_app",
+        responder: () =>
+          new Response(JSON.stringify({
+            id: "usuario-admin",
+            rol: "administrador",
+            proveedor: "invitado",
+            nombre_visible: "Admin",
+            correo: null,
+            activo: true,
+            token_invitado_hash: TOKEN_INVITADO_HASH
+          }), { headers: { "content-type": "application/json" } })
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/ajuste_sistema",
+        responder: () =>
+          new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: true, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } })
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/ajuste_sistema",
+        responder: () =>
+          new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: true, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } })
+      },
+      {
+        metodo: "POST",
+        path: "/rest/v1/ajuste_sistema",
+        responder: async (request) => {
+          patchBody = JSON.parse(await request.clone().text()) as Record<string, unknown>;
+          return new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "ayuda@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: false, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } });
+        }
+      },
+      {
+        metodo: "POST",
+        path: "/rest/v1/registro_auditoria",
+        responder: () => new Response(JSON.stringify({ id: "auditoria-1" }), { headers: { "content-type": "application/json" } })
+      }
+    ]);
+
+    const responseGet = await app.fetch(
+      new Request("http://localhost/administracion/ajustes", {
+        headers: {
+          "x-guest-user-id": "usuario-admin",
+          "x-guest-token": TOKEN_INVITADO
+        }
+      }),
+      env
+    );
+
+    expect(responseGet.status).toBe(200);
+    const bodyGet = (await responseGet.json()) as {
+      exito: boolean;
+      datos: { nombre_plataforma: string; correo_soporte: string | null };
+    };
+    expect(bodyGet.datos.nombre_plataforma).toBe("Semillas");
+
+    const responsePatch = await app.fetch(
+      new Request("http://localhost/administracion/ajustes", {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          "x-guest-user-id": "usuario-admin",
+          "x-guest-token": TOKEN_INVITADO
+        },
+        body: JSON.stringify({
+          correo_soporte: "ayuda@semillas.org",
+          notas_obligatorias_cambios: false
+        })
+      }),
+      env
+    );
+
+    expect(responsePatch.status).toBe(200);
+    expect(patchBody).toMatchObject({
+      id: "global",
+      correo_soporte: "ayuda@semillas.org",
+      notas_obligatorias_cambios: false
+    });
+  });
 });

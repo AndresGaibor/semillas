@@ -47,7 +47,7 @@ export function useClubesPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showChallenge, setShowChallenge] = useState(false);
 
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil, staleTime: 1000 * 60 * 5 });
   const clubesQuery = useQuery({ queryKey: ["clubs", "mine"], queryFn: listarMisClubes });
   const clubes = clubesQuery.data ?? [];
 
@@ -85,7 +85,7 @@ export function useClubesPage() {
     queryFn: () => listarRetosClub(selectedClubId!),
     enabled: Boolean(selectedClubId),
   });
-  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia });
+  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia, staleTime: 1000 * 60 * 3 });
 
   const invalidateClub = useCallback(async () => {
     await Promise.all([

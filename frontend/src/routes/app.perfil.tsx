@@ -39,19 +39,22 @@ function ProfilePage() {
   const { handleLogout } = useAppLayout();
 
   const meQuery = useQuery({
-    queryKey: ["perfil", "me"],
+    queryKey: ["me"],
     queryFn: obtenerMiPerfil,
+    staleTime: 1000 * 60 * 5,
   });
   const gamificacionQuery = useQuery({
-    queryKey: ["perfil", "gamificacion"],
+    queryKey: ["gamification", "me"],
     queryFn: obtenerMiGamificacion,
+    staleTime: 1000 * 60 * 3,
   });
   const progresoQuery = useQuery({
-    queryKey: ["perfil", "progreso"],
+    queryKey: ["progress"],
     queryFn: obtenerMiProgreso,
+    staleTime: 1000 * 60 * 3,
   });
   const gruposEdadQuery = useQuery({
-    queryKey: ["catalogo", "grupos-edad"],
+    queryKey: ["catalog", "age-groups"],
     queryFn: obtenerGruposEdad,
     staleTime: 1000 * 60 * 60,
   });
@@ -59,16 +62,6 @@ function ProfilePage() {
   const actualizarMutation = useMutation({
     mutationFn: (data: ActualizarPerfilDatos) => actualizarPerfil(data),
     onSuccess: async (perfilActualizado) => {
-      queryClient.setQueryData<Awaited<ReturnType<typeof obtenerMiPerfil>>>(
-        ["perfil", "me"],
-        (actual) =>
-          actual
-            ? {
-                ...actual,
-                perfil: { ...actual.perfil, ...perfilActualizado },
-              }
-            : actual,
-      );
       queryClient.setQueryData<Awaited<ReturnType<typeof obtenerMiPerfil>>>(
         ["me"],
         (actual) =>
@@ -79,10 +72,7 @@ function ProfilePage() {
               }
             : actual,
       );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["perfil", "me"] }),
-        queryClient.invalidateQueries({ queryKey: ["me"] }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success("Perfil actualizado");
       void navigate({ search: { seccion: undefined }, replace: true });
     },
@@ -99,10 +89,10 @@ function ProfilePage() {
     progresoQuery.isLoading ||
     gruposEdadQuery.isLoading;
   const tieneError =
-    meQuery.isError ||
-    gamificacionQuery.isError ||
-    progresoQuery.isError ||
-    gruposEdadQuery.isError;
+    (meQuery.isError && !meQuery.data) ||
+    (gamificacionQuery.isError && !gamificacionQuery.data) ||
+    (progresoQuery.isError && !progresoQuery.data) ||
+    (gruposEdadQuery.isError && !gruposEdadQuery.data);
   const esInvitado = usuario?.proveedor === "invitado";
 
   function cambiarSeccion(seccion: ProfileSection) {
@@ -152,7 +142,7 @@ function ProfilePage() {
       <div className="profile-error-state" role="alert">
         <AlertCircle size={32} aria-hidden="true" />
         <h1>No pudimos cargar tu perfil</h1>
-        <p>Revisa tu conexión e inténtalo nuevamente.</p>
+        <p>{!navigator.onLine ? "Sin conexión. Conéctate para ver tu perfil completo." : "Revisa tu conexión e inténtalo nuevamente."}</p>
         <button type="button" className="profile-primary-button" onClick={recargar}>
           <RefreshCcw size={18} aria-hidden="true" />
           Reintentar

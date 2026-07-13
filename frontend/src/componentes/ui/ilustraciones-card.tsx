@@ -31,6 +31,8 @@ export function IlustracionCard({
         src={imagenUrl}
         alt={titulo}
         className="w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
         onError={() => setImagenError(true)}
       />
     );

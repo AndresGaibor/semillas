@@ -37,7 +37,7 @@ export function useSyncStatus() {
         isOnline,
       };
     },
-    refetchInterval: 5_000,
+    refetchInterval: 10_000,
   });
 }
 
@@ -45,7 +45,7 @@ export function useEventosPendientes() {
   return useQuery({
     queryKey: ["sync", "pending-events"],
     queryFn: () => getPendingCount(),
-    refetchInterval: 5_000,
+    refetchInterval: 10_000,
   });
 }
 
@@ -53,7 +53,7 @@ export function useTemasLocales() {
   return useQuery({
     queryKey: ["offline", "temas"],
     queryFn: () => db.temas.orderBy("downloadedAt").reverse().toArray(),
-    refetchInterval: 3_000,
+    refetchInterval: 10_000,
   });
 }
 
@@ -61,7 +61,7 @@ export function useDescargaJobs() {
   return useQuery({
     queryKey: ["offline", "jobs"],
     queryFn: () => db.descargaJobs.toArray(),
-    refetchInterval: 500,
+    refetchInterval: 10_000,
   });
 }
 

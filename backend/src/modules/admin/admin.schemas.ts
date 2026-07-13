@@ -68,10 +68,52 @@ export const updateActivitySchema = z.object({
   opciones: z.array(opcionActividadSchema).optional()
 });
 
+const userRoleSchema = z.enum(["administrador", "usuario", "invitado", "padre"]);
+
 export const updateUserSchema = z.object({
-  rol: z.enum(["administrador", "usuario", "invitado", "padre"]).optional(),
-  nombre_visible: z.string().min(2).max(60).optional()
+  rol: userRoleSchema.optional(),
+  nombre_visible: z.string().trim().min(2).max(120).optional(),
+  activo: z.boolean().optional(),
+  apodo: z.string().trim().min(2).max(100).optional(),
+  grupo_edad_id: z.string().uuid().nullable().optional(),
+  avatar_url: z.string().url().max(500).nullable().optional(),
+  prefiere_audio: z.boolean().optional(),
+  tamano_texto_preferido: z.enum(["pequeno", "mediano", "grande"]).optional(),
+  club_ids: z.array(z.string().uuid()).max(20).optional()
+}).refine((body) => Object.keys(body).length > 0, {
+  message: "Envía al menos un cambio"
 });
+
+export const inviteUserSchema = z.object({
+  correo: z.string().trim().email().max(255),
+  nombre_visible: z.string().trim().min(2).max(120),
+  rol: userRoleSchema.exclude(["invitado"]).default("usuario"),
+  apodo: z.string().trim().min(2).max(100).optional(),
+  grupo_edad_id: z.string().uuid().nullable().optional(),
+  club_id: z.string().uuid().nullable().optional(),
+  redirect_to: z.string().url().optional()
+});
+
+export const createChildUserSchema = z.object({
+  nombre_visible: z.string().trim().min(2).max(120),
+  apodo: z.string().trim().min(2).max(100),
+  grupo_edad_id: z.string().uuid(),
+  tutor_id: z.string().uuid().nullable().optional(),
+  relacion: z.string().trim().min(2).max(50).optional(),
+  club_id: z.string().uuid().nullable().optional(),
+  prefiere_audio: z.boolean().optional(),
+  tamano_texto_preferido: z.enum(["pequeno", "mediano", "grande"]).optional()
+});
+
+export const bulkUserActionSchema = z.object({
+  usuario_ids: z.array(z.string().uuid()).min(1).max(100),
+  accion: z.enum(["activar", "desactivar"])
+});
+
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type InviteUserInput = z.infer<typeof inviteUserSchema>;
+export type CreateChildUserInput = z.infer<typeof createChildUserSchema>;
+export type BulkUserActionInput = z.infer<typeof bulkUserActionSchema>;
 
 export const createActivitySchema = z.object({
   tema_id: z.string().uuid(),
@@ -123,4 +165,18 @@ export const updateSendaSchema = z.object({
   imagen_recurso_id: z.string().uuid().nullable().optional(),
   orden: z.number().int().min(1).optional(),
   activo: z.boolean().optional()
+});
+
+const ajustesSistemaBaseSchema = z.object({
+  nombre_plataforma: z.string().trim().min(2).max(120),
+  correo_soporte: z.string().trim().email().max(255).nullable(),
+  zona_horaria: z.string().trim().min(1).max(80),
+  notas_obligatorias_cambios: z.boolean(),
+  notas_obligatorias_rechazo: z.boolean()
+});
+
+export const ajustesSistemaSchema = ajustesSistemaBaseSchema;
+
+export const actualizarAjustesSistemaSchema = ajustesSistemaBaseSchema.partial().refine((body) => Object.keys(body).length > 0, {
+  message: "Envía al menos un cambio"
 });

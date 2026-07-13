@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import jesusParabolasImg from "@/assets/images/banners/landing_page.png"; // Usar el banner existente como ilustración
 
 export function SugerenciaInstalacionPWA() {
-  const { puedeInstalar, instalar } = useInstalarPWA();
+  const { disponible, instalar } = useInstalarPWA();
   const [mostrar, setMostrar] = useState(false);
   const [esDispositivoIOS, setEsDispositivoIOS] = useState(false);
 
@@ -45,15 +45,15 @@ export function SugerenciaInstalacionPWA() {
     const ios = esIOS();
     setEsDispositivoIOS(ios);
 
-    // Mostrar siempre en móvil para iOS, o cuando `puedeInstalar` sea true en otros sistemas
+    // Mostrar siempre en móvil para iOS, o cuando `disponible` sea true en otros sistemas
     if (ios) {
       const timer = setTimeout(() => setMostrar(true), 1500);
       return () => clearTimeout(timer);
-    } else if (puedeInstalar) {
+    } else if (disponible) {
       const timer = setTimeout(() => setMostrar(true), 1000);
       return () => clearTimeout(timer);
     }
-  }, [puedeInstalar]);
+  }, [disponible]);
 
   const handleDismiss = () => {
     sessionStorage.setItem("semillas-pwa-install-dismissed", "true");
@@ -66,7 +66,7 @@ export function SugerenciaInstalacionPWA() {
       return;
     }
     const outcome = await instalar();
-    if (outcome === "accepted") {
+    if (outcome === "aceptada") {
       setMostrar(false);
     }
   };

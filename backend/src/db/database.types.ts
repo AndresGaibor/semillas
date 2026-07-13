@@ -1136,6 +1136,39 @@ export type Database = {
           },
         ]
       }
+      ajuste_sistema: {
+        Row: {
+          actualizado_en: string
+          correo_soporte: string | null
+          creado_en: string
+          id: string
+          nombre_plataforma: string
+          notas_obligatorias_cambios: boolean
+          notas_obligatorias_rechazo: boolean
+          zona_horaria: string
+        }
+        Insert: {
+          actualizado_en?: string
+          correo_soporte?: string | null
+          creado_en?: string
+          id?: string
+          nombre_plataforma?: string
+          notas_obligatorias_cambios?: boolean
+          notas_obligatorias_rechazo?: boolean
+          zona_horaria?: string
+        }
+        Update: {
+          actualizado_en?: string
+          correo_soporte?: string | null
+          creado_en?: string
+          id?: string
+          nombre_plataforma?: string
+          notas_obligatorias_cambios?: boolean
+          notas_obligatorias_rechazo?: boolean
+          zona_horaria?: string
+        }
+        Relationships: []
+      }
       regla_nivel: {
         Row: {
           color_insignia: string | null

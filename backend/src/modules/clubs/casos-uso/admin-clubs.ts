@@ -6,8 +6,9 @@ function error(mensaje: string, codigo: string, estado: number) {
   return { error: { mensaje, codigo, estado } } as const;
 }
 
-function fechaIso(fecha: Date | null | undefined) {
-  return fecha ? fecha.toISOString() : null;
+function fechaIso(fecha: Date | string | null | undefined) {
+  if (!fecha) return null;
+  return typeof fecha === "string" ? fecha : fecha.toISOString();
 }
 
 export function crearCasosUsoAdminClubs(repositorio: ClubsRepository) {
@@ -50,7 +51,7 @@ export function crearCasosUsoAdminClubs(repositorio: ClubsRepository) {
           usuario_id: String(miembro.usuario_id),
           apodo: String(miembro.apodo),
           rol_miembro: typeof miembro.rol_miembro === "string" ? miembro.rol_miembro : null,
-          unido_en: miembro.unido_en instanceof Date ? miembro.unido_en.toISOString() : fechaIso(miembro.unido_en as Date | null | undefined),
+          unido_en: fechaIso(miembro.unido_en as Date | string | null | undefined),
         })),
         retos: retos.map((reto) => ({
           id: reto.id,

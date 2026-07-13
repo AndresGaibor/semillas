@@ -52,8 +52,8 @@ export function useDescargasPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [progressById, setProgressById] = useState<Record<string, number>>({});
 
-  const temasQuery = useQuery({ queryKey: ["temas"], queryFn: () => obtenerTemas() });
-  const perfilQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
+  const temasQuery = useQuery({ queryKey: ["temas"], queryFn: () => obtenerTemas(), staleTime: 1000 * 60 * 5 });
+  const perfilQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil, staleTime: 1000 * 60 * 5 });
   const localesQuery = useTemasLocales();
   const jobsQuery = useDescargaJobs();
   const storageQuery = useOfflineStorage();
@@ -73,7 +73,7 @@ export function useDescargasPage() {
       }
       return counts;
     },
-    refetchInterval: 3_000,
+    refetchInterval: 10_000,
   });
   const downloadMutation = useDescargarTema();
   const syncMutation = useSincronizarAhora();
@@ -115,7 +115,7 @@ export function useDescargasPage() {
     if (!isOnline) return toast.error("Conéctate a internet para descargar o actualizar un tema.");
     try {
       setProgressById((actual) => ({ ...actual, [temaId]: 1 }));
-      const resultado = await downloadMutation.mutateAsync({ temaId, grupoEdadId, onProgress: (progreso) => setProgressById((actual) => ({ ...actual, [temaId]: progreso })) });
+      const resultado = await downloadMutation.mutateAsync({ temaId, perfilGrupoEdadId: perfilQuery.data?.perfil.grupo_edad_id ?? undefined, onProgress: (progreso) => setProgressById((actual) => ({ ...actual, [temaId]: progreso })) });
       await refresh();
       toast.success(`Tema listo sin conexión: ${resultado.pasosCount} pasos y ${resultado.actividadesCount} actividades.`);
     } catch (error) {

@@ -6,10 +6,10 @@ export const INTERVALO_RENOVACION_PORTADA_ADMIN_MS = 4 * 60 * 1000;
 type PortadaTemaAdmin = {
   titulo: string;
   urlFirmada: string | null;
-  urlPublica: string | null;
+  urlPublica?: string | null;
 };
 
-type TemaConPortadaAdmin = {
+export type TemaConPortadaAdmin = {
   id: string;
   portada_recurso_id: string | null;
   portada_recurso?: { id: string } | null;
@@ -23,21 +23,26 @@ export function resolverPortadaTemaAdmin({ titulo, urlFirmada }: PortadaTemaAdmi
   return urlFirmada ?? `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(titulo)}`;
 }
 
+export function crearConsultaPortadaFirmadaAdmin(
+  tema: TemaConPortadaAdmin,
+  obtenerUrlFirmada = obtenerUrlFirmadaRecurso,
+) {
+  const recursoId = obtenerIdPortadaTemaAdmin(tema);
+
+  return {
+    queryKey: ["admin", "recurso-url", recursoId],
+    queryFn: () => obtenerUrlFirmada(recursoId!),
+    enabled: recursoId !== null,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 4 * 60 * 1000,
+    refetchInterval: INTERVALO_RENOVACION_PORTADA_ADMIN_MS,
+    retry: 1,
+  };
+}
+
 export function usePortadasFirmadasAdmin(temas: TemaConPortadaAdmin[]) {
   return useQueries({
-    queries: temas.map((tema) => {
-      const recursoId = obtenerIdPortadaTemaAdmin(tema);
-
-      return {
-        queryKey: ["admin", "recurso-url", recursoId],
-        queryFn: () => obtenerUrlFirmadaRecurso(recursoId!),
-        enabled: recursoId !== null,
-        staleTime: 3 * 60 * 1000,
-        gcTime: 4 * 60 * 1000,
-        refetchInterval: INTERVALO_RENOVACION_PORTADA_ADMIN_MS,
-        retry: 1,
-      };
-    }),
+    queries: temas.map((tema) => crearConsultaPortadaFirmadaAdmin(tema)),
     combine: (resultados) => {
       const portadas = new Map<string, string | null>();
 

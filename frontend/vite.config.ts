@@ -77,6 +77,18 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            urlPattern: ({ url, request }) =>
+              request.method === "GET" &&
+              /\/(perfil|progreso|gamificacion|actividades|clubes)(\/|$)/.test(url.pathname),
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "semillas-user-api-v1",
+              networkTimeoutSeconds: 4,
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
       manifest: {
@@ -106,6 +118,20 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src")
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/react-dom") || (id.includes("node_modules/react") && !id.includes("node_modules/react-"))) {
+            return "vendor-react";
+          }
+          if (id.includes("node_modules/@tanstack")) {
+            return "vendor-tanstack";
+          }
+        },
+      },
+    },
   },
   server: {
     port: 5173

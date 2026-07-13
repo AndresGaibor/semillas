@@ -4,9 +4,10 @@ import { Boton } from "@/componentes/ui/boton";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 import { unirClases } from "@/lib/utilidades";
 import { useQuiz } from "./hooks/use-quiz";
+import type { Actividad } from "@/shared/api/schemas/temas.schema";
 
 interface QuizActividadProps {
-  actividad: any;
+  actividad: Actividad;
   onComplete: (actividadId: string, xpRecompensa: number) => void;
 }
 
@@ -26,6 +27,8 @@ export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
 
   if (!preguntas.length) return <div className="p-4 text-center text-slate-500">No hay preguntas configuradas.</div>;
 
+  const question = currentQuestion!;
+
   return (
     <div className="flex flex-col w-full max-w-2xl mx-auto py-2 animate-in fade-in zoom-in-95">
       
@@ -40,15 +43,15 @@ export function QuizActividad({ actividad, onComplete }: QuizActividadProps) {
         style={{ backgroundImage: `url(${imgBannerQuiz})` }}
       >
         <h3 className="text-xl sm:text-2xl font-bold text-slate-800 text-center relative z-10">
-          {currentQuestion.pregunta}
+          {question.pregunta}
         </h3>
       </div>
 
       {/* Opciones */}
       <div className="w-full flex flex-col mb-8">
-        {currentQuestion.opciones.map((opcion: string, index: number) => {
+        {question.opciones.map((opcion: string, index: number) => {
           const isSelected = selectedOption === index;
-          const isCorrectAnswer = index === currentQuestion.respuesta_correcta;
+          const isCorrectAnswer = index === question.respuesta_correcta;
           
           const baseClass = "w-full text-left px-5 py-4 rounded-xl font-medium text-base sm:text-lg border-2 transition-all flex items-center justify-between mb-3";
           let textClass = "text-slate-700";

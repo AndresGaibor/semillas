@@ -18,7 +18,10 @@ export type TamanoBoton =
   | "adaptativo"
   | "icono"
   | "iconoPequeno"
-  | "iconoAdaptativo";
+  | "iconoAdaptativo"
+  | "icon-lg"
+  | "icon-responsive"
+  | "icon-sm";
 
 export type FormaBoton = "normal" | "pildora" | "cuadrado";
 
@@ -112,6 +115,9 @@ const variantesBoton = cva(
         icono: "h-11 w-11 p-0 rounded-xl",
         iconoPequeno: "h-9 w-9 p-0 rounded-lg",
         iconoAdaptativo: "h-10 w-10 p-0 rounded-xl sm:h-11 sm:w-11",
+        "icon-lg": "h-10 w-10 p-0 rounded-md",
+        "icon-responsive": "h-8 w-8 p-0 rounded-md sm:h-9 sm:w-9",
+        "icon-sm": "h-8 w-8 p-0 rounded-md",
       },
       forma: {
         normal: "",

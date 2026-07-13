@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Heart, Play, ShieldCheck, Smile, Sprout } from "lucide-react";
 import landingImg from "@/assets/images/banners/landing_page.png";
 
@@ -28,7 +28,7 @@ export function HeroSection() {
         </p>
 
         <div className="hero__buttons">
-          <Button
+          <Boton
             asChild
             className="landing-button landing-button--primary landing-button--large h-auto rounded-full px-6 py-3"
           >
@@ -36,7 +36,7 @@ export function HeroSection() {
               <Play size={18} fill="currentColor" aria-hidden="true" />
               <span>Comenzar ahora</span>
             </Link>
-          </Button>
+          </Boton>
         </div>
 
         <div className="hero__badges" aria-label="Beneficios clave de la plataforma">

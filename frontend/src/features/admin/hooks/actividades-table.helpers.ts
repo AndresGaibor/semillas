@@ -1,5 +1,5 @@
-import { getSendaColorClasses, getActivityTypeInfo, getAgeGroupLabel } from "../componentes/actividades.helpers";
-import type { ActivityTableRow } from "../componentes/admin-activities-table";
+import { getSendaColorClasses, getActivityTypeInfo, getAgeGroupLabel } from "../componentes/temas/actividades.helpers";
+import type { ActivityTableRow } from "../componentes/temas/admin-activities-table";
 import type { ActividadAdmin } from "../admin.api";
 import type { Tema, Senda } from "@/shared/api/api";
 import type { GrupoEdad } from "@/shared/api/api";

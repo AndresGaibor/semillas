@@ -5,24 +5,17 @@ import {
   ArrowLeft,
   ArrowUp,
   Copy,
-  FileAudio,
+  Eye,
   Gamepad2,
-  Image as ImageIcon,
   Loader2,
   Pencil,
   Plus,
-  Save,
   Trash2,
-  Upload,
-  Video,
-  X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
-  actualizarActividad,
-  crearActividad,
   duplicarActividad,
   eliminarActividad,
   obtenerActividadAdmin,
@@ -32,36 +25,39 @@ import {
   reordenarActividades,
   type ActividadAdmin,
 } from "../features/admin/admin.api";
+import {
+  actualizarGrupoEdadDelBorrador,
+  defaultOptions,
+  emptyDraft,
+  esObjetoPlano,
+  tieneContenidoEnBorrador,
+  type ActivityDraft,
+} from "../features/admin/types";
+import { useThemeActivitiesMutation } from "../features/admin/hooks/use-theme-activities";
 import { obtenerGruposEdad, obtenerTiposActividad } from "../features/catalog/catalog.api";
-import { subirArchivo } from "../features/media/media.api";
-import type { ActivitySearch } from "../features/admin/componentes/activity-search.types";
+import { obtenerRecursosMultimedia, subirArchivo } from "../features/media/media.api";
+import { normalizarConfiguracionActividad } from "@/features/admin/componentes/temas/activity-configuration";
+import {
+  ActivityEditorWorkspace,
+  type ActivityEditorTab,
+} from "@/features/admin/componentes/temas/activity-editor-workspace";
+import { getActivityTypeDefinition } from "@/features/admin/componentes/temas/activity-type-catalog";
+import "./admin-activities-studio.css";
+
+type ActivityRouteSearch = {
+  form?: "nueva" | "editar";
+  actividadId?: string;
+  tab?: ActivityEditorTab;
+};
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
   component: AdminThemeActivitiesPage,
-  validateSearch: (search: Record<string, unknown>): ActivitySearch => ({
-    form: search.form as "nueva" | "editar" | undefined,
-    actividadId: search.actividadId as string | undefined,
+  validateSearch: (search: Record<string, unknown>): ActivityRouteSearch => ({
+    form: search.form === "nueva" || search.form === "editar" ? search.form : undefined,
+    actividadId: typeof search.actividadId === "string" ? search.actividadId : undefined,
+    tab: isEditorTab(search.tab) ? search.tab : undefined,
   }),
 });
-
-type OptionDraft = { etiqueta: string; texto: string; correcta: boolean; orden: number };
-type ActivityDraft = {
-  paso_id: string;
-  grupo_edad_id: string;
-  tipo_actividad_id: string;
-  titulo: string;
-  consigna: string;
-  retroalimentacion: string;
-  xp_recompensa: number;
-  limite_tiempo_seg: number | null;
-  dificultad: "facil" | "normal" | "dificil";
-  obligatorio: boolean;
-  configuracion: Record<string, unknown>;
-  opciones: OptionDraft[];
-};
-
-const defaultOptions: OptionDraft[] = ["A", "B", "C", "D"].map((label, index) => ({ etiqueta: label, texto: "", correcta: index === 0, orden: index + 1 }));
-const emptyDraft: ActivityDraft = { paso_id: "", grupo_edad_id: "", tipo_actividad_id: "", titulo: "", consigna: "", retroalimentacion: "", xp_recompensa: 10, limite_tiempo_seg: null, dificultad: "facil", obligatorio: true, configuracion: {}, opciones: defaultOptions };
 
 function AdminThemeActivitiesPage() {
   const { themeId } = Route.useParams();
@@ -71,29 +67,77 @@ function AdminThemeActivitiesPage() {
   const [selectedAge, setSelectedAge] = useState("");
   const [draft, setDraft] = useState<ActivityDraft>(emptyDraft);
   const [configText, setConfigText] = useState("{}");
+  const [isDirty, setIsDirty] = useState(false);
+  const newFormInitialized = useRef(false);
 
-  const themeQuery = useQuery({ queryKey: ["admin", "theme", themeId], queryFn: () => obtenerTemaAdmin(themeId) });
-  const groupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
-  const typesQuery = useQuery({ queryKey: ["catalog", "activity-types"], queryFn: obtenerTiposActividad });
-  const stepsQuery = useQuery({ queryKey: ["admin", "theme", themeId, "steps"], queryFn: () => obtenerPasosAdmin(themeId) });
+  const themeQuery = useQuery({
+    queryKey: ["admin", "theme", themeId],
+    queryFn: () => obtenerTemaAdmin(themeId),
+  });
+  const groupsQuery = useQuery({
+    queryKey: ["catalog", "age-groups"],
+    queryFn: obtenerGruposEdad,
+    staleTime: 1000 * 60 * 60,
+  });
+  const typesQuery = useQuery({
+    queryKey: ["catalog", "activity-types"],
+    queryFn: obtenerTiposActividad,
+    staleTime: 1000 * 60 * 60,
+  });
+  const mediaQuery = useQuery({
+    queryKey: ["admin", "media"],
+    queryFn: obtenerRecursosMultimedia,
+  });
+  const stepsQuery = useQuery({
+    queryKey: ["admin", "theme", themeId, "steps"],
+    queryFn: () => obtenerPasosAdmin(themeId),
+  });
   const activitiesQuery = useQuery({
     queryKey: ["admin", "theme", themeId, "activities", selectedAge],
-    queryFn: () => obtenerActividadesAdmin({ tema_id: themeId, grupo_edad_id: selectedAge || undefined, limit: 500 }),
+    queryFn: () =>
+      obtenerActividadesAdmin({
+        tema_id: themeId,
+        grupo_edad_id: selectedAge || undefined,
+        limit: 500,
+      }),
   });
-  const editQuery = useQuery({ queryKey: ["admin", "activity", search.actividadId], queryFn: () => obtenerActividadAdmin(search.actividadId!), enabled: search.form === "editar" && Boolean(search.actividadId) });
+  const editQuery = useQuery({
+    queryKey: ["admin", "activity", search.actividadId],
+    queryFn: () => obtenerActividadAdmin(search.actividadId!),
+    enabled: search.form === "editar" && Boolean(search.actividadId),
+  });
 
   useEffect(() => {
-    if (!selectedAge && groupsQuery.data?.length) setSelectedAge(themeQuery.data?.grupos_edad?.[0]?.id ?? groupsQuery.data?.[0]?.id ?? "");
+    if (selectedAge || !groupsQuery.data?.length) return;
+    setSelectedAge(themeQuery.data?.grupos_edad?.[0]?.id ?? groupsQuery.data[0]?.id ?? "");
   }, [groupsQuery.data, selectedAge, themeQuery.data?.grupos_edad]);
+
   useEffect(() => {
-    if (search.form === "nueva") {
-      setDraft({ ...emptyDraft, grupo_edad_id: selectedAge, paso_id: stepsQuery.data?.[0]?.id ?? "", tipo_actividad_id: typesQuery.data?.[0]?.id ?? "", opciones: defaultOptions.map((option) => ({ ...option })) });
-      setConfigText("{}");
+    if (search.form !== "nueva") {
+      newFormInitialized.current = false;
+      return;
     }
+    if (newFormInitialized.current || !selectedAge || !stepsQuery.data?.length || !typesQuery.data?.length) return;
+
+    const firstType = typesQuery.data[0];
+    const initialConfig = normalizarConfiguracionActividad(firstType?.codigo ?? "", {});
+    setDraft({
+      ...emptyDraft,
+      grupo_edad_id: selectedAge,
+      paso_id: stepsQuery.data[0]?.id ?? "",
+      tipo_actividad_id: firstType?.id ?? "",
+      configuracion: initialConfig,
+      opciones: defaultOptions.map((option) => ({ ...option })),
+    });
+    setConfigText(JSON.stringify(initialConfig, null, 2));
+    setIsDirty(false);
+    newFormInitialized.current = true;
   }, [search.form, selectedAge, stepsQuery.data, typesQuery.data]);
+
   useEffect(() => {
     const activity = editQuery.data;
     if (!activity || search.form !== "editar") return;
+
     const nextDraft: ActivityDraft = {
       paso_id: activity.paso_id ?? "",
       grupo_edad_id: activity.grupo_edad_id,
@@ -106,15 +150,42 @@ function AdminThemeActivitiesPage() {
       dificultad: (activity.dificultad as ActivityDraft["dificultad"]) ?? "facil",
       obligatorio: activity.obligatorio,
       configuracion: activity.configuracion ?? {},
-      opciones: activity.opciones.length ? activity.opciones.map((option, index) => ({ etiqueta: option.etiqueta ?? String.fromCharCode(65 + index), texto: option.texto, correcta: option.correcta, orden: option.orden })) : defaultOptions.map((option) => ({ ...option })),
+      opciones: activity.opciones.length
+        ? activity.opciones.map((option, index) => ({
+            etiqueta: option.etiqueta ?? String.fromCharCode(65 + index),
+            texto: option.texto,
+            correcta: option.correcta,
+            orden: option.orden,
+          }))
+        : defaultOptions.map((option) => ({ ...option })),
     };
+
+    setSelectedAge(activity.grupo_edad_id);
     setDraft(nextDraft);
     setConfigText(JSON.stringify(nextDraft.configuracion, null, 2));
+    setIsDirty(false);
   }, [editQuery.data, search.form]);
 
-  const selectedType = typesQuery.data?.find((type) => type.id === draft.tipo_actividad_id);
+  useEffect(() => {
+    if (!isDirty) return;
+    const preventClose = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", preventClose);
+    return () => window.removeEventListener("beforeunload", preventClose);
+  }, [isDirty]);
+
   const isFormOpen = search.form === "nueva" || search.form === "editar";
-  const activities = useMemo(() => [...(activitiesQuery.data?.actividades ?? [])].sort((a, b) => a.orden - b.orden), [activitiesQuery.data]);
+  const selectedType = typesQuery.data?.find((type) => type.id === draft.tipo_actividad_id);
+  const activities = useMemo(
+    () => [...(activitiesQuery.data?.actividades ?? [])].sort((a, b) => a.orden - b.orden),
+    [activitiesQuery.data],
+  );
+  const allowedGroups = useMemo(() => {
+    const ids = new Set(themeQuery.data?.grupos_edad?.map((group) => group.id) ?? []);
+    return ids.size ? (groupsQuery.data ?? []).filter((group) => ids.has(group.id)) : groupsQuery.data ?? [];
+  }, [groupsQuery.data, themeQuery.data?.grupos_edad]);
 
   const invalidate = async () => {
     await Promise.all([
@@ -123,45 +194,133 @@ function AdminThemeActivitiesPage() {
       queryClient.invalidateQueries({ queryKey: ["admin", "activities"] }),
     ]);
   };
-  const closeForm = () => navigate({ search: {} });
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      let parsedConfig: Record<string, unknown> = draft.configuracion;
-      try { parsedConfig = JSON.parse(configText) as Record<string, unknown>; } catch { throw new Error("La configuración avanzada no contiene JSON válido"); }
-      if (!draft.titulo.trim() || !draft.consigna.trim() || !draft.paso_id || !draft.grupo_edad_id || !draft.tipo_actividad_id) throw new Error("Completa los campos obligatorios");
-      const payload = {
-        tema_id: themeId,
-        paso_id: draft.paso_id,
-        grupo_edad_id: draft.grupo_edad_id,
-        tipo_actividad_id: draft.tipo_actividad_id,
-        titulo: draft.titulo.trim(),
-        consigna: draft.consigna.trim(),
-        retroalimentacion: draft.retroalimentacion.trim() || undefined,
-        orden: search.form === "editar" ? editQuery.data?.orden ?? 1 : activities.length + 1,
-        xp_recompensa: draft.xp_recompensa,
-        limite_tiempo_seg: draft.limite_tiempo_seg,
-        dificultad: draft.dificultad,
-        obligatorio: draft.obligatorio,
-        configuracion: parsedConfig,
-        opciones: draft.opciones.filter((option) => option.texto.trim()).map((option, index) => ({ ...option, texto: option.texto.trim(), orden: index + 1 })),
-      };
-      if (search.form === "editar" && search.actividadId) return actualizarActividad(search.actividadId, payload);
-      return crearActividad(payload);
-    },
-    onSuccess: async () => { await invalidate(); closeForm(); toast.success(search.form === "editar" ? "Actividad actualizada" : "Actividad creada"); },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo guardar"),
+  const closeForm = (force = false) => {
+    if (!force && isDirty && !window.confirm("Hay cambios sin guardar. ¿Descartarlos y cerrar el editor?")) return;
+    setIsDirty(false);
+    navigate({ search: {} });
+  };
+
+  const goBack = () => {
+    if (isFormOpen && isDirty && !window.confirm("Hay cambios sin guardar. ¿Descartarlos y volver al tema?")) return;
+    setIsDirty(false);
+    navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } });
+  };
+
+  const openNew = () => {
+    navigate({ search: { form: "nueva", tab: "contexto" } });
+  };
+
+  const openEdit = (activityId: string, tab: ActivityEditorTab = "contexto") => {
+    navigate({ search: { form: "editar", actividadId: activityId, tab } });
+  };
+
+  const changeAgeContext = (groupId: string) => {
+    if (
+      search.form === "nueva" &&
+      groupId !== selectedAge &&
+      (tieneContenidoEnBorrador(draft) || configText.trim() !== "{}") &&
+      !window.confirm("El borrador conservará su contenido y cambiará de franja. ¿Continuar?")
+    ) return;
+
+    setSelectedAge(groupId);
+    if (search.form === "nueva") {
+      setDraft((current) => actualizarGrupoEdadDelBorrador(current, groupId));
+      setIsDirty(true);
+    }
+  };
+
+  const updateDraft = (nextDraft: ActivityDraft) => {
+    setDraft(nextDraft);
+    if (nextDraft.grupo_edad_id) setSelectedAge(nextDraft.grupo_edad_id);
+    setIsDirty(true);
+  };
+
+  const updateConfigText = (value: string) => {
+    setConfigText(value);
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      if (esObjetoPlano(parsed)) {
+        setDraft((current) => ({ ...current, configuracion: parsed }));
+      }
+    } catch {
+      // El editor conserva el último JSON válido mientras el usuario termina de escribir.
+    }
+    setIsDirty(true);
+  };
+
+  const changeType = (typeId: string) => {
+    if (typeId === draft.tipo_actividad_id) return;
+    const hasTypeData = Object.keys(draft.configuracion).length > 0 || draft.opciones.some((option) => option.texto.trim());
+    if (hasTypeData && !window.confirm("Cambiar el tipo reiniciará la mecánica y sus opciones. ¿Continuar?")) return;
+
+    const type = typesQuery.data?.find((item) => item.id === typeId);
+    const nextConfig = normalizarConfiguracionActividad(type?.codigo ?? "", {});
+    updateDraft({
+      ...draft,
+      tipo_actividad_id: typeId,
+      configuracion: nextConfig,
+      opciones: defaultOptions.map((option) => ({ ...option })),
+    });
+    setConfigText(JSON.stringify(nextConfig, null, 2));
+  };
+
+  const saveMutation = useThemeActivitiesMutation({
+    themeId,
+    draft,
+    configText,
+    codigoTipoActividad: selectedType?.codigo ?? "",
+    ordenActual: search.form === "editar"
+      ? activities.find((activity) => activity.id === search.actividadId)?.orden ?? activities.length
+      : activities.length,
+    esModoEditar: search.form === "editar",
+    actividadId: search.actividadId,
   });
-  const deleteMutation = useMutation({ mutationFn: eliminarActividad, onSuccess: async () => { await invalidate(); toast.success("Actividad eliminada"); }, onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo eliminar") });
-  const duplicateMutation = useMutation({ mutationFn: duplicarActividad, onSuccess: async () => { await invalidate(); toast.success("Actividad duplicada"); }, onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo duplicar") });
-  const reorderMutation = useMutation({ mutationFn: (ids: string[]) => reordenarActividades(themeId, ids), onSuccess: async () => { await invalidate(); }, onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo reordenar") });
-  const uploadMutation = useMutation({
-    mutationFn: async ({ file, key, type }: { file: File; key: string; type: "imagen" | "audio" | "video" }) => ({ key, resource: await subirArchivo(file, type, `${draft.titulo || "Actividad"} - ${key}`) }),
-    onSuccess: ({ key, resource }) => {
-      const next = { ...draft.configuracion, [key]: resource.url_publica, [`${key}_recurso_id`]: resource.id };
-      setDraft((current) => ({ ...current, configuracion: next })); setConfigText(JSON.stringify(next, null, 2)); toast.success("Recurso agregado a la actividad");
+
+  const handleSave = async () => {
+    await saveMutation.mutateAsync();
+    await invalidate();
+    closeForm(true);
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: eliminarActividad,
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Actividad eliminada");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo subir"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo eliminar"),
+  });
+  const duplicateMutation = useMutation({
+    mutationFn: duplicarActividad,
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Actividad duplicada");
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo duplicar"),
+  });
+  const reorderMutation = useMutation({
+    mutationFn: (ids: string[]) => reordenarActividades(themeId, ids),
+    onSuccess: invalidate,
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo reordenar"),
+  });
+  const uploadMutation = useMutation({
+    mutationFn: async ({ file, key, type }: { file: File; key: string; type: "imagen" | "audio" | "video" }) => ({
+      key,
+      resource: await subirArchivo(file, type, `${draft.titulo || "Actividad"} - ${key}`),
+    }),
+    onSuccess: ({ key, resource }: { key: string; resource: Awaited<ReturnType<typeof subirArchivo>> }) => {
+      const next = {
+        ...draft.configuracion,
+        [key]: resource.url_publica,
+        [`${key}_recurso_id`]: resource.id,
+      };
+      setDraft((current) => ({ ...current, configuracion: next }));
+      setConfigText(JSON.stringify(next, null, 2));
+      setIsDirty(true);
+      toast.success("Recurso agregado");
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo subir el recurso"),
   });
 
   const moveActivity = (activityId: string, direction: -1 | 1) => {
@@ -169,95 +328,164 @@ function AdminThemeActivitiesPage() {
     const target = index + direction;
     if (index < 0 || target < 0 || target >= activities.length) return;
     const ids = activities.map((activity) => activity.id);
-    const temp = ids[index]!;
-    ids[index] = ids[target]!;
-    ids[target] = temp;
+    [ids[index], ids[target]] = [ids[target]!, ids[index]!];
     reorderMutation.mutate(ids);
   };
 
+  if (themeQuery.isLoading || groupsQuery.isLoading || typesQuery.isLoading || stepsQuery.isLoading) {
+    return <div className="admin-activity-loading"><Loader2 className="animate-spin" /><span>Preparando el estudio de actividades…</span></div>;
+  }
+
+  if (themeQuery.isError || !themeQuery.data) {
+    return <div className="admin-activity-error"><strong>No se pudo abrir el tema</strong><button type="button" onClick={goBack}>Volver</button></div>;
+  }
+
   return (
-    <div className="admin-theme-studio">
-      <header className="admin-theme-library__hero">
-        <div className="flex items-center gap-4"><button type="button" className="admin-icon-button" onClick={() => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } })}><ArrowLeft size={19} /></button><div><span className="admin-eyebrow">Editor interactivo</span><h2 className="!text-2xl">Actividades del tema</h2><p>{themeQuery.data?.titulo ?? "Tema"} · juegos, audio, video y evaluaciones por paso y franja.</p></div></div>
-        <button type="button" className="admin-primary-button" onClick={() => navigate({ search: { form: "nueva" } })}><Plus size={17} /> Nueva actividad</button>
+    <div className="admin-activity-studio-page">
+      <header className="admin-activity-studio-hero">
+        <div className="admin-activity-studio-hero__title">
+          <button type="button" className="admin-icon-button" onClick={goBack} aria-label="Volver al tema"><ArrowLeft size={18} /></button>
+          <div>
+            <span className="admin-eyebrow">Editor interactivo</span>
+            <h1>Actividades del tema</h1>
+            <p><strong>{themeQuery.data.titulo}</strong> · organiza las experiencias por franja y momento CRECER.</p>
+          </div>
+        </div>
+        {!isFormOpen ? <button type="button" className="admin-primary-button" onClick={openNew}><Plus size={17} /> Nueva actividad</button> : null}
       </header>
 
-      <section className="admin-editor-section">
-        <div className="admin-editor-section__header"><div><h2>Filtrar por franja</h2><p>El orden se guarda en el backend y se utiliza en la experiencia del estudiante.</p></div><select className="rounded-xl border border-slate-200 px-4 py-2 text-sm" value={selectedAge} onChange={(event) => setSelectedAge(event.target.value)}><option value="">Todas las franjas</option>{groupsQuery.data?.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></div>
-      </section>
-
-      <div className={isFormOpen ? "admin-editor-shell" : ""}>
-        <main className="admin-editor-main">
-          <section className="admin-editor-section">
-            <div className="admin-editor-section__header"><div><h2>Secuencia de actividades</h2><p>{activities.length} actividades. Usa las flechas para ajustar el orden sin arrastrar una tabla.</p></div></div>
-            {activitiesQuery.isLoading ? <div className="grid place-items-center py-16"><Loader2 className="animate-spin text-violet-600" /></div> : activities.length === 0 ? <div className="admin-library-empty"><Gamepad2 className="mx-auto text-slate-300" /><h3>Sin actividades en esta franja</h3><p>Crea una actividad y asígnala a un paso CRECER.</p></div> : <div className="admin-activity-list">{activities.map((activity, index) => <ActivityRow key={activity.id} activity={activity} stepName={stepsQuery.data?.find((step) => step.id === activity.paso_id)?.tipo_paso?.nombre ?? "Sin paso"} onEdit={() => navigate({ search: { form: "editar", actividadId: activity.id } })} onDelete={() => deleteMutation.mutate(activity.id)} onDuplicate={() => duplicateMutation.mutate(activity.id)} onUp={() => moveActivity(activity.id, -1)} onDown={() => moveActivity(activity.id, 1)} disableUp={index === 0 || reorderMutation.isPending} disableDown={index === activities.length - 1 || reorderMutation.isPending} />)}</div>}
+      {isFormOpen ? (
+        editQuery.isLoading ? (
+          <div className="admin-activity-loading"><Loader2 className="animate-spin" /><span>Cargando actividad…</span></div>
+        ) : (
+          <ActivityEditorWorkspace
+            draft={draft}
+            onChange={updateDraft}
+            configText={configText}
+            onConfigTextChange={updateConfigText}
+            steps={stepsQuery.data ?? []}
+            groups={allowedGroups}
+            types={typesQuery.data ?? []}
+            resources={mediaQuery.data ?? []}
+            selectedTypeCode={selectedType?.codigo ?? ""}
+            tab={search.tab ?? "contexto"}
+            onTabChange={(tab) => navigate({ search: { ...search, tab } })}
+            onTypeChange={changeType}
+            onUpload={(file, key, type) => uploadMutation.mutate({ file, key, type })}
+            uploading={uploadMutation.isPending}
+            saving={saveMutation.isPending}
+            dirty={isDirty}
+            isEditMode={search.form === "editar"}
+            onSave={handleSave}
+            onClose={() => closeForm()}
+          />
+        )
+      ) : (
+        <>
+          <section className="admin-age-switcher" aria-label="Franja de edad">
+            <div><span className="admin-eyebrow">Franja activa</span><strong>Contenido independiente por audiencia</strong></div>
+            <div className="admin-age-switcher__options">
+              {allowedGroups.map((group) => (
+                <button key={group.id} type="button" onClick={() => changeAgeContext(group.id)} className={selectedAge === group.id ? "admin-age-switcher__option--active" : ""}>
+                  <span>{group.nombre}</span>
+                  <small>{selectedAge === group.id ? "Editando" : "Ver secuencia"}</small>
+                </button>
+              ))}
+            </div>
           </section>
-        </main>
 
-        {isFormOpen ? (
-          <aside className="admin-editor-aside !static">
-            <section className="admin-editor-section">
-              <div className="admin-editor-section__header"><div><h2>{search.form === "editar" ? "Editar actividad" : "Nueva actividad"}</h2><p>El formulario cambia según el tipo seleccionado.</p></div><button type="button" className="admin-icon-button" onClick={closeForm}><X size={18} /></button></div>
-              {editQuery.isLoading ? <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div> : <ActivityBuilder draft={draft} onChange={setDraft} configText={configText} onConfigTextChange={setConfigText} steps={stepsQuery.data ?? []} groups={groupsQuery.data ?? []} types={typesQuery.data ?? []} selectedTypeCode={selectedType?.codigo ?? ""} onUpload={(file, key, type) => uploadMutation.mutate({ file, key, type })} uploading={uploadMutation.isPending} />}
-              <div className="admin-save-bar mt-5"><p>La configuración se guarda como JSON validado por el backend.</p><button type="button" className="admin-primary-button" disabled={saveMutation.isPending || uploadMutation.isPending} onClick={() => saveMutation.mutate()}>{saveMutation.isPending ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />} Guardar</button></div>
-            </section>
-          </aside>
-        ) : null}
-      </div>
+          <section className="admin-activity-sequence-board">
+            <header>
+              <div><span className="admin-eyebrow">Secuencia editorial</span><h2>{activities.length} {activities.length === 1 ? "actividad" : "actividades"}</h2></div>
+              <p>El orden de esta lista es el orden que seguirá el estudiante dentro del recorrido.</p>
+            </header>
+
+            {activitiesQuery.isLoading ? (
+              <div className="admin-activity-loading"><Loader2 className="animate-spin" /><span>Cargando secuencia…</span></div>
+            ) : activities.length === 0 ? (
+              <div className="admin-activity-empty-state">
+                <span><Gamepad2 size={25} /></span>
+                <h3>Esta franja todavía no tiene actividades</h3>
+                <p>Crea la primera experiencia y asígnala a un momento CRECER.</p>
+                <button type="button" className="admin-primary-button" onClick={openNew}><Plus size={17} /> Crear primera actividad</button>
+              </div>
+            ) : (
+              <div className="admin-activity-sequence-list">
+                {activities.map((activity, index) => (
+                  <ActivitySequenceRow
+                    key={activity.id}
+                    activity={activity}
+                    index={index}
+                    total={activities.length}
+                    steps={stepsQuery.data ?? []}
+                    onMove={moveActivity}
+                    onEdit={() => openEdit(activity.id)}
+                    onPreview={() => openEdit(activity.id, "preview")}
+                    onDuplicate={() => duplicateMutation.mutate(activity.id)}
+                    onDelete={() => {
+                      if (window.confirm(`¿Eliminar “${activity.titulo}”? Esta acción no se puede deshacer.`)) deleteMutation.mutate(activity.id);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </div>
   );
 }
 
-function ActivityRow({ activity, stepName, onEdit, onDelete, onDuplicate, onUp, onDown, disableUp, disableDown }: { activity: ActividadAdmin; stepName: string; onEdit: () => void; onDelete: () => void; onDuplicate: () => void; onUp: () => void; onDown: () => void; disableUp: boolean; disableDown: boolean }) {
-  return <article className="admin-activity-row"><div className="admin-activity-row__handle"><Gamepad2 size={18} /></div><div className="admin-activity-row__identity"><strong>{activity.titulo}</strong><p>{activity.consigna}</p><div className="admin-activity-row__tags"><span>{stepName}</span><span>{activity.tipo_actividad?.nombre ?? "Actividad"}</span><span>{activity.xp_recompensa} XP</span><span>{activity.dificultad}</span></div></div><div className="admin-activity-row__actions"><button type="button" className="admin-icon-button" disabled={disableUp} onClick={onUp}><ArrowUp size={16} /></button><button type="button" className="admin-icon-button" disabled={disableDown} onClick={onDown}><ArrowDown size={16} /></button><button type="button" className="admin-icon-button" onClick={onEdit}><Pencil size={16} /></button><button type="button" className="admin-icon-button" onClick={onDuplicate}><Copy size={16} /></button><button type="button" className="admin-icon-button !text-red-500" onClick={onDelete}><Trash2 size={16} /></button></div></article>;
+function ActivitySequenceRow({
+  activity,
+  index,
+  total,
+  steps,
+  onMove,
+  onEdit,
+  onPreview,
+  onDuplicate,
+  onDelete,
+}: {
+  activity: ActividadAdmin;
+  index: number;
+  total: number;
+  steps: Array<{ id: string; tipo_paso?: { nombre?: string | null } | null }>;
+  onMove: (id: string, direction: -1 | 1) => void;
+  onEdit: () => void;
+  onPreview: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  const type = getActivityTypeDefinition(activity.tipo_actividad?.codigo);
+  const Icon = type.icono;
+  const step = steps.find((item) => item.id === activity.paso_id);
+
+  return (
+    <article className="admin-activity-sequence-row">
+      <div className="admin-activity-sequence-row__order">
+        <strong>{String(index + 1).padStart(2, "0")}</strong>
+        <div>
+          <button type="button" disabled={index === 0} onClick={() => onMove(activity.id, -1)} aria-label="Subir actividad"><ArrowUp size={14} /></button>
+          <button type="button" disabled={index === total - 1} onClick={() => onMove(activity.id, 1)} aria-label="Bajar actividad"><ArrowDown size={14} /></button>
+        </div>
+      </div>
+      <span className={`admin-activity-type-icon admin-activity-type-icon--${type.tono}`}><Icon size={20} /></span>
+      <div className="admin-activity-sequence-row__copy">
+        <div><h3>{activity.titulo}</h3><span>{activity.tipo_actividad?.nombre ?? type.nombre}</span></div>
+        <p>{activity.consigna}</p>
+        <div className="admin-activity-meta"><span>{step?.tipo_paso?.nombre ?? "Sin momento"}</span><span>{activity.xp_recompensa} XP</span><span>{activity.obligatorio ? "Obligatoria" : "Opcional"}</span></div>
+      </div>
+      <div className="admin-activity-sequence-row__actions">
+        <button type="button" onClick={onPreview} aria-label="Vista previa"><Eye size={16} /></button>
+        <button type="button" onClick={onEdit} aria-label="Editar"><Pencil size={16} /></button>
+        <button type="button" onClick={onDuplicate} aria-label="Duplicar"><Copy size={16} /></button>
+        <button type="button" className="admin-danger-icon" onClick={onDelete} aria-label="Eliminar"><Trash2 size={16} /></button>
+      </div>
+    </article>
+  );
 }
 
-function ActivityBuilder({ draft, onChange, configText, onConfigTextChange, steps, groups, types, selectedTypeCode, onUpload, uploading }: { draft: ActivityDraft; onChange: (draft: ActivityDraft) => void; configText: string; onConfigTextChange: (value: string) => void; steps: Array<{ id: string; tipo_paso?: { nombre?: string | null } | null }>; groups: Array<{ id: string; nombre: string }>; types: Array<{ id: string; codigo: string; nombre: string; descripcion: string | null; es_juego: boolean }>; selectedTypeCode: string; onUpload: (file: File, key: string, type: "imagen" | "audio" | "video") => void; uploading: boolean }) {
-  const update = <K extends keyof ActivityDraft>(key: K, value: ActivityDraft[K]) => onChange({ ...draft, [key]: value });
-  const updateConfig = (key: string, value: unknown) => {
-    const next = key === "__merge__" && value && typeof value === "object"
-      ? { ...draft.configuracion, ...(value as Record<string, unknown>) }
-      : { ...draft.configuracion, [key]: value };
-    update("configuracion", next);
-    onConfigTextChange(JSON.stringify(next, null, 2));
-  };
-  const isQuiz = ["cuestionario", "quiz", "opcion_multiple", "actividad_audio", "actividad_video", "video"].some((code) => selectedTypeCode.includes(code));
-
-  return <div className="admin-form-grid">
-    <Field label="Paso CRECER"><select value={draft.paso_id} onChange={(event) => update("paso_id", event.target.value)}><option value="">Selecciona un paso</option>{steps.map((step) => <option key={step.id} value={step.id}>{step.tipo_paso?.nombre ?? "Paso"}</option>)}</select></Field>
-    <Field label="Franja"><select value={draft.grupo_edad_id} onChange={(event) => update("grupo_edad_id", event.target.value)}><option value="">Selecciona una franja</option>{groups.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></Field>
-    <Field label="Tipo" wide><select value={draft.tipo_actividad_id} onChange={(event) => { update("tipo_actividad_id", event.target.value); const type = types.find((item) => item.id === event.target.value); if (type) onConfigTextChange("{}"); }}><option value="">Selecciona el tipo</option>{types.map((type) => <option key={type.id} value={type.id}>{type.nombre}</option>)}</select></Field>
-    <Field label="Título" wide><input value={draft.titulo} onChange={(event) => update("titulo", event.target.value)} /></Field>
-    <Field label="Consigna" wide><textarea rows={3} value={draft.consigna} onChange={(event) => update("consigna", event.target.value)} /></Field>
-    <Field label="Retroalimentación" wide><textarea rows={2} value={draft.retroalimentacion} onChange={(event) => update("retroalimentacion", event.target.value)} /></Field>
-    <Field label="XP"><input type="number" min={0} value={draft.xp_recompensa} onChange={(event) => update("xp_recompensa", Number(event.target.value))} /></Field>
-    <Field label="Tiempo límite (segundos)"><input type="number" min={1} value={draft.limite_tiempo_seg ?? ""} onChange={(event) => update("limite_tiempo_seg", event.target.value ? Number(event.target.value) : null)} /></Field>
-    <Field label="Dificultad"><select value={draft.dificultad} onChange={(event) => update("dificultad", event.target.value as ActivityDraft["dificultad"])}><option value="facil">Fácil</option><option value="normal">Normal</option><option value="dificil">Difícil</option></select></Field>
-    <Field label="Obligatoria"><select value={draft.obligatorio ? "si" : "no"} onChange={(event) => update("obligatorio", event.target.value === "si")}><option value="si">Sí</option><option value="no">No</option></select></Field>
-
-    <div className="admin-field admin-field--wide"><span>Configuración del tipo</span><div className="admin-config-builder"><TypeSpecificConfig code={selectedTypeCode} config={draft.configuracion} updateConfig={updateConfig} onUpload={onUpload} uploading={uploading} />{isQuiz ? <OptionsBuilder options={draft.opciones} onChange={(opciones) => update("opciones", opciones)} /> : null}<div className="admin-config-help">Los campos visuales actualizan el JSON. La edición avanzada permite cubrir nuevos tipos sin desplegar otro formulario.</div><textarea rows={8} value={configText} onChange={(event) => onConfigTextChange(event.target.value)} className="font-mono text-xs" aria-label="Configuración JSON avanzada" /></div></div>
-  </div>;
+function isEditorTab(value: unknown): value is ActivityEditorTab {
+  return value === "contexto" || value === "contenido" || value === "mecanica" || value === "preview";
 }
-
-function TypeSpecificConfig({ code, config, updateConfig, onUpload, uploading }: { code: string; config: Record<string, unknown>; updateConfig: (key: string, value: unknown) => void; onUpload: (file: File, key: string, type: "imagen" | "audio" | "video") => void; uploading: boolean }) {
-  if (!code) return <p className="text-xs text-slate-500">Selecciona un tipo para ver sus campos especializados.</p>;
-  if (code.includes("video")) return <><ConfigField label="URL del video" value={String(config.video_url ?? "")} onChange={(value) => updateConfig("video_url", value)} /><MediaUpload label="Subir video" icon={<Video size={18} />} accept="video/*" disabled={uploading} onFile={(file) => onUpload(file, "video_url", "video")} /></>;
-  if (code.includes("audio") || code.includes("cancion")) return <><ConfigField label="URL del audio" value={String(config.audio_url ?? config.cancion_url ?? "")} onChange={(value) => updateConfig(code.includes("cancion") ? "cancion_url" : "audio_url", value)} /><MediaUpload label="Subir audio" icon={<FileAudio size={18} />} accept="audio/*" disabled={uploading} onFile={(file) => onUpload(file, code.includes("cancion") ? "cancion_url" : "audio_url", "audio")} /><ConfigArea label="Letra o transcripción" value={String(config.letra ?? "")} onChange={(value) => updateConfig("letra", value)} /></>;
-  if (code.includes("completar")) return <><ConfigArea label="Frase con espacio" value={String(config.frase ?? "")} onChange={(value) => updateConfig("frase", value)} /><ConfigField label="Respuesta" value={String(config.respuesta ?? "")} onChange={(value) => updateConfig("respuesta", value)} /></>;
-  if (code.includes("verdadero")) return <ConfigArea label="Afirmaciones (una por línea: texto|true o false)" value={arrayToLines(config.afirmaciones)} onChange={(value) => updateConfig("afirmaciones", value.split("\n").filter(Boolean).map((line) => { const [texto="", correcta] = line.split("|"); return { texto: texto.trim(), correcta: correcta?.trim() === "true" }; }))} />;
-  if (code.includes("relacionar")) return <ConfigArea label="Pares (izquierda|derecha)" value={pairsToLines(config.pares)} onChange={(value) => updateConfig("pares", value.split("\n").filter(Boolean).map((line) => { const [izquierda, derecha] = line.split("|"); return { izquierda: izquierda?.trim(), derecha: derecha?.trim() }; }))} />;
-  if (code.includes("arrastrar") || code.includes("secuencia")) return <ConfigArea label="Elementos en orden (uno por línea)" value={simpleArrayToLines(config.items)} onChange={(value) => { const items = value.split("\n").filter(Boolean); updateConfig("__merge__", { items, orden_correcto: items }); }} />;
-  if (code.includes("sopa")) return <><ConfigField label="Palabras separadas por coma" value={simpleArrayToLines(config.palabras).replaceAll("\n", ", ")} onChange={(value) => updateConfig("palabras", value.split(",").map((item) => item.trim()).filter(Boolean))} /><ConfigField label="Filas" value={String(config.filas ?? 12)} type="number" onChange={(value) => updateConfig("filas", Number(value))} /><ConfigField label="Columnas" value={String(config.columnas ?? 12)} type="number" onChange={(value) => updateConfig("columnas", Number(value))} /></>;
-  if (code.includes("rompecabezas")) return <><ConfigField label="URL de imagen" value={String(config.imagen ?? "")} onChange={(value) => updateConfig("imagen", value)} /><MediaUpload label="Subir imagen" icon={<ImageIcon size={18} />} accept="image/*" disabled={uploading} onFile={(file) => onUpload(file, "imagen", "imagen")} /><ConfigField label="Filas" type="number" value={String(config.filas ?? 3)} onChange={(value) => updateConfig("filas", Number(value))} /><ConfigField label="Columnas" type="number" value={String(config.columnas ?? 3)} onChange={(value) => updateConfig("columnas", Number(value))} /></>;
-  if (code.includes("aventura")) return <ConfigArea label="Escenas JSON" value={JSON.stringify(config.escenas ?? [], null, 2)} onChange={(value) => { try { updateConfig("escenas", JSON.parse(value)); } catch { /* se valida en JSON avanzado */ } }} />;
-  return <p className="text-xs leading-6 text-slate-500">Este tipo usa opciones y configuración avanzada. Puedes definir cualquier propiedad compatible con el renderizador.</p>;
-}
-
-function OptionsBuilder({ options, onChange }: { options: OptionDraft[]; onChange: (options: OptionDraft[]) => void }) { return <div className="admin-option-builder"><strong className="text-xs text-slate-700">Opciones de respuesta</strong>{options.map((option, index) => <div key={`${option.etiqueta}-${index}`} className="admin-option-row"><span>{option.etiqueta}</span><input value={option.texto} onChange={(event) => onChange(options.map((item, itemIndex) => itemIndex === index ? { ...item, texto: event.target.value } : item))} /><label><input type="radio" name="correct-answer" checked={option.correcta} onChange={() => onChange(options.map((item, itemIndex) => ({ ...item, correcta: itemIndex === index })))} /> Correcta</label><button type="button" className="admin-icon-button !h-8 !w-8 !text-red-500" onClick={() => onChange(options.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, etiqueta: String.fromCharCode(65 + itemIndex), orden: itemIndex + 1 })))}><Trash2 size={14} /></button></div>)}<button type="button" className="admin-secondary-button w-fit" onClick={() => onChange([...options, { etiqueta: String.fromCharCode(65 + options.length), texto: "", correcta: false, orden: options.length + 1 }])}><Plus size={14} /> Agregar opción</button></div>; }
-function Field({ label, wide, children }: { label: string; wide?: boolean; children: React.ReactNode }) { return <label className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}</label>; }
-function ConfigField({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (value: string) => void; type?: string }) { return <label className="admin-field"><span>{label}</span><input type={type} value={value} onChange={(event) => onChange(event.target.value)} /></label>; }
-function ConfigArea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <label className="admin-field"><span>{label}</span><textarea rows={5} value={value} onChange={(event) => onChange(event.target.value)} /></label>; }
-function MediaUpload({ label, icon, accept, disabled, onFile }: { label: string; icon: React.ReactNode; accept: string; disabled: boolean; onFile: (file: File) => void }) { return <label className="admin-media-slot cursor-pointer"><div className="admin-media-slot__preview">{icon}</div><div><strong>{label}</strong><small>El archivo se registra en Medios y su URL queda en la configuración.</small><span className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-violet-600"><Upload size={14} /> {disabled ? "Subiendo..." : "Seleccionar archivo"}</span></div><input className="hidden" type="file" accept={accept} disabled={disabled} onChange={(event) => { const file = event.target.files?.[0]; if (file) onFile(file); }} /></label>; }
-function arrayToLines(value: unknown) { return Array.isArray(value) ? value.map((item) => typeof item === "object" && item ? `${String((item as any).texto ?? "")}|${String((item as any).correcta ?? false)}` : String(item)).join("\n") : ""; }
-function pairsToLines(value: unknown) { return Array.isArray(value) ? value.map((item) => `${String((item as any)?.izquierda ?? "")}|${String((item as any)?.derecha ?? "")}`).join("\n") : ""; }
-function simpleArrayToLines(value: unknown) { return Array.isArray(value) ? value.map(String).join("\n") : ""; }

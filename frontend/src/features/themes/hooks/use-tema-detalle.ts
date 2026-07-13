@@ -18,13 +18,13 @@ export function useTemaDetalle(themeId: string) {
   const isOnline = useOnlineStatus();
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
 
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil, staleTime: 1000 * 60 * 5 });
   const themeQuery = useQuery({ queryKey: ["theme", themeId], queryFn: () => obtenerTema(themeId) });
   const portadaQuery = useQuery({
     queryKey: ["theme-portada", themeId],
     queryFn: () => obtenerUrlPortadaTema(themeId),
     enabled: Boolean(themeId),
-    staleTime: 3 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
   const stepsQuery = useQuery({
     queryKey: ["theme", themeId, "steps", meQuery.data?.perfil?.grupo_edad_id],
@@ -36,7 +36,7 @@ export function useTemaDetalle(themeId: string) {
     queryFn: () => obtenerActividades(themeId, meQuery.data?.perfil?.grupo_edad_id ?? undefined),
     enabled: Boolean(themeId),
   });
-  const progressQuery = useQuery({ queryKey: ["progress", themeId], queryFn: obtenerMiProgreso });
+  const progressQuery = useQuery({ queryKey: ["progress", themeId], queryFn: obtenerMiProgreso, staleTime: 1000 * 60 * 3 });
   const localesQuery = useTemasLocales();
   const downloadMutation = useDescargarTema();
 
@@ -79,7 +79,7 @@ export function useTemaDetalle(themeId: string) {
       setDownloadProgress(1);
       await downloadMutation.mutateAsync({
         temaId: themeId,
-        grupoEdadId,
+        perfilGrupoEdadId: grupoEdadId ?? undefined,
         onProgress: (progress) => setDownloadProgress(progress),
       });
       toast.success("Tema listo para usar sin conexión.");

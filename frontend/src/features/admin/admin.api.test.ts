@@ -4,6 +4,8 @@ let archivarTema: typeof import("./admin.api")["archivarTema"];
 let actualizarSendaAdmin: typeof import("./admin.api")["actualizarSendaAdmin"];
 let crearSendaAdmin: typeof import("./admin.api")["crearSendaAdmin"];
 let duplicarTema: typeof import("./admin.api")["duplicarTema"];
+let obtenerAjustesAdmin: typeof import("./admin.api")["obtenerAjustesAdmin"];
+let guardarAjustesAdmin: typeof import("./admin.api")["guardarAjustesAdmin"];
 let obtenerSendaAdmin: typeof import("./admin.api")["obtenerSendaAdmin"];
 let obtenerSendasAdmin: typeof import("./admin.api")["obtenerSendasAdmin"];
 type CrearSendaSolicitud = import("./admin.api").CrearSendaSolicitud;
@@ -38,6 +40,8 @@ beforeAll(async () => {
     actualizarSendaAdmin,
     crearSendaAdmin,
     duplicarTema,
+    obtenerAjustesAdmin,
+    guardarAjustesAdmin,
     obtenerSendaAdmin,
     obtenerSendasAdmin,
   } = await import("./admin.api"));
@@ -213,5 +217,56 @@ describe("admin.api", () => {
 
     expect(sendas[0]?.imagen_recurso_id).toBe(imagenRecursoId);
     expect(sendaObtenida.imagen_recurso_id).toBe(imagenRecursoId);
+  });
+
+  it("expone lectura y guardado de ajustes del panel", async () => {
+    let metodo = "";
+    let ruta = "";
+    let cuerpo: Record<string, unknown> | null = null;
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      metodo = request.method;
+      ruta = new URL(request.url).pathname;
+      if (request.method === "GET") {
+        return new Response(JSON.stringify({
+          exito: true,
+          datos: {
+            id: "global",
+            nombre_plataforma: "Semillas",
+            correo_soporte: "soporte@semillas.org",
+            zona_horaria: "America/Guayaquil",
+            notas_obligatorias_cambios: true,
+            notas_obligatorias_rechazo: true,
+            actualizado_en: "2026-07-13T00:00:00.000Z"
+          }
+        }), { headers: { "content-type": "application/json" } });
+      }
+
+      cuerpo = JSON.parse(await request.text()) as Record<string, unknown>;
+      return new Response(JSON.stringify({
+        exito: true,
+        datos: {
+          id: "global",
+          nombre_plataforma: "Semillas",
+          correo_soporte: "ayuda@semillas.org",
+          zona_horaria: "America/Guayaquil",
+          notas_obligatorias_cambios: false,
+          notas_obligatorias_rechazo: true,
+          actualizado_en: "2026-07-13T00:00:00.000Z"
+        }
+      }), { headers: { "content-type": "application/json" } });
+    }) as typeof fetch;
+
+    const ajustes = await obtenerAjustesAdmin();
+    expect(metodo).toBe("GET");
+    expect(ruta).toBe("/administracion/ajustes");
+    expect(ajustes.nombre_plataforma).toBe("Semillas");
+
+    const guardado = await guardarAjustesAdmin({ correo_soporte: "ayuda@semillas.org", notas_obligatorias_cambios: false });
+    expect(metodo).toBe("PATCH");
+    expect(ruta).toBe("/administracion/ajustes");
+    expect(cuerpo).toMatchObject({ correo_soporte: "ayuda@semillas.org", notas_obligatorias_cambios: false });
+    expect(guardado.correo_soporte).toBe("ayuda@semillas.org");
   });
 });

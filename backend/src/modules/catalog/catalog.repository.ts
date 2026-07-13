@@ -62,6 +62,7 @@ export function crearCatalogRepository(db: CatalogRepositoryDb) {
     async listarPasosCrecer() {
       return db
         .select({
+          id: schema.tipoPasoCrecer.id,
           codigo: schema.tipoPasoCrecer.codigo,
           nombre: schema.tipoPasoCrecer.nombre,
           descripcion: schema.tipoPasoCrecer.descripcion,

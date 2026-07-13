@@ -28,11 +28,14 @@ async function vincularCuentaPendiente() {
 
   await reclamarCuentaInvitada();
   sessionStorageApi.clearGuestSession();
-  await queryClient.invalidateQueries();
+  await queryClient.invalidateQueries({ queryKey: ["me"] });
 }
 
 async function redirigirSegunOnboarding() {
-  const perfilRespuesta = await obtenerMiPerfil();
+  const perfilRespuesta = await queryClient.ensureQueryData({
+    queryKey: ["me"],
+    queryFn: obtenerMiPerfil,
+  });
   const ruta = obtenerRutaPostLogin(perfilRespuesta.perfil, perfilRespuesta.usuario);
 
   const redireccion = resolverRedireccionBootstrap(window.location.pathname, ruta);

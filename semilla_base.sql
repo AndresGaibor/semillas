@@ -577,6 +577,21 @@ CREATE TABLE IF NOT EXISTS registro_auditoria (
 CREATE INDEX IF NOT EXISTS ix_auditoria_entidad ON registro_auditoria(tipo_entidad, entidad_id);
 CREATE INDEX IF NOT EXISTS ix_auditoria_actor_tiempo ON registro_auditoria(actor_usuario_id, creado_en DESC);
 
+CREATE TABLE IF NOT EXISTS ajuste_sistema (
+  id            text PRIMARY KEY DEFAULT 'global',
+  nombre_plataforma text NOT NULL DEFAULT 'Semillas',
+  correo_soporte text,
+  zona_horaria   text NOT NULL DEFAULT 'America/Guayaquil',
+  notas_obligatorias_cambios boolean NOT NULL DEFAULT true,
+  notas_obligatorias_rechazo boolean NOT NULL DEFAULT true,
+  creado_en      timestamptz NOT NULL DEFAULT now(),
+  actualizado_en timestamptz NOT NULL DEFAULT now()
+);
+
+INSERT INTO ajuste_sistema (id, nombre_plataforma, correo_soporte, zona_horaria, notas_obligatorias_cambios, notas_obligatorias_rechazo)
+VALUES ('global', 'Semillas', NULL, 'America/Guayaquil', true, true)
+ON CONFLICT (id) DO NOTHING;
+
 -- ============================================================
 --  9. VISTAS ÚTILES PARA API / REPORTES
 -- ============================================================

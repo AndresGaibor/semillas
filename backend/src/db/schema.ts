@@ -549,6 +549,18 @@ export const registroAuditoria = pgTable("registro_auditoria", {
   creadoEn: timestamp("creado_en").notNull().defaultNow()
 });
 
+// Ajustes globales del panel administrativo
+export const ajusteSistema = pgTable("ajuste_sistema", {
+  id: text("id").primaryKey().default("global"),
+  nombrePlataforma: varchar("nombre_plataforma", { length: 120 }).notNull().default("Semillas"),
+  correoSoporte: varchar("correo_soporte", { length: 255 }),
+  zonaHoraria: varchar("zona_horaria", { length: 80 }).notNull().default("America/Guayaquil"),
+  notasObligatoriasCambios: boolean("notas_obligatorias_cambios").notNull().default(true),
+  notasObligatoriasRechazo: boolean("notas_obligatorias_rechazo").notNull().default(true),
+  creadoEn: timestamp("creado_en").notNull().defaultNow(),
+  actualizadoEn: timestamp("actualizado_en").notNull().defaultNow()
+});
+
 // Revisiones de contenido antes de publicar
 export const revisionContenido = pgTable("revision_contenido", {
   id: uuid("id").primaryKey().defaultRandom(),

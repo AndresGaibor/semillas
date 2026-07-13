@@ -3,7 +3,7 @@ import {
   esIOS,
   estaInstaladaComoPWA,
 } from "../lib/plataforma";
-import { useInstalarPWA } from "../hooks/use-instalar-pwa";
+import { useInstalarPWA } from "@/shared/hooks/use-instalar-pwa";
 import { InstalarAppBanner } from "./instalar-app-banner";
 import { AvisoInstalarIOS } from "./aviso-instalar-ios";
 

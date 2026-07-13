@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
   INTERVALO_RENOVACION_PORTADA_ADMIN_MS,
+  crearConsultaPortadaFirmadaAdmin,
   obtenerIdPortadaTemaAdmin,
   resolverPortadaTemaAdmin,
 } from "./admin-theme-cover";
@@ -20,12 +21,35 @@ describe("resolverPortadaTemaAdmin", () => {
     ).toBe("portada-borrador");
   });
 
+  it("solicita la URL firmada autenticada para la portada de un borrador", async () => {
+    const recursosSolicitados: string[] = [];
+    const consulta = crearConsultaPortadaFirmadaAdmin(
+      {
+        id: "tema-borrador",
+        portada_recurso_id: "portada-borrador",
+      },
+      async (recursoId) => {
+        recursosSolicitados.push(recursoId);
+        return {
+          url: "https://storage.ejemplo.com/object/sign/media/portada.png?token=temporal",
+          expira_en_segundos: 300,
+        };
+      },
+    );
+
+    await expect(consulta.queryFn()).resolves.toEqual({
+      url: "https://storage.ejemplo.com/object/sign/media/portada.png?token=temporal",
+      expira_en_segundos: 300,
+    });
+    expect(consulta.queryKey).toEqual(["admin", "recurso-url", "portada-borrador"]);
+    expect(recursosSolicitados).toEqual(["portada-borrador"]);
+  });
+
   it("prioriza la URL firmada sobre la URL pública de un bucket privado", () => {
     expect(
       resolverPortadaTemaAdmin({
         titulo: "El amor de Dios",
         urlFirmada: "https://storage.ejemplo.com/object/sign/media/portada.png?token=temporal",
-        urlPublica: "https://storage.ejemplo.com/object/public/media/portada.png",
       }),
     ).toBe("https://storage.ejemplo.com/object/sign/media/portada.png?token=temporal");
   });
@@ -35,7 +59,6 @@ describe("resolverPortadaTemaAdmin", () => {
       resolverPortadaTemaAdmin({
         titulo: "El amor de Dios",
         urlFirmada: null,
-        urlPublica: null,
       }),
     ).toBe("https://api.dicebear.com/7.x/shapes/svg?seed=El%20amor%20de%20Dios");
   });

@@ -10,13 +10,11 @@ import type { Tema } from "@/shared/api/api";
 function usePortadasFirmadas(temas: Tema[]) {
   return useQueries({
     queries: temas.map((t) => ({
-      queryKey: ["tema-portada", t.id],
+      queryKey: ["theme-portada", t.id],
       queryFn: () => obtenerUrlPortadaTema(t.id),
       enabled: Boolean(t.portada_recurso_id || t.portada_recurso?.id),
-      staleTime: 3 * 60 * 1000,
-      gcTime: 4 * 60 * 1000,
-      retry: 1,
-      refetchOnWindowFocus: true,
+      staleTime: 10 * 60 * 1000,
+      gcTime: 11 * 60 * 1000,
     })),
     combine: (results) => {
       const mapa = new Map<string, string | null>();
@@ -38,8 +36,8 @@ export function useAdminThemes() {
   const [activeTab, setActiveTab] = useState("todos");
 
   const temasQuery = useQuery({ queryKey: ["admin", "themes"], queryFn: () => obtenerTemasAdmin() });
-  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
-  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas, staleTime: 1000 * 60 * 60 });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad, staleTime: 1000 * 60 * 60 });
 
   const temasBase = temasQuery.data ?? [];
   const portadas = usePortadasFirmadas(temasBase);

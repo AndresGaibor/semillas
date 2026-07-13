@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Users } from "lucide-react";
 import clubesImg from "@/assets/images/Ilustraciones/Ninos 2.png";
 
@@ -15,7 +15,7 @@ export function ClubesSection() {
           Comparte lo que aprendes en grupo, en compañía de amigos, y forma parte de
           una comunidad cristiana llena de alegría.
         </p>
-        <Button
+        <Boton
           asChild
           className="landing-button landing-button--primary landing-button--large h-auto rounded-full px-6 py-3"
         >
@@ -23,7 +23,7 @@ export function ClubesSection() {
             <Users size={18} aria-hidden="true" />
             <span>Ver clubes</span>
           </Link>
-        </Button>
+        </Boton>
       </div>
 
       <div className="clubes__image">

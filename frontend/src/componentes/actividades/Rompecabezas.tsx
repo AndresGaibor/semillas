@@ -7,7 +7,7 @@ import {
 import { ImagenAmpliadaModal } from "./ImagenAmpliadaModal";
 import { VistaReferencia } from "./VistaReferencia";
 import { PiezaRompecabezasBtn } from "./PiezaRompecabezasBtn";
-import { useRompecabezas } from "./use-rompecabezas";
+import { useRompecabezas } from "./hooks/use-rompecabezas";
 
 export type RompecabezasProps = {
   imagen: string;

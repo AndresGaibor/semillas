@@ -1,84 +1,58 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  type EventoAntesDeInstalar,
+  type ResultadoInstalacion,
+  estaInstaladaComoPWA,
+} from "@/shared/utils/pwa";
 
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{
-    outcome: "accepted" | "dismissed";
-    platform: string;
-  }>;
+export type EstadoInstalarPWA = {
+  disponible: boolean;
+  instalando: boolean;
+  instalar: () => Promise<ResultadoInstalacion>;
 };
 
-export function useInstalarPWA() {
-  const [eventoInstalacion, setEventoInstalacion] = useState<BeforeInstallPromptEvent | null>(
-    null,
-  );
-  const [puedeInstalar, setPuedeInstalar] = useState(false);
+export function useInstalarPWA(): EstadoInstalarPWA {
+  const [evento, setEvento] = useState<EventoAntesDeInstalar | null>(null);
+  const [instalando, setInstalando] = useState(false);
 
   useEffect(() => {
-    // Verificar si ya está instalada la PWA
-    const yaInstalada =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.matchMedia("(display-mode: fullscreen)").matches ||
-      (window.navigator as any).standalone === true;
+    if (typeof window === "undefined") return;
+    if (estaInstaladaComoPWA()) return;
 
-    if (yaInstalada) {
-      setPuedeInstalar(false);
-      return;
-    }
-
-    // Cargar el prompt diferido inicial si ya se capturó globalmente
-    const promptInicial = (window as any).deferredPrompt as BeforeInstallPromptEvent | undefined;
-    if (promptInicial) {
-      setEventoInstalacion(promptInicial);
-      setPuedeInstalar(true);
-    }
-
-    // Escuchar el evento de prompt diferido
-    const manejarPromptGlobal = () => {
-      const promptEvent = (window as any).deferredPrompt as BeforeInstallPromptEvent | undefined;
-      if (promptEvent) {
-        setEventoInstalacion(promptEvent);
-        setPuedeInstalar(true);
-      }
+    const manejarPrompt = (e: Event) => {
+      e.preventDefault();
+      setEvento(e as EventoAntesDeInstalar);
     };
 
-    const manejarAppInstalada = () => {
-      setEventoInstalacion(null);
-      setPuedeInstalar(false);
+    const manejarInstalada = () => {
+      setEvento(null);
     };
 
-    window.addEventListener("semillas-beforeinstallprompt", manejarPromptGlobal);
-    window.addEventListener("semillas-appinstalled", manejarAppInstalada);
+    window.addEventListener("beforeinstallprompt", manejarPrompt);
+    window.addEventListener("appinstalled", manejarInstalada);
 
     return () => {
-      window.removeEventListener("semillas-beforeinstallprompt", manejarPromptGlobal);
-      window.removeEventListener("semillas-appinstalled", manejarAppInstalada);
+      window.removeEventListener("beforeinstallprompt", manejarPrompt);
+      window.removeEventListener("appinstalled", manejarInstalada);
     };
   }, []);
 
-  const instalar = async () => {
-    if (!eventoInstalacion) {
-      return "dismissed";
-    }
-
+  const instalar = useCallback(async (): Promise<ResultadoInstalacion> => {
+    if (!evento) return "no_disponible";
+    setInstalando(true);
     try {
-      await eventoInstalacion.prompt();
-      const resultado = await eventoInstalacion.userChoice;
-
-      // Limpiar globalmente y localmente
-      (window as any).deferredPrompt = null;
-      setEventoInstalacion(null);
-      setPuedeInstalar(false);
-
-      return resultado.outcome;
-    } catch (error) {
-      console.error("Error al disparar el prompt de instalación de PWA:", error);
-      return "dismissed";
+      await evento.prompt();
+      const eleccion = await evento.userChoice;
+      setEvento(null);
+      return eleccion.outcome === "accepted" ? "aceptada" : "rechazada";
+    } finally {
+      setInstalando(false);
     }
-  };
+  }, [evento]);
 
   return {
-    puedeInstalar,
+    disponible: evento !== null,
+    instalando,
     instalar,
   };
 }

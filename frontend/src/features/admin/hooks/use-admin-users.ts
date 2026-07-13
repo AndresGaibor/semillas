@@ -1,6 +1,5 @@
+import { useDeferredValue, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
-import { obtenerUsuariosAdmin } from "../admin.api";
 
 import avatar1 from "@/assets/images/avatars/Avatar 1.png";
 import avatar2 from "@/assets/images/avatars/Avatar 2.png";
@@ -12,109 +11,180 @@ import avatar7 from "@/assets/images/avatars/Avatar 7.png";
 import avatar8 from "@/assets/images/avatars/Avatar 8.png";
 import avatar9 from "@/assets/images/avatars/Avatar 9.png";
 import avatar10 from "@/assets/images/avatars/Avatar 10.png";
-import type { TipoRol } from "@/componentes/ui/badge-rol";
-import type { EstadoUsuario } from "@/componentes/ui/badge-estado-usuario";
-import type { UserTableRow } from "../componentes/admin-users-table";
-import type { UserStats } from "../componentes/admin-users-summary";
+import {
+  obtenerUsuariosAdmin,
+  type EstadoUsuarioAdmin,
+  type UsuarioAdmin,
+} from "../admin.api";
 
-const avatarsList = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6, avatar7, avatar8, avatar9, avatar10];
+const avatars = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6, avatar7, avatar8, avatar9, avatar10];
+
+function indiceAvatar(id: string) {
+  let hash = 0;
+  for (const caracter of id) hash = (hash * 31 + caracter.charCodeAt(0)) >>> 0;
+  return hash % avatars.length;
+}
+
+export function avatarUsuario(usuario: Pick<UsuarioAdmin, "id" | "perfil">) {
+  return usuario.perfil?.avatar_url || avatars[indiceAvatar(usuario.id)]!;
+}
+
+export function etiquetaRol(rol: UsuarioAdmin["rol"]) {
+  return {
+    administrador: "Administrador",
+    padre: "Padre/Madre",
+    usuario: "Estudiante",
+    invitado: "Invitado",
+  }[rol];
+}
+
+export function etiquetaUltimoAcceso(fecha: string | null) {
+  if (!fecha) return "Nunca";
+  const valor = new Date(fecha);
+  if (Number.isNaN(valor.getTime())) return "Sin registro";
+  return new Intl.DateTimeFormat("es-EC", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(valor);
+}
 
 export function useAdminUsers() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedRol, setSelectedRol] = useState("");
   const [selectedFranja, setSelectedFranja] = useState("");
-  const [selectedEstado, setSelectedEstado] = useState("");
+  const [selectedEstado, setSelectedEstado] = useState<EstadoUsuarioAdmin | "">("");
   const [selectedClub, setSelectedClub] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
+  const [porPagina, setPorPagina] = useState(20);
+  const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
 
-  const usersQuery = useQuery({ queryKey: ["admin", "users"], queryFn: () => obtenerUsuariosAdmin() });
+  const busquedaDiferida = useDeferredValue(searchValue.trim());
+  const offset = (paginaActual - 1) * porPagina;
 
-  const mappedUsers = useMemo(() => {
-    const dbUsers = usersQuery.data?.usuarios ?? [];
+  const usersQuery = useQuery({
+    queryKey: [
+      "admin",
+      "users",
+      busquedaDiferida,
+      selectedRol,
+      selectedFranja,
+      selectedEstado,
+      selectedClub,
+      porPagina,
+      offset,
+    ],
+    queryFn: () =>
+      obtenerUsuariosAdmin({
+        q: busquedaDiferida || undefined,
+        rol: selectedRol || undefined,
+        grupo_edad_id: selectedFranja || undefined,
+        estado: selectedEstado || undefined,
+        club_id: selectedClub || undefined,
+        limit: porPagina,
+        offset,
+      }),
+    placeholderData: (anterior) => anterior,
+  });
 
-    return dbUsers.map((u, index) => {
-      const isActivo = u.activo ?? true;
-      const apodo = u.perfil?.apodo || u.nombre_visible || u.correo?.split("@")[0] || "Usuario Semilla";
-      const email = u.correo || "usuario@semillas.org";
-      const lvl = u.perfil?.nivel_actual || 1;
-      const xp = u.perfil?.xp_acumulada || 0;
-      const dateObj = u.ultimo_login_en ? new Date(u.ultimo_login_en) : new Date();
-      const dateStr = dateObj.toLocaleDateString("es-EC", { day: "numeric", month: "short", year: "numeric" }) + " / " + dateObj.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" });
+  const usuarios = usersQuery.data?.usuarios ?? [];
+  const total = usersQuery.data?.total ?? 0;
 
-      const avatarImg = u.perfil?.avatar_url || avatarsList[index % avatarsList.length]!;
+  const idsPagina = useMemo(() => usuarios.map((usuario) => usuario.id), [usuarios]);
+  const todosSeleccionados =
+    idsPagina.length > 0 && idsPagina.every((id) => seleccionados.has(id));
 
-      let rol: TipoRol = "Niño";
-      let franja = "8-10 años";
-      let club = "Semillitas de Luz";
-      let clubIcon = "fa-leaf";
-      let clubIconColor = "text-[#2e9e5b]";
-      let clubBadgeBg = "bg-[#eefcf4]";
-      let isVinculado = false;
-      let levelText = `Nivel ${lvl}`;
-      let xpText = `${xp.toLocaleString()} XP`;
+  function cambiarFiltro(setter: (valor: string) => void, valor: string) {
+    setter(valor);
+    setPaginaActual(1);
+    setSeleccionados(new Set());
+  }
 
-      if (u.rol === "administrador") {
-        rol = "Administrador"; franja = "Todas"; club = "Todos los clubes"; clubIcon = "fa-people-group"; clubIconColor = "text-[#6c3aed]"; clubBadgeBg = "bg-[#6c3aed]/10";
-      } else if (u.rol === "moderador") {
-        rol = "Moderador"; franja = "Todas"; club = "Todos los clubes"; clubIcon = "fa-people-group"; clubIconColor = "text-[#6c3aed]"; clubBadgeBg = "bg-[#6c3aed]/10";
-      } else if (!u.perfil?.grupo_edad_id) {
-        rol = "Padre/Madre"; franja = "-"; club = "Semillitas de Luz"; isVinculado = true; levelText = "Vinculado"; xpText = "";
-      }
-
-      return {
-        id: u.id, nombre: apodo, correo: email, avatarImg, rol, franja, club,
-        clubIcon, clubIconColor, clubBadgeBg, nivelText: levelText, xpText,
-        isVinculado, estado: (isActivo ? "activo" : "bloqueado") as EstadoUsuario,
-        ultimoAcceso: dateStr,
-      };
+  function toggleUsuario(usuarioId: string) {
+    setSeleccionados((actuales) => {
+      const siguientes = new Set(actuales);
+      if (siguientes.has(usuarioId)) siguientes.delete(usuarioId);
+      else siguientes.add(usuarioId);
+      return siguientes;
     });
-  }, [usersQuery.data]);
+  }
 
-  const filteredUsers = useMemo(() => {
-    return mappedUsers.filter((usr) => {
-      if (searchValue && !usr.nombre.toLowerCase().includes(searchValue.toLowerCase()) && !usr.correo.toLowerCase().includes(searchValue.toLowerCase())) return false;
-      if (selectedRol && (usr.rol as string) !== selectedRol) return false;
-      if (selectedFranja && usr.franja !== selectedFranja) return false;
-      if (selectedEstado && (usr.estado as string) !== selectedEstado) return false;
-      if (selectedClub && usr.club !== selectedClub) return false;
-      return true;
+  function togglePagina() {
+    setSeleccionados((actuales) => {
+      const siguientes = new Set(actuales);
+      if (todosSeleccionados) idsPagina.forEach((id) => siguientes.delete(id));
+      else idsPagina.forEach((id) => siguientes.add(id));
+      return siguientes;
     });
-  }, [mappedUsers, searchValue, selectedRol, selectedFranja, selectedEstado, selectedClub]);
+  }
 
-  const userStats: UserStats = useMemo(() => {
-    let activos = 0, bloqueados = 0, pendientes = 0, ninos = 0, adolescentes = 0, padres = 0, moderadores = 0, administradores = 0;
-    for (const u of mappedUsers) {
-      if (u.estado === "activo") activos++; else if (u.estado === "bloqueado") bloqueados++; else pendientes++;
-      const rol = u.rol as string;
-      if (rol === "Niño") ninos++; else if (rol === "Adolescente") adolescentes++; else if (rol === "Padre/Madre") padres++;
-      else if (rol === "Moderador") moderadores++; else if (rol === "Administrador") administradores++;
-    }
-    const total = mappedUsers.length || 1;
-    return {
-      total: mappedUsers.length, activos, bloqueados, pendientes,
-      ninos, adolescentes, padres, moderadores, administradores,
-      actPct: Math.round((activos / total) * 100), pendPct: Math.round((pendientes / total) * 100),
-      blockPct: Math.round((bloqueados / total) * 100), ninosPct: Math.round((ninos / total) * 100),
-      adolPct: Math.round((adolescentes / total) * 100), padresPct: Math.round((padres / total) * 100),
-      modPct: Math.round((moderadores / total) * 100), adminPct: Math.round((administradores / total) * 100),
-    };
-  }, [mappedUsers]);
+  function clearFilters() {
+    setSearchValue("");
+    setSelectedRol("");
+    setSelectedFranja("");
+    setSelectedEstado("");
+    setSelectedClub("");
+    setPaginaActual(1);
+    setSeleccionados(new Set());
+  }
 
-  const clearFilters = () => {
-    setSearchValue(""); setSelectedRol(""); setSelectedFranja(""); setSelectedEstado(""); setSelectedClub("");
-  };
+  function cambiarPorPagina(cantidad: number) {
+    setPorPagina(cantidad);
+    setPaginaActual(1);
+    setSeleccionados(new Set());
+  }
 
   return {
-    searchValue, setSearchValue,
-    selectedRol, setSelectedRol,
-    selectedFranja, setSelectedFranja,
-    selectedEstado, setSelectedEstado,
-    selectedClub, setSelectedClub,
-    paginaActual, setPaginaActual,
+    searchValue,
+    setSearchValue: (valor: string) => cambiarFiltro(setSearchValue, valor),
+    selectedRol,
+    setSelectedRol: (valor: string) => cambiarFiltro(setSelectedRol, valor),
+    selectedFranja,
+    setSelectedFranja: (valor: string) => cambiarFiltro(setSelectedFranja, valor),
+    selectedEstado,
+    setSelectedEstado: (valor: string) =>
+      cambiarFiltro(
+        setSelectedEstado as (valor: string) => void,
+        valor
+      ),
+    selectedClub,
+    setSelectedClub: (valor: string) => cambiarFiltro(setSelectedClub, valor),
+    paginaActual,
+    setPaginaActual,
+    porPagina,
+    setPorPagina: cambiarPorPagina,
     isLoading: usersQuery.isLoading,
+    isFetching: usersQuery.isFetching,
     isError: usersQuery.isError,
     error: usersQuery.error,
-    refetch: () => usersQuery.refetch(),
-    filteredUsers, userStats, clearFilters,
+    refetch: usersQuery.refetch,
+    usuarios,
+    total,
+    resumen: usersQuery.data?.resumen ?? {
+      total: 0,
+      activos: 0,
+      pendientes: 0,
+      bloqueados: 0,
+      administradores: 0,
+      padres: 0,
+    },
+    catalogos: usersQuery.data?.catalogos ?? {
+      grupos_edad: [],
+      clubes: [],
+      tutores: [],
+    },
+    seleccionados,
+    seleccionadosIds: [...seleccionados],
+    todosSeleccionados,
+    toggleUsuario,
+    togglePagina,
+    limpiarSeleccion: () => setSeleccionados(new Set()),
+    clearFilters,
+    tieneFiltros: Boolean(
+      searchValue ||
+        selectedRol ||
+        selectedFranja ||
+        selectedEstado ||
+        selectedClub
+    ),
   };
 }

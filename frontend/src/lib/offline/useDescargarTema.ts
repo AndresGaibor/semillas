@@ -3,12 +3,12 @@ import { db, type TemaLocal } from "./db";
 import { cachearMediosPaqueteOffline, eliminarMedioDeCache } from "./media-cache";
 import { mapearPaqueteOfflineARegistros, type PaqueteOfflineRespuesta } from "./offline-package";
 import { queueEventoProgreso } from "./outbox";
-import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { peticion } from "@/shared/api/api";
 
 type DescargaTemaParams = {
   temaId: string;
   grupoEdadId?: string;
+  perfilGrupoEdadId?: string;
   onProgress?: (progreso: number) => void;
 };
 
@@ -25,9 +25,8 @@ export function useDescargarTema() {
   });
 }
 
-export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitado, onProgress }: DescargaTemaParams) {
-      const perfil = await obtenerMiPerfil();
-      const grupoEdadId = grupoSolicitado ?? perfil.perfil.grupo_edad_id;
+export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitado, perfilGrupoEdadId, onProgress }: DescargaTemaParams) {
+      const grupoEdadId = grupoSolicitado ?? perfilGrupoEdadId;
 
       if (!grupoEdadId) {
         throw new Error("Completa tu franja de edad antes de descargar contenido.");

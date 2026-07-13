@@ -1,3 +1,10 @@
+export type ResultadoInstalacion = "aceptada" | "rechazada" | "no_disponible";
+
+export type EventoAntesDeInstalar = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+};
+
 export function esIOS(): boolean {
   if (typeof window === "undefined" || !window.navigator) {
     return false;

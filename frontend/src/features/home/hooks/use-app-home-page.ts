@@ -21,8 +21,8 @@ const VERSICULOS_DEL_DIA: Versiculo[] = [
 export type Versiculo = { text: string; ref: string };
 
 export function useAppHomePage() {
-  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
-  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia });
+  const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil, staleTime: 1000 * 60 * 5 });
+  const gamificationQuery = useQuery({ queryKey: ["gamification", "me"], queryFn: obtenerGamificacionPropia, staleTime: 1000 * 60 * 3 });
   const [verseOfTheDay, setVerseOfTheDay] = useState<Versiculo>(() => VERSICULOS_DEL_DIA[0]!);
 
   useEffect(() => {

@@ -1,10 +1,11 @@
 import { Check } from "lucide-react";
 import dorsoCarta from "../../assets/images/Ilustraciones/flascards.png";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
-import { useFlashcards } from "./use-flashcards";
+import { useFlashcards } from "./hooks/use-flashcards";
+import type { Actividad } from "@/shared/api/schemas/temas.schema";
 
 interface FlashcardsProps {
-  actividad: any;
+  actividad: Actividad;
   onComplete: (actividadId: string, xpRecompensa: number) => void;
 }
 

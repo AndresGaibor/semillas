@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { obtenerSendasAdmin } from "@/features/admin/admin.api";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Plus, Edit2, Archive, Loader2, Sparkles, Map } from "lucide-react";
 
 export const Route = createFileRoute("/admin/sendas")({
@@ -29,12 +29,12 @@ function AdminSendasList() {
             Administra los caminos principales de aprendizaje.
           </p>
         </div>
-        <Button asChild>
+        <Boton asChild>
           <Link to="/admin/sendas/new">
             <Plus className="mr-2 h-4 w-4" />
             Crear Senda
           </Link>
-        </Button>
+        </Boton>
       </header>
 
       {isLoading ? (
@@ -50,12 +50,12 @@ function AdminSendasList() {
           <Map className="mx-auto mb-4 h-12 w-12 text-slate-300" />
           <h3 className="text-lg font-medium text-slate-900">No hay sendas</h3>
           <p className="mt-1 text-slate-500">Comienza creando la primera senda.</p>
-          <Button asChild className="mt-4" variant="outline">
+          <Boton asChild className="mt-4" variante="contorno">
             <Link to="/admin/sendas/new">
               <Plus className="mr-2 h-4 w-4" />
               Crear Senda
             </Link>
-          </Button>
+          </Boton>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -95,16 +95,16 @@ function AdminSendasList() {
                   {senda.codigo}
                 </code>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" asChild className="h-8 px-2 text-slate-400 hover:text-slate-900">
-                    <Link to="/admin/sendas/$sendaId/edit" params={{ sendaId: senda.id }}>
+                  <Boton variante="texto" tamano="pequeno" asChild className="h-8 px-2 text-slate-400 hover:text-slate-900">
+                    <Link to="/admin/sendas/$sendaId/edit" params={{sendaId:senda.id }}>
                       <Edit2 className="h-4 w-4" />
                       <span className="sr-only">Editar</span>
                     </Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-8 px-2 text-slate-400 hover:text-red-600">
+                  </Boton>
+                  <Boton variante="texto" tamano="pequeno" className="h-8 px-2 text-slate-400 hover:text-red-600">
                     <Archive className="h-4 w-4" />
                     <span className="sr-only">Archivar</span>
-                  </Button>
+                  </Boton>
                 </div>
               </div>
             </div>

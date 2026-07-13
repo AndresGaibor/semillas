@@ -8,15 +8,16 @@ import {
   Loader2,
   Save,
   Sparkles,
-  Upload,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { crearTema, type CrearTemaSolicitud } from "../features/admin/admin.api";
 import { obtenerGruposEdad, obtenerVersionesBiblicas } from "../features/catalog/catalog.api";
-import { subirArchivo, type RecursoMultimedia } from "../features/media/media.api";
+import { obtenerUrlFirmadaRecurso, subirArchivo, type RecursoMultimedia } from "../features/media/media.api";
 import { obtenerSendas } from "../features/sendas/sendas.api";
+import { CoverImageUpload } from "../features/admin/componentes/temas/cover-image-upload";
+import { obtenerRecursosMultimedia } from "../features/media/media.api";
 
 export const Route = createFileRoute("/admin/temas/new")({ component: NewThemePage });
 
@@ -38,24 +39,28 @@ const initialForm: CrearTemaSolicitud = {
 function NewThemePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const fileInput = useRef<HTMLInputElement | null>(null);
   const [form, setForm] = useState<CrearTemaSolicitud>(initialForm);
   const [cover, setCover] = useState<RecursoMultimedia | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
   const [destination, setDestination] = useState<Destination>("crecer");
 
   const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
   const edadesQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
   const versionesQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
+  const recursosQuery = useQuery({ queryKey: ["media", "resources"], queryFn: obtenerRecursosMultimedia });
 
   const update = <K extends keyof CrearTemaSolicitud>(key: K, value: CrearTemaSolicitud[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  useEffect(() => () => {
+    if (coverPreviewUrl?.startsWith("blob:")) URL.revokeObjectURL(coverPreviewUrl);
+  }, [coverPreviewUrl]);
+
   const coverMutation = useMutation({
-    mutationFn: (file: File) => subirArchivo(file, "imagen", `Portada del tema ${form.titulo || "nuevo"}`),
-    onSuccess: (resource) => {
-      setCover(resource);
-      update("portada_recurso_id", resource.id);
+    mutationFn: ({ file, metadata }: { file: File; metadata: { titulo: string; textoAlternativo: string } }) =>
+      subirArchivo(file, "imagen", metadata.textoAlternativo, metadata.titulo),
+    onSuccess: () => {
       toast.success("Portada cargada");
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo subir la portada"),
@@ -97,6 +102,19 @@ function NewThemePage() {
   };
 
   const isCatalogLoading = sendasQuery.isLoading || edadesQuery.isLoading || versionesQuery.isLoading;
+  const displayedCoverUrl = coverPreviewUrl ?? cover?.url_publica ?? null;
+
+  const handleCoverSelect = async (resource: RecursoMultimedia) => {
+    setCover(resource);
+    update("portada_recurso_id", resource.id);
+    try {
+      const { url } = await obtenerUrlFirmadaRecurso(resource.id);
+      setCoverPreviewUrl(url);
+    } catch {
+      setCoverPreviewUrl(resource.url_publica ?? null);
+    }
+  };
+
   if (isCatalogLoading) return <div className="admin-dashboard-state"><span><Loader2 className="animate-spin" /></span><h2>Preparando editor</h2><p>Cargando sendas, franjas y versiones bíblicas.</p></div>;
 
   return (
@@ -131,11 +149,26 @@ function NewThemePage() {
 
           <section className="admin-editor-section">
             <div className="admin-editor-section__header"><div><h2>Portada</h2><p>Opcional al crear. Puedes reemplazarla más adelante desde Información del tema.</p></div></div>
-            <input ref={fileInput} className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) coverMutation.mutate(file); }} />
-            <div className="admin-media-slot">
-              <div className="admin-media-slot__preview">{cover ? <img src={cover.url_publica} alt="Vista previa de portada" /> : <FileImage size={30} />}</div>
-              <div><strong>{cover ? cover.titulo || "Portada cargada" : "Añade una portada 16:9"}</strong><small>WebP o JPG, mínimo 1200 × 675 px. Se registra en el módulo Medios.</small><button type="button" className="admin-secondary-button mt-3" disabled={coverMutation.isPending} onClick={() => fileInput.current?.click()}>{coverMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />} {cover ? "Reemplazar" : "Subir portada"}</button></div>
-            </div>
+            <CoverImageUpload
+              themeTitle={form.titulo.trim() || undefined}
+              cover={cover}
+              resources={recursosQuery.data ?? []}
+              isUploading={coverMutation.isPending}
+              onSelect={handleCoverSelect}
+              onRemove={() => {
+                setCover(null);
+                update("portada_recurso_id", null);
+                setCoverPreviewUrl(null);
+              }}
+              onUpload={async (file, metadata) => {
+                const resource = await coverMutation.mutateAsync({
+                  file,
+                  metadata,
+                });
+                await handleCoverSelect(resource);
+                return resource;
+              }}
+            />
           </section>
         </main>
 
@@ -143,7 +176,7 @@ function NewThemePage() {
           <section className="admin-editor-section">
             <span className="admin-eyebrow">Vista previa</span>
             <div className="mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-white">
-              <div className="aspect-video bg-slate-100">{cover ? <img src={cover.url_publica} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-slate-300"><ImagePlus size={42} /></div>}</div>
+              <div className="aspect-video bg-slate-100">{displayedCoverUrl ? <img src={displayedCoverUrl} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-slate-300"><ImagePlus size={42} /></div>}</div>
               <div className="p-5"><small className="font-bold uppercase tracking-[.16em] text-violet-600">{sendasQuery.data?.find((senda) => senda.id === form.senda_id)?.nombre ?? "Sin senda"}</small><h3 className="mt-2 text-2xl font-black text-slate-900">{form.titulo || "Título del tema"}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{form.resumen || "El resumen aparecerá aquí."}</p></div>
             </div>
           </section>

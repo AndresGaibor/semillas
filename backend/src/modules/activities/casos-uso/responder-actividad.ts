@@ -10,6 +10,7 @@ type EntradaResponderActividad = {
   evento_id_cliente: string;
   opcion_id_seleccionada?: string;
   texto_respuesta?: string;
+  completada?: true;
   ocurrido_en_cliente?: string;
   dispositivo_id?: string;
 };
@@ -26,18 +27,29 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
       throw new NotFoundError("Actividad no encontrada");
     }
 
-    if (!entrada.opcion_id_seleccionada) {
+    const esFinalizacionGuiada = entrada.completada === true;
+    if (esFinalizacionGuiada && actividad.tipoCodigo === "cuestionario") {
+      throw new BadRequestError("Los cuestionarios deben enviarse con una opción de respuesta");
+    }
+
+    if (entrada.texto_respuesta) {
       throw new BadRequestError("Esta actividad todavía no admite respuestas de texto verificables");
     }
 
-    const opcion = await actividades.obtenerOpcionDeActividad(actividadId, entrada.opcion_id_seleccionada);
-    if (!opcion) {
-      throw new NotFoundError("Opción no encontrada");
+    let opcion: Awaited<ReturnType<ActivitiesRepository["obtenerOpcionDeActividad"]>> | null = null;
+    let opcionCorrecta: Awaited<ReturnType<ActivitiesRepository["obtenerOpcionCorrecta"]>> | null = null;
+
+    if (entrada.opcion_id_seleccionada) {
+      opcion = await actividades.obtenerOpcionDeActividad(actividadId, entrada.opcion_id_seleccionada);
+      if (!opcion) throw new NotFoundError("Opción no encontrada");
+      opcionCorrecta = await actividades.obtenerOpcionCorrecta(actividadId);
+    } else if (!esFinalizacionGuiada) {
+      throw new BadRequestError("Envía una opción o marca la actividad como completada");
     }
 
-    const opcionCorrecta = await actividades.obtenerOpcionCorrecta(actividadId);
-    const correcta = Boolean(opcion.correcta);
+    const correcta = esFinalizacionGuiada || Boolean(opcion?.correcta);
     const xpOtorgada = correcta ? Number(actividad.xpRecompensa ?? 0) : 0;
+    const retroalimentacion = opcion?.retroalimentacion ?? opcionCorrecta?.retroalimentacion ?? null;
 
     const evento = await actividades.registrarEventoProgreso({
       usuarioId: usuario.id,
@@ -49,7 +61,8 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
       puntaje: correcta ? 100 : 0,
       datos: {
         opcion_id_seleccionada: entrada.opcion_id_seleccionada ?? null,
-        texto_respuesta: entrada.texto_respuesta ?? null
+        texto_respuesta: entrada.texto_respuesta ?? null,
+        completada: esFinalizacionGuiada
       },
       ocurridoEnCliente: entrada.ocurrido_en_cliente ? new Date(entrada.ocurrido_en_cliente) : new Date(),
       dispositivoId: entrada.dispositivo_id ?? null
@@ -61,7 +74,7 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
           correcta,
           xp_otorgada: 0,
           opcion_correcta_id: opcionCorrecta?.id ?? null,
-          retroalimentacion: opcion.retroalimentacion ?? opcionCorrecta?.retroalimentacion ?? null
+          retroalimentacion
         },
         duplicado: true,
         correcta,
@@ -83,7 +96,7 @@ export function crearCasoResponderActividad({ actividades }: Dependencias) {
         correcta,
         xp_otorgada: xpOtorgada,
         opcion_correcta_id: opcionCorrecta?.id ?? null,
-        retroalimentacion: opcion.retroalimentacion ?? opcionCorrecta?.retroalimentacion ?? null
+        retroalimentacion
       },
       duplicado: false,
       correcta,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
   createActivitySchema,
+  ajustesSistemaSchema,
   createSendaSchema,
   createThemeSchema,
   reorderActivitiesSchema,
@@ -148,6 +149,20 @@ describe("admin.schemas", () => {
     expect(createSendaSchema.safeParse(entrada).success).toBe(true);
     expect(updateSendaSchema.safeParse({ imagen_recurso_id: entrada.imagen_recurso_id }).success).toBe(true);
     expect(updateSendaSchema.safeParse({ imagen_recurso_id: "no-es-uuid" }).success).toBe(false);
+  });
+
+  it("acepta el DTO de ajustes del panel admin", () => {
+    expect(ajustesSistemaSchema.safeParse({
+      nombre_plataforma: "Semillas",
+      correo_soporte: "soporte@semillas.org",
+      zona_horaria: "America/Guayaquil",
+      notas_obligatorias_cambios: true,
+      notas_obligatorias_rechazo: true
+    }).success).toBe(true);
+
+    expect(ajustesSistemaSchema.safeParse({
+      correo_soporte: ""
+    }).success).toBe(false);
   });
 
 });

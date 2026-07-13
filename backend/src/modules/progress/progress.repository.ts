@@ -57,7 +57,19 @@ export function crearProgressRepository(db: DbClient) {
       ocurrido_en_cliente?: string;
       dispositivo_id?: string;
     }) {
-      const xpOtorga = body.xp_otorgada ?? 0;
+      let xpOtorga = body.xp_otorgada ?? 0;
+
+      // La recompensa del tema siempre se determina en el servidor. El flujo
+      // online no pasa por /sync/push, que ya aplica esta misma regla.
+      if (body.tipo_evento === "tema_completado" && body.tema_id) {
+        const [tema] = await db
+          .select({ xpRecompensa: schema.tema.xpRecompensa })
+          .from(schema.tema)
+          .where(eq(schema.tema.id, body.tema_id))
+          .limit(1);
+
+        xpOtorga = Number(tema?.xpRecompensa ?? 0);
+      }
 
       // ANTI-FARMING: Si el evento da XP, revisamos que no haya ganado XP por este tema o actividad antes
       if (xpOtorga > 0) {

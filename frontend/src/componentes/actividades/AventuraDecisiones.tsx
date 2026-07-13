@@ -105,7 +105,7 @@ export function AventuraDecisiones({ actividad, onComplete }: AventuraDecisiones
               ¿Qué decides hacer?
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {escenaActual.opciones?.map((opcion: any, index: number) => {
+                {escenaActual.opciones?.map((opcion: OpcionDecision, index: number) => {
                   const esError = opcionErroneaIndex === index;
                   
                   return (

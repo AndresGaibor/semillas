@@ -123,7 +123,12 @@ export function mapActivity(activity: Record<string, unknown>) {
     dificultad: String(activity.dificultad ?? "facil"),
     obligatorio: Boolean(activity.obligatorio),
     configuracion: (activity.configuracion ?? {}) as Record<string, unknown>,
-    estado: String(activity.estado ?? "borrador"),
+    estado:
+      temaRaw?.estado === "publicado"
+        ? "publicada"
+        : temaRaw?.estado === "revision"
+          ? "revision"
+          : "borrador",
     creado_en: (activity.creado_en ?? null) as string | null,
     actualizado_en: (activity.actualizado_en ?? null) as string | null,
     opciones: opcionesRaw
@@ -149,6 +154,7 @@ export function mapActivity(activity: Record<string, unknown>) {
           id: String(temaRaw.id ?? ""),
           titulo: String(temaRaw.titulo ?? ""),
           slug: String(temaRaw.slug ?? ""),
+          estado: String(temaRaw.estado ?? "borrador"),
           senda: temaSendaRaw
             ? {
                 id: String(temaSendaRaw.id ?? ""),

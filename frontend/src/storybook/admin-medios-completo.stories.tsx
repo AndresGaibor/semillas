@@ -1,13 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import type { MediaCardItem } from "@/features/admin/admin-media.types";
-import { AdminMediaDetailPanel } from "@/features/admin/componentes/admin-media-detail-panel";
-import { AdminMediaFilters } from "@/features/admin/componentes/admin-media-filters";
-import { AdminMediaGrid } from "@/features/admin/componentes/admin-media-grid";
-import { AdminMediaHeader } from "@/features/admin/componentes/admin-media-header";
-import { AdminMediaLoadingState } from "@/features/admin/componentes/admin-media-loading-state";
-import { AdminMediaTypeTabs, type TipoMedia } from "@/features/admin/componentes/admin-media-type-tabs";
-import { AdminMediaUploadProgress } from "@/features/admin/componentes/admin-media-upload-progress";
+import { AdminMediaDetailPanel, AdminMediaFilters, AdminMediaGrid, AdminMediaHeader, AdminMediaLoadingState, AdminMediaTypeTabs, AdminMediaUploadProgress, type TipoMedia } from "@/features/admin/componentes/medios";
 import temaImg from "@/assets/images/Ilustraciones/Tema1.png";
 import quizImg from "@/assets/images/Ilustraciones/banner_quiz.png";
 

@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 
 type AppAccountMenuProps = {
@@ -101,9 +101,9 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
 
   return (
     <div ref={menuRef} className="account-menu-desktop relative">
-      <Button
+      <Boton
         type="button"
-        variant="ghost"
+        variante="texto"
         className="flex min-h-11 items-center gap-2 rounded-full border-0 p-1 text-left hover:bg-slate-100 sm:gap-3 md:rounded-none md:border-l md:border-[#e5e7eb] md:pl-5 md:pr-0 md:hover:bg-transparent"
         aria-label="Abrir menú de cuenta"
         aria-expanded={isOpen}
@@ -117,7 +117,7 @@ export function AppAccountMenu({ nombreVisible, nivelTexto, avatarUrl, onLogout 
           <span className="text-[13.6px] font-bold text-foreground">{nombreVisible}</span>
           <span className="text-xs text-neutro">{nivelTexto}</span>
         </div>
-      </Button>
+      </Boton>
 
       {isRendered && (
         <Card
