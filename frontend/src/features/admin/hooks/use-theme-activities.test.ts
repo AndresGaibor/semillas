@@ -205,9 +205,9 @@ describe("lógica de construcción del payload de useThemeActivitiesMutation", (
     const esValido = (d: ActivityDraft) =>
       d.titulo.trim() && d.consigna.trim() && d.paso_id && d.grupo_edad_id && d.tipo_actividad_id;
 
-    expect(esValido(draftValido)).toBe(true);
-    expect(esValido(draftSinTitulo)).toBe(false);
-    expect(esValido(draftSinConsigna)).toBe(false);
-    expect(esValido(draftSinPaso)).toBe(false);
+    expect(Boolean(esValido(draftValido))).toBe(true);
+    expect(Boolean(esValido(draftSinTitulo))).toBe(false);
+    expect(Boolean(esValido(draftSinConsigna))).toBe(false);
+    expect(Boolean(esValido(draftSinPaso))).toBe(false);
   });
 });

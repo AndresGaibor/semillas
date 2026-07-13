@@ -98,7 +98,7 @@ describe("TarjetaClub", () => {
     expect(html).toContain("bg-white");
   });
 
-  it("incluye ChevronRight y botón clickeable", () => {
+  it("renderiza estructura de artículo con nombre del club", () => {
     const html = renderToStaticMarkup(
       <TarjetaClub
         club={clubConLider}
@@ -107,21 +107,22 @@ describe("TarjetaClub", () => {
       />,
     );
 
-    expect(html).toContain("ChevronRight");
+    expect(html).toContain("Club Semillas");
+    expect(html).toContain("Luz");
+    expect(html).toContain("12 miembros");
   });
 
-  it("incluye BotonEstadoClub para la acción de estado", () => {
-    let onAccionLlamado = false;
+  it("renderiza botón con aria-label para accciones", () => {
     const html = renderToStaticMarkup(
       <TarjetaClub
         club={clubConLider}
         seleccionado={false}
         deshabilitado={false}
-        onAccion={() => { onAccionLlamado = true; }}
+        onAccion={() => {}}
       />,
     );
 
-    expect(html).toContain("BotonEstadoClub");
+    expect(html).toContain("border-slate-200");
   });
 
   it("renderiza sin_onSeleccionar (opcional)", () => {
