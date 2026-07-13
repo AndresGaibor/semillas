@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import "../estilos.css";
 import "../landing.css";
@@ -10,14 +10,8 @@ import { ClubesSection } from "@/features/landing/componentes/ClubesSection";
 import { MethodologySection } from "@/features/landing/componentes/MethodologySection";
 import { Footer } from "@/features/landing/componentes/Footer";
 import { WelcomeBanner } from "@/features/landing/componentes/WelcomeBanner";
-import { estaInstaladaComoPWA } from "@/shared/utils/pwa";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    if (estaInstaladaComoPWA()) {
-      throw redirect({ to: "/login", search: { redirect: "/app" } });
-    }
-  },
   component: LandingPage,
 });
 
