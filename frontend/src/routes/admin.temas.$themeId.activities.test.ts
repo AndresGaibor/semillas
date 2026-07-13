@@ -4,7 +4,7 @@ import {
   actualizarGrupoEdadDelBorrador,
   tieneContenidoEnBorrador,
   type ActivityDraft,
-} from "./admin.temas.$themeId.activities";
+} from "../features/admin/types";
 
 const borradorVacio: ActivityDraft = {
   paso_id: "paso-1",

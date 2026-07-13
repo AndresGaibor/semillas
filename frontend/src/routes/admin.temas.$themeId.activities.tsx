@@ -28,11 +28,20 @@ import {
   reordenarActividades,
   type ActividadAdmin,
 } from "../features/admin/admin.api";
+import {
+  defaultOptions,
+  emptyDraft,
+  tieneContenidoEnBorrador,
+  actualizarGrupoEdadDelBorrador,
+  type ActivityDraft,
+  type OptionDraft,
+} from "../features/admin/types";
+import { useThemeActivitiesMutation } from "../features/admin/hooks/use-theme-activities";
 import { obtenerGruposEdad, obtenerTiposActividad } from "../features/catalog/catalog.api";
 import { subirArchivo } from "../features/media/media.api";
-import { normalizarConfiguracionActividad, validarActividadParaGuardar } from "../features/admin/componentes/activity-configuration";
-import { ActivityTypeConfigBuilder } from "../features/admin/componentes/activity-type-config-builder";
-import type { ActivitySearch } from "../features/admin/componentes/activity-search.types";
+import { normalizarConfiguracionActividad, validarActividadParaGuardar } from "../features/admin/componentes/temas/activity-configuration";
+import { ActivityTypeConfigBuilder } from "../features/admin/componentes/temas/activity-type-config-builder";
+import type { ActivitySearch } from "../features/admin/componentes/temas/activity-search.types";
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
   component: AdminThemeActivitiesPage,
@@ -41,40 +50,6 @@ export const Route = createFileRoute("/admin/temas/$themeId/activities")({
     actividadId: search.actividadId as string | undefined,
   }),
 });
-
-type OptionDraft = { etiqueta: string; texto: string; correcta: boolean; orden: number };
-export type ActivityDraft = {
-  paso_id: string;
-  grupo_edad_id: string;
-  tipo_actividad_id: string;
-  titulo: string;
-  consigna: string;
-  retroalimentacion: string;
-  xp_recompensa: number;
-  limite_tiempo_seg: number | null;
-  dificultad: "facil" | "normal" | "dificil";
-  obligatorio: boolean;
-  configuracion: Record<string, unknown>;
-  opciones: OptionDraft[];
-};
-
-const defaultOptions: OptionDraft[] = ["A", "B", "C", "D"].map((label, index) => ({ etiqueta: label, texto: "", correcta: index === 0, orden: index + 1 }));
-const emptyDraft: ActivityDraft = { paso_id: "", grupo_edad_id: "", tipo_actividad_id: "", titulo: "", consigna: "", retroalimentacion: "", xp_recompensa: 10, limite_tiempo_seg: null, dificultad: "facil", obligatorio: true, configuracion: {}, opciones: defaultOptions };
-
-export function tieneContenidoEnBorrador(borrador: Pick<ActivityDraft, "titulo" | "consigna" | "configuracion" | "opciones">) {
-  return Boolean(borrador.titulo.trim() || borrador.consigna.trim() || Object.keys(borrador.configuracion).length || borrador.opciones.some((opcion) => opcion.texto.trim()));
-}
-
-export function actualizarGrupoEdadDelBorrador(borrador: ActivityDraft, grupoEdadId: string): ActivityDraft {
-  return { ...borrador, grupo_edad_id: grupoEdadId };
-}
-
-function esObjetoPlano(valor: unknown): valor is Record<string, unknown> {
-  if (typeof valor !== "object" || valor === null || Array.isArray(valor)) return false;
-
-  const prototipo = Object.getPrototypeOf(valor);
-  return prototipo === Object.prototype || prototipo === null;
-}
 
 function AdminThemeActivitiesPage() {
   const { themeId } = Route.useParams();
@@ -95,7 +70,11 @@ function AdminThemeActivitiesPage() {
     queryKey: ["admin", "theme", themeId, "activities", selectedAge],
     queryFn: () => obtenerActividadesAdmin({ tema_id: themeId, grupo_edad_id: selectedAge || undefined, limit: 500 }),
   });
-  const editQuery = useQuery({ queryKey: ["admin", "activity", search.actividadId], queryFn: () => obtenerActividadAdmin(search.actividadId!), enabled: search.form === "editar" && Boolean(search.actividadId) });
+  const editQuery = useQuery({
+    queryKey: ["admin", "activity", search.actividadId],
+    queryFn: () => obtenerActividadAdmin(search.actividadId!),
+    enabled: search.form === "editar" && Boolean(search.actividadId),
+  });
 
   useEffect(() => {
     if (!selectedAge && groupsQuery.data?.length) setSelectedAge(themeQuery.data?.grupos_edad?.[0]?.id ?? groupsQuery.data?.[0]?.id ?? "");
@@ -183,38 +162,22 @@ function AdminThemeActivitiesPage() {
     setIsDirty(true);
   };
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      let configuracionAvanzada: unknown;
-      try { configuracionAvanzada = JSON.parse(configText); } catch { throw new Error("La configuración avanzada no contiene JSON válido"); }
-      if (!esObjetoPlano(configuracionAvanzada)) throw new Error("La configuración avanzada debe ser un objeto JSON plano.");
-      if (!draft.titulo.trim() || !draft.consigna.trim() || !draft.paso_id || !draft.grupo_edad_id || !draft.tipo_actividad_id) throw new Error("Completa los campos obligatorios");
-      const codigoTipoActividad = selectedType?.codigo ?? "";
-      const configuracion = normalizarConfiguracionActividad(codigoTipoActividad, configuracionAvanzada);
-      const errorConfiguracion = validarActividadParaGuardar({ codigo: codigoTipoActividad, configuracion, opciones: draft.opciones });
-      if (errorConfiguracion) throw new Error(errorConfiguracion);
-      const payload = {
-        tema_id: themeId,
-        paso_id: draft.paso_id,
-        grupo_edad_id: draft.grupo_edad_id,
-        tipo_actividad_id: draft.tipo_actividad_id,
-        titulo: draft.titulo.trim(),
-        consigna: draft.consigna.trim(),
-        retroalimentacion: draft.retroalimentacion.trim() || undefined,
-        orden: search.form === "editar" ? editQuery.data?.orden ?? 1 : activities.length + 1,
-        xp_recompensa: draft.xp_recompensa,
-        limite_tiempo_seg: draft.limite_tiempo_seg,
-        dificultad: draft.dificultad,
-        obligatorio: draft.obligatorio,
-        configuracion,
-        opciones: draft.opciones.filter((option) => option.texto.trim()).map((option, index) => ({ ...option, texto: option.texto.trim(), orden: index + 1 })),
-      };
-      if (search.form === "editar" && search.actividadId) return actualizarActividad(search.actividadId, payload);
-      return crearActividad(payload);
-    },
-    onSuccess: async () => { await invalidate(); closeForm(true); toast.success(search.form === "editar" ? "Actividad actualizada" : "Actividad creada"); },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo guardar"),
+  const saveMutation = useThemeActivitiesMutation({
+    themeId,
+    draft,
+    configText,
+    codigoTipoActividad: selectedType?.codigo ?? "",
+    ordenActual: activities.length,
+    esModoEditar: search.form === "editar",
+    actividadId: search.actividadId,
   });
+
+  const handleSave = async () => {
+    await saveMutation.mutateAsync();
+    await invalidate();
+    closeForm(true);
+  };
+
   const deleteMutation = useMutation({ mutationFn: eliminarActividad, onSuccess: async () => { await invalidate(); toast.success("Actividad eliminada"); }, onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo eliminar") });
   const duplicateMutation = useMutation({ mutationFn: duplicarActividad, onSuccess: async () => { await invalidate(); toast.success("Actividad duplicada"); }, onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo duplicar") });
   const reorderMutation = useMutation({ mutationFn: (ids: string[]) => reordenarActividades(themeId, ids), onSuccess: async () => { await invalidate(); }, onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo reordenar") });
@@ -247,7 +210,7 @@ function AdminThemeActivitiesPage() {
         <button type="button" className="admin-primary-button" onClick={() => navigate({ search: { form: "nueva" } })}><Plus size={17} /> Nueva actividad</button>
       </header>
 
-      {isFormOpen ? <div className="admin-activity-editor-layout"><main className="admin-activity-editor-layout__main"><section className="admin-editor-section admin-activity-editor"><div className="admin-editor-section__header"><div><span className="admin-eyebrow">Editor de actividad</span><h2>{search.form === "editar" ? "Editar actividad" : "Nueva actividad"}</h2><p>Configura la experiencia y guárdala cuando esté lista.</p></div><button type="button" className="admin-icon-button" aria-label="Cerrar editor de actividad" onClick={() => closeForm()}><X size={18} /></button></div><label className="admin-activity-editor__age"><span>Franja del contexto</span><select value={selectedAge} onChange={(event) => cambiarFranjaContexto(event.target.value)}>{groupsQuery.data?.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></label>{editQuery.isLoading ? <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div> : <ActivityBuilder draft={draft} onChange={actualizarBorrador} configText={configText} onConfigTextChange={actualizarConfiguracionTexto} steps={stepsQuery.data ?? []} groups={groupsQuery.data ?? []} types={typesQuery.data ?? []} selectedTypeCode={selectedType?.codigo ?? ""} onUpload={(file, key, type) => uploadMutation.mutate({ file, key, type })} uploading={uploadMutation.isPending} />}<div className="admin-save-bar mt-5"><p>La configuración se guarda como JSON validado por el backend.</p><button type="button" className="admin-primary-button" disabled={saveMutation.isPending || uploadMutation.isPending} onClick={() => saveMutation.mutate()}>{saveMutation.isPending ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />} Guardar</button></div></section></main><aside className="admin-activity-editor-layout__sequence"><details open><summary>Secuencia ({activities.length})</summary><p>Revisa el orden sin salir del editor.</p>{secuenciaActividades}</details></aside></div> : <section className="admin-editor-section"><div className="admin-editor-section__header"><div><h2>Secuencia de actividades</h2><p>{activities.length} actividades. Usa las flechas para ajustar el orden.</p></div><label className="admin-activity-editor__age"><span>Filtrar por franja</span><select value={selectedAge} onChange={(event) => setSelectedAge(event.target.value)}><option value="">Todas las franjas</option>{groupsQuery.data?.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></label></div>{secuenciaActividades}</section>}
+      {isFormOpen ? <div className="admin-activity-editor-layout"><main className="admin-activity-editor-layout__main"><section className="admin-editor-section admin-activity-editor"><div className="admin-editor-section__header"><div><span className="admin-eyebrow">Editor de actividad</span><h2>{search.form === "editar" ? "Editar actividad" : "Nueva actividad"}</h2><p>Configura la experiencia y guárdala cuando esté lista.</p></div><button type="button" className="admin-icon-button" aria-label="Cerrar editor de actividad" onClick={() => closeForm()}><X size={18} /></button></div><label className="admin-activity-editor__age"><span>Franja del contexto</span><select value={selectedAge} onChange={(event) => cambiarFranjaContexto(event.target.value)}>{groupsQuery.data?.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></label>{editQuery.isLoading ? <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div> : <ActivityBuilder draft={draft} onChange={actualizarBorrador} configText={configText} onConfigTextChange={actualizarConfiguracionTexto} steps={stepsQuery.data ?? []} groups={groupsQuery.data ?? []} types={typesQuery.data ?? []} selectedTypeCode={selectedType?.codigo ?? ""} onUpload={(file, key, type) => uploadMutation.mutate({ file, key, type })} uploading={uploadMutation.isPending} />}<div className="admin-save-bar mt-5"><p>La configuración se guarda como JSON validado por el backend.</p><button type="button" className="admin-primary-button" disabled={saveMutation.isPending || uploadMutation.isPending} onClick={handleSave}>{saveMutation.isPending ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />} Guardar</button></div></section></main><aside className="admin-activity-editor-layout__sequence"><details open><summary>Secuencia ({activities.length})</summary><p>Revisa el orden sin salir del editor.</p>{secuenciaActividades}</details></aside></div> : <section className="admin-activity-list-section"><div className="admin-activity-list-header"><h2>Actividades</h2><p>{activities.length} actividad{activities.length !== 1 ? "es" : ""} en esta franja.</p></div><div className="admin-activity-list-actions"><label className="admin-activity-list-age-select"><span>Franja:</span><select value={selectedAge} onChange={(event) => setSelectedAge(event.target.value)}>{groupsQuery.data?.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></label></div>{secuenciaActividades}</section>}
     </div>
   );
 }
