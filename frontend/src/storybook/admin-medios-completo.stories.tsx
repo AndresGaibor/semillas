@@ -12,9 +12,9 @@ import temaImg from "@/assets/images/Ilustraciones/Tema1.png";
 import quizImg from "@/assets/images/Ilustraciones/banner_quiz.png";
 
 const items: MediaCardItem[] = [
-  { id: "m1", nombre: "Portada del amor de Dios", tipo: "imagen", tipoLabel: "Imagen", imgUrl: temaImg, usadoEnCount: 3, carpeta: "Ilustraciones", subidoPor: "Andres Gaibor", fechaSubido: "10 jul 2026", fechaTimestamp: 1783684800000, tamano: "1.2 MB", formato: "PNG", resolucion: "1920 × 1080", dimensiones: "16:9", altText: "Niños aprendiendo sobre el amor de Dios", etiquetas: ["amor", "niños", "portada"] },
-  { id: "m2", nombre: "Banner para quiz", tipo: "imagen", tipoLabel: "Imagen", imgUrl: quizImg, usadoEnCount: 1, carpeta: "Ilustraciones", subidoPor: "Andres Gaibor", fechaSubido: "9 jul 2026", fechaTimestamp: 1783684800000 - 86400000, tamano: "840 KB", formato: "PNG", resolucion: "1600 × 900", dimensiones: "16:9", altText: "Marco ilustrado para preguntas", etiquetas: ["quiz", "banner"] },
-  { id: "m3", nombre: "Narración de la parábola", tipo: "audio", tipoLabel: "Audio", imgUrl: "", usadoEnCount: null, carpeta: "Audios", subidoPor: "Equipo Semillas", fechaSubido: "8 jul 2026", fechaTimestamp: 1783684800000 - 172800000, tamano: "3.4 MB", formato: "MP3", resolucion: "—", dimensiones: "—", altText: "Narración en audio", etiquetas: ["audio", "parábola"] },
+  { id: "m1", nombre: "Portada del amor de Dios", tipo: "imagen", tipoLabel: "Imagen", imgUrl: temaImg, usadoEnCount: 3, carpeta: "Ilustraciones", subidoPor: "Andres Gaibor", fechaSubido: "10 jul 2026", fechaTimestamp: Date.now(), tamano: "1.2 MB", formato: "PNG", resolucion: "1920 × 1080", dimensiones: "16:9", altText: "Niños aprendiendo sobre el amor de Dios", etiquetas: ["amor", "niños", "portada"] },
+  { id: "m2", nombre: "Banner para quiz", tipo: "imagen", tipoLabel: "Imagen", imgUrl: quizImg, usadoEnCount: 1, carpeta: "Ilustraciones", subidoPor: "Andres Gaibor", fechaSubido: "9 jul 2026", fechaTimestamp: Date.now() - 86400000, tamano: "840 KB", formato: "PNG", resolucion: "1600 × 900", dimensiones: "16:9", altText: "Marco ilustrado para preguntas", etiquetas: ["quiz", "banner"] },
+  { id: "m3", nombre: "Narración de la parábola", tipo: "audio", tipoLabel: "Audio", imgUrl: "", usadoEnCount: null, carpeta: "Audios", subidoPor: "Equipo Semillas", fechaSubido: "8 jul 2026", fechaTimestamp: Date.now() - 172800000, tamano: "3.4 MB", formato: "MP3", resolucion: "—", dimensiones: "—", altText: "Narración en audio", etiquetas: ["audio", "parábola"] },
 ];
 
 function VistaMedios({ estado = "datos" }: { estado?: "datos" | "cargando" | "vacio" | "subiendo" }) {
@@ -44,7 +44,7 @@ function VistaMedios({ estado = "datos" }: { estado?: "datos" | "cargando" | "va
   );
 }
 
-const meta = { title: "04 · Features/Admin/Medios", component: VistaMedios, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaMedios>;
+const meta = { title: "Pantallas/Administración/Medios", component: VistaMedios, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaMedios>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Escritorio: Story = {};

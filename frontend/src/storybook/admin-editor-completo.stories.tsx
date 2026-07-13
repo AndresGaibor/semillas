@@ -200,7 +200,7 @@ function EditorTemaCompleto() {
   );
 }
 
-const meta = { title: "04 · Features/Admin/Editor de temas completo", component: EditorTemaCompleto, parameters: { layout: "fullscreen" } } satisfies Meta<typeof EditorTemaCompleto>;
+const meta = { title: "Pantallas/Administración/Editor de temas completo", component: EditorTemaCompleto, parameters: { layout: "fullscreen" } } satisfies Meta<typeof EditorTemaCompleto>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Escritorio: Story = {};

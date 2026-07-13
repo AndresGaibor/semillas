@@ -27,7 +27,7 @@ const actividadMock = {
   opciones: opciones.map((o, index) => ({ ...o, actividad_id: "act-1", orden: index + 1 })),
 };
 
-const imgSrc = "/storybook/fixtures/cover.svg";
+const imgSrc = "https://picsum.photos/seed/conectar/800/400";
 
 function CConectarStory() {
   return (
@@ -79,7 +79,7 @@ function CConectarError() {
 }
 
 const meta = {
-  title: "05 · Pantallas/CRECER/C_conectar",
+  title: "Pantallas/CRECER/C_conectar",
   component: CConectarStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof CConectarStory>;

@@ -3,7 +3,7 @@ import { StoryRouter } from "@/storybook/story-router";
 import { Link } from "@tanstack/react-router";
 import { Cloud } from "lucide-react";
 
-const imgSrc = "/storybook/fixtures/cover.svg";
+const imgSrc = "https://picsum.photos/seed/recompensar/800/400";
 
 function RRecompensarStory() {
   return (
@@ -47,7 +47,7 @@ function RRecompensarStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/CRECER/R_recompensar",
+  title: "Pantallas/CRECER/R_recompensar",
   component: RRecompensarStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof RRecompensarStory>;

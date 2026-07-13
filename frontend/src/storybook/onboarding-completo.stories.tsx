@@ -58,7 +58,7 @@ function FlujoOnboarding() {
 }
 
 const meta = {
-  title: "06 · Flujos/Onboarding/Flujo completo",
+  title: "Pantallas/Onboarding/Flujo completo",
   component: FlujoOnboarding,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof FlujoOnboarding>;

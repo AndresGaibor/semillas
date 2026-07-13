@@ -45,7 +45,7 @@ function CustomizeStory({ loading = false, error = false }: { loading?: boolean;
 }
 
 const meta = {
-  title: "05 · Pantallas/Onboarding/Personalizar perfil",
+  title: "Pantallas/Onboarding/Personalizar perfil",
   component: CustomizeStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof CustomizeStory>;

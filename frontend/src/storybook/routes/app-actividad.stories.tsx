@@ -56,7 +56,7 @@ function ActividadLoading() {
 }
 
 const meta = {
-  title: "05 · Pantallas/App/Actividad",
+  title: "Pantallas/App/Actividad",
   component: ActividadStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof ActividadStory>;

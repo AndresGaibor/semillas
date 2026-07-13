@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StoryRouter } from "@/storybook/story-router";
 import { CrecerLayout, ActividadWrapper } from "@/features/crecer/componentes";
 
-const imgSrc = "/storybook/fixtures/cover.svg";
+const imgSrc = "https://picsum.photos/seed/comprobar/800/400";
 
 const actividadComprobar = {
   id: "act-comp",
@@ -48,7 +48,7 @@ function CComprobarStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/CRECER/C_comprobar",
+  title: "Pantallas/CRECER/C_comprobar",
   component: CComprobarStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof CComprobarStory>;

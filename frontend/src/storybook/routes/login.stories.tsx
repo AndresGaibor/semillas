@@ -41,7 +41,7 @@ function LoginStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/Login",
+  title: "Pantallas/Login",
   component: LoginStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof LoginStory>;

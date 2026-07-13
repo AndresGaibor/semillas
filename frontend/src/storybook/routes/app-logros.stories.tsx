@@ -42,7 +42,7 @@ function LogrosPageStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/App/Logros",
+  title: "Pantallas/App/Logros",
   component: LogrosPageStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof LogrosPageStory>;

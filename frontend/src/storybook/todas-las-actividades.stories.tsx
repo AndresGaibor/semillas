@@ -16,7 +16,7 @@ import { CompletarVersiculo } from "@/componentes/actividades/CompletarVersiculo
 import { OpcionMultipleServidor } from "@/features/crecer/componentes/opcion-multiple-servidor";
 
 const meta = {
-  title: "06 · Flujos/Actividades/Todas",
+  title: "Componentes/Actividades/Todas",
   parameters: { layout: "fullscreen" },
   decorators: [
     (Story) => (
@@ -86,15 +86,15 @@ function ActividadCard({
     }
     switch (codigo) {
       case "cuestionario":
-        return <QuizActividad actividad={actividad} onComplete={completar} />;
+        return <QuizActividad actividad={actividad as any} onComplete={completar} />;
       case "verdadero_falso":
-        return <VerdaderoFalsoActividad actividad={actividad} onComplete={completar} />;
+        return <VerdaderoFalsoActividad actividad={actividad as any} onComplete={completar} />;
       case "relacionar_pares":
-        return <RelacionarParesActividad actividad={actividad} onComplete={completar} />;
+        return <RelacionarParesActividad actividad={actividad as any} onComplete={completar} />;
       case "sopa_letras":
-        return <SopaLetrasActividad actividad={actividad} onComplete={completar} />;
+        return <SopaLetrasActividad actividad={actividad as any} onComplete={completar} />;
       case "tarjetas_memoria":
-        return <Flashcards actividad={actividad} onComplete={completar} />;
+        return <Flashcards actividad={actividad as any} onComplete={completar} />;
       case "rompecabezas": {
         const config = actividad.configuracion || {};
         const imgUrl =
@@ -110,20 +110,20 @@ function ActividadCard({
         );
       }
       case "manualidad":
-        return <ManualidadActividad actividad={actividad} onComplete={completar} />;
+        return <ManualidadActividad actividad={actividad as any} onComplete={completar} />;
       case "completar_versiculo":
-        return <CompletarVersiculo actividad={actividad} onComplete={completar} />;
+        return <CompletarVersiculo actividad={actividad as any} onComplete={completar} />;
       case "aventura_decisiones":
-        return <AventuraDecisiones actividad={actividad} onComplete={completar} />;
+        return <AventuraDecisiones actividad={actividad as any} onComplete={completar} />;
       case "arrastrar_soltar":
-        return <ArrastrarSoltar actividad={actividad} onComplete={completar} />;
+        return <ArrastrarSoltar actividad={actividad as any} onComplete={completar} />;
       case "actividad_audio":
-        return <ActividadAudio actividad={actividad} onComplete={completar} />;
+        return <ActividadAudio actividad={actividad as any} onComplete={completar} />;
       case "actividad_video":
       case "video":
-        return <ActividadVideo actividad={actividad} onComplete={completar} />;
+        return <ActividadVideo actividad={actividad as any} onComplete={completar} />;
       case "cancion":
-        return <ActividadCancion actividad={actividad} onComplete={completar} />;
+        return <ActividadCancion actividad={actividad as any} onComplete={completar} />;
       default:
         return (
           <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200">

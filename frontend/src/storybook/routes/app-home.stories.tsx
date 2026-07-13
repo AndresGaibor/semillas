@@ -10,14 +10,14 @@ function AppHomeStory() {
   return (
     <StoryRouter initialPath="/app">
       <div className="app-home p-4 md:p-0">
-        <InicioHero imagenUrl="/storybook/fixtures/cover.svg" nombreUsuario="Andres" />
+        <InicioHero imagenUrl="https://picsum.photos/seed/semillasbanner/1200/420" nombreUsuario="Andres" />
         <ResumenProgreso xpTotal={1240} numeroNivel={7} nombreNivel="Explorador" totalInsignias={3} />
         <div className="app-home__dashboard">
           <div className="app-home__primary">
             <PathsGrid
-              sendaPadreImg="/storybook/fixtures/cover.svg"
-              sendaHijoImg="/storybook/fixtures/cover.svg"
-              sendaEspirituImg="/storybook/fixtures/cover.svg"
+              sendaPadreImg="https://picsum.photos/seed/padre/400/280"
+              sendaHijoImg="https://picsum.photos/seed/hijo/400/280"
+              sendaEspirituImg="https://picsum.photos/seed/espiritu/400/280"
             />
           </div>
           <aside className="app-home__aside">
@@ -31,7 +31,7 @@ function AppHomeStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/App/Home",
+  title: "Pantallas/App/Home",
   component: AppHomeStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof AppHomeStory>;

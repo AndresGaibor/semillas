@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StoryRouter } from "@/storybook/story-router";
 import { CrecerLayout, PreguntaItem, OpcionesRespuesta, PreguntasReflexion } from "@/features/crecer/componentes";
 
-const imgSrc = "/storybook/fixtures/cover.svg";
+const imgSrc = "https://picsum.photos/seed/experimentar/800/400";
 
 const opcionesExp = [
   { id: "x1", actividad_id: "act-exp", etiqueta: "A", texto: "Orar cada día", orden: 1, correcta: true, retroalimentacion: "¡Muy bien!" },
@@ -57,7 +57,7 @@ function EExperimentarStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/CRECER/E_experimentar",
+  title: "Pantallas/CRECER/E_experimentar",
   component: EExperimentarStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof EExperimentarStory>;

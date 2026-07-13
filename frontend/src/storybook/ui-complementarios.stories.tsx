@@ -22,7 +22,7 @@ import { TabsOpciones } from "@/componentes/ui/tabs-opciones";
 import { TabsSegmentado } from "@/componentes/ui/tabs-segmentado";
 
 const meta = {
-  title: "02 · UI/Catálogo complementario",
+  title: "UI/Catálogo complementario",
   parameters: { layout: "centered" },
 } satisfies Meta;
 
@@ -159,15 +159,15 @@ export const SkeletonDeTabla: Story = {
       <div className="overflow-hidden rounded-2xl border border-slate-100">
         <table className="w-full">
           <thead><tr><th className="p-3 text-left text-xs">Tema</th><th className="p-3 text-left text-xs">Estado</th><th className="p-3 text-left text-xs">XP</th></tr></thead>
-          <tbody><TablaSkeleton filas={4} columnas={3} /></tbody>
+          <TablaSkeleton filas={4} columnas={3} />
         </table>
       </div>
       <div className="mt-6 overflow-hidden rounded-2xl border border-slate-100">
         <table className="w-full">
-          <tbody><TablaSkeletonPersonalizado filas={2}>
+          <TablaSkeletonPersonalizado filas={2}>
             <td className="p-4"><div className="h-4 rounded bg-slate-100" /></td>
             <td className="p-4"><div className="h-4 rounded bg-slate-100" /></td>
-          </TablaSkeletonPersonalizado></tbody>
+          </TablaSkeletonPersonalizado>
         </table>
       </div>
     </Lienzo>

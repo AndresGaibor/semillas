@@ -8,9 +8,9 @@ import { ContinuarAprendiendoCard } from "@/features/themes/componentes/continua
 import { SendaFilterRow } from "@/features/themes/componentes/senda-filter-row";
 
 const temas = [
-  { id: "t-1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor infinito de Dios", duracion: "20 min", xp: 50, progreso: 75, favorito: false, slug: "amor-de-dios", estado: "porDefecto" as const, senda: "padre" as const, imagenUrl: "/storybook/fixtures/cover.svg" },
-  { id: "t-2", titulo: "La Creación", descripcion: "Dios creó el mundo en 6 días", duracion: "15 min", xp: 40, progreso: 100, favorito: true, slug: "creacion", estado: "completada" as const, senda: "hijo" as const, imagenUrl: "/storybook/fixtures/cover.svg" },
-  { id: "t-3", titulo: "El Espíritu Santo", descripcion: "Conoce al Espíritu Santo", duracion: "25 min", xp: 60, progreso: 0, favorito: false, slug: "espiritu-santo", estado: "porDefecto" as const, senda: "espiritu" as const, imagenUrl: "/storybook/fixtures/cover.svg" },
+  { id: "t-1", titulo: "El Amor de Dios", descripcion: "Aprende sobre el amor infinito de Dios", duracion: "20 min", xp: 50, progreso: 75, favorito: false, slug: "amor-de-dios", estado: "porDefecto" as const, senda: "padre" as const, imagenUrl: "https://picsum.photos/seed/tema1/400/200" },
+  { id: "t-2", titulo: "La Creación", descripcion: "Dios creó el mundo en 6 días", duracion: "15 min", xp: 40, progreso: 100, favorito: true, slug: "creacion", estado: "completada" as const, senda: "hijo" as const, imagenUrl: "https://picsum.photos/seed/tema2/400/200" },
+  { id: "t-3", titulo: "El Espíritu Santo", descripcion: "Conoce al Espíritu Santo", duracion: "25 min", xp: 60, progreso: 0, favorito: false, slug: "espiritu-santo", estado: "porDefecto" as const, senda: "espiritu" as const, imagenUrl: "https://picsum.photos/seed/tema3/400/200" },
 ];
 
 function TemasPageStory() {
@@ -54,7 +54,7 @@ function TemasPageStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/App/Temas",
+  title: "Pantallas/App/Temas",
   component: TemasPageStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof TemasPageStory>;

@@ -88,7 +88,7 @@ function PerfilStory({ invitado = false }: { invitado?: boolean }) {
 }
 
 const meta = {
-  title: "05 · Pantallas/App/Perfil",
+  title: "Pantallas/App/Perfil",
   component: PerfilStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof PerfilStory>;

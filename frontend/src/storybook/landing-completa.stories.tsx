@@ -27,7 +27,7 @@ function LandingCompleta() {
 }
 
 const meta = {
-  title: "06 · Flujos/Landing/Completa",
+  title: "Pantallas/Landing/Completa",
   component: LandingCompleta,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof LandingCompleta>;

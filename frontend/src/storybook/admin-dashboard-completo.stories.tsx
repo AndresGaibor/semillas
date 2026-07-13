@@ -11,7 +11,7 @@ function DashboardAdmin() {
 }
 
 const meta = {
-  title: "06 · Flujos/Administración/Dashboard",
+  title: "Pantallas/Administración/Dashboard",
   component: DashboardAdmin,
   parameters: { layout: "fullscreen" },
   globals: { backgrounds: { value: "grisApp", grid: false } },

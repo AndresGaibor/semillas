@@ -34,7 +34,7 @@ function AdminRevisionStory() {
 }
 
 const meta = {
-  title: "05 · Pantallas/Admin/Revision",
+  title: "Pantallas/Admin/Revision",
   component: AdminRevisionStory,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof AdminRevisionStory>;

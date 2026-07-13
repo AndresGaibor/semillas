@@ -31,7 +31,7 @@ function ClubCompleto() {
 }
 
 const meta = {
-  title: "06 · Flujos/Clubes/Vista completa",
+  title: "Features/Clubes/Vista completa",
   component: ClubCompleto,
   parameters: { layout: "fullscreen" },
   globals: { backgrounds: { value: "grisApp", grid: false } },
