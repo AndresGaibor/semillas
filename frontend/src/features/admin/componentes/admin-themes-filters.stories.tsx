@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AdminThemesFilters } from "./admin-themes-filters";
 
 const meta = {
-  title: "Admin/Themes/Filters",
+  title: "04 · Features/Themes/Filters",
   component: AdminThemesFilters,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AdminThemesFilters>;
 
 export default meta;

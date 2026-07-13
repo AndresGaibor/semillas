@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LoginHeroPanel } from "./login-hero-panel";
 
 const meta: Meta<typeof LoginHeroPanel> = {
-  title: "Features/Auth/LoginHeroPanel",
+  title: "04 · Features/Auth/LoginHeroPanel",
   component: LoginHeroPanel,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

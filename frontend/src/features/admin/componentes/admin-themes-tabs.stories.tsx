@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AdminThemesTabs } from "./admin-themes-tabs";
 
 const meta = {
-  title: "Admin/Themes/Tabs",
+  title: "04 · Features/Themes/Tabs",
   component: AdminThemesTabs,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AdminThemesTabs>;
 
 export default meta;

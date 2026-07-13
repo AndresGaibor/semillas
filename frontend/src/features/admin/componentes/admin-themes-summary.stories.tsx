@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AdminThemesSummary } from "./admin-themes-summary";
 
 const meta = {
-  title: "Admin/Themes/Summary",
+  title: "04 · Features/Themes/Summary",
   component: AdminThemesSummary,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AdminThemesSummary>;
 
 export default meta;

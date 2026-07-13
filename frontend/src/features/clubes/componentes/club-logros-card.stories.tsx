@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ClubLogrosCard } from "./club-logros-card";
 
 const meta: Meta<typeof ClubLogrosCard> = {
-  title: "Features/Clubes/ClubLogrosCard",
+  title: "04 · Features/Clubes/ClubLogrosCard",
   component: ClubLogrosCard,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

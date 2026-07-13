@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AdminThemesTable } from "./admin-themes-table";
 
 const meta = {
-  title: "Admin/Themes/Table",
+  title: "04 · Features/Themes/Table",
   component: AdminThemesTable,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AdminThemesTable>;
 
 export default meta;
@@ -18,7 +18,7 @@ export const Default: Story = {
         id: "1",
         titulo: "La creación de Dios",
         resumen: "Dios creó el mundo con amor y propósito.",
-        portadaUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=Creacion",
+        portadaUrl: "/storybook/fixtures/avatar.svg",
         sendaNombre: "Padre",
         sendaColorHex: "#3D8BD4",
         sendaIcono: "fa-crown",
@@ -26,13 +26,13 @@ export const Default: Story = {
         estado: "publicado",
         fechaEdicion: "15 may. 2024, 10:30",
         autorNombre: "María López",
-        autorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Maria",
+        autorAvatar: "/storybook/fixtures/avatar.svg",
       },
       {
         id: "2",
         titulo: "La oración",
         resumen: "Hablemos con Dios en cualquier lugar.",
-        portadaUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=Oracion",
+        portadaUrl: "/storybook/fixtures/avatar.svg",
         sendaNombre: "Hijo",
         sendaColorHex: "#E9A23B",
         sendaIcono: "fa-heart",
@@ -40,13 +40,13 @@ export const Default: Story = {
         estado: "revision",
         fechaEdicion: "14 may. 2024, 16:45",
         autorNombre: "Juan Pérez",
-        autorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Juan",
+        autorAvatar: "/storybook/fixtures/avatar.svg",
       },
       {
         id: "3",
         titulo: "El perdón",
         resumen: "Dios siempre nos perdona cuando lo necesitamos.",
-        portadaUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=Perdon",
+        portadaUrl: "/storybook/fixtures/avatar.svg",
         sendaNombre: "Espíritu Santo",
         sendaColorHex: "#17A398",
         sendaIcono: "fa-flame",
@@ -54,7 +54,7 @@ export const Default: Story = {
         estado: "borrador",
         fechaEdicion: "13 may. 2024, 09:20",
         autorNombre: "Ana Torres",
-        autorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Ana",
+        autorAvatar: "/storybook/fixtures/avatar.svg",
       },
     ],
     onEditar: (id) => alert(`Editar theme ${id}`),

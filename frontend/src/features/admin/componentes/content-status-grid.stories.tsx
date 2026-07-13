@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ContentStatusGrid } from "./content-status-grid";
 
 const meta = {
-  title: "Admin/Dashboard/Content Status Grid",
+  title: "04 · Features/Dashboard/Content Status Grid",
   component: ContentStatusGrid,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof ContentStatusGrid>;
 
 export default meta;

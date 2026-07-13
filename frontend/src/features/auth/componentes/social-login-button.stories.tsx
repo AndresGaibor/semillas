@@ -4,9 +4,9 @@ import googleIcon from "@/assets/images/icons/google.png";
 import guestIcon from "@/assets/images/icons/invitado.png";
 
 const meta: Meta<typeof SocialLoginButton> = {
-  title: "Features/Auth/SocialLoginButton",
+  title: "04 · Features/Auth/SocialLoginButton",
   component: SocialLoginButton,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

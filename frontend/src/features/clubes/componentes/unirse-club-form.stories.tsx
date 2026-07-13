@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { UnirseClubForm } from "./unirse-club-form";
 
 const meta: Meta<typeof UnirseClubForm> = {
-  title: "Features/Clubes/UnirseClubForm",
+  title: "04 · Features/Clubes/UnirseClubForm",
   component: UnirseClubForm,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

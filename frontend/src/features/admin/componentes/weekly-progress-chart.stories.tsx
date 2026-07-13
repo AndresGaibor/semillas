@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { WeeklyProgressChart } from "./weekly-progress-chart";
 
 const meta = {
-  title: "Admin/Dashboard/Weekly Progress Chart",
+  title: "04 · Features/Dashboard/Weekly Progress Chart",
   component: WeeklyProgressChart,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof WeeklyProgressChart>;
 
 export default meta;

@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RecentThemesTable } from "./recent-themes-table";
 
 const meta = {
-  title: "Admin/Dashboard/Recent Themes Table",
+  title: "04 · Features/Dashboard/Recent Themes Table",
   component: RecentThemesTable,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof RecentThemesTable>;
 
 export default meta;
@@ -20,7 +20,7 @@ export const Default: Story = {
         senda: "Dios y su amor",
         estado: "Publicado",
         editorNombre: "María López",
-        editorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Maria",
+        editorAvatar: "/storybook/fixtures/avatar.svg",
         fechaEdicion: "15 may. 2024, 10:30",
       },
       {
@@ -29,7 +29,7 @@ export const Default: Story = {
         senda: "Vida con Jesús",
         estado: "En revisión",
         editorNombre: "Juan Pérez",
-        editorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Juan",
+        editorAvatar: "/storybook/fixtures/avatar.svg",
         fechaEdicion: "14 may. 2024, 16:45",
       },
       {
@@ -38,7 +38,7 @@ export const Default: Story = {
         senda: "Relaciones sanas",
         estado: "Borrador",
         editorNombre: "Ana Torres",
-        editorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Ana",
+        editorAvatar: "/storybook/fixtures/avatar.svg",
         fechaEdicion: "13 may. 2024, 09:20",
       },
       {
@@ -47,7 +47,7 @@ export const Default: Story = {
         senda: "Amor al prójimo",
         estado: "Publicado",
         editorNombre: "Luis García",
-        editorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Luis",
+        editorAvatar: "/storybook/fixtures/avatar.svg",
         fechaEdicion: "12 may. 2024, 11:05",
       },
       {
@@ -56,7 +56,7 @@ export const Default: Story = {
         senda: "Fe y valentía",
         estado: "Publicado",
         editorNombre: "María López",
-        editorAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Maria",
+        editorAvatar: "/storybook/fixtures/avatar.svg",
         fechaEdicion: "11 may. 2024, 08:50",
       },
     ],

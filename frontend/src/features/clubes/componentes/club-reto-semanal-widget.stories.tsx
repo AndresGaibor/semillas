@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ClubRetoSemanalWidget } from "./club-reto-semanal-widget";
 
 const meta: Meta<typeof ClubRetoSemanalWidget> = {
-  title: "Features/Clubes/ClubRetoSemanalWidget",
+  title: "04 · Features/Clubes/ClubRetoSemanalWidget",
   component: ClubRetoSemanalWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

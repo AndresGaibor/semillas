@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QuickActionsGrid } from "./quick-actions-grid";
 
 const meta = {
-  title: "Admin/Dashboard/Quick Actions Grid",
+  title: "04 · Features/Dashboard/Quick Actions Grid",
   component: QuickActionsGrid,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof QuickActionsGrid>;
 
 export default meta;

@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AdminStatsGrid } from "./admin-stats-grid";
 
 const meta = {
-  title: "Admin/Dashboard/Stats Grid",
+  title: "04 · Features/Dashboard/Stats Grid",
   component: AdminStatsGrid,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AdminStatsGrid>;
 
 export default meta;

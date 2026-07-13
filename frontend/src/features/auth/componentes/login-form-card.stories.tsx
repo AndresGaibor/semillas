@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LoginFormCard } from "./login-form-card";
 
 const meta: Meta<typeof LoginFormCard> = {
-  title: "Features/Auth/LoginFormCard",
+  title: "04 · Features/Auth/LoginFormCard",
   component: LoginFormCard,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

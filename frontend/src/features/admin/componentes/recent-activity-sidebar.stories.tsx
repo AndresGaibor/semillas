@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RecentActivitySidebar } from "./recent-activity-sidebar";
 
 const meta = {
-  title: "Admin/Dashboard/Recent Activity Sidebar",
+  title: "04 · Features/Dashboard/Recent Activity Sidebar",
   component: RecentActivitySidebar,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof RecentActivitySidebar>;
 
 export default meta;

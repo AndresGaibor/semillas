@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { UpcomingReviewsList } from "./upcoming-reviews-list";
 
 const meta = {
-  title: "Admin/Dashboard/Upcoming Reviews List",
+  title: "04 · Features/Dashboard/Upcoming Reviews List",
   component: UpcomingReviewsList,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof UpcomingReviewsList>;
 
 export default meta;
@@ -22,7 +22,7 @@ export const Default: Story = {
         senda: "Héroes de la fe",
         estado: "En revisión",
         reviewerNombre: "Ana Torres",
-        reviewerAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Ana",
+        reviewerAvatar: "/storybook/fixtures/avatar.svg",
       },
       {
         id: "2",
@@ -32,7 +32,7 @@ export const Default: Story = {
         senda: "Relaciones sanas",
         estado: "En revisión",
         reviewerNombre: "Juan Pérez",
-        reviewerAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Juan",
+        reviewerAvatar: "/storybook/fixtures/avatar.svg",
       },
       {
         id: "3",
@@ -42,7 +42,7 @@ export const Default: Story = {
         senda: "Confío en Dios",
         estado: "Borrador",
         reviewerNombre: "María López",
-        reviewerAvatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Maria",
+        reviewerAvatar: "/storybook/fixtures/avatar.svg",
       },
     ],
     onVerTodas: () => alert("Ver todas las revisiones"),

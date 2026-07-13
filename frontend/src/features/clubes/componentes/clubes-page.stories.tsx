@@ -65,7 +65,8 @@ const retos: RetoCooperativo[] = [
 ];
 
 const meta = {
-  title: "Features/Clubes/Dashboard funcional",
+  title: "04 · Features/Clubes/Dashboard funcional",
+  tags: ["autodocs", "!dev"],
   parameters: { layout: "fullscreen" },
   decorators: [
     (Story) => (

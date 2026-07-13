@@ -5,9 +5,9 @@ import cover2 from "@/assets/images/Ilustraciones/Tema2.png";
 import cover3 from "@/assets/images/Ilustraciones/Tema3.png";
 
 const meta: Meta<typeof ClubOfflineWidget> = {
-  title: "Features/Clubes/ClubOfflineWidget",
+  title: "04 · Features/Clubes/ClubOfflineWidget",
   component: ClubOfflineWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;
