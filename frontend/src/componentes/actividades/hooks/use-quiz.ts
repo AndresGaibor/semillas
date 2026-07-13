@@ -2,6 +2,16 @@ import { useState } from "react";
 import { playSound } from "../../../lib/audio";
 import type { Actividad } from "../../../shared/api/schemas/temas.schema";
 
+interface PreguntaQuiz {
+  pregunta: string;
+  opciones: string[];
+  respuesta_correcta: number;
+}
+
+interface QuizConfiguracion {
+  preguntas?: PreguntaQuiz[];
+}
+
 interface UseQuizProps {
   actividad: Actividad;
   onComplete: (actividadId: string, xpRecompensa: number) => void;
@@ -12,13 +22,14 @@ export function useQuiz({ actividad, onComplete }: UseQuizProps) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [completed, setCompleted] = useState(false);
 
-  const preguntas = actividad.configuracion?.preguntas || [];
+  const configuracion = actividad.configuracion as QuizConfiguracion;
+  const preguntas: PreguntaQuiz[] = configuracion.preguntas || [];
   const currentQuestion = preguntas[currentQuestionIndex];
 
   const selectedOption = answers[currentQuestionIndex] !== undefined ? answers[currentQuestionIndex] : null;
 
   const handleSelectOption = (index: number) => {
-    if (selectedOption !== null || completed) return;
+    if (selectedOption !== null || completed || !currentQuestion) return;
 
     setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: index }));
     const correct = index === currentQuestion.respuesta_correcta;
