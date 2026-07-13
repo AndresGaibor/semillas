@@ -11,12 +11,12 @@ const iconMap = {
 };
 
 const meta = {
-  title: "Componentes/Card/Insignia",
+  title: "02 · UI/Card/Insignia",
   component: CardInsignia,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     titulo: {
       control: "text",
@@ -61,7 +61,7 @@ export const DesbloqueadaVerde: Story = {
     descripcion: "Completaste tu primera lección en la plataforma.",
     obtenida: true,
     color: "verde",
-    icono: "Award" as any,
+    icono: <Award />,
   },
 };
 
@@ -71,7 +71,7 @@ export const EnProgresoMorada: Story = {
     descripcion: "Completa 10 lecciones bíblicas en total.",
     obtenida: false,
     color: "morado",
-    icono: "Book" as any,
+    icono: <Book />,
     progresoActual: 6,
     progresoMaximo: 10,
   },
@@ -83,7 +83,7 @@ export const DesbloqueadaAmarilla: Story = {
     descripcion: "Alcanza una racha de 7 días seguidos de lectura.",
     obtenida: true,
     color: "amarillo",
-    icono: "Flame" as any,
+    icono: <Flame />,
   },
 };
 
@@ -93,6 +93,6 @@ export const BloqueadaGris: Story = {
     descripcion: "Completa la senda del Hijo de Dios.",
     obtenida: false,
     color: "gris",
-    icono: "Heart" as any,
+    icono: <Heart />,
   },
 };

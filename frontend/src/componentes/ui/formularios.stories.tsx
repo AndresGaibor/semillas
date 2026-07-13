@@ -17,7 +17,8 @@ import { Switch } from "./switch";
 import { Textarea } from "./textarea";
 
 const meta = {
-  title: "Componentes/Inputs",
+  title: "02 · UI/Inputs",
+  tags: ["autodocs", "!dev"],
   component: Input,
   parameters: {
     layout: "centered",

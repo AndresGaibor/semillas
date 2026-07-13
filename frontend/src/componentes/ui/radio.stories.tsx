@@ -3,12 +3,12 @@ import * as React from "react";
 import { Radio } from "./radio";
 
 const meta = {
-  title: "Componentes/Formulario/Radio",
+  title: "02 · UI/Formulario/Radio",
   component: Radio,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     etiqueta: {
       control: "text",

@@ -4,7 +4,8 @@ import { ArrowRight, Flame, Lock, Shield, Sprout, Star } from "lucide-react";
 import { Chip, Badge, CampanaBadge } from "./chip";
 
 const meta = {
-  title: "Componentes/Chip y Badge",
+  title: "02 · UI/Chip y Badge",
+  tags: ["autodocs", "!dev"],
   component: Chip,
   parameters: {
     layout: "centered",

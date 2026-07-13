@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { EmptyState } from "./empty-state";
 
 const meta = {
-  title: "Componentes/Estado/EmptyState",
+  title: "02 · UI/Estado/EmptyState",
   component: EmptyState,
   parameters: {
     layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     mensaje: {
       control: "text"

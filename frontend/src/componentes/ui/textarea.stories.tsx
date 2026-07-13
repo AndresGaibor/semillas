@@ -3,12 +3,12 @@ import * as React from "react";
 import { Textarea } from "./textarea";
 
 const meta = {
-  title: "Componentes/Formulario/Textarea",
+  title: "02 · UI/Formulario/Textarea",
   component: Textarea,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     estado: {
       control: "select",

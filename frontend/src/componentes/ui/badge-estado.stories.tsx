@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { BadgeEstado } from "./badge-estado";
 
 const meta = {
-  title: "Componentes/BadgeEstado",
+  title: "02 · UI/BadgeEstado",
   component: BadgeEstado,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof BadgeEstado>;
 
 export default meta;

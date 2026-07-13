@@ -4,12 +4,12 @@ import { Mail, Lock, Search, User } from "lucide-react";
 import { Input, InputBusqueda, InputContraseña } from "./input";
 
 const meta = {
-  title: "Componentes/Formulario/Input",
+  title: "02 · UI/Formulario/Input",
   component: Input,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     estado: {
       control: "select",

@@ -3,12 +3,12 @@ import * as React from "react";
 import { AvatarTexto } from "./avatar-texto";
 
 const meta = {
-  title: "Componentes/AvatarTexto",
+  title: "02 · UI/AvatarTexto",
   component: AvatarTexto,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AvatarTexto>;
 
 export default meta;
@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Predeterminado: Story = {
   args: {
-    src: "https://i.pravatar.cc/150?img=32",
+    src: "/storybook/fixtures/avatar.svg",
     alt: "Foto de usuario",
     titulo: "María García",
     subtitulo: "maria.garcia@email.com",
@@ -25,7 +25,7 @@ export const Predeterminado: Story = {
 
 export const SoloImagen: Story = {
   args: {
-    src: "https://i.pravatar.cc/150?img=12",
+    src: "/storybook/fixtures/avatar.svg",
     alt: "Foto de usuario",
     titulo: "Carlos López",
   },
@@ -33,7 +33,7 @@ export const SoloImagen: Story = {
 
 export const SoloTitulo: Story = {
   args: {
-    src: "https://i.pravatar.cc/150?img=25",
+    src: "/storybook/fixtures/avatar.svg",
     alt: "Foto de usuario",
     titulo: "Ana Martínez",
   },
@@ -41,7 +41,7 @@ export const SoloTitulo: Story = {
 
 export const TamanoPequeno: Story = {
   args: {
-    src: "https://i.pravatar.cc/150?img=8",
+    src: "/storybook/fixtures/avatar.svg",
     alt: "Avatar pequeño",
     titulo: "Pedro",
     subtitulo: "12 años",
@@ -51,7 +51,7 @@ export const TamanoPequeno: Story = {
 
 export const TamanoGrande: Story = {
   args: {
-    src: "https://i.pravatar.cc/150?img=48",
+    src: "/storybook/fixtures/avatar.svg",
     alt: "Avatar grande",
     titulo: "Familia Rodríguez",
     subtitulo: "4 miembros",
@@ -80,7 +80,7 @@ export const DocumentacionCompleta: StoryObj = {
             <div className="p-4 border rounded-xl">
               <p className="text-xs text-slate-400 mb-3">Predeterminado (título + subtítulo)</p>
               <AvatarTexto
-                src="https://i.pravatar.cc/150?img=32"
+                src="/storybook/fixtures/avatar.svg"
                 alt="Usuario"
                 titulo="María García"
                 subtitulo="maria.garcia@email.com"
@@ -89,7 +89,7 @@ export const DocumentacionCompleta: StoryObj = {
             <div className="p-4 border rounded-xl">
               <p className="text-xs text-slate-400 mb-3">Solo título</p>
               <AvatarTexto
-                src="https://i.pravatar.cc/150?img=25"
+                src="/storybook/fixtures/avatar.svg"
                 alt="Usuario"
                 titulo="Ana Martínez"
               />
@@ -97,7 +97,7 @@ export const DocumentacionCompleta: StoryObj = {
             <div className="p-4 border rounded-xl">
               <p className="text-xs text-slate-400 mb-3">Con tamaño personalizado</p>
               <AvatarTexto
-                src="https://i.pravatar.cc/150?img=48"
+                src="/storybook/fixtures/avatar.svg"
                 alt="Usuario"
                 titulo="Familia Rodríguez"
                 subtitulo="4 miembros"
@@ -116,7 +116,7 @@ export const DocumentacionCompleta: StoryObj = {
             ].map((u, i) => (
               <div key={i} className="p-3 border rounded-xl flex items-center gap-3">
                 <AvatarTexto
-                  src={`https://i.pravatar.cc/150?img=${u.img}`}
+                  src={`/storybook/fixtures/avatar.svg`}
                   alt={u.nombre}
                   titulo={u.nombre}
                   subtitulo={u.email}

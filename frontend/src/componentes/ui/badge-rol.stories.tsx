@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { BadgeRol, type TipoRol } from "./badge-rol";
 
 const meta = {
-  title: "Componentes/BadgeRol",
+  title: "02 · UI/BadgeRol",
   component: BadgeRol,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof BadgeRol>;
 
 export default meta;

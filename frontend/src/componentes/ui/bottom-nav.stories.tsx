@@ -13,12 +13,12 @@ const opcionesBase: OpcionBottomNav[] = [
 ];
 
 const meta = {
-  title: "Componentes/Navegación/BottomNav",
+  title: "02 · UI/Navegación/BottomNav",
   component: BottomNav,
   parameters: {
     layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     activo: {
       control: "select",

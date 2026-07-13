@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LoaderEstado } from "./loader-estado";
 
 const meta = {
-  title: "Componentes/Estado/LoaderEstado",
+  title: "02 · UI/Estado/LoaderEstado",
   component: LoaderEstado,
   parameters: {
     layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     mensaje: {
       control: "text"

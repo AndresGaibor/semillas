@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ThemeCard, type ThemeCardProps } from "./theme-card";
 
 const meta = {
-  title: "Componentes/Card/Temas",
+  title: "02 · UI/Card/Temas",
   component: ThemeCard,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     variante: {
       control: "select",

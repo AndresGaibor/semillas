@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { VersionInfo } from "./version-info";
 
 const meta = {
-  title: "Componentes/Estado/VersionInfo",
+  title: "02 · UI/Estado/VersionInfo",
   component: VersionInfo,
   parameters: {
     layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     versionApp: {
       control: "text"

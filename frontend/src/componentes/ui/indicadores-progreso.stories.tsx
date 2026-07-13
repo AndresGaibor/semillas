@@ -5,7 +5,8 @@ import { ProgresoCircular } from "./progreso-circular";
 import { StepperCRECER } from "./stepper-crecer";
 
 const meta = {
-  title: "Componentes/Indicadores de Progreso",
+  title: "02 · UI/Indicadores de Progreso",
+  tags: ["autodocs", "!dev"],
   component: BarraProgreso,
   parameters: {
     layout: "padded",

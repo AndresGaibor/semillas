@@ -4,12 +4,12 @@ import { Mail, ArrowRight, Loader2 } from "lucide-react";
 import { Button, buttonVariants } from "./button";
 
 const meta = {
-  title: "Componentes/Button (shadcn/ui)",
+  title: "02 · UI/Button (shadcn/ui)",
   component: Button,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     variant: {
       control: "select",

@@ -29,7 +29,8 @@ import {
 import { Boton } from "./boton";
 
 const meta = {
-  title: "Componentes/Boton",
+  title: "02 · UI/Boton",
+  tags: ["autodocs", "!dev"],
   component: Boton,
   parameters: {
     layout: "centered",

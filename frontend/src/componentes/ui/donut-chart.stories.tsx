@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DonutChart, LeyendaDonut } from "./donut-chart";
 
 const meta = {
-  title: "Componentes/DonutChart",
+  title: "02 · UI/DonutChart",
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta;
 
 export default meta;

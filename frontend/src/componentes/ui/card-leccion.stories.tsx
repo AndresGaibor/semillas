@@ -3,12 +3,12 @@ import * as React from "react";
 import { CardLeccion } from "./card-leccion";
 
 const meta = {
-  title: "Componentes/Card/Leccion",
+  title: "02 · UI/Card/Leccion",
   component: CardLeccion,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     estado: {
       control: "select",

@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CheckCircle2, Layout, Layers, Minus, Square } from "lucide-react";
 
 const meta = {
-  title: "Design Tokens/Sombras, Bordes y Radios",
+  title: "01 · Fundamentos/Sombras, Bordes y Radios",
+  tags: ["autodocs", "!dev"],
   parameters: {
     layout: "fullscreen",
   },

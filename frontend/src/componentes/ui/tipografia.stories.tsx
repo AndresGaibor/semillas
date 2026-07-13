@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CheckCircle2, Eye, Globe, Layers, Monitor, Smartphone } from "lucide-react";
 
 const meta = {
-  title: "Design Tokens/Tipografía",
+  title: "01 · Fundamentos/Tipografía",
+  tags: ["autodocs", "!dev"],
   parameters: {
     layout: "fullscreen",
   },

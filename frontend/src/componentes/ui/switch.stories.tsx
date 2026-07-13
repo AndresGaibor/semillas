@@ -3,12 +3,12 @@ import * as React from "react";
 import { Switch } from "./switch";
 
 const meta = {
-  title: "Componentes/Formulario/Switch",
+  title: "02 · UI/Formulario/Switch",
   component: Switch,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     etiqueta: {
       control: "text",

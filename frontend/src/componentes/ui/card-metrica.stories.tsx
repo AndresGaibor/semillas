@@ -3,12 +3,12 @@ import * as React from "react";
 import { CardMetrica } from "./card-metrica";
 
 const meta = {
-  title: "Componentes/Card/Metrica",
+  title: "02 · UI/Card/Metrica",
   component: CardMetrica,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     tipo: {
       control: "select",

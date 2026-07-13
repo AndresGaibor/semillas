@@ -12,11 +12,11 @@ import {
 } from "./card-shadcn";
 
 const meta = {
-  title: "Componentes/Card/shadcn",
+  title: "02 · UI/Card/shadcn",
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta;
 
 export default meta;

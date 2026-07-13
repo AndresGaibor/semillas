@@ -7,12 +7,12 @@ import { Select } from "./select";
 import { Textarea } from "./textarea";
 
 const meta = {
-  title: "Componentes/Formulario/CampoFormulario",
+  title: "02 · UI/Formulario/CampoFormulario",
   component: CampoFormulario,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     etiqueta: {
       control: "text",

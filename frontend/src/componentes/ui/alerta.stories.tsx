@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Alerta } from "./alerta";
 
 const meta = {
-  title: "Componentes/Estado/Alerta",
+  title: "02 · UI/Estado/Alerta",
   component: Alerta,
   parameters: {
     layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     variante: {
       control: "select",

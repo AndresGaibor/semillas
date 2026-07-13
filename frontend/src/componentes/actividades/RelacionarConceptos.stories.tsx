@@ -3,10 +3,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RelacionarConceptos, type RelacionarConceptosProps } from "./RelacionarConceptos";
 
 const meta = {
-  title: "Actividades/RelacionarConceptos",
+  title: "04 · Features/Actividades/RelacionarConceptos",
   component: RelacionarConceptos,
   parameters: { layout: "centered" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof RelacionarConceptos>;
 
 export default meta;

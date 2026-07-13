@@ -8,12 +8,12 @@ import tema2 from "@/assets/images/Ilustraciones/Tema2.png";
 import { Rompecabezas, type RompecabezasProps } from "./Rompecabezas";
 
 const meta = {
-  title: "Actividades/Rompecabezas",
+  title: "04 · Features/Actividades/Rompecabezas",
   component: Rompecabezas,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     imagen: { control: false, description: "URL o asset importado para dividir en piezas" },
     filas: { control: { type: "number", min: 1, max: 4, step: 1 } },

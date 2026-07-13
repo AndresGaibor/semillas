@@ -13,12 +13,12 @@ import {
 import { BloqueIconoTexto } from "./bloque-icono-texto";
 
 const meta = {
-  title: "Componentes/BloqueIconoTexto",
+  title: "02 · UI/BloqueIconoTexto",
   component: BloqueIconoTexto,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof BloqueIconoTexto>;
 
 export default meta;

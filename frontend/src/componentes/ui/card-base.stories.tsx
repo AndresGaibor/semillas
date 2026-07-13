@@ -3,12 +3,12 @@ import * as React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./card-base";
 
 const meta = {
-  title: "Componentes/Card/Base",
+  title: "02 · UI/Card/Base",
   component: Card,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     sombra: {
       control: "select",

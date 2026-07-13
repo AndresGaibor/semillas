@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AlertCircle, AlertTriangle, CheckCircle2, Info, Palette, Target, ThumbsUp, Zap } from "lucide-react";
 
 const meta = {
-  title: "Design Tokens/Colores",
+  title: "01 · Fundamentos/Colores",
+  tags: ["autodocs", "!dev"],
   parameters: {
     layout: "fullscreen",
   },

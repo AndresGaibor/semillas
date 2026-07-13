@@ -3,12 +3,12 @@ import * as React from "react";
 import { Select } from "./select";
 
 const meta = {
-  title: "Componentes/Formulario/Select",
+  title: "02 · UI/Formulario/Select",
   component: Select,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     estado: {
       control: "select",

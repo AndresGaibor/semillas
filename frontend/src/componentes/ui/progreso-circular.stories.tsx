@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ProgresoCircular } from "./progreso-circular";
 
 const meta = {
-  title: "Componentes/Indicadores/ProgresoCircular",
+  title: "02 · UI/Indicadores/ProgresoCircular",
   component: ProgresoCircular,
   parameters: {
     layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     porcentaje: {
       control: { type: "range", min: 0, max: 100, step: 5 }

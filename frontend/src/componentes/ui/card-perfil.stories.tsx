@@ -3,12 +3,12 @@ import * as React from "react";
 import { CardPerfil } from "./card-perfil";
 
 const meta = {
-  title: "Componentes/Card/Perfil",
+  title: "02 · UI/Card/Perfil",
   component: CardPerfil,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     nombre: {
       control: "text",
@@ -57,7 +57,7 @@ export const Playground: Story = {
     logros: 8,
     xpActual: 720,
     xpMaximo: 1000,
-    avatarUrl: "https://api.dicebear.com/6.x/avataaars/svg?seed=Felix",
+    avatarUrl: "/storybook/fixtures/avatar.svg",
     onVerPerfil: () => alert("Ver perfil del semillero"),
   },
 };
@@ -72,6 +72,6 @@ export const NivelInicial: Story = {
     logros: 1,
     xpActual: 40,
     xpMaximo: 200,
-    avatarUrl: "https://api.dicebear.com/6.x/avataaars/svg?seed=Nico",
+    avatarUrl: "/storybook/fixtures/avatar.svg",
   },
 };

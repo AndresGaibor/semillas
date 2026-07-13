@@ -4,7 +4,8 @@ import { Activity, Clock, Trophy, Home, BookOpen, Users } from "lucide-react";
 import { TabsLinea, PillsFiltros, TabsSegmentado, BottomNav } from "./navegacion-tabs";
 
 const meta = {
-  title: "Componentes/Navegación",
+  title: "02 · UI/Navegación",
+  tags: ["autodocs", "!dev"],
   component: TabsLinea,
   parameters: {
     layout: "padded",

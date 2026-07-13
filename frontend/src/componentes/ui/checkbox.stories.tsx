@@ -3,12 +3,12 @@ import * as React from "react";
 import { Checkbox } from "./checkbox";
 
 const meta = {
-  title: "Componentes/Formulario/Checkbox",
+  title: "02 · UI/Formulario/Checkbox",
   component: Checkbox,
   parameters: {
     layout: "centered",
   },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     etiqueta: {
       control: "text",

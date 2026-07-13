@@ -39,7 +39,8 @@ import { StepperCRECER } from "./stepper-crecer";
 import { TabsLinea, PillsFiltros, TabsSegmentado, BottomNav } from "./navegacion-tabs";
 
 const meta = {
-  title: "Componentes/Chips, Badges y Estados",
+  title: "02 · UI/Chips, Badges y Estados",
+  tags: ["autodocs", "!dev"],
   parameters: {
     layout: "fullscreen",
   },
