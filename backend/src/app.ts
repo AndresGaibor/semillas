@@ -84,7 +84,7 @@ app.use(
   "*",
   cors({
     origin: (origin, c) => {
-      const baseDomain = c.env.CORS_BASE_DOMAIN?.trim().toLowerCase() ?? "";
+      const baseDomain = c.env.CORS_BASE_DOMAIN.trim().toLowerCase();
 
       if (!origin) return `https://${baseDomain}`;
 

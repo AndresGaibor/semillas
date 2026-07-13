@@ -18,6 +18,14 @@
 
 import { defineConfig } from "drizzle-kit";
 
+function requerirEntorno(nombre: string, valor: string | undefined): string {
+  const normalizado = valor?.trim();
+  if (!normalizado) {
+    throw new Error(`[semillas] Falta la variable de entorno ${nombre}`);
+  }
+  return normalizado;
+}
+
 export default defineConfig({
   // Ruta al archivo de esquema de Drizzle
   schema: "./src/db/schema.ts",
@@ -32,7 +40,7 @@ export default defineConfig({
   // Usar variable de entorno SUPABASE_DATABASE_URL
   // Ejemplo: postgresql://user:password@host:5432/dbname
   dbCredentials: {
-    url: process.env.SUPABASE_DATABASE_URL || ""
+    url: requerirEntorno("SUPABASE_DATABASE_URL", process.env.SUPABASE_DATABASE_URL)
   },
 
   verbose: true,
