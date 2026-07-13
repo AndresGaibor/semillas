@@ -8,15 +8,16 @@ import {
   Loader2,
   Save,
   Sparkles,
-  Upload,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { crearTema, type CrearTemaSolicitud } from "../features/admin/admin.api";
 import { obtenerGruposEdad, obtenerVersionesBiblicas } from "../features/catalog/catalog.api";
 import { obtenerUrlFirmadaRecurso, subirArchivo, type RecursoMultimedia } from "../features/media/media.api";
 import { obtenerSendas } from "../features/sendas/sendas.api";
+import { CoverImageUpload } from "../features/admin/componentes/temas/cover-image-upload";
+import { obtenerRecursosMultimedia } from "../features/media/media.api";
 
 export const Route = createFileRoute("/admin/temas/new")({ component: NewThemePage });
 
@@ -38,7 +39,6 @@ const initialForm: CrearTemaSolicitud = {
 function NewThemePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const fileInput = useRef<HTMLInputElement | null>(null);
   const [form, setForm] = useState<CrearTemaSolicitud>(initialForm);
   const [cover, setCover] = useState<RecursoMultimedia | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
@@ -47,6 +47,7 @@ function NewThemePage() {
   const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
   const edadesQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
   const versionesQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
+  const recursosQuery = useQuery({ queryKey: ["media", "resources"], queryFn: obtenerRecursosMultimedia });
 
   const update = <K extends keyof CrearTemaSolicitud>(key: K, value: CrearTemaSolicitud[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -57,16 +58,9 @@ function NewThemePage() {
   }, [coverPreviewUrl]);
 
   const coverMutation = useMutation({
-    mutationFn: (file: File) => subirArchivo(file, "imagen", `Portada del tema ${form.titulo || "nuevo"}`),
-    onSuccess: async (resource) => {
-      setCover(resource);
-      update("portada_recurso_id", resource.id);
-      try {
-        const { url } = await obtenerUrlFirmadaRecurso(resource.id);
-        setCoverPreviewUrl(url);
-      } catch {
-        // La URL local se mantiene disponible aunque no se pueda renovar la URL firmada.
-      }
+    mutationFn: ({ file, metadata }: { file: File; metadata: { titulo: string; textoAlternativo: string } }) =>
+      subirArchivo(file, "imagen", metadata.textoAlternativo, metadata.titulo),
+    onSuccess: () => {
       toast.success("Portada cargada");
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo subir la portada"),
@@ -110,9 +104,15 @@ function NewThemePage() {
   const isCatalogLoading = sendasQuery.isLoading || edadesQuery.isLoading || versionesQuery.isLoading;
   const displayedCoverUrl = coverPreviewUrl ?? cover?.url_publica ?? null;
 
-  const selectCover = (file: File) => {
-    setCoverPreviewUrl(URL.createObjectURL(file));
-    coverMutation.mutate(file);
+  const handleCoverSelect = async (resource: RecursoMultimedia) => {
+    setCover(resource);
+    update("portada_recurso_id", resource.id);
+    try {
+      const { url } = await obtenerUrlFirmadaRecurso(resource.id);
+      setCoverPreviewUrl(url);
+    } catch {
+      setCoverPreviewUrl(resource.url_publica ?? null);
+    }
   };
 
   if (isCatalogLoading) return <div className="admin-dashboard-state"><span><Loader2 className="animate-spin" /></span><h2>Preparando editor</h2><p>Cargando sendas, franjas y versiones bíblicas.</p></div>;
@@ -149,11 +149,26 @@ function NewThemePage() {
 
           <section className="admin-editor-section">
             <div className="admin-editor-section__header"><div><h2>Portada</h2><p>Opcional al crear. Puedes reemplazarla más adelante desde Información del tema.</p></div></div>
-            <input ref={fileInput} className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { const file = event.target.files?.[0]; if (file) selectCover(file); }} />
-            <div className="admin-media-slot">
-              <div className="admin-media-slot__preview">{displayedCoverUrl ? <img src={displayedCoverUrl} alt="Vista previa de portada" /> : <FileImage size={30} />}</div>
-              <div><strong>{cover ? cover.titulo || "Portada cargada" : "Añade una portada 16:9"}</strong><small>WebP o JPG, mínimo 1200 × 675 px. Se registra en el módulo Medios.</small><button type="button" className="admin-secondary-button mt-3" disabled={coverMutation.isPending} onClick={() => fileInput.current?.click()}>{coverMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />} {cover ? "Reemplazar" : "Subir portada"}</button></div>
-            </div>
+            <CoverImageUpload
+              themeTitle={form.titulo.trim() || undefined}
+              cover={cover}
+              resources={recursosQuery.data ?? []}
+              isUploading={coverMutation.isPending}
+              onSelect={handleCoverSelect}
+              onRemove={() => {
+                setCover(null);
+                update("portada_recurso_id", null);
+                setCoverPreviewUrl(null);
+              }}
+              onUpload={async (file, metadata) => {
+                const resource = await coverMutation.mutateAsync({
+                  file,
+                  metadata,
+                });
+                await handleCoverSelect(resource);
+                return resource;
+              }}
+            />
           </section>
         </main>
 

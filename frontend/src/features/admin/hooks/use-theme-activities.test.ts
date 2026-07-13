@@ -13,14 +13,9 @@ afterEach(() => {
 
 const globales = {} as { toast: { success: (msg: string) => void; error: (msg: string) => void } };
 
-const globalesToast = {
-  success: mock(() => {}),
-  error: mock(() => {}),
-};
-
-const mockToast = {
-  success: (msg: string) => globalesToast.success(msg),
-  error: (msg: string) => globalesToast.error(msg),
+const globalesToast: typeof globales.toast = {
+  success: mock((msg: string) => {}),
+  error: mock((msg: string) => {}),
 };
 
 import {

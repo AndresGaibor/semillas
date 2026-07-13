@@ -1,7 +1,7 @@
 import { Download, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useInstalarPWA } from "../hooks/use-instalar-pwa";
+import { useInstalarPWA } from "@/shared/hooks/use-instalar-pwa";
 
 export interface InstalarAppBannerProps {
   className?: string;
