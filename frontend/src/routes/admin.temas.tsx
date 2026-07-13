@@ -29,6 +29,7 @@ import {
 } from "../features/admin/admin.api";
 import { obtenerGruposEdad } from "../features/catalog/catalog.api";
 import { obtenerSendas } from "../features/sendas/sendas.api";
+import { resolverPortadaTemaAdmin, usePortadasFirmadasAdmin } from "../features/admin/admin-theme-cover";
 
 export const Route = createFileRoute("/admin/temas")({ component: AdminThemesPage });
 
@@ -95,6 +96,7 @@ function AdminThemeLibrary() {
   });
 
   const data = temasQuery.data;
+  const portadasFirmadas = usePortadasFirmadasAdmin(data?.temas ?? []);
   const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE_SIZE));
   const resetPage = <T,>(setter: (value: T) => void, value: T) => { setter(value); setPage(1); };
 
@@ -139,6 +141,7 @@ function AdminThemeLibrary() {
             <ThemeLibraryRow
               key={tema.id}
               tema={tema}
+              portadaFirmada={portadasFirmadas.get(tema.id) ?? null}
               menuOpen={openMenu === tema.id}
               onToggleMenu={() => setOpenMenu(openMenu === tema.id ? null : tema.id)}
               onNavigate={(destination) => {
@@ -170,15 +173,20 @@ function AdminThemeLibrary() {
   );
 }
 
-function ThemeLibraryRow({ tema, menuOpen, onToggleMenu, onNavigate, onAction, actionPending }: {
+function ThemeLibraryRow({ tema, portadaFirmada, menuOpen, onToggleMenu, onNavigate, onAction, actionPending }: {
   tema: TemaListadoAdmin;
+  portadaFirmada: string | null;
   menuOpen: boolean;
   onToggleMenu: () => void;
   onNavigate: (destination: "detalle" | "editar" | "crecer" | "actividades" | "preview") => void;
   onAction: (action: "publicar" | "borrador" | "archivar" | "duplicar") => void;
   actionPending: boolean;
 }) {
-  const cover = tema.portada_recurso?.url_publica || `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(tema.titulo)}`;
+  const cover = resolverPortadaTemaAdmin({
+    titulo: tema.titulo,
+    urlFirmada: portadaFirmada,
+    urlPublica: tema.portada_recurso?.url_publica ?? null,
+  });
   const ages = tema.grupos_edad?.map((grupo) => grupo.nombre).join(", ") || "Sin franja";
   const stateLabel = estados.find((item) => item.id === tema.estado)?.label ?? tema.estado;
 

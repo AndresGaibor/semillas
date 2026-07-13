@@ -11,4 +11,5 @@ backend/node_modules/
 backend/.wrangler/
 .dev.vars
 .DS_Store
-frontend/dev-dist/
+frontend/dev-dist/diff-dev-vs-dev2/
+diff-dev-vs-dev2/

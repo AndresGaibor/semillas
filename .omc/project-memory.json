@@ -1,0 +1,211 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1783909090917,
+  "projectRoot": "/Users/andresgaibor/code/javascript/semillas",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "@playwright/test",
+        "version": "1.61.1",
+        "category": "testing"
+      },
+      {
+        "name": "playwright",
+        "version": "1.61.1",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": "npm test",
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "bun run scripts/dev.ts",
+      "dev:frontend": "bun run --cwd frontend dev",
+      "dev:backend": "bun run --cwd backend dev",
+      "build": "bun run --cwd frontend build && bun run --cwd backend build",
+      "build:frontend": "bun run --cwd frontend build",
+      "build:backend": "bun run --cwd backend build",
+      "deploy:backend": "bun run --cwd backend deploy",
+      "deploy:backend:staging": "bun run --cwd backend deploy --env staging",
+      "preview:backend": "bun run --cwd backend dev --remote",
+      "check": "bun run --cwd backend typecheck && bun run --cwd frontend typecheck && bun run test && bun run test:e2e && bun run build",
+      "test": "bun run test:backend && bun run test:frontend && bun run test:contrato",
+      "test:backend": "bun run --cwd backend test",
+      "test:frontend": "bun run --cwd frontend test",
+      "test:contrato": "bun test tests/contrato-publico.test.ts",
+      "test:e2e": "bun run --cwd backend test:e2e",
+      "db:start": "supabase start",
+      "db:stop": "supabase stop",
+      "db:reset": "supabase db reset",
+      "db:migrate": "supabase db push",
+      "db:lint": "supabase db lint --level warning",
+      "db:types": "supabase gen types typescript --local > backend/src/db/database.types.ts",
+      "storybook": "bun run --cwd frontend storybook",
+      "storybook:build": "bun run --cwd frontend build-storybook",
+      "storybook:coverage": "bun run --cwd frontend storybook:coverage",
+      "storybook:check": "bun run --cwd frontend storybook:check"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": "*.test.ts",
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [
+      "frontend",
+      "backend"
+    ],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "backend": {
+      "path": "backend",
+      "purpose": null,
+      "fileCount": 21,
+      "lastAccessed": 1783909090832,
+      "keyFiles": [
+        "README.md",
+        "api.http",
+        "bun.lock",
+        "check_steps.ts",
+        "drizzle.config.ts"
+      ]
+    },
+    "diff-dev-vs-dev2": {
+      "path": "diff-dev-vs-dev2",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1783909090839,
+      "keyFiles": [
+        "README.txt",
+        "dev-unique-summary.txt",
+        "dev-unique.diff",
+        "dev2-unique-summary.txt",
+        "dev2-unique.diff"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 8,
+      "lastAccessed": 1783909090885,
+      "keyFiles": [
+        "api.md",
+        "arquitectura.md",
+        "auditoria-frontend-2026-07-10.md",
+        "backend-api.md",
+        "documento_guia_RF_RNF_proyecto_semillas.md"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 16,
+      "lastAccessed": 1783909090886,
+      "keyFiles": [
+        "CLAUDE.md",
+        "README.md",
+        "bun.lock",
+        "bunfig.toml",
+        "components.json"
+      ]
+    },
+    "graphify-out": {
+      "path": "graphify-out",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1783909090887,
+      "keyFiles": [
+        "GRAPH_REPORT.md",
+        "cost.json",
+        "graph.html",
+        "graph.json",
+        "manifest.json"
+      ]
+    },
+    "planes-integracion": {
+      "path": "planes-integracion",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1783909090888,
+      "keyFiles": [
+        "00-plan-resumen.md",
+        "01-backend.md",
+        "02-theme-system.md",
+        "03-storybook.md",
+        "04-crecer-gamification-frontend.md"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 6,
+      "lastAccessed": 1783909090889,
+      "keyFiles": [
+        "capture-storybook-screenshots.mjs",
+        "check-storybook-coverage.mjs",
+        "dev.ts",
+        "migrar-reclamado-en.ts",
+        "seed-actividades-demo.sql"
+      ]
+    },
+    "supabase": {
+      "path": "supabase",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1783909090891,
+      "keyFiles": [
+        "config.toml"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1783909090892,
+      "keyFiles": [
+        "contrato-publico.test.ts"
+      ]
+    },
+    "supabase/migrations": {
+      "path": "supabase/migrations",
+      "purpose": "Database migrations",
+      "fileCount": 7,
+      "lastAccessed": 1783909090898,
+      "keyFiles": [
+        "20260705000000_initial_schema.sql",
+        "20260707000001_add_imagen_url.sql",
+        "20260707000002_crecer_amor_de_dios.sql"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}
