@@ -68,6 +68,9 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: light !important;
+  }
   html {
     font-size: clamp(14px, 1.2vw + 10px, 16px);
   }

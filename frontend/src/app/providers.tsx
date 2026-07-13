@@ -54,38 +54,8 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
       document.documentElement.classList.remove("alto-contraste");
     }
 
-    // 2. Aplicar Tema (Modo Oscuro)
-    const tema = (localStorage.getItem("semillas-pref-tema") || "sistema") as "sistema" | "claro" | "oscuro";
-    const aplicarTema = (t: typeof tema) => {
-      let esOscuro = false;
-      if (t === "oscuro") {
-        esOscuro = true;
-      } else if (t === "sistema") {
-        esOscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      }
-
-      if (esOscuro) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    };
-
-    aplicarTema(tema);
-
-    // Escuchar cambios de sistema
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const manejarCambioSistema = () => {
-      const t = (localStorage.getItem("semillas-pref-tema") || "sistema") as "sistema" | "claro" | "oscuro";
-      if (t === "sistema") {
-        aplicarTema("sistema");
-      }
-    };
-
-    mediaQuery.addEventListener("change", manejarCambioSistema);
-    return () => {
-      mediaQuery.removeEventListener("change", manejarCambioSistema);
-    };
+    // 2. Aplicar Tema (Modo Oscuro) temporalmente deshabilitado
+    document.documentElement.classList.remove("dark");
   }, []);
 
   useEffect(() => {

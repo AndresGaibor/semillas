@@ -35,12 +35,8 @@ function AdminLayout() {
   const { sidebarOpen, closeSidebar, openSidebar, handleLogout, pageHeader, activePage } = useAdminLayout();
 
   useEffect(() => {
-    const saved = localStorage.getItem("admin-theme");
-    if (saved === "admin-dark" || saved === "admin-light") {
-      document.documentElement.setAttribute("data-theme", saved);
-    } else {
-      document.documentElement.setAttribute("data-theme", "admin-light");
-    }
+    // Tema oscuro temporalmente deshabilitado
+    document.documentElement.setAttribute("data-theme", "admin-light");
   }, []);
 
   return (
