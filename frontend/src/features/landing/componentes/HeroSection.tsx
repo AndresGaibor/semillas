@@ -23,8 +23,15 @@ export function HeroSection() {
   const [yaInstalada, setYaInstalada] = useState(false);
 
   useEffect(() => {
-    setEsMovil(isMobileDevice());
-    setYaInstalada(estaInstaladaComoPWA());
+    const isMobile = isMobileDevice();
+    const isInstalled = estaInstaladaComoPWA();
+    setEsMovil(isMobile);
+    setYaInstalada(isInstalled);
+
+    console.log("[HeroSection] URL:", window.location.href);
+    console.log("[HeroSection] isMobile:", isMobile);
+    console.log("[HeroSection] isInstalled:", isInstalled);
+    console.log("[HeroSection] standalone:", window.matchMedia("(display-mode: standalone)").matches);
   }, []);
 
   const handleComenzarClick = (e: React.MouseEvent) => {
