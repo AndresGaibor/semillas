@@ -3,7 +3,7 @@ import * as React from "react";
 import { PaginaLogros } from "./pagina-logros";
 
 const meta = {
-  title: "Páginas/Página de Logros",
+  title: "05 · Pantallas/Página de Logros",
   component: PaginaLogros,
   parameters: {
     layout: "fullscreen",

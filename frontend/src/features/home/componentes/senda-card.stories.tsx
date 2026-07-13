@@ -3,9 +3,9 @@ import { SendaCard } from "./senda-card";
 import sendaPadreImg from "@/assets/images/Ilustraciones/Senda del Padre.png";
 
 const meta: Meta<typeof SendaCard> = {
-  title: "Features/Home/SendaCard",
+  title: "04 · Features/Home/SendaCard",
   component: SendaCard,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

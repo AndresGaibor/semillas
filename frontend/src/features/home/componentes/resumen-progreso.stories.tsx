@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ResumenProgreso } from "./resumen-progreso";
 
 const meta = {
-  title: "Componentes/Home/ResumenProgreso",
+  title: "04 · Features/Home/ResumenProgreso",
   component: ResumenProgreso,
   parameters: { layout: "fullscreen" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof ResumenProgreso>;
 
 export default meta;

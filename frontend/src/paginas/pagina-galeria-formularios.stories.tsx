@@ -10,7 +10,7 @@ import { Switch } from "../componentes/ui/switch";
 import { Textarea } from "../componentes/ui/textarea";
 
 const meta = {
-  title: "Páginas/Galería Formularios",
+  title: "05 · Pantallas/Galería Formularios",
   parameters: {
     layout: "fullscreen"
   }

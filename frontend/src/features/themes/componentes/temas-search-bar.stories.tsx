@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TemasSearchBar } from "./temas-search-bar";
 
 const meta: Meta<typeof TemasSearchBar> = {
-  title: "Features/Themes/TemasSearchBar",
+  title: "04 · Features/Themes/TemasSearchBar",
   component: TemasSearchBar,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

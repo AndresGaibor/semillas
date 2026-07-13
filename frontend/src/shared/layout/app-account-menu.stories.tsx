@@ -5,6 +5,7 @@ import {
   createRouter,
   createRootRoute,
   createRoute,
+  createMemoryHistory,
 } from "@tanstack/react-router";
 import { AppAccountMenu } from "./app-account-menu";
 
@@ -22,15 +23,7 @@ const crearRouter = () => {
   return createRouter({
     routeTree,
     defaultNotFoundComponent: () => null,
-    history: {
-      push: () => {},
-      replace: () => {},
-      back: () => {},
-      forward: () => {},
-      destroy: () => {},
-      listen: () => () => {},
-      location: { pathname: "/app/perfil", search: "", hash: "" },
-    } as any,
+    history: createMemoryHistory({ initialEntries: ["/app/perfil"] }),
   });
 };
 
@@ -41,7 +34,7 @@ const ContenedorMenu = () => {
       <AppAccountMenu
         nombreVisible="Semillero"
         nivelTexto="Explorador • Nivel 7"
-        avatarUrl="https://api.dicebear.com/7.x/avataaars/svg?seed=semillas"
+        avatarUrl="/storybook/fixtures/avatar.svg"
         onLogout={() => setLogeado(false)}
       />
     </div>
@@ -49,10 +42,10 @@ const ContenedorMenu = () => {
 };
 
 const meta = {
-  title: "Shared/Layout/App Account Menu",
+  title: "03 · Patrones/Layout/App Account Menu",
   component: AppAccountMenu,
   parameters: { layout: "padded" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AppAccountMenu>;
 
 export default meta;
@@ -62,7 +55,7 @@ export const Default: Story = {
   args: {
     nombreVisible: "Semillero",
     nivelTexto: "Explorador • Nivel 7",
-    avatarUrl: "",
+    avatarUrl: "/storybook/fixtures/avatar.svg",
     onLogout: () => {},
   },
   render: () => (

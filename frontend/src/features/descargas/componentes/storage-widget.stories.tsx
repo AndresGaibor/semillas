@@ -3,9 +3,9 @@ import { StorageWidget } from "./storage-widget";
 import "@/routes/app-descargas.css";
 
 const meta = {
-  title: "Features/Descargas/StorageWidget",
+  title: "04 · Features/Descargas/StorageWidget",
   component: StorageWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   args: {
     usageBytes: 148_000_000,
     quotaBytes: 2_000_000_000,

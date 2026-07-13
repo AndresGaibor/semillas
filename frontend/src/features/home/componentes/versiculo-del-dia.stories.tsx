@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { VersiculoDelDia } from "./versiculo-del-dia";
 
 const meta: Meta<typeof VersiculoDelDia> = {
-  title: "Features/Home/VersiculoDelDia",
+  title: "04 · Features/Home/VersiculoDelDia",
   component: VersiculoDelDia,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

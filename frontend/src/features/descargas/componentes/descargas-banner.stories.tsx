@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DescargasBanner } from "./descargas-banner";
 
 const meta: Meta<typeof DescargasBanner> = {
-  title: "Features/Descargas/DescargasBanner",
+  title: "04 · Features/Descargas/DescargasBanner",
   component: DescargasBanner,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

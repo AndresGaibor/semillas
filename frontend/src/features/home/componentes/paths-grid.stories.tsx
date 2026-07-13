@@ -5,9 +5,9 @@ import sendaHijoImg from "@/assets/images/Ilustraciones/Senda del hijo.png";
 import sendaEspirituImg from "@/assets/images/Ilustraciones/Senda del espiritu santo.png";
 
 const meta: Meta<typeof PathsGrid> = {
-  title: "Features/Home/PathsGrid",
+  title: "04 · Features/Home/PathsGrid",
   component: PathsGrid,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ResumenTemasCard } from "./resumen-temas-card";
 
 const meta: Meta<typeof ResumenTemasCard> = {
-  title: "Features/Themes/ResumenTemasCard",
+  title: "04 · Features/Themes/ResumenTemasCard",
   component: ResumenTemasCard,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

@@ -3,9 +3,9 @@ import { StoryRouter } from "@/storybook/story-router";
 import { ProximoObjetivoWidget } from "./proximo-objetivo-widget";
 
 const meta = {
-  title: "Componentes/Home/ProximoObjetivoWidget",
+  title: "04 · Features/Home/ProximoObjetivoWidget",
   component: ProximoObjetivoWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   decorators: [
     (Story) => (
       <StoryRouter initialPath="/app">

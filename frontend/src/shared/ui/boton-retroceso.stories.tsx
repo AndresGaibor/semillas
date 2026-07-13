@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { BotonRetroceso } from "./boton-retroceso";
 
 const meta = {
-  title: "Shared/UI/Botón Retroceso",
+  title: "03 · Patrones/UI/Botón Retroceso",
   component: BotonRetroceso,
   parameters: { layout: "centered" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   argTypes: {
     children: {
       control: "text",

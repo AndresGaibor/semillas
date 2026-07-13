@@ -25,9 +25,9 @@ const temaBase = {
 };
 
 const meta = {
-  title: "Features/Descargas/RecursoCard",
+  title: "04 · Features/Descargas/RecursoCard",
   component: RecursoCard,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   args: {
     tema: temaBase,
     isOnline: true,
@@ -49,7 +49,7 @@ export const Descargado: Story = {
       pasos: 6,
       actividades: 9,
       medios: 14,
-      descargadoEn: new Date().toISOString(),
+      descargadoEn: "2026-07-10T12:00:00.000Z",
     },
   },
 };
@@ -61,7 +61,7 @@ export const Actualizacion: Story = {
       actualizacionDisponible: true,
       tamanoBytes: 18_200_000,
       medios: 14,
-      descargadoEn: new Date().toISOString(),
+      descargadoEn: "2026-07-10T12:00:00.000Z",
     },
   },
 };

@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ContinuarAprendiendoCard } from "./continuar-aprendiendo-card";
 
 const meta: Meta<typeof ContinuarAprendiendoCard> = {
-  title: "Features/Themes/ContinuarAprendiendoCard",
+  title: "04 · Features/Themes/ContinuarAprendiendoCard",
   component: ContinuarAprendiendoCard,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

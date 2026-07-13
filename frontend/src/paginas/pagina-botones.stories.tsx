@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { PaginaBotones } from "./pagina-botones";
 
 const meta = {
-  title: "Páginas/PaginaBotones",
+  title: "05 · Pantallas/PaginaBotones",
   component: PaginaBotones,
   parameters: {
     layout: "fullscreen",

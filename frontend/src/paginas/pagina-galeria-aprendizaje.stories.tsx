@@ -11,7 +11,7 @@ import { CardPerfil } from "../componentes/ui/card-perfil";
 import { Chip } from "../componentes/ui/chip";
 
 const meta = {
-  title: "Páginas/Galería Aprendizaje",
+  title: "05 · Pantallas/Galería Aprendizaje",
   parameters: {
     layout: "fullscreen"
   }

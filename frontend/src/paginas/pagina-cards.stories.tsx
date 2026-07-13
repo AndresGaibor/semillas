@@ -3,7 +3,7 @@ import * as React from "react";
 import { PaginaCards } from "./pagina-cards";
 
 const meta = {
-  title: "Páginas/Página de Cards",
+  title: "05 · Pantallas/Página de Cards",
   component: PaginaCards,
   parameters: {
     layout: "fullscreen",

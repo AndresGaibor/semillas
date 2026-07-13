@@ -3,10 +3,10 @@ import { StoryRouter } from "@/storybook/story-router";
 import { InicioHero } from "./inicio-hero";
 
 const meta = {
-  title: "Componentes/Home/InicioHero",
+  title: "04 · Features/Home/InicioHero",
   component: InicioHero,
   parameters: { layout: "fullscreen" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof InicioHero>;
 
 export default meta;
@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    imagenUrl: "https://picsum.photos/seed/semillasbanner/800/250",
+    imagenUrl: "/storybook/fixtures/cover.svg",
     nombreUsuario: "Andres",
   },
   render: (args) => (

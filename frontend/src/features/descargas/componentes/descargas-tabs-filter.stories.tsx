@@ -3,9 +3,9 @@ import { DescargasTabsFilter } from "./descargas-tabs-filter";
 import "@/routes/app-descargas.css";
 
 const meta = {
-  title: "Features/Descargas/DescargasTabsFilter",
+  title: "04 · Features/Descargas/DescargasTabsFilter",
   component: DescargasTabsFilter,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   args: {
     activeTab: "todos",
     onTabChange: () => undefined,

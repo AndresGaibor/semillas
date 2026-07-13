@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TemasTabsFilter } from "./temas-tabs-filter";
 
 const meta: Meta<typeof TemasTabsFilter> = {
-  title: "Features/Themes/TemasTabsFilter",
+  title: "04 · Features/Themes/TemasTabsFilter",
   component: TemasTabsFilter,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

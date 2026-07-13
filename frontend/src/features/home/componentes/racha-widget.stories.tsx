@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RachaWidget } from "./racha-widget";
 
 const meta: Meta<typeof RachaWidget> = {
-  title: "Features/Home/RachaWidget",
+  title: "04 · Features/Home/RachaWidget",
   component: RachaWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

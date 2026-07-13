@@ -19,7 +19,7 @@ const opcionesBottomNav = [
 ];
 
 const meta = {
-  title: "Páginas/Galería UI",
+  title: "05 · Pantallas/Galería UI",
   parameters: {
     layout: "fullscreen"
   }

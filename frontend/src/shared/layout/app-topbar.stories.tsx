@@ -45,10 +45,10 @@ const DecoradorRouterQuery = (Story: React.FC) => (
 );
 
 const meta = {
-  title: "Shared/Layout/App Topbar",
+  title: "03 · Patrones/Layout/App Topbar",
   component: AppTopbar,
   parameters: { layout: "fullscreen" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
   decorators: [DecoradorRouterQuery],
 } satisfies Meta<typeof AppTopbar>;
 

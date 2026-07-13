@@ -50,10 +50,10 @@ const crearRouter = (activePage: string, variant: "app" | "admin" = "app") => {
 };
 
 const meta = {
-  title: "Shared/Layout/App Sidebar",
+  title: "03 · Patrones/Layout/App Sidebar",
   component: AppSidebar,
   parameters: { layout: "fullscreen" },
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 } satisfies Meta<typeof AppSidebar>;
 
 export default meta;

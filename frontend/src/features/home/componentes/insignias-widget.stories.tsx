@@ -3,9 +3,9 @@ import { InsigniasWidget } from "./insignias-widget";
 import in1Img from "@/assets/images/Ilustraciones/in1.png";
 
 const meta: Meta<typeof InsigniasWidget> = {
-  title: "Features/Home/InsigniasWidget",
+  title: "04 · Features/Home/InsigniasWidget",
   component: InsigniasWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;
