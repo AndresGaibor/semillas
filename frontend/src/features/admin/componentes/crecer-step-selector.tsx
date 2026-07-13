@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { BookOpenText, Check, Circle } from "lucide-react";
+import { BookOpenText, Check, Circle, PencilLine } from "lucide-react";
 
 interface CrecerStep {
   id: string;
@@ -23,6 +23,7 @@ interface CrecerStepSelectorProps {
   selectedAgeGroupId: string;
   stepsData?: StepContent[] | null;
   onSelect: (codigo: string) => void;
+  hasDraft?: (codigo: string) => boolean;
 }
 
 export function CrecerStepSelector({
@@ -31,6 +32,7 @@ export function CrecerStepSelector({
   selectedAgeGroupId,
   stepsData,
   onSelect,
+  hasDraft,
 }: CrecerStepSelectorProps) {
   return (
     <section className="admin-crecer-control">
@@ -47,6 +49,7 @@ export function CrecerStepSelector({
       <div className="admin-crecer-step-options">
         {pasos.map((step) => {
           const isActive = activeStepCode === step.codigo;
+          const hasLocalDraft = hasDraft?.(step.codigo) ?? false;
           const completed = selectedAgeGroupId
             ? stepsData?.some(
                 (record) =>
@@ -72,13 +75,20 @@ export function CrecerStepSelector({
               className={`admin-crecer-step-option ${isActive ? "admin-crecer-step-option--active" : ""} ${completed ? "admin-crecer-step-option--complete" : ""}`}
               style={style}
               aria-pressed={isActive}
+              title={hasLocalDraft ? `${step.nombre}: borrador sin guardar` : step.nombre}
             >
               <span className="admin-crecer-step-option__status" aria-hidden="true">
-                {completed ? <Check size={15} /> : <Circle size={14} />}
+                {hasLocalDraft ? (
+                  <PencilLine size={14} className={isActive ? undefined : "text-amber-600"} />
+                ) : completed ? (
+                  <Check size={15} />
+                ) : (
+                  <Circle size={14} />
+                )}
               </span>
               <span className="admin-crecer-step-option__copy">
                 <strong>{step.nombre}</strong>
-                <small>{completed ? "Contenido guardado" : isActive ? "Editando ahora" : "Pendiente"}</small>
+                <small>{hasLocalDraft ? "Borrador sin guardar" : completed ? "Contenido guardado" : isActive ? "Editando ahora" : "Pendiente"}</small>
               </span>
             </button>
           );

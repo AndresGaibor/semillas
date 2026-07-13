@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { playSound } from "../../../lib/audio";
+import type { Actividad } from "../../../shared/api/schemas/temas.schema";
 
 interface UseQuizProps {
-  actividad: any;
+  actividad: Actividad;
   onComplete: (actividadId: string, xpRecompensa: number) => void;
 }
 

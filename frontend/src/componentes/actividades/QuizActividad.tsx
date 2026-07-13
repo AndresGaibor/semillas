@@ -4,9 +4,10 @@ import { Boton } from "@/componentes/ui/boton";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 import { unirClases } from "@/lib/utilidades";
 import { useQuiz } from "./hooks/use-quiz";
+import type { Actividad } from "@/shared/api/schemas/temas.schema";
 
 interface QuizActividadProps {
-  actividad: any;
+  actividad: Actividad;
   onComplete: (actividadId: string, xpRecompensa: number) => void;
 }
 

@@ -7,6 +7,7 @@ import {
   Image as ImageIcon,
   Layers3,
   Loader2,
+  PencilLine,
   Volume2,
 } from "lucide-react";
 
@@ -114,6 +115,7 @@ function AdminThemeCrecerPage() {
               ageGroups={availableAgeGroups}
               selectedAgeGroupId={editor.selectedAgeGroupId}
               onSelect={editor.setSelectedAgeGroupId}
+              hasDraft={editor.hasDraftForAgeGroup}
             />
           ) : null}
 
@@ -123,6 +125,7 @@ function AdminThemeCrecerPage() {
             selectedAgeGroupId={editor.selectedAgeGroupId}
             stepsData={editor.stepsQuery.data}
             onSelect={editor.setActiveStepCode}
+            hasDraft={editor.hasDraftForStep}
           />
         </div>
       </section>
@@ -148,10 +151,12 @@ function AdminThemeCrecerPage() {
             onUpload={(file, type, metadata) =>
               editor.uploadMutation.mutateAsync({ file, type, metadata })
             }
-            onSave={() => editor.saveMutation.mutate()}
+            onSave={editor.saveCurrentDraft}
             isPending={editor.saveMutation.isPending}
             isUploading={editor.uploadMutation.isPending}
-            isSuccess={editor.saveMutation.isSuccess}
+            isSuccess={editor.isCurrentSaved}
+            isDirty={editor.isCurrentDirty}
+            unsavedDraftCount={editor.unsavedDraftCount}
           />
         </main>
 
@@ -206,6 +211,7 @@ function AdminThemeCrecerPage() {
               {editor.pasos.map((step) => {
                 const ready = isStepReady(step.codigo);
                 const active = editor.activeStepCode === step.codigo;
+                const hasLocalDraft = editor.hasDraftForStep(step.codigo);
 
                 return (
                   <button
@@ -216,10 +222,18 @@ function AdminThemeCrecerPage() {
                     aria-current={active ? "step" : undefined}
                   >
                     <span className="admin-completeness-item__status" aria-hidden="true">
-                      {ready ? <Check size={14} /> : <Circle size={13} />}
+                      {hasLocalDraft ? (
+                        <PencilLine size={14} className="text-amber-600" />
+                      ) : ready ? (
+                        <Check size={14} />
+                      ) : (
+                        <Circle size={13} />
+                      )}
                     </span>
                     <span className="admin-completeness-item__label">{step.nombre}</span>
-                    <small>{ready ? "Completo" : active ? "Editando" : "Pendiente"}</small>
+                    <small className={hasLocalDraft ? "!text-amber-700" : undefined}>
+                      {hasLocalDraft ? "Borrador" : ready ? "Completo" : active ? "Editando" : "Pendiente"}
+                    </small>
                   </button>
                 );
               })}

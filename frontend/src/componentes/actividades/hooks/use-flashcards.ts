@@ -7,6 +7,10 @@ interface ParData {
   texto: string;
 }
 
+interface FlashcardConfiguracion {
+  pares?: ParData[];
+}
+
 export interface FlashcardItem {
   uid: string;
   parId: number;
@@ -27,7 +31,8 @@ export function useFlashcards({ actividad, onComplete }: UseFlashcardsProps) {
   const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
-    const paresData: ParData[] = actividad.configuracion?.pares || [];
+    const configuracion = actividad.configuracion as FlashcardConfiguracion;
+    const paresData: ParData[] = configuracion.pares || [];
     const deck: FlashcardItem[] = [];
 
     paresData.forEach((par) => {

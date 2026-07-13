@@ -37,6 +37,8 @@ interface CrecerContentEditorProps {
   isPending: boolean;
   isUploading: boolean;
   isSuccess: boolean;
+  isDirty: boolean;
+  unsavedDraftCount: number;
 }
 
 export function CrecerContentEditor(props: CrecerContentEditorProps) {
@@ -48,7 +50,16 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
     <section className="admin-editor-section">
       <div className="admin-editor-section__header">
         <div><h2>{props.activeStep?.nombre ?? "Paso CRECER"}</h2><p>Versión para {props.selectedAgeGroup?.nombre ?? "la franja seleccionada"}. El contenido, medios y preguntas se guardan juntos.</p></div>
-        {props.isSuccess ? <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700"><Check size={15} /> Guardado</span> : null}
+        {props.isDirty ? (
+          <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700" role="status">
+            <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden="true" />
+            Borrador sin guardar
+          </span>
+        ) : props.isSuccess ? (
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700" role="status">
+            <Check size={15} /> Guardado
+          </span>
+        ) : null}
       </div>
 
       <div className="admin-form-grid">
@@ -82,10 +93,23 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
       </div>
 
       <div className="admin-save-bar mt-5">
-        <p>{props.isUploading ? "Subiendo recurso multimedia..." : "Los cambios no se publican automáticamente; primero se guardan en este paso."}</p>
-        <button type="button" onClick={props.onSave} disabled={props.isPending || props.isUploading} className="admin-primary-button">
+        <p aria-live="polite">
+          {props.isUploading
+            ? "Subiendo recurso multimedia..."
+            : props.isDirty
+              ? props.unsavedDraftCount === 1
+                ? "Este paso tiene un borrador local sin guardar."
+                : `Este paso y otros ${props.unsavedDraftCount - 1} borradores siguen sin guardar.`
+              : "No hay cambios pendientes en este paso."}
+        </p>
+        <button
+          type="button"
+          onClick={props.onSave}
+          disabled={props.isPending || props.isUploading || !props.isDirty}
+          className="admin-primary-button"
+        >
           {props.isPending ? <Loader className="animate-spin" size={17} /> : <Save size={17} />}
-          {props.isPending ? "Guardando..." : "Guardar paso"}
+          {props.isPending ? "Guardando..." : props.isDirty ? "Guardar paso" : "Sin cambios"}
         </button>
       </div>
 
@@ -115,6 +139,24 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
 
 function Field({ label, help, wide, children }: { label: string; help: string; wide?: boolean; children: ReactNode }) { return <div className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}<small>{help}</small></div>; }
 function MediaSlot({ icon, resource, emptyText, onChoose, onRemove }: { icon: ReactNode; resource: RecursoMultimedia | null; emptyText: string; onChoose: () => void; onRemove: () => void }) {
-  return <div className="admin-media-slot"><div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div><div className="admin-media-slot__content"><strong title={resource?.titulo}>{resource?.titulo ?? emptyText}</strong><small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Selecciona un recurso de la biblioteca o sube uno nuevo."}</small><div className="flex flex-wrap gap-3"><button type="button" onClick={onChoose}>{resource ? "Cambiar recurso" : "Elegir recurso"}</button>{resource ? <button type="button" onClick={onRemove} className="!text-red-600">Quitar</button> : null}</div></div></div>;
+  return (
+    <div
+      className="admin-media-slot"
+      role="button"
+      tabIndex={0}
+      onClick={onChoose}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onChoose(); } }}
+    >
+      <div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div>
+      <div className="admin-media-slot__content">
+        <strong title={resource?.titulo}>{resource?.titulo ?? emptyText}</strong>
+        <small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Selecciona un recurso de la biblioteca o sube uno nuevo."}</small>
+        <div className="flex flex-wrap gap-3">
+          <button type="button" onClick={(e) => e.stopPropagation()}>{resource ? "Cambiar recurso" : "Elegir recurso"}</button>
+          {resource ? <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(); }} className="!text-red-600">Quitar</button> : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 function formatBytes(bytes: number) { if (!bytes) return "0 KB"; const units = ["B", "KB", "MB", "GB"]; const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1); return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`; }
