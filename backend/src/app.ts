@@ -41,7 +41,7 @@ import { activitiesRoutes } from "./modules/activities";
 import { adminRoutes } from "./modules/admin";
 import { clubsRoutes } from "./modules/clubs";
 import { adminClubsRoutes } from "./modules/clubs/admin-clubs.routes";
-import { gamificationRoutes } from "./modules/gamification";
+import { gamificationRoutes, adminLogrosRoutes } from "./modules/gamification";
 import { mediaRoutes } from "./modules/media";
 import { crearModuloSync } from "./modules/sync";
 
@@ -203,6 +203,7 @@ app.route("/administracion", adminRoutes);
 app.route("/administracion/clubes", adminClubsRoutes);
 app.route("/clubes", clubsRoutes);
 app.route("/gamificacion", gamificationRoutes);
+app.route("/administracion/logros", adminLogrosRoutes);
 app.route("/media", mediaRoutes);
 app.route("/sync", crearModuloSync());
 

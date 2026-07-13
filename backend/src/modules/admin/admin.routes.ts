@@ -7,12 +7,16 @@ import { zValidator } from "../../shared/middleware/validate.middleware";
 import { responderExito } from "../../shared/http/respuesta";
 import {
   createActivitySchema,
+  createAdminUserSchema,
   createThemeSchema,
+  reportsQuerySchema,
   reorderActivitiesSchema,
   resolveReviewSchema,
+  reviewListQuerySchema,
   submitReviewSchema,
   actualizarAjustesSistemaSchema,
   updateActivitySchema,
+  updatePlatformSettingsSchema,
   updateThemeSchema,
   updateUserSchema,
   inviteUserSchema,
@@ -24,6 +28,7 @@ import {
 } from "./admin.schemas";
 import { crearAdminRepository } from "./admin.repository";
 import { crearAdminUsersRepository } from "./admin-users.repository";
+import { crearAdminGovernanceRepository } from "./admin-governance.repository";
 import { crearCasoObtenerResumen } from "./casos-uso/resumen";
 import { crearCasosUsoActividades } from "./casos-uso/actividades";
 import { crearCasosUsoAjustes } from "./casos-uso/ajustes";
@@ -36,7 +41,8 @@ type CrearRepositorioUsuarios = typeof crearAdminUsersRepository;
 
 export function crearModuloAdmin(
   crearRepositorio: CrearRepositorioAdmin = crearAdminRepository,
-  crearRepositorioUsuarios: CrearRepositorioUsuarios = crearAdminUsersRepository
+  crearRepositorioUsuarios: CrearRepositorioUsuarios = crearAdminUsersRepository,
+  crearRepositorioGovernance: typeof crearAdminGovernanceRepository = crearAdminGovernanceRepository
 ) {
   const adminRoutes = new Hono<AppBindings>();
 
@@ -44,6 +50,7 @@ export function crearModuloAdmin(
     const dependencias = { supabase: c.get("db"), drizzle: c.get("drizzle") };
     const repositorio = crearRepositorio(dependencias);
     const repositorioUsuarios = crearRepositorioUsuarios(dependencias);
+    const governance = crearRepositorioGovernance({ supabase: c.get("db") });
 
     return {
       resumen: crearCasoObtenerResumen(repositorio),
@@ -51,7 +58,8 @@ export function crearModuloAdmin(
       ajustes: crearCasosUsoAjustes(repositorio),
       temas: crearCasosUsoTemas(repositorio),
       usuarios: crearCasosUsoUsuarios(repositorioUsuarios),
-      sendas: crearCasosUsoSendas(repositorio)
+      sendas: crearCasosUsoSendas(repositorio),
+      governance
     };
   }
 
@@ -68,9 +76,32 @@ export function crearModuloAdmin(
   adminRoutes.get("/sendas/:id", async (c) => responderExito(await obtenerCasosUso(c).sendas.obtener(c.req.param("id"))));
   adminRoutes.patch("/sendas/:id", zValidator("json", updateSendaSchema), async (c) => responderExito(await obtenerCasosUso(c).sendas.actualizar(c.req.param("id"), c.req.valid("json"))));
   adminRoutes.get("/resumen/detallado", async (c) => responderExito(await obtenerCasosUso(c).resumen.ejecutarDetallado()));
+  adminRoutes.get("/revisiones", zValidator("query", reviewListQuerySchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).governance.listarRevisiones(c.req.valid("query")))
+  );
+  adminRoutes.get("/revisiones/:revision_id", async (c) =>
+    responderExito(await obtenerCasosUso(c).governance.obtenerRevision(c.req.param("revision_id")))
+  );
+  adminRoutes.post("/revisiones/:revision_id/resolver", zValidator("json", resolveReviewSchema), async (c) =>
+    responderExito(
+      await obtenerCasosUso(c).governance.resolverRevision(
+        c.req.param("revision_id"),
+        c.req.valid("json"),
+        c.get("user").id,
+      ),
+    ),
+  );
+  adminRoutes.get("/reportes", zValidator("query", reportsQuerySchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).governance.obtenerReportes(c.req.valid("query")))
+  );
   adminRoutes.get("/ajustes", async (c) => responderExito(await obtenerCasosUso(c).ajustes.obtener()));
   adminRoutes.patch("/ajustes", zValidator("json", actualizarAjustesSistemaSchema), async (c) =>
     responderExito(await obtenerCasosUso(c).ajustes.actualizar(c.req.valid("json"), c.get("user").id))
+  );
+  adminRoutes.patch("/ajustes-plataforma", zValidator("json", updatePlatformSettingsSchema), async (c) =>
+    responderExito(
+      await obtenerCasosUso(c).governance.actualizarAjustes(c.req.valid("json"), c.get("user").id),
+    ),
   );
   adminRoutes.get("/actividades", async (c) => {
     const casos = obtenerCasosUso(c);
@@ -125,6 +156,9 @@ export function crearModuloAdmin(
   );
   adminRoutes.get("/usuarios/:usuario_id", async (c) =>
     responderExito(await obtenerCasosUso(c).usuarios.obtener(c.req.param("usuario_id")))
+  );
+  adminRoutes.post("/usuarios/cuenta", zValidator("json", createAdminUserSchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).governance.crearUsuario(c.req.valid("json"), c.get("user").id), 201)
   );
   adminRoutes.patch("/usuarios/:usuario_id", zValidator("json", updateUserSchema), async (c) =>
     responderExito(await obtenerCasosUso(c).usuarios.actualizar(

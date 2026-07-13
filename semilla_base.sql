@@ -601,19 +601,22 @@ CREATE INDEX IF NOT EXISTS ix_auditoria_actor_tiempo ON registro_auditoria(actor
 CREATE INDEX IF NOT EXISTS idx_revision_contenido_estado_creado_en ON revision_contenido(estado, creado_en DESC);
 
 CREATE TABLE IF NOT EXISTS configuracion_plataforma (
-  id varchar(20) PRIMARY KEY DEFAULT 'principal' CHECK (id = 'principal'),
-  nombre_plataforma varchar(80) NOT NULL DEFAULT 'Semillas',
-  correo_soporte varchar(255),
-  zona_horaria varchar(80) NOT NULL DEFAULT 'America/Guayaquil',
-  notas_obligatorias_cambios boolean NOT NULL DEFAULT true,
-  notas_obligatorias_rechazo boolean NOT NULL DEFAULT true,
+  clave text PRIMARY KEY,
+  categoria text NOT NULL,
+  valor jsonb NOT NULL,
+  descripcion text,
   actualizado_por uuid REFERENCES usuario_app(id) ON DELETE SET NULL,
   actualizado_en timestamptz NOT NULL DEFAULT now()
 );
 
-INSERT INTO configuracion_plataforma (id, nombre_plataforma, correo_soporte, zona_horaria, notas_obligatorias_cambios, notas_obligatorias_rechazo)
-VALUES ('principal', 'Semillas', NULL, 'America/Guayaquil', true, true)
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO configuracion_plataforma (clave, categoria, valor, descripcion)
+VALUES
+  ('administracion.nombre_plataforma', 'administracion', to_jsonb('Semillas'::text), 'Nombre administrativo de la plataforma.'),
+  ('administracion.correo_soporte', 'administracion', 'null'::jsonb, 'Correo de soporte de la plataforma.'),
+  ('administracion.zona_horaria', 'administracion', to_jsonb('America/Guayaquil'::text), 'Zona horaria de referencia.'),
+  ('administracion.notas_obligatorias_cambios', 'administracion', 'true'::jsonb, 'Exige notas al solicitar cambios.'),
+  ('administracion.notas_obligatorias_rechazo', 'administracion', 'true'::jsonb, 'Exige motivo al rechazar contenido.')
+ON CONFLICT (clave) DO NOTHING;
 
 -- ============================================================
 --  9. VISTAS ÚTILES PARA API / REPORTES

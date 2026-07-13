@@ -1,34 +1,37 @@
 # Baseline de cierre G0: dev2
 
-Fecha de ejecución: 2026-07-13
+## Captura única
 
-## Identidad reproducible
-
-- Rama: `dev2` (seguimiento: `origin/dev2`).
-- SHA base: `01ab28ebf4f017b1d07b84a4fe932f5767e8ec98`.
-- Checkout: repositorio principal, no worktree enlazado.
+- UTC: `2026-07-13T16:47:59Z`.
+- SHA de referencia: `5061a96db998792087c6b6392769fd9b1dafb722`.
+- `git rev-parse HEAD`: `5061a96db998792087c6b6392769fd9b1dafb722`.
+- HEAD final: `5061a96db998792087c6b6392769fd9b1dafb722`.
+- Verificación de identidad: el HEAD inicial y el final coinciden; todos los resultados de esta tabla corresponden al mismo SHA de referencia.
 - Bun: `1.3.10`.
 - Supabase CLI: `2.109.1`.
 - Wrangler: `4.110.0`.
 
-## Estado del trabajo al inicio
+## Estado del trabajo
 
-El checkout no estaba limpio. Estos cambios se consideraron concurrentes y no se modificaron durante la captura:
+Salida capturada de `git status --short --branch`:
 
-| Estado | Archivo | Owner | Clasificación |
-| --- | --- | --- | --- |
-| Modificado | `backend/src/shared/errors/result-helpers.ts` | concurrente-dev2 | concurrente-dev2 |
-| Modificado | `frontend/src/routeTree.gen.ts` | concurrente-dev2 | concurrente-dev2 |
-| Modificado | `semilla_base.sql` | concurrente-dev2 | concurrente-dev2 |
-| Sin rastrear | `backend/src/modules/admin/admin-governance.schemas.test.ts` | concurrente-dev2 | concurrente-dev2 |
-| Sin rastrear | `supabase/migrations/20260712000006_logro_usuario_reclamado_en.sql` | concurrente-dev2 | concurrente-dev2 |
-| Sin rastrear | `supabase/migrations/20260713000000_admin_governance.sql` | concurrente-dev2 | concurrente-dev2 |
-
-Historial visible más reciente: `01ab28eb fix: surface remaining frontend errors`.
+```text
+## dev2...origin/dev2
+ M backend/src/db/database.types.ts
+ M backend/src/db/schema.ts
+ M backend/src/modules/admin/admin.repository.ts
+ M backend/src/modules/admin/admin.routes.test.ts
+ M backend/src/modules/admin/admin.schemas.ts
+ M backend/src/shared/middleware/auth.middleware.ts
+ M semilla_base.sql
+ M supabase/migrations/20260713000000_admin_governance.sql
+```
 
 Salida capturada de `git log --oneline -10`:
 
 ```text
+5061a96d fix(logros): surface reclaim achievement error with toast
+36393c23 club adminitracion
 bf7d141e fix: surface backend redirects in login
 4847e417 club adminitracion
 01ab28eb fix: surface remaining frontend errors
@@ -37,50 +40,40 @@ d419984e docs: document api worker csp
 5a33ba75 admin modulo de media
 61dc627c admin se agrego mas builders de actividades y pantallas de reporte, ajuste y ajuste de usuarios
 84c39745 admin CMS de media, usuarios y actividades
-03414e3c refactor(ui): deprecate shadcn card-shadcn, consolidate to card-base
-f0ddd827 refactor(ui): deprecate shadcn button, consolidate to custom Boton
-```
-
-Salida capturada de `git status --short --branch`:
-
-```text
-* dev2...origin/dev2
- M frontend/src/routes/admin.clubes.tsx
 ```
 
 ## Ejecución
 
-Todos los comandos se ejecutaron sobre el SHA indicado, sin corregir features ni exponer variables de entorno o secretos.
+| Comando | SHA | Resultado | Evidencia resumida |
+| --- | --- | --- | --- |
+| `bun install --frozen-lockfile` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | Verificó 826 instalaciones en 1062 paquetes, sin cambios. |
+| `bun run --cwd backend typecheck` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | `tsc --noEmit` finalizó con código 0. |
+| `bun run --cwd frontend typecheck` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | `tsc --noEmit` finalizó con código 0. |
+| `bun run test:backend` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | 145 tests pass, 0 fail, 361 `expect()` en 36 archivos. |
+| `bun run test:frontend` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | 556 tests pass, 0 fail, 1058 `expect()` en 98 archivos. |
+| `bun run test:contrato` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | 156 tests pass, 0 fail, 156 `expect()` en un archivo. |
+| `bun run test:e2e` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | El script ejecutó `bun test test --pass-with-no-tests`: 145 tests pass, 0 fail, 361 `expect()` en 36 archivos. |
+| `bun run build` | `5061a96db998792087c6b6392769fd9b1dafb722` | PASS | Frontend Vite/PWA y backend `tsc --noEmit` finalizaron con código 0. |
 
-| Comando | Resultado | Evidencia resumida |
+## Matriz de clasificación de gates baseline
+
+| Comando baseline | Resultado | Clasificación |
 | --- | --- | --- |
-| `bun install --frozen-lockfile` | PASS | 826 instalaciones verificadas, sin cambios. |
-| `bun run --cwd backend typecheck` | FAIL | Cuatro imports inexistentes desde el test concurrente de governance. |
-| `bun run --cwd frontend typecheck` | PASS | `tsc --noEmit` finalizó correctamente. |
-| `bun run test:backend` | FAIL | 140 tests pass; 1 fallo y 1 error por carga del test concurrente de governance. |
-| `bun run test:frontend` | PASS | 554 tests pass; 0 fallos. |
-| `bun run test:contrato` | PASS | 156 tests pass; 0 fallos. |
-| `bun run test:e2e` | FAIL | El script ejecuta `bun test test --pass-with-no-tests`; 140 pass, 1 fallo y 1 error por governance. No apunta a un archivo E2E explícito. |
-| `bun run build` | FAIL | Frontend construye y genera PWA; backend falla en los mismos cuatro imports del test concurrente. |
+| `bun run --cwd backend typecheck` | PASS | sin fallos — no aplica |
+| `bun run --cwd frontend typecheck` | PASS | sin fallos — no aplica |
+| `bun run test:backend` | PASS | sin fallos — no aplica |
+| `bun run test:frontend` | PASS | sin fallos — no aplica |
+| `bun run test:contrato` | PASS | sin fallos — no aplica |
+| `bun run test:e2e` | PASS | sin fallos — no aplica |
+| `bun run build` | PASS | sin fallos — no aplica |
 
-## Fallos y clasificación
+## Advertencias reales no bloqueantes
 
-| Comando afectado | Archivo afectado | Causa real | Owner | Clasificación |
-| --- | --- | --- | --- | --- |
-| `bun run --cwd backend typecheck` | `backend/src/modules/admin/admin-governance.schemas.test.ts` | Importa `createAdminUserSchema`, `reportsQuerySchema`, `reviewListQuerySchema` y `updatePlatformSettingsSchema`, que no son exports de `admin.schemas.ts`. | concurrente-dev2 | concurrente-dev2 |
-| `bun run test:backend` | `backend/src/modules/admin/admin-governance.schemas.test.ts` | Bun no puede cargar el módulo por el export inexistente `updatePlatformSettingsSchema`; el conteo resultante es 140 pass, 1 fail y 1 error. | concurrente-dev2 | concurrente-dev2 |
-| `bun run test:e2e` | `backend/src/modules/admin/admin-governance.schemas.test.ts` | El script actual recorre `backend/test` completo, por lo que reproduce el mismo error de carga; no ejecuta un archivo E2E dedicado. | concurrente-dev2 | concurrente-dev2 |
-| `bun run build` | `backend/src/modules/admin/admin-governance.schemas.test.ts` | La fase backend `tsc --noEmit` reproduce los cuatro imports inexistentes. | concurrente-dev2 | concurrente-dev2 |
+- El build informó que `frontend/src/routes/login.test.tsx` y `frontend/src/routes/auth.callback.test.tsx` están bajo el directorio de rutas y no exportan `Route`; no se incluyen en el árbol de rutas.
+- Vite informó chunks mayores de 500 kB tras minificación. La PWA se generó con 240 entradas precacheadas (66883.33 KiB).
 
-No se identificaron fallos `preexistente` ni `introducido-por-gate` durante esta captura. La clasificación se limita al estado observado de `dev2` y no atribuye autoría personal.
-
-## Advertencias no bloqueantes
-
-- Vite advierte que `frontend/src/routes/auth.callback.test.tsx` parece un archivo de ruta sin exportar `Route`.
-- El build frontend advierte chunks mayores a 500 kB y genera una PWA con 240 entradas precacheadas (66882.75 KiB).
-
-Estas advertencias no causaron fallo de los comandos que las emitieron.
+No hubo comandos fallidos durante esta captura. Los errores impresos por pruebas de middleware y autorización corresponden a escenarios esperados por los tests, que finalizaron con 0 fallos.
 
 ## Restricción aplicada
 
-La Task 0.1 original contempla un commit documental. No se ejecutó `git add` ni `git commit` porque la solicitud operativa exige expresamente no hacer commit.
+La captura no mostró variables de entorno ni secretos. No se modificaron archivos funcionales, no se ejecutó `git add` ni `git commit`.

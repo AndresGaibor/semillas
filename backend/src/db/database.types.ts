@@ -159,6 +159,55 @@ export type Database = {
           },
         ]
       }
+      configuracion_plataforma: {
+        Row: {
+          actualizado_en: string
+          actualizado_por: string | null
+          categoria: string
+          clave: string
+          descripcion: string | null
+          valor: Json
+        }
+        Insert: {
+          actualizado_en?: string
+          actualizado_por?: string | null
+          categoria?: string
+          clave: string
+          descripcion?: string | null
+          valor?: Json
+        }
+        Update: {
+          actualizado_en?: string
+          actualizado_por?: string | null
+          categoria?: string
+          clave?: string
+          descripcion?: string | null
+          valor?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "configuracion_plataforma_actualizado_por_fkey"
+            columns: ["actualizado_por"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "configuracion_plataforma_actualizado_por_fkey"
+            columns: ["actualizado_por"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "configuracion_plataforma_actualizado_por_fkey"
+            columns: ["actualizado_por"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
       contenido_paso_tema: {
         Row: {
           cuerpo: string
@@ -383,6 +432,7 @@ export type Database = {
           edad_maxima: number
           edad_minima: number
           id: string
+          imagen_url: string | null
           nombre: string
           orden: number
         }
@@ -393,6 +443,7 @@ export type Database = {
           edad_maxima: number
           edad_minima: number
           id?: string
+          imagen_url?: string | null
           nombre: string
           orden: number
         }
@@ -403,6 +454,7 @@ export type Database = {
           edad_maxima?: number
           edad_minima?: number
           id?: string
+          imagen_url?: string | null
           nombre?: string
           orden?: number
         }
@@ -480,16 +532,19 @@ export type Database = {
         Row: {
           ganado_en: string
           logro_id: string
+          reclamado_en: string | null
           usuario_id: string
         }
         Insert: {
           ganado_en?: string
           logro_id: string
+          reclamado_en?: string | null
           usuario_id: string
         }
         Update: {
           ganado_en?: string
           logro_id?: string
+          reclamado_en?: string | null
           usuario_id?: string
         }
         Relationships: [
@@ -566,6 +621,113 @@ export type Database = {
           },
           {
             foreignKeyName: "miembro_club_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      movimiento_xp: {
+        Row: {
+          cantidad: number
+          creado_en: string
+          id: string
+          metadatos: Json
+          origen: string
+          origen_id: string | null
+          usuario_id: string
+        }
+        Insert: {
+          cantidad: number
+          creado_en?: string
+          id?: string
+          metadatos?: Json
+          origen: string
+          origen_id?: string | null
+          usuario_id: string
+        }
+        Update: {
+          cantidad?: number
+          creado_en?: string
+          id?: string
+          metadatos?: Json
+          origen?: string
+          origen_id?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimiento_xp_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimiento_xp_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "movimiento_xp_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      notificacion_usuario: {
+        Row: {
+          creado_en: string
+          datos: Json
+          id: string
+          leida_en: string | null
+          mensaje: string
+          tipo: string
+          titulo: string
+          usuario_id: string
+        }
+        Insert: {
+          creado_en?: string
+          datos?: Json
+          id?: string
+          leida_en?: string | null
+          mensaje: string
+          tipo: string
+          titulo: string
+          usuario_id: string
+        }
+        Update: {
+          creado_en?: string
+          datos?: Json
+          id?: string
+          leida_en?: string | null
+          mensaje?: string
+          tipo?: string
+          titulo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacion_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacion_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "notificacion_usuario_usuario_id_fkey"
             columns: ["usuario_id"]
             isOneToOne: false
             referencedRelation: "v_xp_usuario"
@@ -944,13 +1106,109 @@ export type Database = {
           },
         ]
       }
+      racha_usuario: {
+        Row: {
+          actualizado_en: string
+          dias_actuales: number
+          dias_maximos: number
+          ultima_actividad_fecha: string | null
+          usuario_id: string
+        }
+        Insert: {
+          actualizado_en?: string
+          dias_actuales?: number
+          dias_maximos?: number
+          ultima_actividad_fecha?: string | null
+          usuario_id: string
+        }
+        Update: {
+          actualizado_en?: string
+          dias_actuales?: number
+          dias_maximos?: number
+          ultima_actividad_fecha?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "racha_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "racha_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "racha_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      recompensa_reto_club_usuario: {
+        Row: {
+          reclamado_en: string
+          reto_id: string
+          usuario_id: string
+          xp_otorgada: number
+        }
+        Insert: {
+          reclamado_en?: string
+          reto_id: string
+          usuario_id: string
+          xp_otorgada?: number
+        }
+        Update: {
+          reclamado_en?: string
+          reto_id?: string
+          usuario_id?: string
+          xp_otorgada?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recompensa_reto_club_usuario_reto_id_fkey"
+            columns: ["reto_id"]
+            isOneToOne: false
+            referencedRelation: "reto_club"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recompensa_reto_club_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario_app"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recompensa_reto_club_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_nivel_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+          {
+            foreignKeyName: "recompensa_reto_club_usuario_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "v_xp_usuario"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
       recurso_multimedia: {
         Row: {
           activo: boolean
           actualizado_en: string
           alto_px: number | null
           ancho_px: number | null
-          bucket_almacenamiento: string | null
+          bucket_almacenamiento: string
           clave_almacenamiento: string | null
           creado_en: string
           creado_por: string | null
@@ -968,7 +1226,7 @@ export type Database = {
           actualizado_en?: string
           alto_px?: number | null
           ancho_px?: number | null
-          bucket_almacenamiento?: string | null
+          bucket_almacenamiento?: string
           clave_almacenamiento?: string | null
           creado_en?: string
           creado_por?: string | null
@@ -986,7 +1244,7 @@ export type Database = {
           actualizado_en?: string
           alto_px?: number | null
           ancho_px?: number | null
-          bucket_almacenamiento?: string | null
+          bucket_almacenamiento?: string
           clave_almacenamiento?: string | null
           creado_en?: string
           creado_por?: string | null
@@ -1136,39 +1394,6 @@ export type Database = {
           },
         ]
       }
-      ajuste_sistema: {
-        Row: {
-          actualizado_en: string
-          correo_soporte: string | null
-          creado_en: string
-          id: string
-          nombre_plataforma: string
-          notas_obligatorias_cambios: boolean
-          notas_obligatorias_rechazo: boolean
-          zona_horaria: string
-        }
-        Insert: {
-          actualizado_en?: string
-          correo_soporte?: string | null
-          creado_en?: string
-          id?: string
-          nombre_plataforma?: string
-          notas_obligatorias_cambios?: boolean
-          notas_obligatorias_rechazo?: boolean
-          zona_horaria?: string
-        }
-        Update: {
-          actualizado_en?: string
-          correo_soporte?: string | null
-          creado_en?: string
-          id?: string
-          nombre_plataforma?: string
-          notas_obligatorias_cambios?: boolean
-          notas_obligatorias_rechazo?: boolean
-          zona_horaria?: string
-        }
-        Relationships: []
-      }
       regla_nivel: {
         Row: {
           color_insignia: string | null
@@ -1271,6 +1496,8 @@ export type Database = {
           estado: Database["public"]["Enums"]["estado_revision_contenido"]
           id: string
           notas: string | null
+          notas_envio: string | null
+          notas_revision: string | null
           revisado_en: string | null
           revisado_por: string | null
           tema_id: string
@@ -1281,6 +1508,8 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado_revision_contenido"]
           id?: string
           notas?: string | null
+          notas_envio?: string | null
+          notas_revision?: string | null
           revisado_en?: string | null
           revisado_por?: string | null
           tema_id: string
@@ -1291,6 +1520,8 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado_revision_contenido"]
           id?: string
           notas?: string | null
+          notas_envio?: string | null
+          notas_revision?: string | null
           revisado_en?: string | null
           revisado_por?: string | null
           tema_id?: string
@@ -1742,10 +1973,10 @@ export type Database = {
           creado_en: string
           id: string
           id_externo: string | null
-          token_invitado_hash: string | null
           nombre_visible: string
           proveedor: Database["public"]["Enums"]["proveedor_autenticacion"]
           rol: Database["public"]["Enums"]["rol_usuario"]
+          token_invitado_hash: string | null
           ultimo_login_en: string | null
         }
         Insert: {
@@ -1755,10 +1986,10 @@ export type Database = {
           creado_en?: string
           id?: string
           id_externo?: string | null
-          token_invitado_hash?: string | null
           nombre_visible: string
           proveedor: Database["public"]["Enums"]["proveedor_autenticacion"]
           rol?: Database["public"]["Enums"]["rol_usuario"]
+          token_invitado_hash?: string | null
           ultimo_login_en?: string | null
         }
         Update: {
@@ -1768,10 +1999,10 @@ export type Database = {
           creado_en?: string
           id?: string
           id_externo?: string | null
-          token_invitado_hash?: string | null
           nombre_visible?: string
           proveedor?: Database["public"]["Enums"]["proveedor_autenticacion"]
           rol?: Database["public"]["Enums"]["rol_usuario"]
+          token_invitado_hash?: string | null
           ultimo_login_en?: string | null
         }
         Relationships: []
@@ -1927,6 +2158,39 @@ export type Database = {
       }
     }
     Views: {
+      v_admin_revisiones: {
+        Row: {
+          creado_en: string | null
+          enviado_por: string | null
+          estado:
+            | Database["public"]["Enums"]["estado_revision_contenido"]
+            | null
+          id: string | null
+          notas_envio: string | null
+          notas_revision: string | null
+          revisado_en: string | null
+          revisado_por: string | null
+          senda: string | null
+          tema_id: string | null
+          titulo: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revision_contenido_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "tema"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revision_contenido_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "v_temas_publicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_nivel_usuario: {
         Row: {
           nombre_nivel: string | null

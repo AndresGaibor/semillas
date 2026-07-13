@@ -25,55 +25,14 @@ CREATE TRIGGER sincronizar_notas_revision_contenido_trigger
 BEFORE INSERT OR UPDATE OF notas, notas_envio, notas_revision ON revision_contenido
 FOR EACH ROW EXECUTE FUNCTION sincronizar_notas_revision_contenido();
 
-CREATE TABLE IF NOT EXISTS configuracion_plataforma (
-  id varchar(20) PRIMARY KEY DEFAULT 'principal' CHECK (id = 'principal'),
-  nombre_plataforma varchar(80) NOT NULL DEFAULT 'Semillas',
-  correo_soporte varchar(255),
-  zona_horaria varchar(80) NOT NULL DEFAULT 'America/Guayaquil',
-  notas_obligatorias_cambios boolean NOT NULL DEFAULT true,
-  notas_obligatorias_rechazo boolean NOT NULL DEFAULT true,
-  actualizado_por uuid REFERENCES usuario_app(id) ON DELETE SET NULL,
-  actualizado_en timestamptz NOT NULL DEFAULT now()
-);
-
-DO $$
-BEGIN
-  IF to_regclass('public.ajuste_sistema') IS NOT NULL THEN
-    EXECUTE '
-      INSERT INTO configuracion_plataforma (
-        id,
-        nombre_plataforma,
-        correo_soporte,
-        zona_horaria,
-        notas_obligatorias_cambios,
-        notas_obligatorias_rechazo,
-        actualizado_en
-      )
-      SELECT
-        ''principal'',
-        nombre_plataforma,
-        correo_soporte,
-        zona_horaria,
-        notas_obligatorias_cambios,
-        notas_obligatorias_rechazo,
-        actualizado_en
-      FROM ajuste_sistema
-      ORDER BY actualizado_en DESC
-      LIMIT 1
-      ON CONFLICT (id) DO UPDATE SET
-        nombre_plataforma = EXCLUDED.nombre_plataforma,
-        correo_soporte = EXCLUDED.correo_soporte,
-        zona_horaria = EXCLUDED.zona_horaria,
-        notas_obligatorias_cambios = EXCLUDED.notas_obligatorias_cambios,
-        notas_obligatorias_rechazo = EXCLUDED.notas_obligatorias_rechazo,
-        actualizado_en = EXCLUDED.actualizado_en';
-  END IF;
-END;
-$$;
-
-INSERT INTO configuracion_plataforma (id)
-VALUES ('principal')
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO configuracion_plataforma (clave, categoria, valor, descripcion)
+VALUES
+  ('administracion.nombre_plataforma', 'administracion', to_jsonb('Semillas'::text), 'Nombre administrativo de la plataforma.'),
+  ('administracion.correo_soporte', 'administracion', 'null'::jsonb, 'Correo de soporte de la plataforma.'),
+  ('administracion.zona_horaria', 'administracion', to_jsonb('America/Guayaquil'::text), 'Zona horaria de referencia.'),
+  ('administracion.notas_obligatorias_cambios', 'administracion', 'true'::jsonb, 'Exige notas al solicitar cambios.'),
+  ('administracion.notas_obligatorias_rechazo', 'administracion', 'true'::jsonb, 'Exige motivo al rechazar contenido.')
+ON CONFLICT (clave) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS idx_revision_contenido_estado_creado_en
   ON revision_contenido (estado, creado_en DESC);
@@ -99,14 +58,11 @@ JOIN senda ON senda.id = tema.senda_id
 LEFT JOIN usuario_app AS enviado ON enviado.id = revision.enviado_por
 LEFT JOIN usuario_app AS revisado ON revisado.id = revision.revisado_por;
 
-ALTER TABLE configuracion_plataforma ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON configuracion_plataforma FROM anon, authenticated;
 REVOKE ALL ON v_admin_revisiones FROM anon, authenticated;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
-    GRANT ALL ON configuracion_plataforma TO service_role;
     GRANT SELECT ON v_admin_revisiones TO service_role;
   END IF;
 END;

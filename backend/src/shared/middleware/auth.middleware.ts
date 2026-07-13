@@ -59,11 +59,15 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
   const usuarioSupabase = await obtenerUsuarioSupabase(c.env, authHeader);
   const { data: appUser, error: userError } = await db
     .from("usuario_app")
-    .select("id, rol, proveedor, nombre_visible, correo")
+    .select("id, rol, proveedor, nombre_visible, correo, activo")
     .eq("id_externo", usuarioSupabase.id)
     .maybeSingle();
 
   if (userError) throw userError;
+
+  if (appUser && !appUser.activo) {
+    throw new UnauthorizedError("La cuenta está bloqueada");
+  }
 
   if (!appUser) {
     const { data: createdUser, error: createError } = await db

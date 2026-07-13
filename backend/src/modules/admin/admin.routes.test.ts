@@ -466,23 +466,29 @@ describe("admin.routes", () => {
       },
       {
         metodo: "GET",
-        path: "/rest/v1/ajuste_sistema",
+        path: "/rest/v1/configuracion_plataforma",
         responder: () =>
-          new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: true, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } })
+          new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } })
       },
       {
         metodo: "GET",
-        path: "/rest/v1/ajuste_sistema",
+        path: "/rest/v1/configuracion_plataforma",
         responder: () =>
-          new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: true, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } })
+          new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } })
       },
       {
         metodo: "POST",
-        path: "/rest/v1/ajuste_sistema",
+        path: "/rest/v1/configuracion_plataforma",
         responder: async (request) => {
           patchBody = JSON.parse(await request.clone().text()) as Record<string, unknown>;
-          return new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "ayuda@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: false, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } });
+          return new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } });
         }
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/configuracion_plataforma",
+        responder: () =>
+          new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } })
       },
       {
         metodo: "POST",
@@ -526,9 +532,20 @@ describe("admin.routes", () => {
 
     expect(responsePatch.status).toBe(200);
     expect(patchBody).toMatchObject({
-      id: "global",
-      correo_soporte: "ayuda@semillas.org",
-      notas_obligatorias_cambios: false
+      0: { clave: "administracion.nombre_plataforma", valor: "Semillas" },
+      1: { clave: "administracion.correo_soporte", valor: "ayuda@semillas.org" },
+      3: { clave: "administracion.notas_obligatorias_cambios", valor: false }
     });
   });
 });
+
+function ajustesConfiguracion() {
+  const actualizado_en = "2026-07-13T00:00:00.000Z";
+  return [
+    { clave: "administracion.nombre_plataforma", valor: "Semillas", actualizado_en },
+    { clave: "administracion.correo_soporte", valor: "soporte@semillas.org", actualizado_en },
+    { clave: "administracion.zona_horaria", valor: "America/Guayaquil", actualizado_en },
+    { clave: "administracion.notas_obligatorias_cambios", valor: true, actualizado_en },
+    { clave: "administracion.notas_obligatorias_rechazo", valor: true, actualizado_en }
+  ];
+}

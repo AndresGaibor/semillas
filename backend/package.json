@@ -7,7 +7,7 @@
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "bun test",
-    "test:e2e": "bun test test --pass-with-no-tests",
+    "test:e2e": "bun test ./test/app.e2e-spec.ts",
     "typecheck": "tsc --noEmit",
     "gen:types": "bun run --cwd .. db:types",
     "db:studio": "drizzle-kit studio",

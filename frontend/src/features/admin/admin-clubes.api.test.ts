@@ -116,7 +116,12 @@ describe("admin-clubes.api", () => {
       throw new TypeError("Failed to fetch");
     }) as unknown as typeof fetch;
 
-    await expect(listarClubesAdmin({ estado: "todos", limit: 20, offset: 0 })).rejects.toThrow("Failed to fetch");
+    const error = await listarClubesAdmin({ estado: "todos", limit: 20, offset: 0 }).catch((error: unknown) => error);
+
+    expect(error).toMatchObject({
+      status: 0,
+      codigo: "NETWORK_ERROR",
+    });
 
     expect(solicitudes).toBe(1);
   });
@@ -145,7 +150,12 @@ describe("admin-clubes.api", () => {
     ];
 
     for (const mutar of mutaciones) {
-      await expect(mutar()).rejects.toThrow("Failed to fetch");
+      const error = await mutar().catch((error: unknown) => error);
+
+      expect(error).toMatchObject({
+        status: 0,
+        codigo: "NETWORK_ERROR",
+      });
     }
 
     expect(solicitudes).toBe(6);

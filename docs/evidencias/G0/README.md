@@ -6,11 +6,21 @@ Este directorio contiene evidencia verificable del Gate G0 de cierre.
 
 - Documento: [`../../trazabilidad/baseline-dev2.md`](../../trazabilidad/baseline-dev2.md)
 - Rama: `dev2`
-- SHA: `01ab28ebf4f017b1d07b84a4fe932f5767e8ec98`
+- SHA: `5061a96db998792087c6b6392769fd9b1dafb722`
 - Fecha: 2026-07-13
 
 ## Estado
 
-El baseline no está verde. Fallan el typecheck y pruebas backend, E2E y build backend por cambios concurrentes de `dev2` descritos en el documento de baseline. Las pruebas frontend y de contrato, además del typecheck frontend, sí pasan.
+La captura canónica está verde: los siete gates de baseline finalizaron en PASS.
+
+- `bun run --cwd backend typecheck`
+- `bun run --cwd frontend typecheck`
+- `bun run test:backend`
+- `bun run test:frontend`
+- `bun run test:contrato`
+- `bun run test:e2e`
+- `bun run build`
+
+Vite informó como advertencia no bloqueante que existen chunks mayores de 500 kB tras la minificación. El build finalizó correctamente y la PWA se generó con 240 entradas precacheadas (66883.33 KiB).
 
 No se incluyen secretos, variables de entorno ni credenciales en las evidencias.

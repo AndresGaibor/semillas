@@ -23,4 +23,10 @@ describe("Semillas API (e2e)", () => {
       },
     });
   });
+
+  it("ruta inexistente devuelve 404", async () => {
+    const respuesta = await app.request("/ruta-inexistente", {}, env);
+
+    expect(respuesta.status).toBe(404);
+  });
 });

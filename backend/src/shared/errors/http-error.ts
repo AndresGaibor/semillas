@@ -32,3 +32,9 @@ export class NotFoundError extends HttpError {
     super(404, message, "NOT_FOUND");
   }
 }
+
+export class ConflictError extends HttpError {
+  constructor(message = "Conflicto", details?: unknown) {
+    super(409, message, "CONFLICT", details);
+  }
+}

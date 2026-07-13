@@ -31,7 +31,15 @@ type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
 type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;
 type UpdateAjustesSistemaInput = z.infer<typeof actualizarAjustesSistemaSchema>;
 
-const AJUSTES_SISTEMA_ID = "global";
+const CLAVES_AJUSTES_SISTEMA = {
+  nombrePlataforma: "administracion.nombre_plataforma",
+  correoSoporte: "administracion.correo_soporte",
+  zonaHoraria: "administracion.zona_horaria",
+  notasObligatoriasCambios: "administracion.notas_obligatorias_cambios",
+  notasObligatoriasRechazo: "administracion.notas_obligatorias_rechazo"
+} as const;
+
+const VALORES_AJUSTES_SISTEMA = Object.values(CLAVES_AJUSTES_SISTEMA);
 
 export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
   function requerirDrizzle() {
@@ -104,56 +112,69 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     };
   }
 
+  async function leerAjustesSistema() {
+    const { data, error } = await supabase
+      .from("configuracion_plataforma")
+      .select("clave, valor, actualizado_en")
+      .in("clave", VALORES_AJUSTES_SISTEMA);
+
+    if (error) throw error;
+    const valores = new Map((data ?? []).map((fila) => [fila.clave, fila.valor]));
+    const actualizadoEn = (data ?? []).reduce<string | null>((reciente, fila) =>
+      !reciente || fila.actualizado_en > reciente ? fila.actualizado_en : reciente, null);
+
+    return {
+      id: "principal",
+      nombre_plataforma: typeof valores.get(CLAVES_AJUSTES_SISTEMA.nombrePlataforma) === "string"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.nombrePlataforma) as string
+        : "Semillas",
+      correo_soporte: typeof valores.get(CLAVES_AJUSTES_SISTEMA.correoSoporte) === "string"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.correoSoporte) as string
+        : null,
+      zona_horaria: typeof valores.get(CLAVES_AJUSTES_SISTEMA.zonaHoraria) === "string"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.zonaHoraria) as string
+        : "America/Guayaquil",
+      notas_obligatorias_cambios: typeof valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasCambios) === "boolean"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasCambios) as boolean
+        : true,
+      notas_obligatorias_rechazo: typeof valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasRechazo) === "boolean"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasRechazo) as boolean
+        : true,
+      creado_en: actualizadoEn,
+      actualizado_en: actualizadoEn
+    };
+  }
+
   return {
     async obtenerAjustesSistema() {
-      const { data, error } = await supabase
-        .from("ajuste_sistema")
-        .select("*")
-        .eq("id", AJUSTES_SISTEMA_ID)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (data) return data;
-
-      const { data: creado, error: crearError } = await supabase
-        .from("ajuste_sistema")
-        .insert({
-          id: AJUSTES_SISTEMA_ID,
-          nombre_plataforma: "Semillas",
-          correo_soporte: null,
-          zona_horaria: "America/Guayaquil",
-          notas_obligatorias_cambios: true,
-          notas_obligatorias_rechazo: true
-        })
-        .select("*")
-        .single();
-
-      if (crearError || !creado) throw crearError ?? new Error("No se pudieron crear los ajustes del sistema");
-      return creado;
+      return leerAjustesSistema();
     },
 
     async actualizarAjustesSistema(body: UpdateAjustesSistemaInput, actorId: string) {
-      const actuales = await this.obtenerAjustesSistema();
-      const { data, error } = await supabase
-        .from("ajuste_sistema")
-        .upsert({
-          id: AJUSTES_SISTEMA_ID,
-          nombre_plataforma: body.nombre_plataforma ?? actuales.nombre_plataforma,
-          correo_soporte: body.correo_soporte === undefined ? actuales.correo_soporte : body.correo_soporte,
-          zona_horaria: body.zona_horaria ?? actuales.zona_horaria,
-          notas_obligatorias_cambios: body.notas_obligatorias_cambios ?? actuales.notas_obligatorias_cambios,
-          notas_obligatorias_rechazo: body.notas_obligatorias_rechazo ?? actuales.notas_obligatorias_rechazo,
-          actualizado_en: new Date().toISOString()
-        })
-        .select("*")
-        .single();
+      const actuales = await leerAjustesSistema();
+      const siguientes = {
+        nombre_plataforma: body.nombre_plataforma ?? actuales.nombre_plataforma,
+        correo_soporte: body.correo_soporte === undefined ? actuales.correo_soporte : body.correo_soporte,
+        zona_horaria: body.zona_horaria ?? actuales.zona_horaria,
+        notas_obligatorias_cambios: body.notas_obligatorias_cambios ?? actuales.notas_obligatorias_cambios,
+        notas_obligatorias_rechazo: body.notas_obligatorias_rechazo ?? actuales.notas_obligatorias_rechazo
+      };
+      const actualizadoEn = new Date().toISOString();
+      const { error } = await supabase.from("configuracion_plataforma").upsert([
+        { clave: CLAVES_AJUSTES_SISTEMA.nombrePlataforma, categoria: "administracion", valor: siguientes.nombre_plataforma, descripcion: "Nombre administrativo de la plataforma.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.correoSoporte, categoria: "administracion", valor: siguientes.correo_soporte, descripcion: "Correo de soporte de la plataforma.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.zonaHoraria, categoria: "administracion", valor: siguientes.zona_horaria, descripcion: "Zona horaria de referencia.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.notasObligatoriasCambios, categoria: "administracion", valor: siguientes.notas_obligatorias_cambios, descripcion: "Exige notas al solicitar cambios.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.notasObligatoriasRechazo, categoria: "administracion", valor: siguientes.notas_obligatorias_rechazo, descripcion: "Exige motivo al rechazar contenido.", actualizado_por: actorId, actualizado_en: actualizadoEn }
+      ], { onConflict: "clave" });
 
-      if (error || !data) throw error ?? new Error("No se pudieron guardar los ajustes del sistema");
+      if (error) throw error;
+      const data = await leerAjustesSistema();
 
       await registrarAuditoria({
         actorId,
         accion: "actualizar_ajustes",
-        tipoEntidad: "ajuste_sistema",
+        tipoEntidad: "configuracion_plataforma",
         antes: actuales,
         despues: data
       });
