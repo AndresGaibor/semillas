@@ -13,8 +13,8 @@ import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
     redirect: typeof search.redirect === "string" ? search.redirect : "/onboarding",
-    reason: typeof search.reason === "string" ? search.reason : undefined,
-  }),
+    ...(typeof search.reason === "string" ? { reason: search.reason } : {}),
+  }) as { redirect: string; reason?: string },
   component: LoginPage,
 });
 
