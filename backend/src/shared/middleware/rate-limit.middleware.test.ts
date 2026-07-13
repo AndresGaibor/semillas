@@ -5,7 +5,7 @@ import { crearRateLimitMiddleware, limpiarRateLimitMemoria } from "./rate-limit.
 
 const env: AppBindings["Bindings"] = {
   APP_ENV: "test",
-  CORS_ORIGIN: "http://localhost:3000",
+  CORS_BASE_DOMAIN: "localhost",
   SUPABASE_URL: "https://example.supabase.co",
   SUPABASE_ANON_KEY: "test-anon-key",
   SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",

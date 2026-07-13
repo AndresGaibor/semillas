@@ -7,7 +7,7 @@ import { errorHandler } from "./error-handler";
 
 const ENTORNO_TEST = {
   APP_ENV: "test",
-  CORS_ORIGIN: "http://localhost",
+  CORS_BASE_DOMAIN: "localhost",
   SUPABASE_URL: "https://ejemplo.supabase.co",
   SUPABASE_ANON_KEY: "anon-key-de-prueba",
   SUPABASE_SERVICE_ROLE_KEY: "service-key-de-prueba"

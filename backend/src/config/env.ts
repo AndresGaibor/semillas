@@ -22,7 +22,7 @@ export type AuthSessionUser = {
 
 export type Env = {
   APP_ENV: string;
-  CORS_ORIGIN: string;
+  CORS_BASE_DOMAIN: string;
 
   HYPERDRIVE?: {
     connectionString: string;

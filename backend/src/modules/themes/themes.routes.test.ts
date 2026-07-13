@@ -5,7 +5,7 @@ import { crearModuloThemes } from "./themes.routes";
 
 const env: AppBindings["Bindings"] = {
   APP_ENV: "test",
-  CORS_ORIGIN: "http://localhost",
+  CORS_BASE_DOMAIN: "localhost",
   SUPABASE_URL: "https://example.supabase.co",
   SUPABASE_ANON_KEY: "anon-key-de-prueba",
   SUPABASE_SERVICE_ROLE_KEY: "service-key-de-prueba"

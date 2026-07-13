@@ -84,18 +84,24 @@ app.use(
   "*",
   cors({
     origin: (origin, c) => {
-      const permitidos = c.env.CORS_ORIGIN
-        .split(",")
-        .map((valor: string) => valor.trim())
-        .filter(Boolean);
+      const baseDomain = c.env.CORS_BASE_DOMAIN?.trim().toLowerCase() ?? "";
 
-      if (!origin) return permitidos[0] ?? "";
+      if (!origin) return `https://${baseDomain}`;
 
       const esDesarrollo = c.env.APP_ENV !== "production";
       const esLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
       if (esDesarrollo && esLocal) return origin;
 
-      return permitidos.includes(origin) ? origin : "";
+      try {
+        const url = new URL(origin);
+        const hostname = url.hostname.toLowerCase();
+        const allowed =
+          url.protocol === "https:" &&
+          (hostname === baseDomain || hostname.endsWith(`.${baseDomain}`));
+        return allowed ? origin : "";
+      } catch {
+        return "";
+      }
     },
     allowHeaders: ["Content-Type", "Authorization", "X-Guest-User-Id", "X-Guest-Token", "X-Dev-Setup-Token", "Cache-Control", "Pragma"],
     allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],

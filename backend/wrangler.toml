@@ -19,13 +19,13 @@ invocation_logs = true
 # ]
 
 [env.production]
-vars = { APP_ENV = "production", CORS_ORIGIN = "https://semillas.org" }
+vars = { APP_ENV = "production", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
 [env.staging]
-vars = { APP_ENV = "staging", CORS_ORIGIN = "https://staging.semillas.pages.dev" }
+vars = { APP_ENV = "staging", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
 [env.preview]
-vars = { APP_ENV = "preview", CORS_ORIGIN = "https://{branch}.semillas.pages.dev" }
+vars = { APP_ENV = "preview", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
 [[hyperdrive]]
 binding = "HYPERDRIVE"
