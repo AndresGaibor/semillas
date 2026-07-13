@@ -45,12 +45,8 @@ function AppLayout() {
   const [mensajeConflicto, setMensajeConflicto] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("app-theme");
-    if (saved === "app-dark" || saved === "app-light") {
-      document.documentElement.setAttribute("data-theme", saved);
-    } else {
-      document.documentElement.setAttribute("data-theme", "app-light");
-    }
+    // Tema oscuro temporalmente deshabilitado
+    document.documentElement.setAttribute("data-theme", "app-light");
   }, []);
 
   useEffect(() => {
