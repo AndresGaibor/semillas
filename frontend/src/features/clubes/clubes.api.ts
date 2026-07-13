@@ -1,29 +1,25 @@
 import { peticion, RUTAS_API } from "../../shared/api/api";
+import { db } from "@/lib/offline/db";
 
-const CACHE_PREFIX = "semillas-clubes-cache-v2";
-
-function cacheKey(key: string) { return `${CACHE_PREFIX}:${key}`; }
-function readCache<T>(key: string): T | null {
-  try {
-    const raw = localStorage.getItem(cacheKey(key));
-    return raw ? (JSON.parse(raw) as T) : null;
-  } catch { return null; }
+async function readCache<T>(key: string): Promise<T | null> {
+  const entry = await db.clubsCache.get(key);
+  return entry ? (entry.data as T) : null;
 }
-function writeCache<T>(key: string, value: T) {
-  try { localStorage.setItem(cacheKey(key), JSON.stringify(value)); } catch { /* almacenamiento opcional */ }
+async function writeCache<T>(key: string, value: T): Promise<void> {
+  await db.clubsCache.put({ key, data: value, timestamp: Date.now() });
 }
 async function cachedRequest<T>(key: string, request: () => Promise<T>): Promise<T> {
   if (!navigator.onLine) {
-    const cached = readCache<T>(key);
+    const cached = await readCache<T>(key);
     if (cached) return cached;
     throw new Error("Conéctate a internet una vez para cargar tus clubes.");
   }
   try {
     const data = await request();
-    writeCache(key, data);
+    await writeCache(key, data);
     return data;
   } catch (error) {
-    const cached = readCache<T>(key);
+    const cached = await readCache<T>(key);
     if (cached) return cached;
     throw error;
   }

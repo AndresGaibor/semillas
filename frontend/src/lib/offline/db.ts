@@ -178,6 +178,12 @@ export interface PerfilLocal {
   syncStatus: "synced" | "pending" | "error";
 }
 
+export interface ClubCacheEntry {
+  key: string;
+  data: unknown;
+  timestamp: number;
+}
+
 export interface MediaCache {
   id?: number;
   serverId: string;
@@ -211,6 +217,7 @@ class SemillasDatabase extends Dexie {
   eventosOutbox!: EntityTable<EventoOutbox, "id">;
   syncState!: EntityTable<SyncState, "id">;
   perfil!: EntityTable<PerfilLocal, "localId">;
+  clubsCache!: EntityTable<ClubCacheEntry, "key">;
   mediaCache!: EntityTable<MediaCache, "id">;
   descargaJobs!: EntityTable<DescargaJobLocal, "temaServerId">;
 
@@ -241,6 +248,7 @@ class SemillasDatabase extends Dexie {
     });
 
     this.version(3).stores({
+      clubsCache: "key",
       mediaCache: "++id, &serverId, temaLocalId, tipo, urlOriginal, cachedAt, accessedAt",
     });
   }
