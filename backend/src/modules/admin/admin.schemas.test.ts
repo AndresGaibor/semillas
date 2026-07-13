@@ -1,11 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import {
   createActivitySchema,
+  createSendaSchema,
   createThemeSchema,
   reorderActivitiesSchema,
   resolveReviewSchema,
   submitReviewSchema,
   updateActivitySchema,
+  updateSendaSchema,
   updateThemeSchema,
   upsertStepContentSchema
 } from "./admin.schemas";
@@ -132,6 +134,20 @@ describe("admin.schemas", () => {
     expect(submitReviewSchema.safeParse({ notas: "Listo para revisión" }).success).toBe(true);
     expect(resolveReviewSchema.safeParse({ estado: "aprobado", notas: "Contenido verificado" }).success).toBe(true);
     expect(resolveReviewSchema.safeParse({ estado: "publicado" }).success).toBe(false);
+  });
+
+  it("acepta una imagen de recurso válida al crear y actualizar una senda", () => {
+    const entrada = {
+      codigo: "padre",
+      nombre: "Senda del Padre",
+      color_hex: "#3D8BD4",
+      orden: 1,
+      imagen_recurso_id: "550e8400-e29b-41d4-a716-446655440099"
+    };
+
+    expect(createSendaSchema.safeParse(entrada).success).toBe(true);
+    expect(updateSendaSchema.safeParse({ imagen_recurso_id: entrada.imagen_recurso_id }).success).toBe(true);
+    expect(updateSendaSchema.safeParse({ imagen_recurso_id: "no-es-uuid" }).success).toBe(false);
   });
 
 });

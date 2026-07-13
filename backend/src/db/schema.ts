@@ -156,6 +156,9 @@ export const senda = pgTable("senda", {
   descripcion: text("descripcion"),
   colorHex: varchar("color_hex", { length: 7 }).notNull(),
   nombreIcono: varchar("nombre_icono", { length: 100 }),
+  imagenRecursoId: uuid("imagen_recurso_id").references(() => recursoMultimedia.id, {
+    onDelete: "set null"
+  }),
   orden: integer("orden").notNull().default(0),
   activo: boolean("activo").notNull().default(true),
   creadoEn: timestamp("creado_en").notNull().defaultNow()

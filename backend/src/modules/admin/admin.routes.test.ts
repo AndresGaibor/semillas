@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "bun:test";
+import { Hono } from "hono";
 import app from "../../app";
 import type { AppBindings } from "../../config/env";
+import { crearModuloAdmin } from "./admin.routes";
 
 const env: AppBindings["Bindings"] = {
   APP_ENV: "development",
@@ -326,5 +328,107 @@ describe("admin.routes", () => {
       { tema_id: "tema-duplicado", grupo_edad_id: "grupo-1" },
       { tema_id: "tema-duplicado", grupo_edad_id: "grupo-2" }
     ]);
+  });
+
+  it("rechaza una imagen de recurso inválida al crear una senda", async () => {
+    responderSupabase([
+      {
+        metodo: "GET",
+        path: "/rest/v1/usuario_app",
+        responder: () => new Response(JSON.stringify({
+          id: "usuario-admin",
+          rol: "administrador",
+          proveedor: "invitado",
+          nombre_visible: "Admin",
+          correo: null,
+          activo: true,
+          token_invitado_hash: TOKEN_INVITADO_HASH
+        }), { headers: { "content-type": "application/json" } })
+      }
+    ]);
+
+    const response = await app.fetch(new Request("http://localhost/administracion/sendas", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-guest-user-id": "usuario-admin",
+        "x-guest-token": TOKEN_INVITADO
+      },
+      body: JSON.stringify({
+        codigo: "padre",
+        nombre: "Senda del Padre",
+        color_hex: "#3D8BD4",
+        orden: 1,
+        imagen_recurso_id: "no-es-uuid"
+      })
+    }), env);
+
+    expect(response.status).toBe(400);
+  });
+
+  it("actualiza y devuelve imagen_recurso_id al editar una senda", async () => {
+    const imagenRecursoId = "550e8400-e29b-41d4-a716-446655440099";
+    let actualizacion: { sendaId: string; cuerpo: Record<string, unknown> } | null = null;
+
+    responderSupabase([
+      {
+        metodo: "GET",
+        path: "/rest/v1/usuario_app",
+        responder: () => new Response(JSON.stringify({
+          id: "usuario-admin",
+          rol: "administrador",
+          proveedor: "invitado",
+          nombre_visible: "Admin",
+          correo: null,
+          activo: true,
+          token_invitado_hash: TOKEN_INVITADO_HASH
+        }), { headers: { "content-type": "application/json" } })
+      }
+    ]);
+
+    const appAdmin = new Hono<AppBindings>();
+    appAdmin.route("/administracion", crearModuloAdmin(() => ({
+      actualizarSenda: async (sendaId, cuerpo) => {
+        actualizacion = { sendaId, cuerpo };
+        return {
+          id: sendaId,
+          codigo: "padre",
+          nombre: "Senda del Padre",
+          descripcion: null,
+          colorHex: "#3D8BD4",
+          nombreIcono: null,
+          imagenRecursoId,
+          orden: 1,
+          activo: true,
+          creadoEn: new Date("2026-07-12T00:00:00.000Z")
+        };
+      }
+    }) as ReturnType<typeof import("./admin.repository").crearAdminRepository>));
+
+    const response = await appAdmin.fetch(new Request("http://localhost/administracion/sendas/senda-1", {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        "x-guest-user-id": "usuario-admin",
+        "x-guest-token": TOKEN_INVITADO
+      },
+      body: JSON.stringify({
+        codigo: "padre",
+        nombre: "Senda del Padre",
+        color_hex: "#3D8BD4",
+        imagen_recurso_id: imagenRecursoId
+      })
+    }), env);
+
+    const body = await response.json() as { exito: true; datos: { imagen_recurso_id: string | null } };
+
+    const actualizacionCapturada = (): { sendaId: string; cuerpo: Record<string, unknown> } | null => actualizacion;
+
+    expect(response.status).toBe(200);
+    expect(actualizacionCapturada()).toMatchObject({
+      sendaId: "senda-1",
+      cuerpo: { imagen_recurso_id: imagenRecursoId }
+    });
+    expect(body.datos.imagen_recurso_id).toBe(imagenRecursoId);
   });
 });

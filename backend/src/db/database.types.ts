@@ -1329,6 +1329,7 @@ export type Database = {
           creado_en: string
           descripcion: string | null
           id: string
+          imagen_recurso_id: string | null
           nombre: string
           nombre_icono: string | null
           orden: number
@@ -1340,6 +1341,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           id?: string
+          imagen_recurso_id?: string | null
           nombre: string
           nombre_icono?: string | null
           orden: number
@@ -1351,11 +1353,20 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           id?: string
+          imagen_recurso_id?: string | null
           nombre?: string
           nombre_icono?: string | null
           orden?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "senda_imagen_recurso_id_fkey"
+            columns: ["imagen_recurso_id"]
+            isOneToOne: false
+            referencedRelation: "recurso_multimedia"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tarjeta_compartida: {
         Row: {

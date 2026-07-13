@@ -5,7 +5,7 @@ import { schema, type DbClient } from "../../db/client";
 import { BadRequestError, NotFoundError } from "../../shared/errors/http-error";
 import { z } from "zod";
 import { crearSlugCopia, crearTituloCopia, mapActivity, mapStep, mapTheme } from "./admin.formatters";
-import { createActivitySchema, createThemeSchema, reorderActivitiesSchema, resolveReviewSchema, submitReviewSchema, updateActivitySchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
+import { createActivitySchema, createSendaSchema, createThemeSchema, reorderActivitiesSchema, resolveReviewSchema, submitReviewSchema, updateActivitySchema, updateSendaSchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
 
 export type AdminUser = {
   id: string;
@@ -24,8 +24,8 @@ type UpsertStepContentInput = z.infer<typeof upsertStepContentSchema>;
 type CreateActivityInput = z.infer<typeof createActivitySchema>;
 type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 type UpdateUserInput = z.infer<typeof updateUserSchema>;
-type CreateSendaInput = z.infer<typeof import("./admin.schemas").createSendaSchema>;
-type UpdateSendaInput = z.infer<typeof import("./admin.schemas").updateSendaSchema>;
+type CreateSendaInput = z.infer<typeof createSendaSchema>;
+type UpdateSendaInput = z.infer<typeof updateSendaSchema>;
 type ReorderActivitiesInput = z.infer<typeof reorderActivitiesSchema>;
 type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
 type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;
@@ -783,6 +783,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
           descripcion: body.descripcion ?? null,
           colorHex: body.color_hex,
           nombreIcono: body.nombre_icono ?? null,
+          imagenRecursoId: body.imagen_recurso_id ?? null,
           orden: body.orden,
           activo: body.activo
         })
@@ -803,13 +804,13 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
 
     async actualizarSenda(sendaId: string, body: UpdateSendaInput) {
       const clienteDrizzle = requerirDrizzle();
-      
-      const updateData: any = {};
+      const updateData: Partial<typeof schema.senda.$inferInsert> = {};
       if (body.codigo !== undefined) updateData.codigo = body.codigo;
       if (body.nombre !== undefined) updateData.nombre = body.nombre;
       if (body.descripcion !== undefined) updateData.descripcion = body.descripcion;
       if (body.color_hex !== undefined) updateData.colorHex = body.color_hex;
       if (body.nombre_icono !== undefined) updateData.nombreIcono = body.nombre_icono;
+      if (body.imagen_recurso_id !== undefined) updateData.imagenRecursoId = body.imagen_recurso_id;
       if (body.orden !== undefined) updateData.orden = body.orden;
       if (body.activo !== undefined) updateData.activo = body.activo;
 

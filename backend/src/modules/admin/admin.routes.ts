@@ -25,11 +25,13 @@ import { crearCasosUsoTemas } from "./casos-uso/temas";
 import { crearCasosUsoUsuarios } from "./casos-uso/usuarios";
 import { crearCasosUsoSendas } from "./casos-uso/sendas";
 
-export function crearModuloAdmin() {
+type CrearRepositorioAdmin = typeof crearAdminRepository;
+
+export function crearModuloAdmin(crearRepositorio: CrearRepositorioAdmin = crearAdminRepository) {
   const adminRoutes = new Hono<AppBindings>();
 
   function obtenerCasosUso(c: Context<AppBindings>) {
-    const repositorio = crearAdminRepository({ supabase: c.get("db"), drizzle: c.get("drizzle") });
+    const repositorio = crearRepositorio({ supabase: c.get("db"), drizzle: c.get("drizzle") });
 
     return {
       resumen: crearCasoObtenerResumen(repositorio),

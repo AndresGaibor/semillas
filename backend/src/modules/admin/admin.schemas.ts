@@ -109,6 +109,7 @@ export const createSendaSchema = z.object({
   descripcion: z.string().optional(),
   color_hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   nombre_icono: z.string().optional(),
+  imagen_recurso_id: z.string().uuid().nullable().optional(),
   orden: z.number().int().min(1),
   activo: z.boolean().default(false)
 });
@@ -119,6 +120,7 @@ export const updateSendaSchema = z.object({
   descripcion: z.string().optional(),
   color_hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   nombre_icono: z.string().optional(),
+  imagen_recurso_id: z.string().uuid().nullable().optional(),
   orden: z.number().int().min(1).optional(),
   activo: z.boolean().optional()
 });

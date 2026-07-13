@@ -14,6 +14,7 @@ export function crearCasosUsoSendas(repositorio: AdminRepository) {
         descripcion: s.descripcion,
         color_hex: s.colorHex,
         nombre_icono: s.nombreIcono,
+        imagen_recurso_id: s.imagenRecursoId,
         orden: s.orden,
         activo: s.activo,
         creado_en: s.creadoEn.toISOString()
@@ -29,6 +30,7 @@ export function crearCasosUsoSendas(repositorio: AdminRepository) {
         descripcion: senda.descripcion,
         color_hex: senda.colorHex,
         nombre_icono: senda.nombreIcono,
+        imagen_recurso_id: senda.imagenRecursoId,
         orden: senda.orden,
         activo: senda.activo,
         creado_en: senda.creadoEn.toISOString()
@@ -44,6 +46,7 @@ export function crearCasosUsoSendas(repositorio: AdminRepository) {
         descripcion: senda.descripcion,
         color_hex: senda.colorHex,
         nombre_icono: senda.nombreIcono,
+        imagen_recurso_id: senda.imagenRecursoId,
         orden: senda.orden,
         activo: senda.activo,
         creado_en: senda.creadoEn.toISOString()
@@ -59,6 +62,7 @@ export function crearCasosUsoSendas(repositorio: AdminRepository) {
         descripcion: senda.descripcion,
         color_hex: senda.colorHex,
         nombre_icono: senda.nombreIcono,
+        imagen_recurso_id: senda.imagenRecursoId,
         orden: senda.orden,
         activo: senda.activo,
         creado_en: senda.creadoEn.toISOString()

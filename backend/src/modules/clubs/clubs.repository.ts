@@ -33,6 +33,40 @@ export function crearClubsRepository(db: DbClient) {
       return db.select().from(schema.club).where(and(...condiciones)).orderBy(desc(schema.club.creadoEn));
     },
 
+    async listarClubesAdministracion(input: { q?: string; activo?: boolean; limit: number; offset: number }) {
+      const condiciones = [];
+      if (input.q) condiciones.push(ilike(schema.club.nombre, `%${input.q}%`));
+      if (input.activo !== undefined) condiciones.push(eq(schema.club.activo, input.activo));
+
+      const filtro = condiciones.length > 0 ? and(...condiciones) : undefined;
+      const [clubes, [conteo]] = await Promise.all([
+        db
+          .select({
+            id: schema.club.id,
+            nombre: schema.club.nombre,
+            descripcion: schema.club.descripcion,
+            activo: schema.club.activo,
+            creadoEn: schema.club.creadoEn,
+            liderUsuarioId: sql<string | null>`max(case when ${schema.miembroClub.rolMiembro} in ('propietario', 'lider') then ${schema.miembroClub.usuarioId} end)`,
+            liderApodo: sql<string | null>`max(case when ${schema.miembroClub.rolMiembro} in ('propietario', 'lider') then coalesce(${schema.perfil.apodo}, 'Semillero') end)`,
+            miembros: sql<number>`count(distinct ${schema.miembroClub.usuarioId})`,
+            retosAbiertos: sql<number>`count(distinct ${schema.retoClub.id}) filter (where ${schema.retoClub.fechaFin} > now())`,
+          })
+          .from(schema.club)
+          .leftJoin(schema.miembroClub, eq(schema.miembroClub.clubId, schema.club.id))
+          .leftJoin(schema.perfil, eq(schema.perfil.usuarioId, schema.miembroClub.usuarioId))
+          .leftJoin(schema.retoClub, eq(schema.retoClub.clubId, schema.club.id))
+          .where(filtro)
+          .groupBy(schema.club.id)
+          .orderBy(desc(schema.club.creadoEn))
+          .limit(input.limit)
+          .offset(input.offset),
+        db.select({ total: sql<number>`count(*)` }).from(schema.club).where(filtro),
+      ]);
+
+      return { clubes, total: Number(conteo?.total ?? 0) };
+    },
+
     async contarMiembrosPorClub() {
       return db
         .select({ clubId: schema.miembroClub.clubId, total: sql<number>`count(*)` })
@@ -78,6 +112,40 @@ export function crearClubsRepository(db: DbClient) {
           coalesce(semanal.actividades_semana, 0)::int as actividades_semana
         from miembro_club cm
         join usuario_app ua on ua.id = cm.usuario_id
+        left join perfil p on p.usuario_id = cm.usuario_id
+        left join v_xp_usuario vx on vx.usuario_id = cm.usuario_id
+        left join lateral (
+          select
+            coalesce(sum(ep.xp_otorgada), 0)::int as xp_semana,
+            count(*) filter (where ep.tipo_evento = 'actividad_completada')::int as actividades_semana
+          from evento_progreso ep
+          where ep.usuario_id = cm.usuario_id
+            and ep.ocurrido_en_cliente >= date_trunc('week', now())
+        ) semanal on true
+        where cm.club_id = ${clubId}
+        order by
+          case cm.rol_miembro when 'propietario' then 0 when 'lider' then 1 else 2 end,
+          xp_semana desc,
+          xp_total desc,
+          apodo asc
+      `);
+      return Array.from(resultado as Iterable<Record<string, unknown>>);
+    },
+
+    async listarMiembrosClubAdministracion(clubId: string) {
+      const resultado = await db.execute(sql`
+        select
+          cm.club_id,
+          cm.usuario_id,
+          cm.rol_miembro,
+          cm.unido_en,
+          coalesce(p.apodo, 'Semillero') as apodo,
+          p.clave_avatar,
+          p.url_avatar,
+          coalesce(vx.xp_total, 0)::int as xp_total,
+          coalesce(semanal.xp_semana, 0)::int as xp_semana,
+          coalesce(semanal.actividades_semana, 0)::int as actividades_semana
+        from miembro_club cm
         left join perfil p on p.usuario_id = cm.usuario_id
         left join v_xp_usuario vx on vx.usuario_id = cm.usuario_id
         left join lateral (
@@ -170,10 +238,71 @@ export function crearClubsRepository(db: DbClient) {
       return membership ?? null;
     },
 
+    async quitarMiembroAdministracion(clubId: string, usuarioId: string) {
+      return db.transaction(async (tx) => {
+        const miembros = Array.from(await tx.execute(sql`
+          select usuario_id, rol_miembro
+          from miembro_club
+          where club_id = ${clubId}
+          for update
+        `)) as Array<{ usuario_id: string; rol_miembro: string }>;
+        const miembro = miembros.find(({ usuario_id }) => usuario_id === usuarioId);
+        if (!miembro) return { resultado: "no_encontrado" } as const;
+
+        const esResponsable = miembro.rol_miembro === "lider" || miembro.rol_miembro === "propietario";
+        const responsables = miembros.filter(({ rol_miembro }) => rol_miembro === "lider" || rol_miembro === "propietario");
+        if (esResponsable && responsables.length <= 1) {
+          return { resultado: "RESPONSABLE_REQUERIDO" } as const;
+        }
+
+        await tx
+          .delete(schema.miembroClub)
+          .where(and(eq(schema.miembroClub.clubId, clubId), eq(schema.miembroClub.usuarioId, usuarioId)));
+        return { resultado: "eliminado" } as const;
+      });
+    },
+
+    async transferirResponsabilidadClub(clubId: string, usuarioId: string) {
+      return db.transaction(async (tx) => {
+        const miembros = Array.from(await tx.execute(sql`
+          select usuario_id, rol_miembro
+          from miembro_club
+          where club_id = ${clubId}
+          for update
+        `)) as Array<{ usuario_id: string; rol_miembro: string }>;
+        const nuevoResponsable = miembros.find(({ usuario_id }) => usuario_id === usuarioId);
+        if (!nuevoResponsable) return { resultado: "no_encontrado" } as const;
+
+        const responsableActual = miembros.find(({ rol_miembro }) => rol_miembro === "propietario")
+          ?? miembros.find(({ rol_miembro }) => rol_miembro === "lider");
+        if (!responsableActual) return { resultado: "RESPONSABLE_REQUERIDO" } as const;
+        if (responsableActual.usuario_id === usuarioId) return { resultado: "ya_responsable" } as const;
+
+        await tx
+          .update(schema.miembroClub)
+          .set({ rolMiembro: responsableActual.rol_miembro })
+          .where(and(eq(schema.miembroClub.clubId, clubId), eq(schema.miembroClub.usuarioId, usuarioId)));
+        await tx
+          .update(schema.miembroClub)
+          .set({ rolMiembro: "miembro" })
+          .where(and(eq(schema.miembroClub.clubId, clubId), eq(schema.miembroClub.usuarioId, responsableActual.usuario_id)));
+        return { resultado: "transferido" } as const;
+      });
+    },
+
     async desactivarClub(clubId: string) {
       const [club] = await db
         .update(schema.club)
         .set({ activo: false })
+        .where(eq(schema.club.id, clubId))
+        .returning();
+      return club ?? null;
+    },
+
+    async reactivarClub(clubId: string) {
+      const [club] = await db
+        .update(schema.club)
+        .set({ activo: true })
         .where(eq(schema.club.id, clubId))
         .returning();
       return club ?? null;
@@ -281,6 +410,15 @@ export function crearClubsRepository(db: DbClient) {
     }) {
       const [data] = await db.insert(schema.retoClub).values(datos).returning();
       return data;
+    },
+
+    async cerrarReto(clubId: string, retoId: string) {
+      const [reto] = await db
+        .update(schema.retoClub)
+        .set({ fechaFin: new Date() })
+        .where(and(eq(schema.retoClub.clubId, clubId), eq(schema.retoClub.id, retoId)))
+        .returning();
+      return reto ?? null;
     },
 
     async calcularProgresoReto(clubId: string, usuarioId: string, reto: RetoParaProgreso) {
