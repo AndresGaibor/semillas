@@ -14,6 +14,7 @@ import { Route as RestablecerContrasenaRouteImport } from './routes/restablecer-
 import { Route as RecuperarContrasenaRouteImport } from './routes/recuperar-contrasena'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as InstallRouteImport } from './routes/install'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRequiredRouteImport } from './routes/admin-required'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -84,6 +85,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstallRoute = InstallRouteImport.update({
+  id: '/install',
+  path: '/install',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -328,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/admin-required': typeof AdminRequiredRoute
   '/app': typeof AppRouteWithChildren
+  '/install': typeof InstallRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/recuperar-contrasena': typeof RecuperarContrasenaRoute
@@ -379,6 +386,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acceso-denegado': typeof AccesoDenegadoRoute
   '/admin-required': typeof AdminRequiredRoute
+  '/install': typeof InstallRoute
   '/login': typeof LoginRoute
   '/recuperar-contrasena': typeof RecuperarContrasenaRoute
   '/restablecer-contrasena': typeof RestablecerContrasenaRoute
@@ -432,6 +440,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/admin-required': typeof AdminRequiredRoute
   '/app': typeof AppRouteWithChildren
+  '/install': typeof InstallRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/recuperar-contrasena': typeof RecuperarContrasenaRoute
@@ -487,6 +496,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-required'
     | '/app'
+    | '/install'
     | '/login'
     | '/onboarding'
     | '/recuperar-contrasena'
@@ -538,6 +548,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acceso-denegado'
     | '/admin-required'
+    | '/install'
     | '/login'
     | '/recuperar-contrasena'
     | '/restablecer-contrasena'
@@ -590,6 +601,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-required'
     | '/app'
+    | '/install'
     | '/login'
     | '/onboarding'
     | '/recuperar-contrasena'
@@ -644,6 +656,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AdminRequiredRoute: typeof AdminRequiredRoute
   AppRoute: typeof AppRouteWithChildren
+  InstallRoute: typeof InstallRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   RecuperarContrasenaRoute: typeof RecuperarContrasenaRoute
@@ -687,6 +700,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/install': {
+      id: '/install'
+      path: '/install'
+      fullPath: '/install'
+      preLoaderRoute: typeof InstallRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -1176,6 +1196,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AdminRequiredRoute: AdminRequiredRoute,
   AppRoute: AppRouteWithChildren,
+  InstallRoute: InstallRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   RecuperarContrasenaRoute: RecuperarContrasenaRoute,
