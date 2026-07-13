@@ -29,7 +29,10 @@ export const Route = createFileRoute("/admin")({
       if (isRedirect(error)) throw error;
       sessionStorageApi.clearGuestSession();
       sessionStorageApi.clearAccessToken();
-      throw redirect({ to: "/login", search: { redirect: location.href } });
+      throw redirect({
+        to: "/login",
+        search: { redirect: location.href, reason: "backend_unavailable" },
+      });
     }
   },
   component: AdminLayout,

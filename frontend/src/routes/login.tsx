@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Globe } from "lucide-react";
+import { toast } from "sonner";
 import { LoginFormCard } from "../features/auth/componentes/login-form-card";
 import { LoginHeroPanel } from "../features/auth/componentes/login-hero-panel";
 import { useLoginPage } from "../features/auth/hooks/use-login-page";
@@ -11,9 +13,21 @@ import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
     redirect: typeof search.redirect === "string" ? search.redirect : "/onboarding",
+    reason: typeof search.reason === "string" ? search.reason : undefined,
   }),
   component: LoginPage,
 });
+
+export function obtenerMensajeRedireccionLogin(reason?: string) {
+  if (reason === "backend_unavailable") {
+    return {
+      mensaje: "No pudimos verificar tu acceso porque el backend no respondió.",
+      descripcion: "Revisa tu conexión o intenta de nuevo en unos minutos.",
+    };
+  }
+
+  return null;
+}
 
 function LoginPage() {
   const search = Route.useSearch();
@@ -28,6 +42,13 @@ function LoginPage() {
   } = useLoginPage({
     redirectTo: search.redirect,
   });
+
+  useEffect(() => {
+    const notificacion = obtenerMensajeRedireccionLogin(search.reason);
+    if (!notificacion) return;
+
+    toast.error(notificacion.mensaje, { description: notificacion.descripcion });
+  }, [search.reason]);
 
   return (
     <div className="login-page">
