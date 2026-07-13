@@ -71,19 +71,6 @@ CREATE TABLE IF NOT EXISTS grupo_edad (
   CHECK (edad_maxima >= edad_minima)
 );
 
-CREATE TABLE IF NOT EXISTS senda (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  codigo          text NOT NULL UNIQUE,
-  nombre          text NOT NULL,
-  descripcion   text,
-  color_hex     text NOT NULL,
-  nombre_icono     text,
-  orden    int NOT NULL UNIQUE,
-  activo     boolean NOT NULL DEFAULT true,
-  creado_en    timestamptz NOT NULL DEFAULT now(),
-  CHECK (color_hex ~ '^#[0-9A-Fa-f]{6}$')
-);
-
 CREATE TABLE IF NOT EXISTS testamento_biblico (
   id          smallint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   codigo        text NOT NULL UNIQUE,
@@ -217,6 +204,20 @@ CREATE TABLE IF NOT EXISTS recurso_multimedia (
 );
 
 CREATE INDEX IF NOT EXISTS ix_recurso_multimedia_tipo ON recurso_multimedia(tipo);
+
+CREATE TABLE IF NOT EXISTS senda (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  codigo          text NOT NULL UNIQUE,
+  nombre          text NOT NULL,
+  descripcion   text,
+  color_hex     text NOT NULL,
+  nombre_icono     text,
+  imagen_recurso_id uuid REFERENCES recurso_multimedia(id) ON DELETE SET NULL,
+  orden    int NOT NULL UNIQUE,
+  activo     boolean NOT NULL DEFAULT true,
+  creado_en    timestamptz NOT NULL DEFAULT now(),
+  CHECK (color_hex ~ '^#[0-9A-Fa-f]{6}$')
+);
 
 -- ============================================================
 --  4. CONTENIDO: TEMAS, VERSIONES POR EDAD Y CRECER

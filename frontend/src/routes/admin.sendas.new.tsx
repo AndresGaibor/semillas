@@ -63,6 +63,7 @@ function AdminSendasNewPage() {
       descripcion: descripcion || undefined,
       color_hex: colorHex,
       nombre_icono: nombreIcono || undefined,
+      imagen_recurso_id: null,
       orden,
       activo,
     });

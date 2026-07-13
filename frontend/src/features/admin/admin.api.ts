@@ -352,6 +352,7 @@ export type SendaAdmin = {
   descripcion: string | null;
   color_hex: string;
   nombre_icono: string | null;
+  imagen_recurso_id: string | null;
   orden: number;
   activo: boolean;
   creado_en: string;
@@ -363,6 +364,7 @@ export type CrearSendaSolicitud = {
   descripcion?: string;
   color_hex: string;
   nombre_icono?: string;
+  imagen_recurso_id: string | null;
   orden: number;
   activo?: boolean;
 };
