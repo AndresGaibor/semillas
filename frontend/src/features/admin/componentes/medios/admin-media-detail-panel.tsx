@@ -1,4 +1,4 @@
-import type { MediaCardItem } from "../admin-media.types";
+import type { MediaCardItem } from "../../admin-media.types";
 import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 import { EmptyState } from "@/componentes/ui/empty-state";

@@ -1,7 +1,7 @@
 import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
 import { FilaTabla } from "@/componentes/ui/tabla-base";
-import { BotonAccion, getSendaIcon } from "./admin.helpers";
+import { BotonAccion, getSendaIcon } from "../dashboard/admin.helpers";
 import { MenuDesplegable } from "@/componentes/ui/menu-desplegable";
 import type { TemaTableRow } from "./admin-themes-table.types";
 

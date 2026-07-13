@@ -2,7 +2,7 @@ import { AvatarTexto } from "@/componentes/ui/avatar-texto";
 import { BadgeRol, type TipoRol } from "@/componentes/ui/badge-rol";
 import { BadgeEstadoUsuario, type EstadoUsuario } from "@/componentes/ui/badge-estado-usuario";
 import { InfoNivelXP } from "@/componentes/ui/info-nivel-xp";
-import { FILA_HOVER_CLS, CheckboxCell } from "./admin.helpers";
+import { FILA_HOVER_CLS, CheckboxCell } from "../dashboard/admin.helpers";
 import { MenuAccionesUsuario } from "./user-row-actions";
 
 export type UserTableRow = {

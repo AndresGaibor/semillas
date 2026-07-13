@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
-import { eliminarActividad } from "../admin.api";
+import { eliminarActividad } from "../../admin.api";
 import type { ActivityTableRow } from "./admin-activities-table";
 
 type EliminarActividadDialogProps = {

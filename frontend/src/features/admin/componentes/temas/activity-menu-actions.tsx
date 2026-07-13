@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { MenuDesplegable, type ItemMenu } from "@/componentes/ui/menu-desplegable";
-import { BotonAccion } from "./admin.helpers";
+import { BotonAccion } from "../dashboard/admin.helpers";
 import type { ActivityTableRow } from "./admin-activities-table";
 
 interface MenuAccionesActividadProps {

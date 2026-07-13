@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader, X } from "lucide-react";
 
 import type { Tema } from "@/shared/api/api";
-import { obtenerTemasAdminPaginados } from "../admin.api";
+import { obtenerTemasAdminPaginados } from "../../admin.api";
 
 const temasPorPagina = 20;
 

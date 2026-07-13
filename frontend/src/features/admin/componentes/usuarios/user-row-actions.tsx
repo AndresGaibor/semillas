@@ -1,4 +1,4 @@
-import { BotonAccion } from "./admin.helpers";
+import { BotonAccion } from "../dashboard/admin.helpers";
 
 export function MenuAccionesUsuario() {
   return (

@@ -1,5 +1,5 @@
 import type { UseFormRegister } from "react-hook-form";
-import type { CrearTemaSolicitud } from "../admin.api";
+import type { CrearTemaSolicitud } from "../../admin.api";
 import type { Senda, GrupoEdad } from "@/shared/api/api";
 import { Input } from "@/componentes/ui/input-base";
 import { SelectFiltro } from "@/componentes/ui/select-filtro";
@@ -8,7 +8,7 @@ import { Grid } from "@/componentes/ui/grid";
 import { Stack } from "@/componentes/ui/stack";
 import { FormField } from "@/componentes/ui/form-field";
 import { TagInput } from "./TagInput";
-import { ClubVisibilitySelector, type ClubVisibilidades } from "./club-visibility-selector";
+import { ClubVisibilitySelector, type ClubVisibilidades } from "../clubes-admin/club-visibility-selector";
 import { CoverImageUpload } from "./cover-image-upload";
 
 interface PasoInformacionGeneralProps {

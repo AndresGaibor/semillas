@@ -1,5 +1,5 @@
-import { AdminWidgetCard } from "./admin-widget-card";
-import { StatRow } from "./stat-row";
+import { AdminWidgetCard } from "../dashboard/admin-widget-card";
+import { StatRow } from "../dashboard/stat-row";
 import { DonutChart, LeyendaDonut } from "@/componentes/ui/donut-chart";
 import { Boton } from "@/componentes/ui/boton";
 

@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 
-import type { RecursoMultimedia } from "../../media/media.api";
+import type { RecursoMultimedia } from "../../../media/media.api";
 
 type TipoSeleccionable = "imagen" | "audio" | "video";
 type TipoFiltro = TipoSeleccionable | "todos";

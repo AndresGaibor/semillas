@@ -1,4 +1,4 @@
-import { AdminSectionHeader } from "./admin-section-header";
+import { AdminSectionHeader } from "../dashboard/admin-section-header";
 
 type AdminThemesHeaderProps = {
   onCrearTema: () => void;

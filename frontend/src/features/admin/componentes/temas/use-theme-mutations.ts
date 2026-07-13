@@ -6,7 +6,7 @@ import {
   despublicarTema,
   duplicarTema,
   publicarTema,
-} from "../admin.api";
+} from "../../admin.api";
 
 interface UseThemeMutationsProps {
   themeId: string;

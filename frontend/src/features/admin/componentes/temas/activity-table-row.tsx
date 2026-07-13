@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
-import { FILA_HOVER_CLS } from "./admin.helpers";
+import { FILA_HOVER_CLS } from "../dashboard/admin.helpers";
 import { MenuAccionesActividad } from "./activity-menu-actions";
 import type { ActivityTableRow } from "./admin-activities-table";
 

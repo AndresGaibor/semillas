@@ -1,5 +1,5 @@
 import { TablaBase } from "@/componentes/ui/tabla-base";
-import { useThemeTableMenu } from "../hooks/use-theme-table-menu";
+import { useThemeTableMenu } from "../../hooks/use-theme-table-menu";
 import { ThemeTableRow } from "./ThemeTableRow";
 import type { TemaTableRow } from "./admin-themes-table.types";
 

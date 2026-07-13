@@ -2,7 +2,7 @@ import { Paginacion } from "@/componentes/ui/paginacion";
 import { Card } from "@/componentes/ui/card-base";
 import { ImageWithFallback } from "@/componentes/ui/image-with-fallback";
 import { MediaTypeBadge } from "./media-type-badge";
-import type { MediaCardItem } from "../admin-media.types";
+import type { MediaCardItem } from "../../admin-media.types";
 
 type Props = {
   items: MediaCardItem[];

@@ -45,7 +45,7 @@ function AdminThemePreviewPage() {
         </button>
 
         <ThemePreviewHeader
-          theme={theme as ThemePreviewHeaderProps["theme"]}
+          theme={theme}
           portadaUrl={portadaUrl}
           estado={estado}
           formatDate={formatearFechaTema}

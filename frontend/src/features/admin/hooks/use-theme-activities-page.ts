@@ -1,8 +1,8 @@
 import { useRouter } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { crearActividad, eliminarActividad, actualizarActividad } from "../admin.api";
-import { useActivityFormState } from "../componentes/use-activity-form-state";
-import type { Opcion } from "../componentes/use-activity-form-state";
+import { useActivityFormState } from "../componentes/temas/use-activity-form-state";
+import type { Opcion } from "../componentes/temas/use-activity-form-state";
 
 function mapearOpciones(options: Opcion[]) {
   return options

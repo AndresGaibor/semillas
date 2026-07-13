@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBlocker, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { obtenerPasosAdmin, guardarParlante, obtenerTemaAdmin } from "../../admin/admin.api";
+import { obtenerPasosAdmin, guardarParlante, obtenerTemaAdmin } from "../admin.api";
 import { obtenerGruposEdad, obtenerPasosCrecer } from "../../catalog/catalog.api";
 import {
   obtenerRecursosMultimedia,
@@ -12,7 +12,7 @@ import {
   type RecursoMultimedia,
 } from "../../media/media.api";
 import { obtenerUrlPortadaTema } from "../../themes/themes.api";
-import { obtenerEstadoTema } from "../../admin/componentes/theme-view.utils";
+import { obtenerEstadoTema } from "../componentes/temas/theme-view.utils";
 
 interface UseThemeCrecerPageProps { themeId: string; }
 export type ReflectionQuestion = { pregunta: string; orden: number };

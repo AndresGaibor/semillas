@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useRef, type ChangeEvent } from "react";
 import { obtenerRecursosMultimedia, eliminarRecursoMultimedia, subirArchivo } from "../../media/media.api";
 import { toast } from "sonner";
-import type { TipoMedia } from "../componentes/admin-media-type-tabs";
+import type { TipoMedia } from "../componentes/medios/admin-media-type-tabs";
 import type { MediaCardItem } from "../admin-media.types";
 
 interface UseAdminMediaPageReturn {

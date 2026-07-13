@@ -1,5 +1,5 @@
-import { AdminWidgetCard } from "./admin-widget-card";
-import { StatRow } from "./stat-row";
+import { AdminWidgetCard } from "../dashboard/admin-widget-card";
+import { StatRow } from "../dashboard/stat-row";
 
 export type ActivitySummaryStats = {
   total: number;

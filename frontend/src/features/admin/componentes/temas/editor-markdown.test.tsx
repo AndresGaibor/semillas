@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { validarContenidoCrecer } from "../hooks/use-theme-crecer-page";
+import { validarContenidoCrecer } from "../../hooks/use-theme-crecer-page";
 import { sincronizarMarkdown } from "./editor-markdown.helpers";
 
 describe("validarContenidoCrecer", () => {

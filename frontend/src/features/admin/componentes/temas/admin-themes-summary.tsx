@@ -1,6 +1,6 @@
 import { FilaListaCompacta } from "@/componentes/ui/fila-lista-compacta";
 import { Boton } from "@/componentes/ui/boton";
-import { AdminWidgetCard } from "./admin-widget-card";
+import { AdminWidgetCard } from "../dashboard/admin-widget-card";
 
 type SummaryCounts = {
   total: number;

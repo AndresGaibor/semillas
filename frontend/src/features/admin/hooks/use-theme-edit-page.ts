@@ -4,8 +4,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { actualizarTema, obtenerTemaAdmin } from "../admin.api";
 import { obtenerUrlPortadaTema } from "../../themes/themes.api";
 import { subirArchivo } from "../../media/media.api";
-import { usePortadaHandlers } from "../componentes/use-portada-handlers";
-import { useThemeMutations } from "../componentes/use-theme-mutations";
+import { usePortadaHandlers } from "../componentes/temas/use-portada-handlers";
+import { useThemeMutations } from "../componentes/temas/use-theme-mutations";
 
 export function useThemeEditPage({ themeId }: { themeId: string }) {
   const navigate = useNavigate();

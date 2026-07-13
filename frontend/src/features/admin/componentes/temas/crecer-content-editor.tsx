@@ -8,8 +8,8 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
-import type { RecursoMultimedia } from "../../media/media.api";
-import type { ReflectionQuestion } from "../hooks/use-theme-crecer-page";
+import type { RecursoMultimedia } from "../../../media/media.api";
+import type { ReflectionQuestion } from "../../hooks/use-theme-crecer-page";
 import { EditorMarkdown } from "./editor-markdown";
 import { MediaGalleryDialog } from "../medios/media-gallery-dialog";
 

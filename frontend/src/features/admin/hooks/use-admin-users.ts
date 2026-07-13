@@ -14,8 +14,8 @@ import avatar9 from "@/assets/images/avatars/Avatar 9.png";
 import avatar10 from "@/assets/images/avatars/Avatar 10.png";
 import type { TipoRol } from "@/componentes/ui/badge-rol";
 import type { EstadoUsuario } from "@/componentes/ui/badge-estado-usuario";
-import type { UserTableRow } from "../componentes/admin-users-table";
-import type { UserStats } from "../componentes/admin-users-summary";
+import type { UserTableRow } from "../componentes/usuarios/admin-users-table";
+import type { UserStats } from "../componentes/usuarios/admin-users-summary";
 
 const avatarsList = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6, avatar7, avatar8, avatar9, avatar10];
 

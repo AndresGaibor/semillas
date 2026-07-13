@@ -1,6 +1,6 @@
-import { getSendaIcon } from "../componentes/admin.helpers";
+import { getSendaIcon } from "../componentes/dashboard/admin.helpers";
 import type { Tema } from "@/shared/api/api";
-import type { TemaTableRow } from "../componentes/admin-themes-table.types";
+import type { TemaTableRow } from "../componentes/temas/admin-themes-table.types";
 
 export function getFranjaEdadText(gruposEdad: Tema["grupos_edad"]) {
   if (!gruposEdad || gruposEdad.length === 0) return "";

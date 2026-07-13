@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { obtenerGruposEdad } from "../../catalog/catalog.api";
-import { obtenerActividades } from "../../themes/themes.api";
-import { obtenerActividadAdmin, obtenerPasosAdmin } from "../admin.api";
-import { obtenerTiposActividad } from "../../catalog/catalog.api";
+import { obtenerGruposEdad } from "../../../catalog/catalog.api";
+import { obtenerActividades } from "../../../themes/themes.api";
+import { obtenerActividadAdmin, obtenerPasosAdmin } from "../../admin.api";
+import { obtenerTiposActividad } from "../../../catalog/catalog.api";
 import type { Actividad, Paso } from "@/shared/api/api";
-import type { ActividadAdmin } from "../admin.api";
+import type { ActividadAdmin } from "../../admin.api";
 
 export interface Opcion {
   etiqueta: string;
