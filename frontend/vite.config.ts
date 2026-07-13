@@ -108,8 +108,9 @@ export default defineConfig({
         categories: ["education", "kids"],
         icons: [
           {
-            src: "/icons/icon-192.svg",
-            sizes: "192x192",
+            src: "/icons/logo_original.webp",
+            sizes: "512x512",
+            type: "image/webp",
             purpose: "any"
           },
           {
@@ -124,9 +125,8 @@ export default defineConfig({
             purpose: "maskable"
           },
           {
-            src: "/icons/icon-192.png",
+            src: "/icons/icon-192.svg",
             sizes: "192x192",
-            type: "image/png",
             purpose: "any"
           }
         ]
