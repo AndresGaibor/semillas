@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   obtenerGamificacionPropia,
   reclamarLogroApi,
@@ -131,6 +132,7 @@ export function useLogrosPage() {
     },
     onError: (error) => {
       console.error("Error al reclamar logro:", error);
+      toast.error(error instanceof Error ? error.message : "No se pudo reclamar el logro.");
     },
   });
 
