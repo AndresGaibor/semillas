@@ -24,12 +24,25 @@ describe("ActivityTypeConfigBuilder", () => {
   it("muestra rompecabezas como selector de imagen", () => {
     const html = render("rompecabezas");
     expect(html).toContain("Elegir imagen");
-    expect(html).toContain("Biblioteca");
+    expect(html).toContain("Abrir biblioteca");
   });
 
   it("muestra video con selector de biblioteca", () => {
     const html = render("actividad_video");
     expect(html).toContain("Elegir video");
+  });
+
+  it("muestra cuestionario con editor de opciones", () => {
+    const html = render("cuestionario", {
+      opciones: [
+        { id: "op-1", texto: "A", correcta: true },
+        { id: "op-2", texto: "B", correcta: false },
+      ],
+    });
+
+    expect(html).toContain("Opciones");
+    expect(html).toContain("Agregar opción");
+    expect(html).toContain("Correcta");
   });
 
   it("muestra audio con selector de biblioteca", () => {
@@ -76,8 +89,15 @@ describe("ActivityTypeConfigBuilder", () => {
   });
 
   it("muestra aventura_decisiones con escenas", () => {
-    const html = render("aventura_decisiones", { escenas: [] });
-    expect(html).toContain("Escena");
+    const html = render("aventura_decisiones", {
+      escenas: [{
+        id: "escena-1",
+        texto: "Llegaste al río",
+        imagen_url: "",
+        opciones: [{ id: "op-1", texto: "Opción", correcta: true }],
+      }],
+    });
+    expect(html).toContain("Escena 1");
   });
 
   it("tipo desconocido no muestra error", () => {

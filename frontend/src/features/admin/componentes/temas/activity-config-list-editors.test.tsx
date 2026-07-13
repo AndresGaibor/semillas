@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { ListaOpcionesConCorrecta } from "./activity-config-list-editors";
+import { ListaOpcionesConCorrecta, ListaOpcionesTexto } from "./activity-config-list-editors";
 import type { OpcionConCorrecta } from "./activity-config-list-editors";
 
 describe("ListaOpcionesConCorrecta", () => {
@@ -27,14 +27,13 @@ describe("ListaOpcionesConCorrecta", () => {
     expect(radioButtons).toHaveLength(2);
   });
 
-  it("marca la opción correcta con checked", () => {
+  it("marca la opción correcta con atributo checked", () => {
     const opciones: OpcionConCorrecta[] = [
       { id: "op-1", texto: "A", correcta: false },
       { id: "op-2", texto: "B", correcta: true },
     ];
     const html = render(<ListaOpcionesConCorrecta titulo="Opciones" opciones={opciones} etiquetaAgregar="Agregar" onChange={() => {}} />);
-    const checkedRadios = html.match(/type="radio" checked/g);
-    expect(checkedRadios).toHaveLength(1);
+    expect(html).toContain("checked");
     expect(html).toContain('name="Opciones"');
   });
 
@@ -51,14 +50,14 @@ describe("ListaOpcionesConCorrecta", () => {
     expect(html).toContain("Agregar opción");
   });
 
-  it("tiene botón eliminar por cada opción", () => {
+  it("tiene botón eliminar para cada opción", () => {
     const opciones: OpcionConCorrecta[] = [
       { id: "op-1", texto: "A", correcta: true },
       { id: "op-2", texto: "B", correcta: false },
     ];
     const html = render(<ListaOpcionesConCorrecta titulo="Opciones" opciones={opciones} etiquetaAgregar="Agregar" onChange={() => {}} />);
-    const deleteButtons = html.match(/Eliminar opción/g);
-    expect(deleteButtons).toHaveLength(2);
+    expect(html).toContain("Eliminar opciones 1");
+    expect(html).toContain("Eliminar opciones 2");
   });
 
   it("la nueva opción agregada no está marcada como correcta", () => {

@@ -47,6 +47,7 @@ import { Route as AppE_experimentarThemeIdRouteImport } from './routes/app.E_exp
 import { Route as AppE_ensenarThemeIdRouteImport } from './routes/app.E_ensenar.$themeId'
 import { Route as AppC_conectarThemeIdRouteImport } from './routes/app.C_conectar.$themeId'
 import { Route as AppC_comprobarThemeIdRouteImport } from './routes/app.C_comprobar.$themeId'
+import { Route as AdminUsuariosNewRouteImport } from './routes/admin.usuarios.new'
 import { Route as AdminUsuariosUserIdRouteImport } from './routes/admin.usuarios.$userId'
 import { Route as AdminTemasNewRouteImport } from './routes/admin.temas.new'
 import { Route as AdminSendasNewRouteImport } from './routes/admin.sendas.new'
@@ -249,6 +250,11 @@ const AppC_comprobarThemeIdRoute = AppC_comprobarThemeIdRouteImport.update({
   path: '/C_comprobar/$themeId',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminUsuariosNewRoute = AdminUsuariosNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminUsuariosRoute,
+} as any)
 const AdminUsuariosUserIdRoute = AdminUsuariosUserIdRouteImport.update({
   id: '/$userId',
   path: '/$userId',
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
+  '/admin/usuarios/new': typeof AdminUsuariosNewRoute
   '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
   '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
   '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
@@ -377,6 +384,7 @@ export interface FileRoutesByTo {
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
+  '/admin/usuarios/new': typeof AdminUsuariosNewRoute
   '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
   '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
   '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
@@ -427,6 +435,7 @@ export interface FileRoutesById {
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
+  '/admin/usuarios/new': typeof AdminUsuariosNewRoute
   '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
   '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
   '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
+    | '/admin/usuarios/new'
     | '/app/C_comprobar/$themeId'
     | '/app/C_conectar/$themeId'
     | '/app/E_ensenar/$themeId'
@@ -524,6 +534,7 @@ export interface FileRouteTypes {
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
+    | '/admin/usuarios/new'
     | '/app/C_comprobar/$themeId'
     | '/app/C_conectar/$themeId'
     | '/app/E_ensenar/$themeId'
@@ -573,6 +584,7 @@ export interface FileRouteTypes {
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
+    | '/admin/usuarios/new'
     | '/app/C_comprobar/$themeId'
     | '/app/C_conectar/$themeId'
     | '/app/E_ensenar/$themeId'
@@ -872,6 +884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppC_comprobarThemeIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/admin/usuarios/new': {
+      id: '/admin/usuarios/new'
+      path: '/new'
+      fullPath: '/admin/usuarios/new'
+      preLoaderRoute: typeof AdminUsuariosNewRouteImport
+      parentRoute: typeof AdminUsuariosRoute
+    }
     '/admin/usuarios/$userId': {
       id: '/admin/usuarios/$userId'
       path: '/$userId'
@@ -976,10 +995,12 @@ const AdminTemasRouteWithChildren = AdminTemasRoute._addFileChildren(
 
 interface AdminUsuariosRouteChildren {
   AdminUsuariosUserIdRoute: typeof AdminUsuariosUserIdRoute
+  AdminUsuariosNewRoute: typeof AdminUsuariosNewRoute
 }
 
 const AdminUsuariosRouteChildren: AdminUsuariosRouteChildren = {
   AdminUsuariosUserIdRoute: AdminUsuariosUserIdRoute,
+  AdminUsuariosNewRoute: AdminUsuariosNewRoute,
 }
 
 const AdminUsuariosRouteWithChildren = AdminUsuariosRoute._addFileChildren(

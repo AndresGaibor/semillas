@@ -17,13 +17,13 @@ describe("validación de contratos de actividad", () => {
       expect(correctas).toHaveLength(1);
     });
 
-    it("falla cuando ninguna opción es correcta", () => {
+    it("garantiza al menos una correcta si todas vienen false", () => {
       const opciones = obtenerOpcionesConCorrecta([
         { id: "op-1", texto: "A", correcta: false },
         { id: "op-2", texto: "B", correcta: false },
       ]);
       const correctas = opciones.filter((o) => o.correcta);
-      expect(correctas).toHaveLength(0);
+      expect(correctas).toHaveLength(1);
     });
 
     it("falla cuando dos opciones son correctas", () => {

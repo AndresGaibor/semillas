@@ -1,18 +1,11 @@
-import { Image as ImageIcon } from "lucide-react";
-
 import {
   type ActivityTypeConfigBuilderProps,
-  type ConfiguracionActividad,
   campoActualizar,
-  campoActualizarVarias,
   obtenerAfirmaciones,
-  obtenerListaTexto,
   obtenerPares,
   obtenerTarjetas,
 } from "./activity-config-utils";
-import { CampoConfiguracion } from "./activity-config-primitives";
-import { ListaTextoEditor } from "./activity-config-list-editors";
-import { SelectorMedioBiblioteca } from "./activity-config-media-selector";
+import { CuestionarioBuilder } from "./builders/cuestionario.builder";
 import { AudioBuilder } from "./builders/audio.builder";
 import { VideoBuilder } from "./builders/video.builder";
 import { CompletarVersiculoBuilder } from "./builders/completar-versiculo.builder";
@@ -21,6 +14,10 @@ import { CancionBuilder } from "./builders/cancion.builder";
 import { VerdaderoFalsoBuilder } from "./builders/verdadero-falso.builder";
 import { ParesBuilder } from "./builders/pares.builder";
 import { TarjetasBuilder } from "./builders/tarjetas.builder";
+import { ArrastrarSoltarBuilder } from "./builders/arrastrar-soltar.builder";
+import { ManualidadBuilder } from "./builders/manualidad.builder";
+import { SopaLetrasBuilder } from "./builders/sopa-letras.builder";
+import { RompecabezasBuilder } from "./builders/rompecabezas.builder";
 
 export function ActivityTypeConfigBuilder({
   codigo,
@@ -31,7 +28,6 @@ export function ActivityTypeConfigBuilder({
   uploading,
 }: ActivityTypeConfigBuilderProps) {
   const actualizar = campoActualizar(configuracion, onChange);
-  const actualizarVarias = campoActualizarVarias(configuracion, onChange);
 
   if (!codigo) {
     return (
@@ -113,93 +109,31 @@ export function ActivityTypeConfigBuilder({
     );
   }
 
+  if (codigo === "cuestionario") {
+    return <CuestionarioBuilder configuracion={configuracion} onChange={onChange} />;
+  }
+
   if (codigo === "arrastrar_soltar" || codigo.includes("secuencia")) {
-    return (
-      <ListaTextoEditor
-        titulo="Secuencia correcta"
-        valores={obtenerListaTexto(configuracion.items)}
-        etiquetaAgregar="Agregar paso"
-        onChange={(items) =>
-          actualizarVarias({ items, orden_correcto: items.map((_, indice) => indice) })
-        }
-      />
-    );
+    return <ArrastrarSoltarBuilder configuracion={configuracion} onChange={onChange} />;
   }
 
   if (codigo === "manualidad") {
-    return (
-      <div className="admin-config-builder__columns">
-        <ListaTextoEditor
-          titulo="Materiales"
-          valores={obtenerListaTexto(configuracion.materiales)}
-          etiquetaAgregar="Agregar material"
-          onChange={(materiales) => actualizar("materiales", materiales)}
-        />
-        <ListaTextoEditor
-          titulo="Pasos"
-          valores={obtenerListaTexto(configuracion.pasos)}
-          etiquetaAgregar="Agregar paso"
-          onChange={(pasos) => actualizar("pasos", pasos)}
-        />
-      </div>
-    );
+    return <ManualidadBuilder configuracion={configuracion} onChange={onChange} />;
   }
 
   if (codigo === "sopa_letras") {
-    return (
-      <div className="admin-config-builder__columns">
-        <ListaTextoEditor
-          titulo="Palabras"
-          valores={obtenerListaTexto(configuracion.palabras)}
-          etiquetaAgregar="Agregar palabra"
-          onChange={(palabras) => actualizar("palabras", palabras)}
-        />
-        <CampoConfiguracion
-          label="Filas"
-          value={String(configuracion.filas ?? 12)}
-          type="number"
-          onChange={(valor) => actualizar("filas", Number(valor))}
-        />
-        <CampoConfiguracion
-          label="Columnas"
-          value={String(configuracion.columnas ?? 12)}
-          type="number"
-          onChange={(valor) => actualizar("columnas", Number(valor))}
-        />
-      </div>
-    );
+    return <SopaLetrasBuilder configuracion={configuracion} onChange={onChange} />;
   }
 
   if (codigo === "rompecabezas") {
     return (
-      <div className="admin-config-builder__columns">
-        <SelectorMedioBiblioteca
-          configuracion={configuracion}
-          claveBase="imagen"
-          valorUrl={String(configuracion.imagen ?? "")}
-          tipo="imagen"
-          titulo="Imagen para rompecabezas"
-          descripcion="Selecciona una imagen existente o súbela desde la biblioteca de recursos."
-          vacio="Elegir imagen"
-          icono={<ImageIcon size={18} />}
-          recursos={resources}
-          uploading={uploading}
-          onUpload={onUpload}
-          onChange={onChange}
-        />
-        <CampoConfiguracion
-          label="Filas"
-          value={String(configuracion.filas ?? 3)}
-          type="number"
-          onChange={(valor) => actualizar("filas", Number(valor))}
-        />
-        <CampoConfiguracion
-          label="Columnas"
-          value={String(configuracion.columnas ?? 3)}
-          type="number"
-          onChange={(valor) => actualizar("columnas", Number(valor))}
-        />
-      </div>
+      <RompecabezasBuilder
+        configuracion={configuracion}
+        onChange={onChange}
+        onUpload={onUpload}
+        resources={resources}
+        uploading={uploading}
+      />
     );
   }
 
