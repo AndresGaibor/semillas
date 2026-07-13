@@ -269,6 +269,37 @@ export function ClubesPage() {
       {page.showChallenge ? (
         <CrearRetoModal pending={page.challengePending} onClose={() => page.setShowChallenge(false)} onSubmit={page.createChallenge} />
       ) : null}
+
+      <ConfirmDialog
+        open={!!confirmRemove}
+        mensaje={confirmRemove ? `¿Retirar a ${confirmRemove.member.apodo} del club?` : ""}
+        onConfirm={() => { if (confirmRemove) page.removeMember(confirmRemove.member.usuario_id); setConfirmRemove(null); }}
+        onCancel={() => setConfirmRemove(null)}
+      />
+      <ConfirmDialog
+        open={!!confirmTransfer}
+        mensaje={confirmTransfer ? `¿Transferir el liderazgo a ${confirmTransfer.member.apodo}? Tú pasarás a ser miembro.` : ""}
+        onConfirm={() => { if (confirmTransfer) page.transferLeadership(confirmTransfer.member.usuario_id); setConfirmTransfer(null); }}
+        onCancel={() => setConfirmTransfer(null)}
+      />
+      <ConfirmDialog
+        open={confirmRegenerate}
+        mensaje="El código anterior dejará de funcionar. ¿Generar uno nuevo?"
+        onConfirm={() => { page.regenerateCode(); setConfirmRegenerate(false); }}
+        onCancel={() => setConfirmRegenerate(false)}
+      />
+      <ConfirmDialog
+        open={confirmArchive}
+        mensaje="¿Archivar este club? Esta acción lo ocultará para todos."
+        onConfirm={() => { page.archiveClub(); setConfirmArchive(false); }}
+        onCancel={() => setConfirmArchive(false)}
+      />
+      <ConfirmDialog
+        open={confirmLeave}
+        mensaje="¿Salir de este club? Tu progreso personal no se perderá."
+        onConfirm={() => { page.leaveClub(); setConfirmLeave(false); }}
+        onCancel={() => setConfirmLeave(false)}
+      />
     </div>
   );
 }
