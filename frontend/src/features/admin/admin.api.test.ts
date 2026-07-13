@@ -1,32 +1,57 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import {
-  archivarTema,
-  actualizarSendaAdmin,
-  crearSendaAdmin,
-  duplicarTema,
-  obtenerSendaAdmin,
-  obtenerSendasAdmin,
-  type CrearSendaSolicitud,
-  type SendaAdmin
-} from "./admin.api";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from "bun:test";
+
+let archivarTema: typeof import("./admin.api")["archivarTema"];
+let actualizarSendaAdmin: typeof import("./admin.api")["actualizarSendaAdmin"];
+let crearSendaAdmin: typeof import("./admin.api")["crearSendaAdmin"];
+let duplicarTema: typeof import("./admin.api")["duplicarTema"];
+let obtenerSendaAdmin: typeof import("./admin.api")["obtenerSendaAdmin"];
+let obtenerSendasAdmin: typeof import("./admin.api")["obtenerSendasAdmin"];
+type CrearSendaSolicitud = import("./admin.api").CrearSendaSolicitud;
+type SendaAdmin = import("./admin.api").SendaAdmin;
 
 const originalFetch = globalThis.fetch;
 const originalLocalStorage = globalThis.localStorage;
 
-beforeEach(() => {
-  globalThis.fetch = originalFetch;
-  globalThis.localStorage = {
+function crearLocalStorageFalso() {
+  return {
     getItem: () => null,
     setItem: () => undefined,
     removeItem: () => undefined,
     clear: () => undefined,
     key: () => null,
-    length: 0
+    length: 0,
   } as Storage;
+}
+
+beforeEach(() => {
+  globalThis.fetch = originalFetch;
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: crearLocalStorageFalso(),
+  });
+});
+
+beforeAll(async () => {
+  mock.restore();
+  ({
+    archivarTema,
+    actualizarSendaAdmin,
+    crearSendaAdmin,
+    duplicarTema,
+    obtenerSendaAdmin,
+    obtenerSendasAdmin,
+  } = await import("./admin.api"));
+});
+
+afterAll(() => {
+  mock.restore();
 });
 
 afterEach(() => {
-  globalThis.localStorage = originalLocalStorage;
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: originalLocalStorage,
+  });
 });
 
 describe("admin.api", () => {

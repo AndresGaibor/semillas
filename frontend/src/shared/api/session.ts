@@ -3,57 +3,64 @@ const ACCESS_TOKEN_KEY = "semillas_access_token";
 const GUEST_TOKEN_KEY = "semillas_guest_token";
 const CONFLICTO_MENSAJE_KEY = "semillas_conflicto_vinculacion";
 
+function obtenerAlmacenLocal() {
+  if (typeof localStorage === "undefined") return null;
+
+  return localStorage;
+}
+
 export const sessionStorageApi = {
   getGuestUserId() {
-    return localStorage.getItem(GUEST_USER_ID_KEY);
+    return obtenerAlmacenLocal()?.getItem(GUEST_USER_ID_KEY) ?? null;
   },
 
   setGuestUserId(id: string) {
-    localStorage.setItem(GUEST_USER_ID_KEY, id);
+    obtenerAlmacenLocal()?.setItem(GUEST_USER_ID_KEY, id);
   },
 
   clearGuestUserId() {
-    localStorage.removeItem(GUEST_USER_ID_KEY);
+    obtenerAlmacenLocal()?.removeItem(GUEST_USER_ID_KEY);
   },
 
   getGuestToken() {
-    return localStorage.getItem(GUEST_TOKEN_KEY);
+    return obtenerAlmacenLocal()?.getItem(GUEST_TOKEN_KEY) ?? null;
   },
 
   setGuestToken(token: string) {
-    localStorage.setItem(GUEST_TOKEN_KEY, token);
+    obtenerAlmacenLocal()?.setItem(GUEST_TOKEN_KEY, token);
   },
 
   clearGuestToken() {
-    localStorage.removeItem(GUEST_TOKEN_KEY);
+    obtenerAlmacenLocal()?.removeItem(GUEST_TOKEN_KEY);
   },
 
   clearGuestSession() {
-    localStorage.removeItem(GUEST_USER_ID_KEY);
-    localStorage.removeItem(GUEST_TOKEN_KEY);
+    const almacenamiento = obtenerAlmacenLocal();
+    almacenamiento?.removeItem(GUEST_USER_ID_KEY);
+    almacenamiento?.removeItem(GUEST_TOKEN_KEY);
   },
 
   getAccessToken() {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return obtenerAlmacenLocal()?.getItem(ACCESS_TOKEN_KEY) ?? null;
   },
 
   setAccessToken(token: string) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    obtenerAlmacenLocal()?.setItem(ACCESS_TOKEN_KEY, token);
   },
 
   clearAccessToken() {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    obtenerAlmacenLocal()?.removeItem(ACCESS_TOKEN_KEY);
   },
 
   getConflictoMensaje() {
-    return localStorage.getItem(CONFLICTO_MENSAJE_KEY);
+    return obtenerAlmacenLocal()?.getItem(CONFLICTO_MENSAJE_KEY) ?? null;
   },
 
   setConflictoMensaje(mensaje: string) {
-    localStorage.setItem(CONFLICTO_MENSAJE_KEY, mensaje);
+    obtenerAlmacenLocal()?.setItem(CONFLICTO_MENSAJE_KEY, mensaje);
   },
 
   clearConflictoMensaje() {
-    localStorage.removeItem(CONFLICTO_MENSAJE_KEY);
+    obtenerAlmacenLocal()?.removeItem(CONFLICTO_MENSAJE_KEY);
   },
 };

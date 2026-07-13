@@ -18,5 +18,6 @@ describe("obtenerSeccionesSidebar", () => {
     expect(secciones).toHaveLength(1);
     expect(admin.titulo).toBe("Administración");
     expect(admin.items[0]!.label).toBe("Dashboard");
+    expect(admin.items.some((item) => item.to === "/admin/sendas")).toBe(false);
   });
 });

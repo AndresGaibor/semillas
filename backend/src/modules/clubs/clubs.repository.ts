@@ -47,8 +47,29 @@ export function crearClubsRepository(db: DbClient) {
             descripcion: schema.club.descripcion,
             activo: schema.club.activo,
             creadoEn: schema.club.creadoEn,
-            liderUsuarioId: sql<string | null>`max(case when ${schema.miembroClub.rolMiembro} in ('propietario', 'lider') then ${schema.miembroClub.usuarioId} end)`,
-            liderApodo: sql<string | null>`max(case when ${schema.miembroClub.rolMiembro} in ('propietario', 'lider') then coalesce(${schema.perfil.apodo}, 'Semillero') end)`,
+            liderUsuarioId: sql<string | null>`(
+              select responsable.usuario_id
+              from miembro_club responsable
+              where responsable.club_id = ${schema.club.id}
+                and responsable.rol_miembro in ('propietario', 'lider')
+              order by
+                case responsable.rol_miembro when 'propietario' then 0 else 1 end,
+                responsable.unido_en asc,
+                responsable.usuario_id asc
+              limit 1
+            )`,
+            liderApodo: sql<string | null>`(
+              select coalesce(perfil_responsable.apodo, 'Semillero')
+              from miembro_club responsable
+              left join perfil perfil_responsable on perfil_responsable.usuario_id = responsable.usuario_id
+              where responsable.club_id = ${schema.club.id}
+                and responsable.rol_miembro in ('propietario', 'lider')
+              order by
+                case responsable.rol_miembro when 'propietario' then 0 else 1 end,
+                responsable.unido_en asc,
+                responsable.usuario_id asc
+              limit 1
+            )`,
             miembros: sql<number>`count(distinct ${schema.miembroClub.usuarioId})`,
             retosAbiertos: sql<number>`count(distinct ${schema.retoClub.id}) filter (where ${schema.retoClub.fechaFin} > now())`,
           })

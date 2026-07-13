@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "bun:test";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import { sessionStorageApi } from "../../shared/api/session";
 
 let archivarClubAdmin: typeof import("./admin-clubes.api")["archivarClubAdmin"];
@@ -20,6 +20,7 @@ beforeAll(async () => {
   process.env.VITE_API_URL = "http://localhost";
   process.env.VITE_SUPABASE_URL = "http://localhost";
   process.env.VITE_SUPABASE_ANON_KEY = "clave-de-prueba";
+  mock.restore();
   ({
     archivarClubAdmin,
     cerrarRetoClubAdmin,
@@ -30,6 +31,10 @@ beforeAll(async () => {
     reactivarClubAdmin,
     transferirLiderazgoClubAdmin,
   } = await import("./admin-clubes.api"));
+});
+
+afterAll(() => {
+  mock.restore();
 });
 
 function configurarConexion(enLinea: boolean) {

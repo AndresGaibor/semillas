@@ -56,7 +56,7 @@ async function compartirConImagen(red: 'whatsapp' | 'facebook' | 'twitter' | 'na
       return true;
     }
   } catch (e) {
-    if (e instanceof DOMException && (e as DOMError).name === "AbortError") return false;
+    if (e instanceof DOMException && e.name === "AbortError") return false;
     // Si falla la generación de imagen, intentar solo con texto
     if (red === 'whatsapp') compartirWhatsApp(nombre, xp);
     if (red === 'facebook') compartirFacebook(nombre);

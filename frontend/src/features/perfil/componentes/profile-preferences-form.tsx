@@ -34,6 +34,20 @@ const textSizes = [
   { value: "grande", label: "Grande", example: "Aa" },
 ] as const;
 
+function obtenerAlmacenLocal() {
+  if (typeof localStorage === "undefined") return null;
+
+  return localStorage;
+}
+
+function leerPreferenciaLocal(clave: string, valorPorDefecto: string | null = null) {
+  return obtenerAlmacenLocal()?.getItem(clave) ?? valorPorDefecto;
+}
+
+function guardarPreferenciaLocal(clave: string, valor: string) {
+  obtenerAlmacenLocal()?.setItem(clave, valor);
+}
+
 function normalizarTamano(value?: string | null) {
   if (value === "pequeno" || value === "pequeño") return "pequeno";
   if (value === "grande") return "grande";
@@ -56,19 +70,19 @@ export function ProfilePreferencesForm({
 
   // Ajustes locales (localStorage)
   const [notificaciones, setNotificaciones] = useState(() => {
-    return localStorage.getItem("semillas-pref-notificaciones") !== "false";
+    return leerPreferenciaLocal("semillas-pref-notificaciones") !== "false";
   });
   const [wifiOnly, setWifiOnly] = useState(() => {
-    return localStorage.getItem("semillas-pref-wifi-only") === "true";
+    return leerPreferenciaLocal("semillas-pref-wifi-only") === "true";
   });
   const [contraste, setContraste] = useState(() => {
-    return localStorage.getItem("semillas-pref-contraste") === "alto";
+    return leerPreferenciaLocal("semillas-pref-contraste") === "alto";
   });
   const [parental, setParental] = useState(() => {
-    return localStorage.getItem("semillas-pref-parental") === "true";
+    return leerPreferenciaLocal("semillas-pref-parental") === "true";
   });
   const [tema, setTema] = useState<"sistema" | "claro" | "oscuro">(() => {
-    return (localStorage.getItem("semillas-pref-tema") || "sistema") as "sistema" | "claro" | "oscuro";
+    return (leerPreferenciaLocal("semillas-pref-tema") || "sistema") as "sistema" | "claro" | "oscuro";
   });
 
   useEffect(() => {
@@ -84,11 +98,11 @@ export function ProfilePreferencesForm({
   );
 
   const hasLocalChanges = useMemo(() => {
-    const prevNotif = localStorage.getItem("semillas-pref-notificaciones") !== "false";
-    const prevWifi = localStorage.getItem("semillas-pref-wifi-only") === "true";
-    const prevContraste = localStorage.getItem("semillas-pref-contraste") === "alto";
-    const prevParental = localStorage.getItem("semillas-pref-parental") === "true";
-    const prevTema = localStorage.getItem("semillas-pref-tema") || "sistema";
+    const prevNotif = leerPreferenciaLocal("semillas-pref-notificaciones") !== "false";
+    const prevWifi = leerPreferenciaLocal("semillas-pref-wifi-only") === "true";
+    const prevContraste = leerPreferenciaLocal("semillas-pref-contraste") === "alto";
+    const prevParental = leerPreferenciaLocal("semillas-pref-parental") === "true";
+    const prevTema = leerPreferenciaLocal("semillas-pref-tema") || "sistema";
 
     return (
       notificaciones !== prevNotif ||
@@ -106,11 +120,11 @@ export function ProfilePreferencesForm({
     if (!hasChanges) return;
 
     // Guardar cambios locales
-    localStorage.setItem("semillas-pref-notificaciones", String(notificaciones));
-    localStorage.setItem("semillas-pref-wifi-only", String(wifiOnly));
-    localStorage.setItem("semillas-pref-contraste", contraste ? "alto" : "normal");
-    localStorage.setItem("semillas-pref-parental", String(parental));
-    localStorage.setItem("semillas-pref-tema", tema);
+    guardarPreferenciaLocal("semillas-pref-notificaciones", String(notificaciones));
+    guardarPreferenciaLocal("semillas-pref-wifi-only", String(wifiOnly));
+    guardarPreferenciaLocal("semillas-pref-contraste", contraste ? "alto" : "normal");
+    guardarPreferenciaLocal("semillas-pref-parental", String(parental));
+    guardarPreferenciaLocal("semillas-pref-tema", tema);
 
     // Aplicar contraste al DOM
     if (contraste) {

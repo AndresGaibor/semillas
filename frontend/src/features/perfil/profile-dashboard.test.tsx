@@ -1,7 +1,14 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { ProfileDashboard } from "./profile-dashboard";
+mock.module("sonner", () => ({
+  toast: {
+    success: () => undefined,
+    error: () => undefined,
+  },
+}));
+
+const { ProfileDashboard } = await import("./profile-dashboard");
 
 const gruposEdad = [
   {

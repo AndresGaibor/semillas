@@ -8,12 +8,13 @@ export interface PropiedadesSwitch
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   etiqueta?: React.ReactNode;
   clase?: string;
+  onCheckedChange?: (checked: boolean) => void;
 }
 
 // ── Componente Switch ────────────────────────────────────────────────────────
 
 export const Switch = React.forwardRef<HTMLInputElement, PropiedadesSwitch>(
-  ({ etiqueta, clase, className, disabled, ...propiedades }, referencia) => {
+  ({ etiqueta, clase, className, disabled, onCheckedChange, onChange, ...propiedades }, referencia) => {
     return (
       <label
         className={unirClases(
@@ -33,6 +34,10 @@ export const Switch = React.forwardRef<HTMLInputElement, PropiedadesSwitch>(
               className,
               clase,
             )}
+            onChange={(evento) => {
+              onChange?.(evento);
+              onCheckedChange?.(evento.currentTarget.checked);
+            }}
             {...propiedades}
           />
           {/* Track visual */}

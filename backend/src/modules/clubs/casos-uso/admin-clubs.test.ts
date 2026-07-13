@@ -308,6 +308,17 @@ describe("casos de uso administrativos de clubes", () => {
     expect(consultaAdministrativa).not.toContain("usuario_app");
   });
 
+  test("el listado administrativo selecciona el responsable UUID sin agregarlo", async () => {
+    const fuente = await Bun.file(new URL("../clubs.repository.ts", import.meta.url)).text();
+    const inicio = fuente.indexOf("async listarClubesAdministracion");
+    const fin = fuente.indexOf("async contarMiembrosPorClub", inicio);
+    const consultaAdministrativa = fuente.slice(inicio, fin);
+
+    expect(consultaAdministrativa).toContain("select responsable.usuario_id");
+    expect(consultaAdministrativa).toContain("where responsable.club_id =");
+    expect(consultaAdministrativa).not.toContain("max(case when");
+  });
+
   test("el repositorio transfiere el rol de lider dentro de una transaccion", async () => {
     const { repositorio, llamadas } = crearRepositorioTransaccional([
       { usuario_id: "lider-1", rol_miembro: "lider" },

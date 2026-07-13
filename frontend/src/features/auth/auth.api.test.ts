@@ -1,14 +1,4 @@
-import { describe, expect, it, mock } from "bun:test";
-
-const peticionMock = mock(async () => ({
-  usuario: { id: "usuario-1" },
-  perfil: { id: "perfil-1" },
-  autenticacion: { tipo: "invitado", encabezado: "x-guest-user-id", valor: "abc", encabezado_token: "x-guest-token", token: "secret" },
-}));
-
-mock.module("../../shared/api/api", () => ({
-  peticion: peticionMock,
-}));
+import { afterAll, describe, expect, it, mock } from "bun:test";
 
 const iniciarSesionGoogleMock = mock(async () => "https://supabase.example/auth/v1/authorize");
 const iniciarSesionFacebookMock = mock(async () => "https://supabase.example/auth/v1/authorize-facebook");
@@ -28,29 +18,48 @@ mock.module("../../shared/auth/supabase", () => ({
   iniciarSesionConCorreo: iniciarSesionConCorreoMock,
 }));
 
+afterAll(() => {
+  mock.restore();
+});
+
 describe("auth.api", () => {
   it("crearSesionInvitado envía apodo y lee usuario/perfil/autenticacion", async () => {
     const { crearSesionInvitado } = await import("./auth.api");
 
-    const respuesta = await crearSesionInvitado({
-      apodo: "Semillero",
-      grupo_edad_id: "grupo-1",
-      url_avatar: "https://ejemplo.com/avatar.png",
-    });
+    const fetchOriginal = globalThis.fetch;
+    let ruta = "";
 
-    expect(peticionMock).toHaveBeenCalledWith("/autenticacion/invitado", {
-      metodo: "POST",
-      cuerpo: {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      ruta = new URL(request.url).pathname;
+
+      return new Response(JSON.stringify({
+        exito: true,
+        datos: {
+          usuario: { id: "usuario-1" },
+          perfil: { id: "perfil-1" },
+          autenticacion: { tipo: "invitado", encabezado: "x-guest-user-id", valor: "abc", encabezado_token: "x-guest-token", token: "secret" },
+        },
+      }), {
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    try {
+      const respuesta = await crearSesionInvitado({
         apodo: "Semillero",
         grupo_edad_id: "grupo-1",
         url_avatar: "https://ejemplo.com/avatar.png",
-      },
-      autenticar: false,
-    });
-    expect(respuesta.usuario.id).toBe("usuario-1");
-    expect(respuesta.perfil.id).toBe("perfil-1");
-    expect(respuesta.autenticacion.encabezado).toBe("x-guest-user-id");
-    expect(respuesta.autenticacion.token).toBe("secret");
+      });
+
+      expect(ruta).toBe("/autenticacion/invitado");
+      expect(respuesta.usuario.id).toBe("usuario-1");
+      expect(respuesta.perfil.id).toBe("perfil-1");
+      expect(respuesta.autenticacion.encabezado).toBe("x-guest-user-id");
+      expect(respuesta.autenticacion.token).toBe("secret");
+    } finally {
+      globalThis.fetch = fetchOriginal;
+    }
   });
 
   it("iniciarSesionGoogle delega al helper compartido", async () => {

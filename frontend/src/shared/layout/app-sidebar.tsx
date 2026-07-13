@@ -41,7 +41,6 @@ const items: SidebarItem[] = [
 const adminItems: SidebarItem[] = [
   { to: "/admin", label: "Dashboard", icon: "fa-house", match: (path) => path === "/admin" },
   { to: "/admin/temas", label: "Temas", icon: "fa-leaf", match: (path) => path.includes("/admin/temas") },
-  { to: "/admin/sendas", label: "Sendas", icon: "fa-route", match: (path) => path.includes("/admin/sendas") },
   { to: "/admin/actividades", label: "Actividades", icon: "fa-pen-to-square", match: (path) => path.includes("/admin/actividades") },
   { to: "/admin/usuarios", label: "Usuarios", icon: "fa-user-group", match: (path) => path.includes("/admin/usuarios") },
   { to: "/admin/clubes", label: "Clubes", icon: "fa-people-group", match: (path) => path.includes("/admin/clubes") },

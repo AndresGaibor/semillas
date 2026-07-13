@@ -1,8 +1,16 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
+mock.module("sonner", () => ({
+  toast: {
+    success: () => undefined,
+    error: () => undefined,
+  },
+}));
+
 import type { ClubAdminResumen } from "../admin-clubes.api";
-import { AdminClubesPanelVista } from "./admin-clubes-panel";
+
+const { AdminClubesPanelVista } = await import("./admin-clubes-panel");
 
 const clubActivo: ClubAdminResumen = {
   id: "club-semillas",
