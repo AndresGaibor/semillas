@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Globe } from "lucide-react";
+import { toast } from "sonner";
 import { LoginFormCard } from "../features/auth/componentes/login-form-card";
 import { LoginHeroPanel } from "../features/auth/componentes/login-hero-panel";
 import { useLoginPage } from "../features/auth/hooks/use-login-page";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import "../estilos.css";
 import "./login.css";
 import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
@@ -11,9 +13,21 @@ import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
     redirect: typeof search.redirect === "string" ? search.redirect : "/onboarding",
-  }),
+    ...(typeof search.reason === "string" ? { reason: search.reason } : {}),
+  }) as { redirect: string; reason?: string },
   component: LoginPage,
 });
+
+export function obtenerMensajeRedireccionLogin(reason?: string) {
+  if (reason === "backend_unavailable") {
+    return {
+      mensaje: "No pudimos verificar tu acceso porque el backend no respondió.",
+      descripcion: "Revisa tu conexión o intenta de nuevo en unos minutos.",
+    };
+  }
+
+  return null;
+}
 
 function LoginPage() {
   const search = Route.useSearch();
@@ -24,10 +38,18 @@ function LoginPage() {
     googleMutation,
     facebookMutation,
     facebookDisponible,
+    googleDisponible,
     handleEmailSuccess,
   } = useLoginPage({
     redirectTo: search.redirect,
   });
+
+  useEffect(() => {
+    const notificacion = obtenerMensajeRedireccionLogin(search.reason);
+    if (!notificacion) return;
+
+    toast.error(notificacion.mensaje, { description: notificacion.descripcion });
+  }, [search.reason]);
 
   return (
     <div className="login-page">
@@ -64,6 +86,7 @@ function LoginPage() {
             tabActivo={tabActivo}
             onCambiarTab={setTabActivo}
             facebookDisponible={facebookDisponible}
+            googleDisponible={googleDisponible}
           />
           <LoginHeroPanel />
         </main>

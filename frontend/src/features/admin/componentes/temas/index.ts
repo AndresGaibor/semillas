@@ -31,6 +31,8 @@ export { AgeGroupSelector } from './age-group-selector';
 export { CoverImageUpload } from './cover-image-upload';
 export { CrecerContentEditor } from './crecer-content-editor';
 export { CrecerStepSelector } from './crecer-step-selector';
+export { CrecerMatrixStatus } from './crecer-matrix-status';
+export type { CrecerMatrixAgeGroup, CrecerMatrixCell, CrecerMatrixCellStatus, CrecerMatrixStep } from './crecer-matrix-status';
 export { CrecerStepsCard } from './crecer-steps-card';
 export { CrecerStepsList } from './crecer-steps-list';
 export { EditThemeActionsPanel } from './edit-theme-actions-panel';

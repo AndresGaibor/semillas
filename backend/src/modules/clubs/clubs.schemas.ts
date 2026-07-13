@@ -18,6 +18,10 @@ export const transferLeadershipSchema = z.object({
   usuario_id: z.string().uuid()
 });
 
+export const transferLeadershipPublicSchema = z.object({
+  miembro_token: z.string().uuid()
+});
+
 export const createChallengeSchema = z.object({
   nombre: z.string().trim().min(3).max(120),
   descripcion: z.string().trim().max(300).optional(),

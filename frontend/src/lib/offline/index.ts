@@ -51,6 +51,7 @@ export {
 } from "./hooks";
 
 export { useDescargarTema, eliminarTemaDescargado } from "./useDescargarTema";
+export { claveCacheScope } from "./scoped-cache";
 export {
   construirRutaMediaOffline,
   mapearPaqueteOfflineARegistros,
@@ -64,3 +65,8 @@ export {
   obtenerUrlMediaLocal,
   OFFLINE_MEDIA_CACHE,
 } from "./media-cache";
+export {
+  descargarMediosTransaccional,
+  crearRegistrosMedia,
+  OFFLINE_MEDIA_STAGING_CACHE,
+} from "./download-transaction";

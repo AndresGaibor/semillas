@@ -16,29 +16,42 @@ import { toast } from "sonner";
 import {
   obtenerResumenAdminDetallado,
   obtenerEstudioTemaAdmin,
-  resolverRevisionTema,
+  obtenerRevisionAdmin,
+  obtenerRevisionesAdmin,
+  resolverRevisionAdmin,
   type ResumenAdminDetallado,
   type EstudioTemaAdmin,
+  type RevisionAdmin,
+  type DetalleRevisionAdmin,
 } from "@/features/admin/admin.api";
 
 export const Route = createFileRoute("/admin/revision")({ component: AdminRevisionPage });
 
 function AdminRevisionPage() {
   const queryClient = useQueryClient();
-  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
-  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [revisionSeleccionadaId, setRevisionSeleccionadaId] = useState<string | null>(null);
+  const [notesPorRevision, setNotesPorRevision] = useState<Record<string, string>>({});
 
-  const query = useQuery({
-    queryKey: ["admin", "dashboard", "detallado"],
-    queryFn: obtenerResumenAdminDetallado,
+  const cola = useQuery({
+    queryKey: ["admin", "revisiones"],
+    queryFn: () => obtenerRevisionesAdmin({ estado: "enviado", limit: 50, offset: 0 }),
   });
 
-  const revisiones = query.data?.revisiones ?? [];
+  const revisiones = cola.data?.revisiones ?? [];
 
   const revisionSeleccionada = useMemo(() => {
     if (!revisiones.length) return null;
-    return revisiones.find((revision) => revision.tema_id === selectedThemeId) ?? revisiones[0] ?? null;
-  }, [revisiones, selectedThemeId]);
+    return revisiones.find((revision) => revision.id === revisionSeleccionadaId) ?? revisiones[0] ?? null;
+  }, [revisiones, revisionSeleccionadaId]);
+
+  const detalleQuery = useQuery({
+    queryKey: ["admin", "revision", "detalle", revisionSeleccionada?.id ?? ""],
+    queryFn: async () => {
+      if (!revisionSeleccionada?.id) return null;
+      return obtenerRevisionAdmin(revisionSeleccionada.id);
+    },
+    enabled: Boolean(revisionSeleccionada?.id),
+  });
 
   const estudioQuery = useQuery({
     queryKey: ["admin", "revision", "estudio", revisionSeleccionada?.tema_id ?? ""],
@@ -50,13 +63,17 @@ function AdminRevisionPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: ({ temaId, estado }: { temaId: string; estado: "aprobado" | "cambios_solicitados" | "rechazado" }) =>
-      resolverRevisionTema(temaId, estado, notes[temaId]),
+    mutationFn: ({ id, estado, notas }: { id: string; estado: "aprobado" | "cambios_solicitados" | "rechazado"; notas?: string }) =>
+      resolverRevisionAdmin(id, { estado, notas }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["admin"] });
       toast.success("Revisión actualizada");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo resolver la revisión"),
+    onError: (error) => {
+      const mensaje = error instanceof Error ? error.message : "No se pudo resolver la revisión";
+      toast.error(mensaje);
+      void queryClient.invalidateQueries({ queryKey: ["admin", "revisiones"] });
+    },
   });
 
   return (
@@ -67,22 +84,22 @@ function AdminRevisionPage() {
           <h2>Revisión de contenido</h2>
           <p>Aprueba, solicita cambios o rechaza temas completos antes de publicarlos.</p>
         </div>
-        <button type="button" className="admin-secondary-button" onClick={() => query.refetch()}>
+        <button type="button" className="admin-secondary-button" onClick={() => cola.refetch()}>
           <RefreshCw size={17} /> Actualizar
         </button>
       </section>
 
-      {query.isLoading ? (
+      {cola.isLoading ? (
         <div className="admin-dashboard-state">
           <span><Loader2 className="animate-spin" /></span>
           <h2>Cargando revisiones</h2>
           <p>Consultando la cola editorial.</p>
         </div>
-      ) : query.isError ? (
+      ) : cola.isError ? (
         <div className="admin-dashboard-state">
           <span><ShieldCheck /></span>
           <h2>No se pudo cargar la cola</h2>
-          <p>{query.error instanceof Error ? query.error.message : "Vuelve a intentarlo."}</p>
+          <p>{cola.error instanceof Error ? cola.error.message : "Vuelve a intentarlo."}</p>
         </div>
       ) : revisiones.length === 0 ? (
         <div className="admin-dashboard-state">
@@ -94,20 +111,20 @@ function AdminRevisionPage() {
         <div className="admin-theme-studio__grid">
           <section className="admin-studio-card">
             <h3>Cola editorial</h3>
-            <p>Selecciona un tema para revisar su estado, notas y accesos directos.</p>
+            <p>Selecciona una revisión para revisar su detalle, notas y accesos directos.</p>
 
             <div className="admin-review-list mt-4">
               {revisiones.map((revision) => (
                 <button
                   key={revision.id}
                   type="button"
-                  onClick={() => setSelectedThemeId(revision.tema_id)}
-                  className={`admin-review-item text-left ${revisionSeleccionada?.tema_id === revision.tema_id ? "bg-violet-50" : ""}`}
+                  onClick={() => setRevisionSeleccionadaId(revision.id)}
+                  className={`admin-review-item text-left ${revisionSeleccionada?.id === revision.id ? "bg-violet-50" : ""}`}
                 >
                   <span><Clock3 size={17} /></span>
                   <div>
-                    <strong>{revision.titulo}</strong>
-                    <small>{revision.senda} · {revision.enviado_por}</small>
+                    <strong>{revision.titulo ?? "Tema sin título"}</strong>
+                    <small>{revision.senda ?? "Sin senda"} · {revision.enviado_por ?? "Anónimo"}</small>
                   </div>
                   <time>{new Date(revision.creado_en).toLocaleString("es-EC")}</time>
                 </button>
@@ -119,13 +136,14 @@ function AdminRevisionPage() {
             {revisionSeleccionada ? (
               <RevisionDetalle
                 revision={revisionSeleccionada}
+                detalle={detalleQuery.data ?? null}
                 estudio={estudioQuery.data ?? null}
-                notas={notes[revisionSeleccionada.tema_id] ?? revisionSeleccionada.notas ?? ""}
+                notas={notesPorRevision[revisionSeleccionada.id] ?? revisionSeleccionada.notas_envio ?? ""}
                 onNotasChange={(value) =>
-                  setNotes((actuales) => ({ ...actuales, [revisionSeleccionada.tema_id]: value }))
+                  setNotesPorRevision((actuales) => ({ ...actuales, [revisionSeleccionada.id]: value }))
                 }
                 onAction={(estado) =>
-                  mutation.mutate({ temaId: revisionSeleccionada.tema_id, estado })
+                  mutation.mutate({ id: revisionSeleccionada.id, estado, notas: notesPorRevision[revisionSeleccionada.id] })
                 }
                 pending={mutation.isPending}
               />
@@ -145,32 +163,35 @@ function AdminRevisionPage() {
 
 function RevisionDetalle({
   revision,
+  detalle,
   estudio,
   notas,
   onNotasChange,
   onAction,
   pending,
 }: {
-  revision: NonNullable<ResumenAdminDetallado["revisiones"][number]>;
+  revision: RevisionAdmin;
+  detalle: DetalleRevisionAdmin | null;
   estudio: EstudioTemaAdmin | null;
   notas: string;
   onNotasChange: (value: string) => void;
   onAction: (estado: "aprobado" | "cambios_solicitados" | "rechazado") => void;
   pending: boolean;
 }) {
+  const resumen = detalle?.resumen_contenido;
   return (
     <div className="space-y-4">
       <header>
         <span className="admin-eyebrow">Detalle de revisión</span>
-        <h3 className="mt-2 text-2xl font-black text-slate-900">{revision.titulo}</h3>
+        <h3 className="mt-2 text-2xl font-black text-slate-900">{revision.titulo ?? "Tema sin título"}</h3>
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          {revision.senda} · enviado por {revision.enviado_por}
+          {revision.senda ?? "Sin senda"} · enviado por {revision.enviado_por ?? "Anónimo"}
         </p>
       </header>
 
       <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
         <p className="text-sm leading-6 text-slate-700">
-          {revision.notas || "El autor no agregó notas."}
+          {revision.notas_envio || "El autor no agregó notas."}
         </p>
       </div>
 
@@ -196,6 +217,15 @@ function RevisionDetalle({
           <h4 className="text-sm font-black text-slate-900">Resumen editorial</h4>
           <p className="mt-2 text-sm text-slate-600">
             {estudio.completitud.porcentaje}% completo · {estudio.completitud.estadisticas.grupos_edad} franjas · {estudio.completitud.estadisticas.actividades} actividades
+          </p>
+        </div>
+      ) : null}
+
+      {resumen ? (
+        <div className="rounded-3xl border border-slate-200 p-4">
+          <h4 className="text-sm font-black text-slate-900">Contenido</h4>
+          <p className="mt-2 text-sm text-slate-600">
+            {resumen.pasos} pasos · {resumen.actividades} actividades · {resumen.grupos_edad} franjas
           </p>
         </div>
       ) : null}

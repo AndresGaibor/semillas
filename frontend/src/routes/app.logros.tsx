@@ -10,8 +10,8 @@ import { ProximaInsigniaWidget } from "../features/gamification/componentes/prox
 import { ModalCelebracion } from "../features/gamification/componentes/modal-celebracion";
 import { useLogrosPage } from "../features/logros/hooks/use-logros-page";
 
-import in1Img from "@/assets/images/Ilustraciones/in1.png";
-import in2Img from "@/assets/images/Ilustraciones/in2.png";
+import in1Img from "@/assets/images/Ilustraciones/in1.webp";
+import in2Img from "@/assets/images/Ilustraciones/in2.webp";
 import "./app-logros.css";
 
 export const Route = createFileRoute("/app/logros")({

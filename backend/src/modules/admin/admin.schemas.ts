@@ -145,6 +145,46 @@ export const resolveReviewSchema = z.object({
   notas: z.string().max(2000).optional()
 });
 
+export const createAdminUserSchema = z.object({
+  correo: z.string().trim().email().max(255),
+  password: z.string().min(8).max(72),
+  nombre_visible: z.string().trim().min(2).max(120),
+  apodo: z.string().trim().min(2).max(100).optional(),
+  rol: userRoleSchema.exclude(["invitado"]).default("usuario"),
+  grupo_edad_id: z.string().uuid().nullable().optional(),
+  avatar_url: z.string().url().max(500).nullable().optional(),
+  prefiere_audio: z.boolean().default(true),
+  tamano_texto_preferido: z.enum(["pequeno", "mediano", "grande"]).default("mediano"),
+  confirmar_correo: z.boolean().default(true)
+});
+
+export const reviewListQuerySchema = z.object({
+  q: z.string().trim().max(120).optional(),
+  estado: z.enum(["todos", "borrador", "enviado", "cambios_solicitados", "aprobado", "rechazado", "publicado"]).default("enviado"),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0)
+});
+
+export const reportsQuerySchema = z.object({
+  desde: z.string().date(),
+  hasta: z.string().date()
+}).superRefine(({ desde, hasta }, contexto) => {
+  const dias = (Date.parse(`${hasta}T00:00:00.000Z`) - Date.parse(`${desde}T00:00:00.000Z`)) / 86_400_000;
+  if (!Number.isFinite(dias) || dias < 0) {
+    contexto.addIssue({ code: "custom", path: ["hasta"], message: "La fecha final debe ser posterior a la inicial" });
+  } else if (dias > 366) {
+    contexto.addIssue({ code: "custom", path: ["hasta"], message: "El rango máximo es de 366 días" });
+  }
+});
+
+export const updatePlatformSettingsSchema = z.object({
+  nombre_plataforma: z.string().trim().min(2).max(80),
+  correo_soporte: z.union([z.string().email().max(255), z.literal("")]).default(""),
+  zona_horaria: z.string().trim().min(3).max(80),
+  notas_obligatorias_cambios: z.boolean(),
+  notas_obligatorias_rechazo: z.boolean()
+});
+
 export const createSendaSchema = z.object({
   codigo: z.string().min(2).max(50),
   nombre: z.string().min(2).max(100),
@@ -180,3 +220,9 @@ export const ajustesSistemaSchema = ajustesSistemaBaseSchema;
 export const actualizarAjustesSistemaSchema = ajustesSistemaBaseSchema.partial().refine((body) => Object.keys(body).length > 0, {
   message: "Envía al menos un cambio"
 });
+
+export type CreateAdminUserInput = z.infer<typeof createAdminUserSchema>;
+export type ReviewListQueryInput = z.infer<typeof reviewListQuerySchema>;
+export type ReportsQueryInput = z.infer<typeof reportsQuerySchema>;
+export type UpdatePlatformSettingsInput = z.infer<typeof updatePlatformSettingsSchema>;
+export type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;

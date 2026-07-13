@@ -1,7 +1,8 @@
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 import { reclamarLogro } from "./gamification-awards";
+import { calcularRachaDiaria } from "./racha.service";
 
 export type GamificationRepository = ReturnType<typeof crearGamificationRepository>;
 
@@ -16,6 +17,25 @@ export function crearGamificationRepository(db: DbClient) {
       `);
 
       return Array.isArray(level) ? level[0] ?? null : (level as unknown as Array<Record<string, unknown>>)[0] ?? null;
+    },
+
+    async listarReglasNivel() {
+      return db.select().from(schema.reglaNivel).orderBy(desc(schema.reglaNivel.xpMinima));
+    },
+
+    async obtenerRachaUsuario(usuarioId: string) {
+      const filas = await db
+        .select({ dia: sql<string>`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date::text` })
+        .from(schema.eventoProgreso)
+        .where(and(
+          eq(schema.eventoProgreso.usuarioId, usuarioId),
+          inArray(schema.eventoProgreso.tipoEvento, ["tema_completado", "actividad_respondida"]),
+          sql`(${schema.eventoProgreso.tipoEvento} = 'tema_completado' or ${schema.eventoProgreso.correcta} = true)`,
+        ))
+        .groupBy(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date`)
+        .orderBy(desc(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date`))
+        .limit(366);
+      return calcularRachaDiaria(filas.map((fila) => fila.dia));
     },
 
     async listarLogrosUsuario(usuarioId: string) {

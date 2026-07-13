@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
 import { queryClient } from "./query-client";
 import { router } from "../router";
@@ -13,21 +13,22 @@ import { obtenerMiPerfil } from "../features/perfil/profile.api";
 import { useAutoSync } from "@/lib/offline";
 import { OfflineBanner } from "@/componentes/ui/sync-status-badge";
 import { SugerenciaInstalacionPWA } from "@/componentes/ui/sugerencia-instalacion-pwa";
-import { PantallaCargaSesion } from "@/componentes/estados/pantalla-carga-sesion";
 import { PwaLifecycle } from "@/componentes/ui/pwa-lifecycle";
 import { clasificarErrorVinculacion, resolverRedireccionBootstrap } from "./bootstrap";
 import { publicarConflictoVinculacion } from "@/shared/auth/conflicto-vinculacion";
+import { migrarInvitadoSiCorresponde } from "../features/auth/migracion-invitado";
+import { aplicarTamanoTexto } from "../shared/accessibility/preferences";
 
 async function vincularCuentaPendiente() {
   const guestUserId = sessionStorageApi.getGuestUserId();
   const accessToken = sessionStorageApi.getAccessToken();
 
-  if (!guestUserId || !accessToken) {
-    return;
-  }
-
-  await reclamarCuentaInvitada();
-  sessionStorageApi.clearGuestSession();
+  await migrarInvitadoSiCorresponde({
+    guestUserId,
+    accessToken,
+    vincularCuenta: reclamarCuentaInvitada,
+    limpiarSesionInvitado: () => sessionStorageApi.clearGuestSession(),
+  });
   await queryClient.invalidateQueries({ queryKey: ["me"] });
 }
 
@@ -45,7 +46,8 @@ async function redirigirSegunOnboarding() {
 }
 
 function AuthBootstrap({ children }: { children: ReactNode }) {
-  const [listo, setListo] = useState(false);
+  // Las rutas públicas no deben esperar a una consulta de sesión remota para
+  // pintar el shell. Las rutas protegidas mantienen su guardia propia.
   useAutoSync(true);
 
   useEffect(() => {
@@ -56,6 +58,8 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
     } else {
       document.documentElement.classList.remove("alto-contraste");
     }
+
+    aplicarTamanoTexto(localStorage.getItem("semillas-pref-text-size"));
 
     // 2. Aplicar Tema (Modo Oscuro) temporalmente deshabilitado
     document.documentElement.classList.remove("dark");
@@ -93,17 +97,12 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
 
         return intentarVinculacion();
       })
-      .catch(() => undefined)
-      .finally(() => setListo(true));
+      .catch(() => undefined);
 
     return () => {
       detenerEscucha();
     };
   }, []);
-
-  if (!listo) {
-    return <PantallaCargaSesion />;
-  }
 
   return (
     <>

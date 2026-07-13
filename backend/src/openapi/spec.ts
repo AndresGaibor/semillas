@@ -321,6 +321,31 @@ const ClubPublicoSchema = ClubSchema.omit({ codigo_invitacion: true })
   .extend({ member_count: z.number().int().nonnegative() })
   .openapi("ClubPublico");
 
+const ReporteClubSchema = z.object({
+  id: z.string().uuid(),
+  club_id: z.string().uuid(),
+  reportado_por: z.string().uuid(),
+  reportado_usuario_id: z.string().uuid(),
+  categoria: z.enum(["contenido_inapropiado", "acoso", "datos_personales", "otro"]),
+  detalle: z.string().nullable(),
+  estado: z.enum(["abierto", "en_revision", "resuelto", "descartado"]),
+  resuelto_por: z.string().uuid().nullable(),
+  nota_resolucion: z.string().nullable(),
+  creado_en: z.string().datetime(),
+  actualizado_en: z.string().datetime(),
+}).openapi("ReporteClub");
+
+const CrearReporteClubBody = z.object({
+  miembro_token: z.string().uuid().openapi({ description: "Token público opaco de la membresía reportada" }),
+  categoria: z.enum(["contenido_inapropiado", "acoso", "datos_personales", "otro"]),
+  detalle: z.string().max(500).optional(),
+}).openapi("CrearReporteClubBody");
+
+const ResolverReporteClubBody = z.object({
+  estado: z.enum(["en_revision", "resuelto", "descartado"]),
+  nota: z.string().max(500).optional(),
+}).openapi("ResolverReporteClubBody");
+
 const NivelUsuario = z.object({
   usuario_id: z.string().uuid().nullable(),
   xp_total: z.number().nullable().openapi({ example: 1500 }),
@@ -699,6 +724,9 @@ registry.register("JoinClubBody", JoinClubBody);
 registry.register("ClubRankingEntry", ClubRankingEntry);
 registry.register("RetoClub", RetoClub);
 registry.register("CreateRetoBody", CreateRetoBody);
+registry.register("ReporteClub", ReporteClubSchema);
+registry.register("CrearReporteClubBody", CrearReporteClubBody);
+registry.register("ResolverReporteClubBody", ResolverReporteClubBody);
 
 registry.registerPath({ method: "get", path: "/", operationId: "getRoot", tags: ["system"], summary: "Raiz de la API",
   description: "Endpoint principal de Semillas", responses: { 200: { content: { "application/json": { schema: RootResponse } }, description: "Informacion de la API" } } });
@@ -774,6 +802,10 @@ registry.registerPath({ method: "patch", path: "/perfil/actualizar", operationId
   request: { body: { content: { "application/json": { schema: UpdateProfileBody } }, required: true } },
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ProfileResponse }) } }, description: "Perfil actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" } } });
 
+registry.registerPath({ method: "post", path: "/perfil/vincular-cuenta", operationId: "linkGuestAccount", tags: ["usuario"],
+  summary: "Vincular cuenta invitada", description: "Conserva el UUID, perfil, progreso y recompensas del usuario invitado al completar una sesión autenticada.",
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ vinculada: z.literal(true), usuario: z.unknown(), perfil: z.unknown().nullable() }) }) } }, description: "Cuenta vinculada" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "Sesión invitada o token Bearer inválido" }, 409: { content: { "application/json": { schema: ErrorResponse } }, description: "La identidad ya está vinculada" } } });
+
 registry.registerPath({ method: "get", path: "/progreso/mi", operationId: "getMyProgress", tags: ["progreso"],
   summary: "Mi progreso", description: "Temas iniciados/completados y progreso de actividades",
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ progresos_tema: z.array(ProgresoTema), progresos_actividad: z.array(ProgresoActividad) }) }) } }, description: "Progreso del usuario" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
@@ -794,6 +826,16 @@ registry.registerPath({ method: "get", path: "/clubes/mios", operationId: "getMy
 registry.registerPath({ method: "get", path: "/gamificacion/mi", operationId: "getMyGamification", tags: ["gamificacion"],
   summary: "Mi estado de gamificacion", description: "Nivel, XP total, logros e insignias del usuario",
   responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ nivel: NivelUsuario, logros: z.array(LogroUsuario) }) }) } }, description: "Estado de gamificacion" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" } } });
+
+registry.registerPath({ method: "post", path: "/gamificacion/logros/{logro_id}/reclamar", operationId: "claimAchievement", tags: ["gamificacion"],
+  summary: "Reclamar logro", description: "Marca un logro pendiente como reclamado y otorga su bono XP una sola vez.",
+  request: { params: z.object({ logro_id: z.string().uuid() }) },
+  responses: {
+    200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ reclamado: z.literal(true), bono_xp: z.number(), nombre: z.string() }) }) } }, description: "Logro reclamado" },
+    401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" },
+    404: { content: { "application/json": { schema: ErrorResponse } }, description: "Logro no encontrado" },
+  },
+});
 
 // ─── Auth paths ──────────────────────────────────────────────────────
 
@@ -957,6 +999,19 @@ registry.registerPath({ method: "post", path: "/clubes/{clubId}/retos", operatio
   request: { params: z.object({ clubId: z.string().uuid() }), body: { content: { "application/json": { schema: CreateRetoBody } }, required: true } },
   responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: RetoClub }) } }, description: "Reto creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Solo el lider puede crear retos" } } });
 
+registry.registerPath({ method: "post", path: "/clubes/{clubId}/reportes", operationId: "createClubReport", tags: ["clubes"],
+  summary: "Reportar miembro", description: "Reporta una conducta dentro de un club activo sin habilitar chat libre.",
+  request: { params: z.object({ clubId: z.string().uuid() }), body: { content: { "application/json": { schema: CrearReporteClubBody } }, required: true } },
+  responses: { 201: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ id: z.string().uuid() }) }) } }, description: "Reporte creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Reporte inválido" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Sin pertenencia al club" }, 429: { content: { "application/json": { schema: ErrorResponse } }, description: "Límite de reportes excedido" } } });
+
+registry.registerPath({ method: "get", path: "/administracion/reportes-clubes", operationId: "adminListClubReports", tags: ["administracion"],
+  summary: "Listar reportes de clubes", request: { query: z.object({ estado: z.enum(["abierto", "en_revision", "resuelto", "descartado"]).optional() }) },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(ReporteClubSchema) }) } }, description: "Reportes" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Solo administradores" } } });
+
+registry.registerPath({ method: "patch", path: "/administracion/reportes-clubes/{reporteId}", operationId: "adminResolveClubReport", tags: ["administracion"],
+  summary: "Resolver reporte de club", request: { params: z.object({ reporteId: z.string().uuid() }), body: { content: { "application/json": { schema: ResolverReporteClubBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: ReporteClubSchema }) } }, description: "Reporte actualizado" }, 409: { content: { "application/json": { schema: ErrorResponse } }, description: "Transición no permitida" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Solo administradores" } } });
+
 // ─── Media schemas ────────────────────────────────────────────────────
 
 const MediaUploadBody = z.object({
@@ -1103,9 +1158,36 @@ registry.registerPath({ method: "post", path: "/sync/push", operationId: "syncPu
 
 // ─── Generator ─────────────────────────────────────────────────────────
 
+// Estas rutas ya existen en Hono; se registran con un envelope genérico
+// mientras cada respuesta específica se documenta por módulo.
+const rutasRuntimeSinContratoEspecífico = [
+  ["delete", "/administracion/clubes/{clubId}/miembros/{usuarioId}"], ["delete", "/clubes/{clubId}"], ["delete", "/clubes/{clubId}/miembros/{miembroToken}"],
+  ["get", "/administracion/ajustes"], ["get", "/administracion/clubes"], ["get", "/administracion/clubes/{clubId}"], ["get", "/administracion/logros"], ["get", "/administracion/logros/catalogo"], ["get", "/administracion/logros/{logroId}"], ["get", "/administracion/reportes"], ["get", "/administracion/resumen/detallado"], ["get", "/administracion/revisiones"], ["get", "/administracion/revisiones/{revision_id}"], ["get", "/administracion/sendas"], ["get", "/administracion/sendas/{id}"], ["get", "/administracion/temas-listado"], ["get", "/administracion/temas/{tema_id}/estudio"], ["get", "/media/{id}/url"], ["get", "/temas/{tema_id}/portada"],
+  ["patch", "/administracion/ajustes"], ["patch", "/administracion/ajustes-plataforma"], ["patch", "/administracion/clubes/{clubId}"], ["patch", "/administracion/logros/{logroId}"], ["patch", "/administracion/sendas/{id}"], ["patch", "/clubes/{clubId}"],
+  ["post", "/administracion/actividades/{actividad_id}/duplicar"], ["post", "/administracion/clubes"], ["post", "/administracion/clubes/{clubId}/archivar"], ["post", "/administracion/clubes/{clubId}/miembros"], ["post", "/administracion/clubes/{clubId}/reactivar"], ["post", "/administracion/clubes/{clubId}/regenerar-codigo"], ["post", "/administracion/clubes/{clubId}/retos"], ["post", "/administracion/clubes/{clubId}/retos/{retoId}/cerrar"], ["post", "/administracion/clubes/{clubId}/transferir-liderazgo"], ["post", "/administracion/logros"], ["post", "/administracion/logros/{logroId}/archivar"], ["post", "/administracion/logros/{logroId}/reactivar"], ["post", "/administracion/revisiones/{revision_id}/resolver"], ["post", "/administracion/sendas"], ["post", "/administracion/temas/{tema_id}/actividades/reordenar"], ["post", "/administracion/temas/{tema_id}/archivar"], ["post", "/administracion/temas/{tema_id}/duplicar"], ["post", "/administracion/temas/{tema_id}/enviar-revision"], ["post", "/administracion/temas/{tema_id}/resolver-revision"], ["post", "/administracion/usuarios/acciones"], ["post", "/administracion/usuarios/cuenta"], ["post", "/administracion/usuarios/invitar"], ["post", "/administracion/usuarios/menores"], ["post", "/clubes/{clubId}/regenerar-codigo"], ["post", "/clubes/{clubId}/retos/{retoId}/reclamar"], ["post", "/clubes/{clubId}/transferir-liderazgo"], ["post", "/gamificacion/logros/{logroId}/reclamar"],
+] as const;
+
+const GenericEnvelope = z.object({
+  exito: z.boolean(), datos: z.unknown().optional(), error: z.string().optional(), codigo: z.string().optional(),
+}).openapi("GenericEnvelope");
+
+for (const [method, path] of rutasRuntimeSinContratoEspecífico) {
+  const parametros = Object.fromEntries([...path.matchAll(/\{([^}]+)\}/g)].map(([, nombre]) => [nombre, z.string()]));
+  registry.registerPath({
+    method,
+    path,
+    operationId: `runtime_${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+    tags: [path.startsWith("/administracion") ? "administracion" : path.startsWith("/clubes") ? "clubes" : "media"],
+    summary: `${method.toUpperCase()} ${path}`,
+    description: "Ruta Hono registrada en el contrato; la respuesta específica se documentará por módulo.",
+    ...(Object.keys(parametros).length > 0 ? { request: { params: z.object(parametros) } } : {}),
+    responses: { 200: { content: { "application/json": { schema: GenericEnvelope } }, description: "Respuesta de la operación" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "Sin permisos" } },
+  });
+}
+
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
-export const openApiSpec = generator.generateDocument({
+const generatedOpenApiSpec = generator.generateDocument({
   openapi: "3.1.0",
   info: {
     title: "Semillas",
@@ -1129,4 +1211,16 @@ export const openApiSpec = generator.generateDocument({
     { name: "media", description: "Recursos multimedia (imagenes, audio, video)" },
     { name: "sync", description: "Sincronizacion offline de eventos de progreso" }
   ]
-});
+  });
+
+export const openApiSpec = {
+  ...generatedOpenApiSpec,
+  components: {
+    ...(generatedOpenApiSpec.components ?? {}),
+    securitySchemes: {
+      bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT", description: "Token Supabase verificado por la API" },
+      guestUserId: { type: "apiKey", in: "header", name: "X-Guest-User-Id", description: "UUID público de la sesión invitada" },
+      guestToken: { type: "apiKey", in: "header", name: "X-Guest-Token", description: "Token de sesión invitada" },
+    },
+  },
+};

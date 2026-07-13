@@ -1,7 +1,7 @@
 import { Copy, UserPlus, Share2, Shield, Edit2, Check } from "lucide-react";
 import { Card } from "@/componentes/ui/card-base";
 import { Boton } from "@/componentes/ui/boton";
-import bannerKidsImg from "@/assets/images/Ilustraciones/Ninos 2.png";
+import bannerKidsImg from "@/assets/images/Ilustraciones/Ninos 2.webp";
 
 type PropsTarjetaClub = {
   nombre: string;

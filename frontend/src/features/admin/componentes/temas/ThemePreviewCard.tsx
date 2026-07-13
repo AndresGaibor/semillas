@@ -1,5 +1,5 @@
 import { Boton } from "@/componentes/ui/boton";
-import imgBoySheep from "@/assets/images/Ilustraciones/in2.png";
+import imgBoySheep from "@/assets/images/Ilustraciones/in2.webp";
 
 type ThemePreviewCardProps = {
   title: string;

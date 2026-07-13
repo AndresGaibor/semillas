@@ -2,9 +2,9 @@ import * as React from "react";
 import { BookOpen, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { EmailAuthForm } from "./email-auth-form";
 import { SocialLoginButton } from "./social-login-button";
-import googleIcon from "@/assets/images/icons/google.png";
-import facebookIcon from "@/assets/images/icons/facebook.png";
-import guestIcon from "@/assets/images/icons/invitado.png";
+import googleIcon from "@/assets/images/icons/google.webp";
+import facebookIcon from "@/assets/images/icons/facebook.webp";
+import guestIcon from "@/assets/images/icons/invitado.webp";
 
 export interface LoginFormCardProps {
   onGoogleClick: () => void;
@@ -18,6 +18,7 @@ export interface LoginFormCardProps {
   tabActivo: "social" | "email";
   onCambiarTab: (tab: "social" | "email") => void;
   facebookDisponible: boolean;
+  googleDisponible?: boolean;
 }
 
 export const LoginFormCard: React.FC<LoginFormCardProps> = ({
@@ -32,6 +33,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
   tabActivo,
   onCambiarTab,
   facebookDisponible,
+  googleDisponible = true,
 }) => {
   return (
     <section className="login-panel login-panel--form" aria-label="Opciones de inicio de sesión">
@@ -67,13 +69,15 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
 
         {tabActivo === "social" && (
           <div className="login-social" role="group" aria-label="Opciones de acceso">
-            <SocialLoginButton
-              tipo="google"
-              logo={googleIcon}
-              label="Continuar con Google"
-              onClick={onGoogleClick}
-              isPending={googlePending}
-            />
+            {googleDisponible && (
+              <SocialLoginButton
+                tipo="google"
+                logo={googleIcon}
+                label="Continuar con Google"
+                onClick={onGoogleClick}
+                isPending={googlePending}
+              />
+            )}
 
             {facebookDisponible && (
               <SocialLoginButton

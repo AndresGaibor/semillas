@@ -945,6 +945,98 @@
   font-weight:950;
 }
 
+.admin-crecer-matrix{
+  margin:1rem 0;
+}
+
+.admin-crecer-matrix__header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+
+.admin-crecer-matrix__header h2{
+  margin-top:.2rem;
+  color:var(--admin-text-heading);
+  font-size:1rem;
+  font-weight:920;
+}
+
+.admin-crecer-matrix__header p{
+  margin-top:.25rem;
+  color:var(--admin-text-muted);
+  font-size:.7rem;
+}
+
+.admin-crecer-matrix__legend{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:.45rem .75rem;
+  color:var(--admin-text-muted);
+  font-size:.62rem;
+  font-weight:750;
+}
+
+.admin-crecer-matrix__legend span{
+  display:inline-flex;
+  align-items:center;
+  gap:.25rem;
+}
+
+.admin-crecer-matrix__legend [data-status="complete"]{color:#16803c}
+.admin-crecer-matrix__legend [data-status="draft"]{color:#b7791f}
+.admin-crecer-matrix__legend [data-status="error"]{color:#c2413b}
+
+.admin-crecer-matrix__scroll{overflow-x:auto}
+
+.admin-crecer-matrix__table{
+  width:100%;
+  min-width:40rem;
+  border-collapse:separate;
+  border-spacing:.35rem;
+}
+
+.admin-crecer-matrix__table th{
+  padding:.35rem .45rem;
+  color:var(--admin-text-muted);
+  font-size:.62rem;
+  font-weight:850;
+  text-align:left;
+  white-space:nowrap;
+}
+
+.admin-crecer-matrix__table tbody th{color:var(--admin-text-heading)}
+
+.admin-crecer-matrix__cell{
+  display:flex;
+  min-width:6.4rem;
+  width:100%;
+  align-items:center;
+  justify-content:center;
+  gap:.3rem;
+  padding:.55rem .45rem;
+  border:1px solid var(--admin-border-default);
+  border-radius:.65rem;
+  color:var(--admin-text-muted);
+  background:var(--admin-bg-muted);
+  font-size:.6rem;
+  font-weight:850;
+  transition:transform .16s ease,border-color .16s ease;
+}
+
+.admin-crecer-matrix__cell:hover{transform:translateY(-1px);border-color:var(--admin-accent-primary)}
+.admin-crecer-matrix__cell--complete{border-color:rgba(22,128,60,.25);background:rgba(22,128,60,.08);color:#16803c}
+.admin-crecer-matrix__cell--draft{border-color:rgba(183,121,31,.25);background:rgba(183,121,31,.1);color:#a16207}
+.admin-crecer-matrix__cell--error{border-color:rgba(194,65,59,.25);background:rgba(194,65,59,.08);color:#c2413b}
+
+@media (max-width:700px){
+  .admin-crecer-matrix__header{flex-direction:column}
+  .admin-crecer-matrix__legend{justify-content:flex-start}
+}
+
 .admin-crecer-page .admin-completeness-list{
   gap:.35rem;
   margin-top:.75rem;

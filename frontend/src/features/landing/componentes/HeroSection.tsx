@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Boton } from "@/componentes/ui/boton";
 import { Heart, Play, ShieldCheck, Smile, Sprout } from "lucide-react";
-import landingImg from "@/assets/images/banners/landing_page.png";
+import { esIOS, estaInstaladaComoPWA } from "@/shared/utils/pwa";
+const landingImg = "/landing-hero.webp";
 
 const badges = [
   { icon: ShieldCheck, text: "Contenido seguro" },
@@ -9,7 +11,28 @@ const badges = [
   { icon: Heart, text: "Basada en la Biblia" },
 ];
 
+function isMobileDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+    window.navigator.userAgent
+  );
+}
+
 export function HeroSection() {
+  const [esMovil, setEsMovil] = useState(false);
+  const [yaInstalada, setYaInstalada] = useState(false);
+
+  useEffect(() => {
+    setEsMovil(isMobileDevice());
+    setYaInstalada(estaInstaladaComoPWA());
+  }, []);
+
+  const handleComenzarClick = (e: React.MouseEvent) => {
+    if (!esMovil || yaInstalada) return;
+    e.preventDefault();
+    window.location.assign("/install?redirect=/onboarding");
+  };
+
   return (
     <section className="hero">
       <div className="hero__content">
@@ -32,7 +55,11 @@ export function HeroSection() {
             asChild
             className="landing-button landing-button--primary landing-button--large h-auto rounded-full px-6 py-3"
           >
-            <Link to="/login" search={{ redirect: "/onboarding" }}>
+            <Link
+              to={esMovil && !yaInstalada ? "/install" : "/login"}
+              search={{ redirect: "/onboarding" }}
+              onClick={handleComenzarClick}
+            >
               <Play size={18} fill="currentColor" aria-hidden="true" />
               <span>Comenzar ahora</span>
             </Link>
@@ -50,7 +77,14 @@ export function HeroSection() {
       </div>
 
       <div className="hero__image">
-        <img src={landingImg} alt="Jesús caminando con niños en un paisaje alegre" loading="eager" />
+        <img
+          src={landingImg}
+          srcSet="/landing-hero-480.webp 480w, /landing-hero.webp 900w"
+          sizes="(max-width: 700px) 90vw, 48vw"
+          alt="Jesús caminando con niños en un paisaje alegre"
+          fetchPriority="high"
+          decoding="async"
+        />
       </div>
     </section>
   );

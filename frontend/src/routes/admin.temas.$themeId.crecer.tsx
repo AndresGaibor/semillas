@@ -11,7 +11,7 @@ import {
   Volume2,
 } from "lucide-react";
 
-import { AgeGroupSelector, CrecerContentEditor, CrecerStepSelector } from "@/features/admin/componentes/temas";
+import { AgeGroupSelector, CrecerContentEditor, CrecerMatrixStatus, CrecerStepSelector } from "@/features/admin/componentes/temas";
 import { useThemeCrecerPage } from "../features/admin/hooks/use-theme-crecer-page";
 
 export const Route = createFileRoute("/admin/temas/$themeId/crecer")({
@@ -62,6 +62,16 @@ function AdminThemeCrecerPage() {
       ),
     );
 
+  const getMatrixCell = (ageGroupId: string, stepCode: string) => {
+    if (editor.hasDraftForCell(ageGroupId, stepCode)) return "draft" as const;
+    const record = editor.stepsQuery.data?.find((step) => step.tipo_paso?.codigo === stepCode);
+    const content = record?.contenidos?.find((item) => item.grupo_edad_id === ageGroupId);
+    if (content?.titulo?.trim() && content.cuerpo?.trim() && content.cuerpo !== "Contenido pendiente...") {
+      return "complete" as const;
+    }
+    return "missing" as const;
+  };
+
   return (
     <div className="admin-theme-studio admin-crecer-page">
       <header className="admin-crecer-hero">
@@ -100,6 +110,16 @@ function AdminThemeCrecerPage() {
           </div>
         </div>
       </header>
+
+      <CrecerMatrixStatus
+        ageGroups={availableAgeGroups ?? []}
+        steps={editor.pasos}
+        getCell={getMatrixCell}
+        onSelect={(ageGroupId, stepCode) => {
+          editor.setSelectedAgeGroupId(ageGroupId);
+          editor.setActiveStepCode(stepCode);
+        }}
+      />
 
       <section className="admin-crecer-workflow" aria-label="Preparación del contenido CRECER">
         <div className="admin-crecer-workflow__intro">

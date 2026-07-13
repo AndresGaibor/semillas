@@ -265,7 +265,7 @@ describe("admin.api", () => {
 
     const guardado = await guardarAjustesAdmin({ correo_soporte: "ayuda@semillas.org", notas_obligatorias_cambios: false });
     expect(metodo).toBe("PATCH");
-    expect(ruta).toBe("/administracion/ajustes");
+    expect(ruta).toBe("/administracion/ajustes-plataforma");
     expect(cuerpo).toMatchObject({ correo_soporte: "ayuda@semillas.org", notas_obligatorias_cambios: false });
     expect(guardado.correo_soporte).toBe("ayuda@semillas.org");
   });

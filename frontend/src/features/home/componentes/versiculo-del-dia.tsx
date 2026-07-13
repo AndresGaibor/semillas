@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
-import versiculoImg from "@/assets/images/Ilustraciones/Versiculo del dia.png";
+import versiculoImg from "@/assets/images/Ilustraciones/Versiculo del dia.webp";
 import { Card } from "@/componentes/ui/card-base";
 
 export interface VersiculoDelDiaProps {

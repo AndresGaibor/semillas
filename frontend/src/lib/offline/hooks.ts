@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { db } from "./db";
 import { eliminarEventosFallidos, getPendingCount, getEventosFallidos, queueEventoProgreso, reintentarEventosFallidos } from "./outbox";
-import { startAutoSync, stopAutoSync, syncFull } from "./syncEngine";
+import { getSyncStatus, startAutoSync, stopAutoSync, syncFull } from "./syncEngine";
 import { obtenerUsoAlmacenamiento } from "./media-cache";
+import { claveSyncState, obtenerScopeOffline } from "./user-scope";
 
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
@@ -28,12 +29,15 @@ export function useSyncStatus() {
     queryFn: async () => {
       const pendingCount = await getPendingCount();
       const failedCount = (await getEventosFallidos()).length;
-      const syncState = await db.syncState.get("main");
+      const scopeId = await obtenerScopeOffline();
+      const syncState = scopeId ? await db.syncState.get(claveSyncState(scopeId)) : undefined;
+      const lifecycleStatus = getSyncStatus();
       return {
         pendingCount,
         failedCount,
         lastSyncTimestamp: syncState?.lastSyncTimestamp ?? null,
         lastSyncExito: syncState?.lastSyncExito ?? false,
+        isSyncing: lifecycleStatus === "syncing",
         isOnline,
       };
     },
@@ -105,12 +109,15 @@ export function useActividadesLocales(temaLocalId: string, grupoEdadId: string) 
 export function useProgresoLocal(temaLocalId: string) {
   return useQuery({
     queryKey: ["offline", "progreso", temaLocalId],
-    queryFn: () =>
-      db.progresoUsuario
+    queryFn: async () => {
+      const scopeId = await obtenerScopeOffline();
+      if (!scopeId) return undefined;
+      return db.progresoUsuario
         .where("temaLocalId")
         .equals(temaLocalId)
-        .filter((item) => item.actividadLocalId === null)
-        .first(),
+        .filter((item) => item.actividadLocalId === null && item.scopeId === scopeId)
+        .first();
+    },
     enabled: !!temaLocalId,
   });
 }
@@ -118,7 +125,11 @@ export function useProgresoLocal(temaLocalId: string) {
 export function useProgresosLocales() {
   return useQuery({
     queryKey: ["offline", "progresos"],
-    queryFn: () => db.progresoUsuario.toArray(),
+    queryFn: async () => {
+      const scopeId = await obtenerScopeOffline();
+      if (!scopeId) return [];
+      return db.progresoUsuario.filter((item) => item.scopeId === scopeId).toArray();
+    },
   });
 }
 

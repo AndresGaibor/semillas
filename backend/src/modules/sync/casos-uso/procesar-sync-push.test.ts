@@ -236,4 +236,97 @@ describe("procesar-sync-push", () => {
       bono_xp: 5,
     }]);
   });
+
+  it("procesa una sola vez dos pushes concurrentes con el mismo UUID", async () => {
+    const eventoId = "550e8400-e29b-41d4-a716-446655440200";
+    const temaId = "550e8400-e29b-41d4-a716-446655440201";
+    const registrados = new Set<string>();
+    let cola = Promise.resolve();
+    let proyecciones = 0;
+
+    const repositorio = {
+      registrarEvento: async (_usuarioId: string, evento: Record<string, unknown>) => {
+        const turnoAnterior = cola;
+        let liberar: () => void = () => undefined;
+        cola = new Promise<void>((resolve) => { liberar = resolve; });
+        await turnoAnterior;
+        const nuevo = !registrados.has(String(evento.evento_id_cliente));
+        if (nuevo) registrados.add(String(evento.evento_id_cliente));
+        liberar();
+        return nuevo;
+      },
+      obtenerProgresoTema: async () => undefined,
+      crearProgresoTema: async () => { proyecciones += 1; },
+      actualizarProgresoTema: async () => undefined,
+      obtenerProgresoActividad: async () => undefined,
+      crearProgresoActividad: async () => undefined,
+      actualizarProgresoActividad: async () => undefined,
+      listarEventosUsuario: async () => [],
+      listarProgresoTemas: async () => [],
+      listarProgresoActividades: async () => [],
+    } as never;
+
+    const procesar = crearCasoProcesarSyncPush({ repositorio });
+    const evento = {
+      evento_id_cliente: eventoId,
+      tipo_evento: "tema_iniciado" as const,
+      tema_id: temaId,
+      datos: {},
+      xp_otorgada: 999,
+      creado_en_cliente: "2026-01-01T00:00:00.000Z",
+    };
+
+    const [primero, segundo] = await Promise.all([
+      procesar("usuario-1", [evento]),
+      procesar("usuario-1", [evento]),
+    ]);
+
+    expect(primero.procesados + segundo.procesados).toBe(1);
+    expect(primero.omitidos + segundo.omitidos).toBe(1);
+    expect(proyecciones).toBe(1);
+  });
+
+  it("mantiene el aislamiento de idempotencia entre usuarios", async () => {
+    const eventoId = "550e8400-e29b-41d4-a716-446655440210";
+    const clavesRegistradas = new Set<string>();
+    const proyecciones: string[] = [];
+
+    const repositorio = {
+      registrarEvento: async (usuarioId: string, evento: Record<string, unknown>) => {
+        const clave = `${usuarioId}:${String(evento.evento_id_cliente)}`;
+        const nuevo = !clavesRegistradas.has(clave);
+        if (nuevo) clavesRegistradas.add(clave);
+        return nuevo;
+      },
+      obtenerProgresoTema: async () => undefined,
+      crearProgresoTema: async (usuarioId: string) => {
+        proyecciones.push(usuarioId);
+      },
+      actualizarProgresoTema: async () => undefined,
+      obtenerProgresoActividad: async () => undefined,
+      crearProgresoActividad: async () => undefined,
+      actualizarProgresoActividad: async () => undefined,
+      listarEventosUsuario: async () => [],
+      listarProgresoTemas: async () => [],
+      listarProgresoActividades: async () => [],
+    } as never;
+
+    const procesar = crearCasoProcesarSyncPush({ repositorio });
+    const evento = {
+      evento_id_cliente: eventoId,
+      tipo_evento: "tema_iniciado" as const,
+      tema_id: "550e8400-e29b-41d4-a716-446655440211",
+      xp_otorgada: 0,
+      datos: {},
+    };
+
+    const [usuarioA, usuarioB] = await Promise.all([
+      procesar("usuario-a", [evento]),
+      procesar("usuario-b", [evento]),
+    ]);
+
+    expect(usuarioA.procesados).toBe(1);
+    expect(usuarioB.procesados).toBe(1);
+    expect(proyecciones).toEqual(["usuario-a", "usuario-b"]);
+  });
 });

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Share2 } from "lucide-react";
 import { Boton } from "@/componentes/ui/boton";
-import shareKidsImg from "@/assets/images/Ilustraciones/Ninos_login.png";
+import shareKidsImg from "@/assets/images/Ilustraciones/Ninos_login.webp";
 
 export interface ClubComparteWidgetProps {
   onCompartir: () => void;

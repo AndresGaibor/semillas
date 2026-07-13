@@ -1,6 +1,6 @@
 import { Lock } from "lucide-react";
 import { useState } from "react";
-import defaultTemaImg from "@/assets/images/temas/default-tema.png";
+import defaultTemaImg from "@/assets/images/temas/default-tema.webp";
 
 type PropsIlustracion = {
   esSendaPadre: boolean;

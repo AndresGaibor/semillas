@@ -378,7 +378,7 @@ export function obtenerAjustesAdmin() {
 }
 
 export function guardarAjustesAdmin(datos: ActualizarAjustesAdminSolicitud) {
-  return peticion<AjustesAdmin>("/administracion/ajustes", {
+  return peticion<AjustesAdmin>("/administracion/ajustes-plataforma", {
     metodo: "PATCH",
     cuerpo: datos,
   });
@@ -544,6 +544,123 @@ export function resolverRevisionTema(idTema: string, estado: "aprobado" | "cambi
   return peticion(`/administracion/temas/${idTema}/resolver-revision`, {
     metodo: "POST",
     cuerpo: { estado, notas },
+  });
+}
+
+export type RevisionAdmin = {
+  id: string;
+  tema_id: string;
+  estado: string;
+  notas_envio: string | null;
+  notas_revision: string | null;
+  creado_en: string;
+  revisado_en: string | null;
+  titulo: string | null;
+  senda: string | null;
+  enviado_por: string | null;
+  revisado_por: string | null;
+};
+
+export type DetalleRevisionAdmin = {
+  revision: RevisionAdmin;
+  historial: RevisionAdmin[];
+  resumen_contenido: {
+    pasos: number;
+    actividades: number;
+    grupos_edad: number;
+  };
+};
+
+export type ListadoRevisionesAdmin = {
+  revisiones: RevisionAdmin[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type ResolverRevisionSolicitud = {
+  estado: "aprobado" | "cambios_solicitados" | "rechazado";
+  notas?: string;
+};
+
+export type ObtenerRevisionesAdminParams = {
+  q?: string;
+  estado?: "todos" | "borrador" | "enviado" | "cambios_solicitados" | "aprobado" | "rechazado" | "publicado";
+  limit?: number;
+  offset?: number;
+};
+
+export function obtenerRevisionesAdmin(params: ObtenerRevisionesAdminParams = {}) {
+  const busqueda = new URLSearchParams();
+  if (params.q) busqueda.set("q", params.q);
+  if (params.estado) busqueda.set("estado", params.estado);
+  busqueda.set("limit", String(params.limit ?? 20));
+  busqueda.set("offset", String(params.offset ?? 0));
+  return peticion<ListadoRevisionesAdmin>(`/administracion/revisiones?${busqueda.toString()}`);
+}
+
+export function obtenerRevisionAdmin(idRevision: string) {
+  return peticion<DetalleRevisionAdmin>(`/administracion/revisiones/${idRevision}`);
+}
+
+export function resolverRevisionAdmin(idRevision: string, datos: ResolverRevisionSolicitud) {
+  return peticion<RevisionAdmin>(`/administracion/revisiones/${idRevision}/resolver`, {
+    metodo: "POST",
+    cuerpo: datos,
+  });
+}
+
+export type ReportesAdmin = {
+  rango: { desde: string; hasta: string };
+  metricas: {
+    usuarios_activos: number;
+    usuarios_nuevos: number;
+    temas_completados: number;
+    actividades_completadas: number;
+    xp_otorgada: number;
+    precision_respuestas: number;
+    clubes_activos: number;
+    temas_publicados: number;
+  };
+  actividad_diaria: Array<{ fecha: string; eventos: number; usuarios: number; xp: number }>;
+  temas_destacados: Array<{
+    id: string;
+    titulo: string;
+    eventos: number;
+    completados: number;
+    usuarios: number;
+  }>;
+  distribucion_roles: Record<string, number>;
+  revision_editorial: {
+    por_estado: Record<string, number>;
+    tiempo_promedio_horas: number;
+    total: number;
+  };
+  muestra_limitada: boolean;
+};
+
+export function obtenerReportesAdmin(params: { desde: string; hasta: string }) {
+  const busqueda = new URLSearchParams(params);
+  return peticion<ReportesAdmin>(`/administracion/reportes?${busqueda.toString()}`);
+}
+
+export type CrearUsuarioAdminSolicitud = {
+  correo: string;
+  password: string;
+  nombre_visible: string;
+  apodo?: string;
+  rol: "administrador" | "usuario" | "padre";
+  grupo_edad_id?: string | null;
+  avatar_url?: string | null;
+  prefiere_audio: boolean;
+  tamano_texto_preferido: "pequeno" | "mediano" | "grande";
+  confirmar_correo: boolean;
+};
+
+export function crearUsuarioAdmin(datos: CrearUsuarioAdminSolicitud) {
+  return peticion<{ id: string }>("/administracion/usuarios/cuenta", {
+    metodo: "POST",
+    cuerpo: datos,
   });
 }
 

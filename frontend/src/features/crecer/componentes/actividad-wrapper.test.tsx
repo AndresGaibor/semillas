@@ -77,4 +77,14 @@ describe("ActividadWrapper", () => {
     expect(html).toContain("Respuesta correcta");
     expect(html).not.toContain("Actividad Audio");
   });
+
+  it("selecciona el renderer canónico de video para un paquete offline", () => {
+    const actividad = crearActividad("actividad_video", []);
+    actividad.configuracion = { video_url: "https://media.example/leccion.mp4" };
+
+    const html = renderizarActividad(actividad);
+
+    expect(html).toContain("<video");
+    expect(html).toContain("leccion.mp4");
+  });
 });

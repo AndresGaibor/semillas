@@ -125,7 +125,7 @@ describe("themes.service / crearPaqueteOffline", () => {
           },
           tipoActividad: {
             id: "tipo-quiz",
-            codigo: "quiz",
+            codigo: "cuestionario",
             nombre: "Quiz",
             descripcion: null,
             esJuego: false,

@@ -15,6 +15,12 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class UnprocessableEntityError extends HttpError {
+  constructor(message = "La entidad no cumple las reglas de negocio", details?: unknown) {
+    super(422, message, "UNPROCESSABLE_ENTITY", details);
+  }
+}
+
 export class UnauthorizedError extends HttpError {
   constructor(message = "No autenticado") {
     super(401, message, "UNAUTHORIZED");
@@ -30,5 +36,11 @@ export class ForbiddenError extends HttpError {
 export class NotFoundError extends HttpError {
   constructor(message = "No encontrado") {
     super(404, message, "NOT_FOUND");
+  }
+}
+
+export class ConflictError extends HttpError {
+  constructor(message = "Conflicto", details?: unknown) {
+    super(409, message, "CONFLICT", details);
   }
 }

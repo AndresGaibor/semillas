@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Boton } from "./boton";
 import { toast } from "sonner";
-import jesusParabolasImg from "@/assets/images/banners/landing_page.png"; // Usar el banner existente como ilustración
+const jesusParabolasImg = "/landing-hero.webp";
 
 export function SugerenciaInstalacionPWA() {
   const { disponible, instalar } = useInstalarPWA();

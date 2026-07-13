@@ -259,7 +259,9 @@ Cada módulo incluye:
 - Un archivo `.env.example`.
 - Versiones fijadas.
 
-Se recomienda usar un `docker-compose` que levante la base de datos y los servicios, para que cualquiera pueda arrancar en minutos.
+El entorno de desarrollo usa Supabase remoto y no requiere Docker ni
+`docker-compose`. Los servicios se ejecutan con Bun y las migraciones se
+aplican únicamente al proyecto remoto enlazado, con revisión previa.
 
 ### 5.7 Metodología ágil y organización del equipo
 

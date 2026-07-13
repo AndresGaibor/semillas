@@ -16,8 +16,8 @@ const club: Club = {
 
 const ranking: MiembroRankingClub[] = [
   {
-    club_id: "club-1",
-    usuario_id: "user-1",
+    miembro_token: "550e8400-e29b-41d4-a716-446655440001",
+    es_actual: true,
     rol_miembro: "lider",
     unido_en: "2026-07-01T12:00:00.000Z",
     apodo: "Andres",
@@ -29,8 +29,8 @@ const ranking: MiembroRankingClub[] = [
     numero_ranking: 1,
   },
   {
-    club_id: "club-1",
-    usuario_id: "user-2",
+    miembro_token: "550e8400-e29b-41d4-a716-446655440002",
+    es_actual: false,
     rol_miembro: "miembro",
     unido_en: "2026-07-02T12:00:00.000Z",
     apodo: "Mía",
@@ -86,7 +86,7 @@ export const Hero: Story = {
 };
 
 export const Ranking: Story = {
-  render: () => <RankingClub ranking={ranking} loading={false} currentUserId="user-1" />,
+  render: () => <RankingClub ranking={ranking} loading={false} />,
 };
 
 export const Retos: Story = {
@@ -97,7 +97,6 @@ export const Miembros: Story = {
   render: () => (
     <MiembrosClub
       members={ranking as MiembroClub[]}
-      currentUserId="user-1"
       isLeader
       pending={false}
       onRemove={() => undefined}

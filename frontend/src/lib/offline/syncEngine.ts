@@ -8,6 +8,9 @@ import {
   getPendingCount,
 } from "./outbox";
 import type { EventoOutbox, ProgresoUsuarioLocal } from "./db";
+import { claveSyncState, obtenerScopeOffline } from "./user-scope";
+import { calcularEsperaReintento } from "./sync-lifecycle";
+import { reconciliarConfirmacionesSync } from "./sync-reconciliation";
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
@@ -78,6 +81,8 @@ const SYNC_INTERVAL_MS = 30_000;
 const PUSH_BATCH_SIZE = 50;
 
 let syncIntervalId: ReturnType<typeof setInterval> | null = null;
+let retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
+let retryAttempt = 0;
 let isSyncing = false;
 
 export function getSyncStatus(): SyncStatus {
@@ -140,25 +145,16 @@ export async function pushPendingEvents(): Promise<{
           logrosDesbloqueados.set(logro.id, logro);
         }
 
-        const confirmados = new Set([
-          ...cuerpo.datos.procesados_ids,
-          ...cuerpo.datos.omitidos_ids,
-        ]);
-        const erroresServidor = new Map(
-          cuerpo.datos.errores.map((error) => [error.evento_id_cliente, error.error])
+        const reconciliacion = reconciliarConfirmacionesSync(
+          enviados.map(({ local }) => local.localId),
+          cuerpo.datos,
         );
-
-        for (const { local } of enviados) {
-          if (confirmados.has(local.localId)) {
-            await markEventoProcesado(local.localId);
-            procesados++;
-            continue;
-          }
-
-          await markEventoError(
-            local.localId,
-            erroresServidor.get(local.localId) ?? "El servidor no confirmó el evento"
-          );
+        for (const localId of reconciliacion.confirmados) {
+          await markEventoProcesado(localId);
+          procesados++;
+        }
+        for (const fallo of reconciliacion.fallidos) {
+          await markEventoError(fallo.localId, fallo.error);
           errores++;
         }
       } catch (error) {
@@ -182,7 +178,9 @@ export async function pushPendingEvents(): Promise<{
 }
 
 export async function pullCambios(): Promise<void> {
-  const syncState = await db.syncState.get("main");
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) throw new Error("No hay una sesión offline activa");
+  const syncState = await db.syncState.get(claveSyncState(scopeId));
   const params = new URLSearchParams();
   if (syncState?.lastSyncTimestamp) params.set("since", syncState.lastSyncTimestamp);
 
@@ -202,31 +200,32 @@ export async function pullCambios(): Promise<void> {
 
   await db.transaction("rw", [db.progresoUsuario, db.syncState, db.temas, db.actividades], async () => {
     for (const progreso of cuerpo.datos!.progreso.temas) {
-      await upsertProgresoTema(progreso);
+      await upsertProgresoTema(progreso, scopeId);
     }
 
     for (const progreso of cuerpo.datos!.progreso.actividades) {
-      await upsertProgresoActividad(progreso);
+      await upsertProgresoActividad(progreso, scopeId);
     }
 
     await db.syncState.put({
-      id: "main",
+      id: claveSyncState(scopeId),
       lastSyncTimestamp: cuerpo.datos!.timestamp_servidor,
       lastSyncExito: true,
       pendingCount,
       updatedAt: new Date().toISOString(),
+      scopeId,
     });
   });
 }
 
-async function upsertProgresoTema(progreso: ProgresoTemaApi): Promise<void> {
+async function upsertProgresoTema(progreso: ProgresoTemaApi, scopeId: string): Promise<void> {
   const tema = await db.temas.where("serverId").equals(progreso.tema_id).first();
   if (!tema) return;
 
   const serverId = `${progreso.usuario_id}:${progreso.tema_id}`;
   const existente =
-    (await db.progresoUsuario.where("serverId").equals(serverId).first()) ??
-    (await db.progresoUsuario.where("temaLocalId").equals(tema.localId).first());
+    (await db.progresoUsuario.where("serverId").equals(serverId).filter((item) => item.scopeId === scopeId).first()) ??
+    (await db.progresoUsuario.where("temaLocalId").equals(tema.localId).filter((item) => item.scopeId === scopeId).first());
   const ahora = new Date().toISOString();
   const datos: ProgresoUsuarioLocal = {
     localId: existente?.localId ?? crypto.randomUUID(),
@@ -243,17 +242,18 @@ async function upsertProgresoTema(progreso: ProgresoTemaApi): Promise<void> {
     createdAt: existente?.createdAt ?? ahora,
     updatedAt: progreso.actualizado_en ?? ahora,
     syncStatus: "synced",
+    scopeId,
   };
 
   await db.progresoUsuario.put(datos);
 }
 
-async function upsertProgresoActividad(progreso: ProgresoActividadApi): Promise<void> {
+async function upsertProgresoActividad(progreso: ProgresoActividadApi, scopeId: string): Promise<void> {
   const actividad = await db.actividades.where("serverId").equals(progreso.actividad_id).first();
   if (!actividad) return;
 
   const serverId = `${progreso.usuario_id}:${progreso.actividad_id}`;
-  const existente = await db.progresoUsuario.where("serverId").equals(serverId).first();
+  const existente = await db.progresoUsuario.where("serverId").equals(serverId).filter((item) => item.scopeId === scopeId).first();
   const ahora = new Date().toISOString();
 
   await db.progresoUsuario.put({
@@ -271,6 +271,7 @@ async function upsertProgresoActividad(progreso: ProgresoActividadApi): Promise<
     createdAt: existente?.createdAt ?? ahora,
     updatedAt: progreso.actualizado_en ?? ahora,
     syncStatus: "synced",
+    scopeId,
   });
 }
 
@@ -320,6 +321,7 @@ export async function syncFull(): Promise<SyncResult> {
   try {
     const pushResult = await pushPendingEvents();
     await pullCambios();
+    retryAttempt = 0;
     return {
       exito: pushResult.errores === 0,
       procesados: pushResult.procesados,
@@ -327,8 +329,10 @@ export async function syncFull(): Promise<SyncResult> {
       logrosDesbloqueados: pushResult.logrosDesbloqueados,
       timestamp: new Date().toISOString(),
     };
-  } catch {
+  } catch (error) {
     await actualizarEstadoSync(false);
+    programarReintento();
+    notificarFalloSincronizacion("No pudimos sincronizar tu progreso en segundo plano.");
     return {
       exito: false,
       procesados: 0,
@@ -349,6 +353,7 @@ export function startAutoSync(): void {
   }, SYNC_INTERVAL_MS);
 
   window.addEventListener("online", onOnline);
+  document.addEventListener("visibilitychange", onVisibilityChange);
   if (navigator.onLine) {
     window.setTimeout(() => void syncFull(), 1_000);
   }
@@ -360,6 +365,12 @@ export function stopAutoSync(): void {
     syncIntervalId = null;
   }
   window.removeEventListener("online", onOnline);
+  document.removeEventListener("visibilitychange", onVisibilityChange);
+  if (retryTimeoutId) {
+    clearTimeout(retryTimeoutId);
+    retryTimeoutId = null;
+  }
+  retryAttempt = 0;
 }
 
 async function onOnline(): Promise<void> {
@@ -367,16 +378,39 @@ async function onOnline(): Promise<void> {
   window.dispatchEvent(new CustomEvent("semillas:sync-state"));
 }
 
+async function onVisibilityChange(): Promise<void> {
+  if (document.visibilityState !== "visible" || !navigator.onLine || isSyncing) return;
+  if ((await getPendingCount()) > 0) await syncFull();
+}
+
+function programarReintento(): void {
+  if (!syncIntervalId || retryTimeoutId || !navigator.onLine) return;
+  const espera = calcularEsperaReintento(retryAttempt++);
+  retryTimeoutId = setTimeout(async () => {
+    retryTimeoutId = null;
+    const resultado = await syncFull();
+    if (!resultado.exito) programarReintento();
+  }, espera);
+}
+
 async function actualizarEstadoSync(exito: boolean): Promise<void> {
   const ahora = new Date().toISOString();
-  const existente = await db.syncState.get("main");
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) return;
+  const syncStateId = claveSyncState(scopeId);
+  const existente = await db.syncState.get(syncStateId);
   await db.syncState.put({
-    id: "main",
+    id: syncStateId,
     lastSyncTimestamp: existente?.lastSyncTimestamp ?? null,
     lastSyncExito: exito,
     pendingCount: await getPendingCount(),
     updatedAt: ahora,
+    scopeId,
   });
+}
+
+export function notificarFalloSincronizacion(mensaje: string): void {
+  window.dispatchEvent(new CustomEvent("semillas:sync-error", { detail: { mensaje } }));
 }
 
 function getAuthHeaders(conJson: boolean): Record<string, string> {

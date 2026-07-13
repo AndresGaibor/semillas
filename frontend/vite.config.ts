@@ -12,7 +12,8 @@ export default defineConfig({
   plugins: [
     tanstackRouter({
       target: "react",
-      autoCodeSplitting: true
+      autoCodeSplitting: true,
+      routeFileIgnorePattern: "\\.test\\."
     }),
     react(),
     tailwindcss(),
@@ -23,13 +24,14 @@ export default defineConfig({
         type: "classic",
         navigateFallback: "index.html",
       },
-      includeAssets: ["icons/*.svg"],
+      includeAssets: ["icons/*.svg", "icons/*.png"],
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         navigateFallback: "/index.html",
-        globPatterns: ["**/*.{js,css,html,ico,json,png,jpg,jpeg,svg,webp,woff,woff2,mp3,wav,ogg,m4a,mp4,webm}"],
+        // El contenido pesado se descarga bajo demanda y se guarda en caches runtime/IndexedDB.
+        globPatterns: ["**/*.{js,css,html,ico,json,svg,woff,woff2}"],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
           {
@@ -92,22 +94,39 @@ export default defineConfig({
         ],
       },
       manifest: {
+        id: "/",
+        lang: "es",
         name: "Semillas",
         short_name: "Semillas",
         description: "Plataforma cristiana de aprendizaje para niños y adolescentes",
         theme_color: "#2E9E5B",
         background_color: "#F7F4EC",
         display: "standalone",
+        orientation: "portrait-primary",
+        scope: "/",
         start_url: "/",
+        categories: ["education", "kids"],
         icons: [
           {
-            src: "/icons/icon-192.svg",
-            sizes: "192x192",
+            src: "/icons/logo_original.webp",
+            sizes: "512x512",
+            type: "image/webp",
             purpose: "any"
           },
           {
             src: "/icons/icon-512.svg",
             sizes: "512x512",
+            purpose: "any"
+          },
+          {
+            src: "/icons/maskable-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable"
+          },
+          {
+            src: "/icons/icon-192.svg",
+            sizes: "192x192",
             purpose: "any"
           }
         ]

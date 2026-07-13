@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SendaCard } from "./senda-card";
-import sendaPadreImg from "@/assets/images/Ilustraciones/Senda del Padre.png";
+import sendaPadreImg from "@/assets/images/Ilustraciones/Senda del Padre.webp";
 
 const meta: Meta<typeof SendaCard> = {
   title: "Features/Home/SendaCard",

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import dashboardBannerImg from "@/assets/images/banners/Dashboard_prinicipal.png";
-import senderoPadreImg from "@/assets/images/Ilustraciones/Senda del Padre.png";
-import senderoHijoImg from "@/assets/images/Ilustraciones/Senda del hijo.png";
-import senderoEspirituImg from "@/assets/images/Ilustraciones/Senda del espiritu santo.png";
+import dashboardBannerImg from "@/assets/images/banners/Dashboard_prinicipal.webp";
+import senderoPadreImg from "@/assets/images/Ilustraciones/Senda del Padre.webp";
+import senderoHijoImg from "@/assets/images/Ilustraciones/Senda del hijo.webp";
+import senderoEspirituImg from "@/assets/images/Ilustraciones/Senda del espiritu santo.webp";
 import { InicioHero } from "@/features/home/componentes/inicio-hero";
 import { PathsGrid } from "@/features/home/componentes/paths-grid";
 import { ProximoObjetivoWidget } from "@/features/home/componentes/proximo-objetivo-widget";

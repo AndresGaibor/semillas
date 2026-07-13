@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Actividad } from "../../shared/api/api";
 import { playSound } from "../../lib/audio";
 import { ChevronRight, Star, HeartHandshake, ShieldAlert, Check, X } from "lucide-react";
-import imagenDefault from "../../assets/images/Ilustraciones/Exploradores.png";
+import imagenDefault from "../../assets/images/Ilustraciones/Exploradores.webp";
 import { CompletadoCard } from "./CompletadoCard";
 
 interface AventuraDecisionesProps {

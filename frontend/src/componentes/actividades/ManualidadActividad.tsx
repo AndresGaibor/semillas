@@ -1,5 +1,5 @@
 import { Check, CheckCircle2, Circle, Scissors, Paintbrush, ArrowRight } from "lucide-react";
-import iconoCandado from "../../assets/images/icons/candado.png";
+import iconoCandado from "../../assets/images/icons/candado.webp";
 import { useManualidad } from "./hooks/use-manualidad";
 
 interface ManualidadActividadProps {

@@ -7,7 +7,7 @@ import { OpcionesRespuesta } from "@/features/crecer/componentes/opciones-respue
 import { PreguntaItem } from "@/features/crecer/componentes/pregunta-item";
 import { PreguntasReflexion } from "@/features/crecer/componentes/preguntas-reflexion";
 import { StoryRouter } from "./story-router";
-import conectarImg from "@/assets/images/Ilustraciones/Conectar.png";
+import conectarImg from "@/assets/images/Ilustraciones/Conectar.webp";
 
 const opciones = [
   { id: "amor", actividad_id: "actividad-reflexion", etiqueta: "A", texto: "Ayudar con alegría", orden: 1, correcta: true, retroalimentacion: "¡Muy bien!" },

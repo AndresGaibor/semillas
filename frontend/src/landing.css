@@ -333,11 +333,11 @@
 }
 
 .path-card--yellow .path-label,
-.path-card--yellow h3 { color: #eea522; }
+.path-card--yellow h3 { color: #8a5b00; }
 .path-card--blue .path-label,
 .path-card--blue h3 { color: #2167c9; }
 .path-card--purple .path-label,
-.path-card--purple h3 { color: #7a57c9; }
+.path-card--purple h3 { color: #6542ae; }
 
 .path-card h3 {
   font-size: clamp(2rem, 3vw, 2.5rem);
@@ -363,9 +363,9 @@
   margin-top: auto;
 }
 
-.path-card--yellow .icon-btn { background: #eea522; }
+.path-card--yellow .icon-btn { background: #8a5b00; }
 .path-card--blue .icon-btn { background: #2167c9; }
-.path-card--purple .icon-btn { background: #7a57c9; }
+.path-card--purple .icon-btn { background: #6542ae; }
 
 .path-card__image-wrap {
   position: absolute;
@@ -528,22 +528,22 @@
 }
 
 .step-circle--green { background: var(--color-primario); }
-.step-circle--blue { background: #3d78d8; }
-.step-circle--yellow { background: #efab35; }
-.step-circle--purple { background: #7a57c9; }
-.step-circle--red { background: #df5044; }
-.step-circle--orange { background: #eb8a2a; }
+.step-circle--blue { background: #2c62b1; }
+.step-circle--yellow { background: #9a6400; }
+.step-circle--purple { background: #6542ae; }
+.step-circle--red { background: #b83228; }
+.step-circle--orange { background: #a85d00; }
 
 .timeline-step h3 {
   font-size: 1.05rem;
 }
 
 .timeline-step--green h3 { color: var(--color-primario); }
-.timeline-step--blue h3 { color: #3d78d8; }
-.timeline-step--yellow h3 { color: #efab35; }
-.timeline-step--purple h3 { color: #7a57c9; }
-.timeline-step--red h3 { color: #df5044; }
-.timeline-step--orange h3 { color: #eb8a2a; }
+.timeline-step--blue h3 { color: #2c62b1; }
+.timeline-step--yellow h3 { color: #9a6400; }
+.timeline-step--purple h3 { color: #6542ae; }
+.timeline-step--red h3 { color: #b83228; }
+.timeline-step--orange h3 { color: #a85d00; }
 
 .timeline-step p {
   font-size: 0.95rem;
@@ -741,6 +741,10 @@
   .hero {
     padding: 30px 20px;
     gap: 24px;
+  }
+
+  .hero__image {
+    order: -1;
   }
 
   .hero__content h1 {

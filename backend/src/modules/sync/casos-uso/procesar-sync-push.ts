@@ -1,9 +1,11 @@
 import type { SyncRepository } from "../sync.repository";
 import type { SyncPushEvent } from "../sync.schemas";
+import { crearSyncUnitOfWork } from "../sync.unit-of-work";
 
 type Dependencias = {
   repositorio: SyncRepository;
 };
+type LogroSync = { id: string; codigo: string; nombre: string; bono_xp: number };
 
 function sanitizarEvento(evento: SyncPushEvent): SyncPushEvent {
   return {
@@ -16,6 +18,7 @@ function sanitizarEvento(evento: SyncPushEvent): SyncPushEvent {
 
 export function crearCasoProcesarSyncPush({ repositorio }: Dependencias) {
   return async function procesarSyncPush(usuarioId: string, eventos: SyncPushEvent[]) {
+    const unidadDeTrabajo = crearSyncUnitOfWork(repositorio);
     const procesados_ids: string[] = [];
     const omitidos_ids: string[] = [];
     const errores: { evento_id_cliente: string; error: string }[] = [];
@@ -103,76 +106,76 @@ export function crearCasoProcesarSyncPush({ repositorio }: Dependencias) {
           completarTema = true;
         }
 
-        const insertado = await repositorio.registrarEvento(usuarioId, evento);
-        if (!insertado) {
+        const resultado = await unidadDeTrabajo.ejecutar(async (repo) => {
+          const insertado = await repo.registrarEvento(usuarioId, evento);
+          if (!insertado) return { insertado: false, logros: [] as LogroSync[] };
+
+          const logros: LogroSync[] = [];
+
+          if (respuestaValidada) {
+            await repo.aplicarRespuestaActividad(
+              usuarioId,
+              respuestaValidada.actividadId,
+              respuestaValidada.temaId,
+              respuestaValidada.correcta,
+            );
+          }
+
+          if (actividadCompletadaValidada) {
+            await repo.aplicarActividadCompletada(
+              usuarioId,
+              actividadCompletadaValidada.actividadId,
+              actividadCompletadaValidada.temaId,
+            );
+          }
+
+          if (
+            (evento.tipo_evento === "bloque_iniciado" || evento.tipo_evento === "bloque_completado") &&
+            evento.tema_id &&
+            evento.paso_id
+          ) {
+            await repo.registrarPasoActual(usuarioId, evento.tema_id, evento.paso_id);
+          }
+
+          if (completarTema && evento.tema_id) {
+            await repo.marcarTemaCompletado(usuarioId, evento.tema_id);
+          }
+
+          if (completarTema || (respuestaValidada?.correcta ?? false)) {
+            const nuevosLogros = await repo.evaluarLogrosUsuario(usuarioId);
+            for (const logro of nuevosLogros) {
+              logros.push({ id: logro.id, codigo: logro.codigo, nombre: logro.nombre, bono_xp: logro.bonoXp });
+            }
+          }
+
+          if (evento.tipo_evento === "tema_iniciado" && evento.tema_id) {
+            const existente = await repo.obtenerProgresoTema(usuarioId, evento.tema_id);
+            const ahora = new Date();
+            const inicioCliente = evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : ahora;
+            const inicio = Number.isNaN(inicioCliente.getTime()) || inicioCliente > ahora ? ahora : inicioCliente;
+
+            if (!existente) {
+              await repo.crearProgresoTema(usuarioId, evento.tema_id, {
+                estado: "en_progreso", porcentaje: 0, iniciadoEn: inicio, completadoEn: null, actualizadoEn: ahora,
+              });
+            } else if (!existente.iniciadoEn) {
+              await repo.actualizarProgresoTema(usuarioId, evento.tema_id, {
+                estado: "en_progreso", iniciadoEn: inicio, actualizadoEn: ahora,
+              });
+            }
+          }
+
+          return { insertado: true, logros };
+        });
+
+        if (!resultado.insertado) {
           omitidos_ids.push(evento.evento_id_cliente);
           continue;
         }
 
         procesados_ids.push(evento.evento_id_cliente);
-
-        if (respuestaValidada) {
-          await repositorio.aplicarRespuestaActividad(
-            usuarioId,
-            respuestaValidada.actividadId,
-            respuestaValidada.temaId,
-            respuestaValidada.correcta,
-          );
-        }
-
-        if (actividadCompletadaValidada) {
-          await repositorio.aplicarActividadCompletada(
-            usuarioId,
-            actividadCompletadaValidada.actividadId,
-            actividadCompletadaValidada.temaId,
-          );
-        }
-
-        if (
-          (evento.tipo_evento === "bloque_iniciado" || evento.tipo_evento === "bloque_completado") &&
-          evento.tema_id &&
-          evento.paso_id
-        ) {
-          await repositorio.registrarPasoActual(usuarioId, evento.tema_id, evento.paso_id);
-        }
-
-        if (completarTema && evento.tema_id) {
-          await repositorio.marcarTemaCompletado(usuarioId, evento.tema_id);
-        }
-
-        if (completarTema || (respuestaValidada?.correcta ?? false)) {
-          const nuevosLogros = await repositorio.evaluarLogrosUsuario(usuarioId);
-          for (const logro of nuevosLogros) {
-            logrosDesbloqueados.set(logro.id, {
-              id: logro.id,
-              codigo: logro.codigo,
-              nombre: logro.nombre,
-              bono_xp: logro.bonoXp,
-            });
-          }
-        }
-
-        if (evento.tipo_evento === "tema_iniciado" && evento.tema_id) {
-          const existente = await repositorio.obtenerProgresoTema(usuarioId, evento.tema_id);
-          const ahora = new Date();
-          const inicioCliente = evento.creado_en_cliente ? new Date(evento.creado_en_cliente) : ahora;
-          const inicio = Number.isNaN(inicioCliente.getTime()) || inicioCliente > ahora ? ahora : inicioCliente;
-
-          if (!existente) {
-            await repositorio.crearProgresoTema(usuarioId, evento.tema_id, {
-              estado: "en_progreso",
-              porcentaje: 0,
-              iniciadoEn: inicio,
-              completadoEn: null,
-              actualizadoEn: ahora,
-            });
-          } else if (!existente.iniciadoEn) {
-            await repositorio.actualizarProgresoTema(usuarioId, evento.tema_id, {
-              estado: "en_progreso",
-              iniciadoEn: inicio,
-              actualizadoEn: ahora,
-            });
-          }
+        for (const logro of resultado.logros) {
+          logrosDesbloqueados.set(logro.id, logro);
         }
       } catch (error) {
         const mensaje = error instanceof Error ? error.message : "Error desconocido";

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Globe, Lock, ArrowLeft, LoaderCircle, CheckCircle } from "lucide-react";
 import { supabase } from "@/shared/auth/supabase";
 import { toast } from "sonner";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import "../estilos.css";
 import "./login.css";
 

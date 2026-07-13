@@ -9,7 +9,7 @@ import {
   createChallengeSchema,
   createClubSchema,
   joinClubSchema,
-  transferLeadershipSchema,
+  transferLeadershipPublicSchema,
   updateClubSchema,
 } from "./clubs.schemas";
 import { crearClubsRepository } from "./clubs.repository";
@@ -21,6 +21,8 @@ import {
   serializarRankingClub,
   serializarRetoClub,
 } from "./clubs.mapper";
+import { crearCasoModeracionClub } from "./casos-uso/moderation";
+import { crearReporteClubSchema } from "./moderation.schemas";
 
 export const clubsRoutes = new Hono<AppBindings>();
 
@@ -30,6 +32,12 @@ function crearCasos(c: Context<AppBindings>) {
   const cliente = c.get("drizzle");
   if (!cliente) throw new Error("Cliente Drizzle no disponible");
   return crearCasosUsoClubs(crearClubsRepository(cliente));
+}
+
+function crearModeracion(c: Context<AppBindings>) {
+  const cliente = c.get("drizzle");
+  if (!cliente) throw new Error("Cliente Drizzle no disponible");
+  return crearCasoModeracionClub(crearClubsRepository(cliente));
 }
 
 clubsRoutes.get("/mios", async (c) => {
@@ -94,7 +102,7 @@ clubsRoutes.get("/:clubId", async (c) => {
       rol_miembro: membresia.rolMiembro,
       unido_en: membresia.unidoEn.toISOString(),
     },
-    members: members.map(serializarMiembroClub),
+    members: members.map((member) => serializarMiembroClub({ ...member, es_actual: String(member.usuario_id) === c.get("user").id })),
   });
 });
 
@@ -126,22 +134,34 @@ clubsRoutes.post("/:clubId/salir", async (c) => {
   return responderExito(resultado);
 });
 
+clubsRoutes.post("/:clubId/reportes", zValidator("json", crearReporteClubSchema), async (c) => {
+  const resultado = await crearModeracion(c).reportar(c.req.param("clubId"), c.get("user").id, c.req.valid("json"));
+  if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+  return responderExito({ id: (resultado as { id: string }).id }, 201);
+});
+
 clubsRoutes.delete("/:clubId", async (c) => {
   const resultado = await crearCasos(c).archivar(c.req.param("clubId"), c.get("user").id);
   if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
   return responderExito(resultado);
 });
 
-clubsRoutes.delete("/:clubId/miembros/:usuarioId", async (c) => {
-  const resultado = await crearCasos(c).quitarMiembro(c.req.param("clubId"), c.req.param("usuarioId"), c.get("user").id);
+clubsRoutes.delete("/:clubId/miembros/:miembroToken", async (c) => {
+  const repositorio = crearClubsRepository(c.get("drizzle")!);
+  const membership = await repositorio.obtenerMembresiaPorToken(c.req.param("miembroToken"), c.req.param("clubId"));
+  if (!membership) return responderError("Miembro no encontrado", "NOT_FOUND", 404);
+  const resultado = await crearCasos(c).quitarMiembro(c.req.param("clubId"), membership.usuarioId, c.get("user").id);
   if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
   return responderExito(resultado);
 });
 
-clubsRoutes.post("/:clubId/transferir-liderazgo", zValidator("json", transferLeadershipSchema), async (c) => {
+clubsRoutes.post("/:clubId/transferir-liderazgo", zValidator("json", transferLeadershipPublicSchema), async (c) => {
+  const repositorio = crearClubsRepository(c.get("drizzle")!);
+  const membership = await repositorio.obtenerMembresiaPorToken(c.req.valid("json").miembro_token, c.req.param("clubId"));
+  if (!membership) return responderError("Miembro no encontrado", "NOT_FOUND", 404);
   const resultado = await crearCasos(c).transferirLiderazgo(
     c.req.param("clubId"),
-    c.req.valid("json").usuario_id,
+    membership.usuarioId,
     c.get("user").id,
   );
   if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
@@ -154,8 +174,10 @@ clubsRoutes.get("/:clubId/ranking", async (c) => {
   if (!(await casos.esMiembro(clubId, c.get("user").id))) {
     return responderError("No perteneces a este club", "FORBIDDEN", 403);
   }
+  const club = await casos.obtener(clubId);
+  if (!club?.activo) return responderError("Club inactivo", "FORBIDDEN", 403);
   const ranking = await casos.ranking(clubId);
-  return responderExito(Array.from(ranking as Iterable<Record<string, unknown>>).map(serializarRankingClub));
+  return responderExito(Array.from(ranking as Iterable<Record<string, unknown>>).map((member) => serializarRankingClub({ ...member, es_actual: String(member.usuario_id) === c.get("user").id })));
 });
 
 clubsRoutes.get("/:clubId/retos", async (c) => {
@@ -165,6 +187,7 @@ clubsRoutes.get("/:clubId/retos", async (c) => {
     return responderError("No perteneces a este club", "FORBIDDEN", 403);
   }
   const data = await casos.listarRetos(clubId, c.get("user").id);
+  if (esResultadoConError(data)) return responderError(data.error.mensaje, data.error.codigo, data.error.estado);
   return responderExito(data.map(serializarRetoClub));
 });
 

@@ -1,4 +1,8 @@
 import { peticion } from "../../shared/api/api";
+import { claveCacheScope } from "@/lib/offline/scoped-cache";
+import { obtenerScopeOffline } from "@/lib/offline/user-scope";
+import { crearGamificacionOffline } from "./gamification.utils";
+export { crearGamificacionOffline } from "./gamification.utils";
 
 export type LogroGamificacion = {
   id: string;
@@ -38,6 +42,7 @@ export type GamificacionPropia = {
   logros: LogroUsuarioGamificacion[];
   catalogo_logros?: LogroGamificacion[];
   reglas_nivel?: ReglaNivelGamificacion[];
+  racha?: { actual: number; mejor: number };
   /** Cantidad de logros desbloqueados que el usuario aún no ha reclamado */
   pendientes_reclamar?: number;
 };
@@ -45,18 +50,19 @@ export type GamificacionPropia = {
 const CACHE_KEY = "semillas_gamification_cache_v1";
 
 export async function obtenerGamificacionPropia() {
-  if (!navigator.onLine) return leerCacheGamificacion() ?? { nivel: null, logros: [], catalogo_logros: [], reglas_nivel: [], pendientes_reclamar: 0 };
+  if (!navigator.onLine) return (await leerCacheGamificacion()) ?? crearGamificacionOffline();
 
   try {
     const data = await peticion<GamificacionPropia>("/gamificacion/mi");
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: new Date().toISOString() }));
+      const clave = claveCacheScope(CACHE_KEY, await obtenerScopeOffline());
+      if (clave) localStorage.setItem(clave, JSON.stringify({ data, savedAt: new Date().toISOString() }));
     } catch {
       // El contenido descargado sigue funcionando aunque el navegador bloquee localStorage.
     }
     return data;
   } catch (error) {
-    const cached = leerCacheGamificacion();
+    const cached = await leerCacheGamificacion();
     if (cached) return cached;
     throw error;
   }
@@ -69,9 +75,11 @@ export async function reclamarLogroApi(logroId: string): Promise<{ bono_xp: numb
   });
 }
 
-function leerCacheGamificacion(): GamificacionPropia | null {
+async function leerCacheGamificacion(): Promise<GamificacionPropia | null> {
+  const clave = claveCacheScope(CACHE_KEY, await obtenerScopeOffline());
+  if (!clave) return null;
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(clave);
     if (raw) {
       const parsed = JSON.parse(raw) as { data?: GamificacionPropia };
       if (parsed.data) return parsed.data;

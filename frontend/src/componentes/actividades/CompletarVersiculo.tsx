@@ -3,7 +3,7 @@ import type { Actividad } from "../../shared/api/api";
 import { playSound } from "../../lib/audio";
 import { CompletadoCard } from "./CompletadoCard";
 import { BookOpen, Check, RefreshCcw } from "lucide-react";
-import imagenDefault from "../../assets/images/Ilustraciones/Versiculo del dia.png";
+import imagenDefault from "../../assets/images/Ilustraciones/Versiculo del dia.webp";
 
 interface ParteVersiculo {
   tipo: "texto" | "hueco";

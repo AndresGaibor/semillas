@@ -1,4 +1,4 @@
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import { Heart } from "lucide-react";
 
 export function Footer() {

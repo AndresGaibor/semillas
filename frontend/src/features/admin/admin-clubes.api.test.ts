@@ -1,6 +1,11 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import { sessionStorageApi } from "../../shared/api/session";
 
+let actualizarClubAdmin: typeof import("./admin-clubes.api")["actualizarClubAdmin"];
+let agregarMiembroClubAdmin: typeof import("./admin-clubes.api")["agregarMiembroClubAdmin"];
+let buscarUsuariosClubAdmin: typeof import("./admin-clubes.api")["buscarUsuariosClubAdmin"];
+let crearClubAdmin: typeof import("./admin-clubes.api")["crearClubAdmin"];
+let regenerarCodigoClubAdmin: typeof import("./admin-clubes.api")["regenerarCodigoClubAdmin"];
 let archivarClubAdmin: typeof import("./admin-clubes.api")["archivarClubAdmin"];
 let cerrarRetoClubAdmin: typeof import("./admin-clubes.api")["cerrarRetoClubAdmin"];
 let crearRetoClubAdmin: typeof import("./admin-clubes.api")["crearRetoClubAdmin"];
@@ -22,6 +27,11 @@ beforeAll(async () => {
   process.env.VITE_SUPABASE_ANON_KEY = "clave-de-prueba";
   mock.restore();
   ({
+    actualizarClubAdmin,
+    agregarMiembroClubAdmin,
+    buscarUsuariosClubAdmin,
+    crearClubAdmin,
+    regenerarCodigoClubAdmin,
     archivarClubAdmin,
     cerrarRetoClubAdmin,
     crearRetoClubAdmin,
@@ -106,7 +116,12 @@ describe("admin-clubes.api", () => {
       throw new TypeError("Failed to fetch");
     }) as unknown as typeof fetch;
 
-    await expect(listarClubesAdmin({ estado: "todos", limit: 20, offset: 0 })).rejects.toThrow("Failed to fetch");
+    const error = await listarClubesAdmin({ estado: "todos", limit: 20, offset: 0 }).catch((error: unknown) => error);
+
+    expect(error).toMatchObject({
+      status: 0,
+      codigo: "NETWORK_ERROR",
+    });
 
     expect(solicitudes).toBe(1);
   });
@@ -135,7 +150,12 @@ describe("admin-clubes.api", () => {
     ];
 
     for (const mutar of mutaciones) {
-      await expect(mutar()).rejects.toThrow("Failed to fetch");
+      const error = await mutar().catch((error: unknown) => error);
+
+      expect(error).toMatchObject({
+        status: 0,
+        codigo: "NETWORK_ERROR",
+      });
     }
 
     expect(solicitudes).toBe(6);
@@ -155,4 +175,46 @@ describe("admin-clubes.api", () => {
 
     expect(ruta).toBe("/administracion/clubes/club-1");
   });
+  it("crea, actualiza y agrega miembros con los contratos administrativos", async () => {
+    const solicitudes: Array<{ metodo: string; ruta: string; cuerpo: unknown }> = [];
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const solicitud = input instanceof Request ? input : new Request(String(input), init);
+      solicitudes.push({
+        metodo: solicitud.method,
+        ruta: new URL(solicitud.url).pathname,
+        cuerpo: solicitud.method === "GET" ? null : JSON.parse((await solicitud.clone().text()) || "null"),
+      });
+      return new Response(JSON.stringify({ exito: true, datos: { id: "club-1", added: true, codigo_invitacion: "NUEVO123" } }), {
+        headers: { "content-type": "application/json" },
+      });
+    }) as unknown as typeof fetch;
+
+    await crearClubAdmin({ nombre: "Club Nuevo", lider_usuario_id: "usuario-1" });
+    await actualizarClubAdmin("club-1", { descripcion: "Descripción" });
+    await agregarMiembroClubAdmin("club-1", "usuario-2");
+    await regenerarCodigoClubAdmin("club-1");
+
+    expect(solicitudes).toEqual([
+      { metodo: "POST", ruta: "/administracion/clubes", cuerpo: { nombre: "Club Nuevo", lider_usuario_id: "usuario-1" } },
+      { metodo: "PATCH", ruta: "/administracion/clubes/club-1", cuerpo: { descripcion: "Descripción" } },
+      { metodo: "POST", ruta: "/administracion/clubes/club-1/miembros", cuerpo: { usuario_id: "usuario-2" } },
+      { metodo: "POST", ruta: "/administracion/clubes/club-1/regenerar-codigo", cuerpo: null },
+    ]);
+  });
+
+  it("busca usuarios para asignarlos como responsables o miembros", async () => {
+    let ruta = "";
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const solicitud = input instanceof Request ? input : new Request(String(input), init);
+      ruta = `${new URL(solicitud.url).pathname}${new URL(solicitud.url).search}`;
+      return new Response(JSON.stringify({ exito: true, datos: { usuarios: [], total: 0 } }), {
+        headers: { "content-type": "application/json" },
+      });
+    }) as unknown as typeof fetch;
+
+    await buscarUsuariosClubAdmin("Luz");
+
+    expect(ruta).toBe("/administracion/usuarios?limit=30&offset=0&q=Luz");
+  });
+
 });

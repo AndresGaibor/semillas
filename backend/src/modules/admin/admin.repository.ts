@@ -2,10 +2,14 @@ import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "../../db/database.types";
 import { schema, type DbClient } from "../../db/client";
-import { BadRequestError, NotFoundError } from "../../shared/errors/http-error";
+import { BadRequestError, NotFoundError, UnprocessableEntityError } from "../../shared/errors/http-error";
 import { z } from "zod";
 import { crearSlugCopia, crearTituloCopia, mapActivity, mapStep, mapTheme } from "./admin.formatters";
 import { actualizarAjustesSistemaSchema, createActivitySchema, createSendaSchema, createThemeSchema, reorderActivitiesSchema, resolveReviewSchema, submitReviewSchema, updateActivitySchema, updateSendaSchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
+import { evaluarMatrizCrecer, MOMENTOS, type MomentoCrecer } from "./publicacion/matriz-crecer";
+import { validarPublicacion } from "./publicacion/validar-publicacion";
+import { validarTransicionEditorial, puedePublicar } from "./publicacion/editorial-policy";
+import { CODIGOS_ACTIVIDAD_CANONICOS, validarConfiguracionActividad } from "../activities/activity-config.schemas";
 
 export type AdminUser = {
   id: string;
@@ -31,7 +35,15 @@ type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
 type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;
 type UpdateAjustesSistemaInput = z.infer<typeof actualizarAjustesSistemaSchema>;
 
-const AJUSTES_SISTEMA_ID = "global";
+const CLAVES_AJUSTES_SISTEMA = {
+  nombrePlataforma: "administracion.nombre_plataforma",
+  correoSoporte: "administracion.correo_soporte",
+  zonaHoraria: "administracion.zona_horaria",
+  notasObligatoriasCambios: "administracion.notas_obligatorias_cambios",
+  notasObligatoriasRechazo: "administracion.notas_obligatorias_rechazo"
+} as const;
+
+const VALORES_AJUSTES_SISTEMA = Object.values(CLAVES_AJUSTES_SISTEMA);
 
 export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
   function requerirDrizzle() {
@@ -57,21 +69,50 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       datos_antes: (input.antes ?? null) as Json,
       datos_despues: (input.despues ?? null) as Json
     });
-    if (error) console.warn("No se pudo registrar auditoría", error.message);
+    if (error) throw error;
   }
 
-  async function calcularCompletitudTema(temaId: string) {
-    const [temaResult, gruposResult, pasosResult, actividadesResult] = await Promise.all([
+  async function validarConfiguracionActividadPersistida(tipoActividadId: string, configuracion: unknown) {
+    const { data, error } = await supabase.from("tipo_actividad").select("codigo").eq("id", tipoActividadId).single();
+    if (error || !data) throw new NotFoundError("Tipo de actividad no encontrado");
+    if (!CODIGOS_ACTIVIDAD_CANONICOS.includes(data.codigo as typeof CODIGOS_ACTIVIDAD_CANONICOS[number])) {
+      throw new BadRequestError("El tipo de actividad no usa un código canónico", { codigo: data.codigo });
+    }
+    const resultado = validarConfiguracionActividad(data.codigo, configuracion);
+    if (!resultado.success) {
+      throw new BadRequestError("La configuración de la actividad es inválida", resultado.error.flatten());
+    }
+    return resultado.data;
+  }
+
+  async function calcularCompletitudTema(temaId: string, opciones: { requiereRevisionAprobada?: boolean } = {}) {
+    const [temaResult, gruposResult, pasosResult, actividadesResult, versiculoResult] = await Promise.all([
       supabase.from("tema").select("id, titulo, slug, objetivo, resumen, portada_recurso_id, version_biblica_id, senda_id, xp_recompensa, minutos_estimados").eq("id", temaId).single(),
-      supabase.from("tema_grupo_edad").select("grupo_edad_id").eq("tema_id", temaId),
-      supabase.from("paso_tema").select("id, tipo_paso_id, contenidos:contenido_paso_tema(id, grupo_edad_id, titulo, cuerpo)").eq("tema_id", temaId),
-      supabase.from("actividad").select("id, paso_id, grupo_edad_id, titulo, consigna, tipo_actividad_id").eq("tema_id", temaId)
+      supabase.from("tema_grupo_edad").select("grupo_edad_id, grupo_edad:grupo_edad_id(codigo)").eq("tema_id", temaId),
+      supabase.from("paso_tema").select("id, tipo_paso_id, orden, tipo_paso:tipo_paso_id(codigo), contenidos:contenido_paso_tema(id, grupo_edad_id, titulo, cuerpo, recurso_audio_id)").eq("tema_id", temaId),
+      supabase.from("actividad").select("id, paso_id, grupo_edad_id, titulo, consigna, configuracion, tipo_actividad:tipo_actividad_id(codigo,requiere_opciones), opciones:opcion_actividad(correcta)").eq("tema_id", temaId),
+      supabase.from("versiculo_clave").select("texto, libro_id, capitulo, versiculo").eq("tema_id", temaId).maybeSingle()
     ]);
 
     if (temaResult.error || !temaResult.data) throw new NotFoundError("Tema no encontrado");
     if (gruposResult.error) throw gruposResult.error;
     if (pasosResult.error) throw pasosResult.error;
     if (actividadesResult.error) throw actividadesResult.error;
+    if (versiculoResult.error) throw versiculoResult.error;
+    const portadaResult = await supabase.from("recurso_multimedia").select("id, texto_alternativo").eq("id", temaResult.data.portada_recurso_id ?? "00000000-0000-0000-0000-000000000000").maybeSingle();
+    if (portadaResult.error) throw portadaResult.error;
+    let revisionAprobada = true;
+    if (opciones.requiereRevisionAprobada) {
+      const revisionResult = await supabase
+        .from("revision_contenido")
+        .select("id")
+        .eq("tema_id", temaId)
+        .eq("estado", "aprobado")
+        .limit(1)
+        .maybeSingle();
+      if (revisionResult.error) throw revisionResult.error;
+      revisionAprobada = Boolean(revisionResult.data);
+    }
 
     const tema = temaResult.data;
     const grupos = gruposResult.data ?? [];
@@ -79,14 +120,62 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     const actividades = actividadesResult.data ?? [];
     const esperados = Math.max(grupos.length * 6, 1);
     const contenidosValidos = pasos.flatMap((paso: any) => paso.contenidos ?? []).filter((contenido: any) => contenido.titulo?.trim() && contenido.cuerpo?.trim()).length;
+    const gruposEdadIds = grupos.map((grupo) => grupo.grupo_edad_id);
+    const gruposSemillas = grupos.filter((grupo: any) => {
+      const edad = Array.isArray(grupo.grupo_edad) ? grupo.grupo_edad[0] : grupo.grupo_edad;
+      return edad?.codigo === "semillas";
+    }).map((grupo) => grupo.grupo_edad_id);
+    const celdas = pasos.flatMap((paso: any) => {
+      const tipoPaso = Array.isArray(paso.tipo_paso) ? paso.tipo_paso[0] : paso.tipo_paso;
+      const codigoMomento = tipoPaso?.codigo as MomentoCrecer | undefined;
+      if (!codigoMomento) return [];
+      return (paso.contenidos ?? []).map((contenido: any) => ({
+        grupoEdadId: contenido.grupo_edad_id,
+        codigoMomento,
+        completa: Boolean(contenido.titulo?.trim() && contenido.cuerpo?.trim()),
+        audioValida: Boolean(contenido.recurso_audio_id),
+        orden: paso.orden,
+      }));
+    });
+    const matriz = evaluarMatrizCrecer(gruposEdadIds, celdas);
+    const narracionSemillasValida = gruposSemillas.length === 0 || MOMENTOS.every((momento) =>
+      gruposSemillas.every((grupoEdadId) => celdas.some((celda: any) => celda.grupoEdadId === grupoEdadId && celda.codigoMomento === momento && celda.completa && celda.audioValida)),
+    );
+    const publicacion = validarPublicacion({
+      titulo: tema.titulo,
+      sendaId: tema.senda_id,
+      versionBiblicaId: tema.version_biblica_id,
+      versiculo: versiculoResult.data
+        ? { texto: versiculoResult.data.texto, libroId: String(versiculoResult.data.libro_id), capitulo: versiculoResult.data.capitulo, numero: versiculoResult.data.versiculo }
+        : null,
+      portada: portadaResult.data
+        ? { id: portadaResult.data.id, alt: portadaResult.data.texto_alternativo }
+        : null,
+      gruposEdadIds,
+      celdasCrecer: celdas,
+      actividades: actividades.map((actividad: any) => ({
+        id: actividad.id,
+        titulo: actividad.titulo,
+        consigna: actividad.consigna,
+        requiereOpciones: Boolean((Array.isArray(actividad.tipo_actividad) ? actividad.tipo_actividad[0] : actividad.tipo_actividad)?.requiere_opciones),
+        configuracionValida: validarConfiguracionActividad(
+          String((Array.isArray(actividad.tipo_actividad) ? actividad.tipo_actividad[0] : actividad.tipo_actividad)?.codigo ?? ""),
+          actividad.configuracion,
+        ).success,
+        opciones: actividad.opciones ?? [],
+      })),
+      revisionAprobada,
+      narracionSemillasValida,
+    });
 
     const criterios = [
       { codigo: "informacion", etiqueta: "Información general", completo: Boolean(tema.titulo && tema.slug && tema.objetivo && tema.resumen && tema.senda_id) },
       { codigo: "portada", etiqueta: "Portada", completo: Boolean(tema.portada_recurso_id) },
       { codigo: "publico", etiqueta: "Público objetivo", completo: grupos.length > 0 },
-      { codigo: "crecer", etiqueta: "Recorrido CRECER", completo: contenidosValidos >= esperados, detalle: `${contenidosValidos}/${esperados} contenidos` },
+      { codigo: "crecer", etiqueta: "Recorrido CRECER", completo: matriz.valida, detalle: `${contenidosValidos}/${esperados} contenidos` },
       { codigo: "actividades", etiqueta: "Actividades", completo: actividades.length > 0, detalle: `${actividades.length} actividades` },
-      { codigo: "configuracion", etiqueta: "Configuración", completo: Boolean(tema.version_biblica_id && tema.minutos_estimados > 0 && tema.xp_recompensa >= 0) }
+      { codigo: "configuracion", etiqueta: "Configuración", completo: Boolean(tema.version_biblica_id && tema.minutos_estimados > 0 && tema.xp_recompensa >= 0) },
+      { codigo: "publicacion", etiqueta: "Validación de publicación", completo: publicacion.valido, detalle: publicacion.errores.map((error) => error.codigo).join(", ") }
     ];
     const porcentaje = Math.round((criterios.filter((criterio) => criterio.completo).length / criterios.length) * 100);
 
@@ -100,60 +189,75 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         contenidos_creados: contenidosValidos,
         contenidos_esperados: esperados,
         actividades: actividades.length
-      }
+      },
+      revisionAprobada,
+      errores_publicacion: publicacion.errores
+    };
+  }
+
+  async function leerAjustesSistema() {
+    const { data, error } = await supabase
+      .from("configuracion_plataforma")
+      .select("clave, valor, actualizado_en")
+      .in("clave", VALORES_AJUSTES_SISTEMA);
+
+    if (error) throw error;
+    const valores = new Map((data ?? []).map((fila) => [fila.clave, fila.valor]));
+    const actualizadoEn = (data ?? []).reduce<string | null>((reciente, fila) =>
+      !reciente || fila.actualizado_en > reciente ? fila.actualizado_en : reciente, null);
+
+    return {
+      id: "principal",
+      nombre_plataforma: typeof valores.get(CLAVES_AJUSTES_SISTEMA.nombrePlataforma) === "string"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.nombrePlataforma) as string
+        : "Semillas",
+      correo_soporte: typeof valores.get(CLAVES_AJUSTES_SISTEMA.correoSoporte) === "string"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.correoSoporte) as string
+        : null,
+      zona_horaria: typeof valores.get(CLAVES_AJUSTES_SISTEMA.zonaHoraria) === "string"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.zonaHoraria) as string
+        : "America/Guayaquil",
+      notas_obligatorias_cambios: typeof valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasCambios) === "boolean"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasCambios) as boolean
+        : true,
+      notas_obligatorias_rechazo: typeof valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasRechazo) === "boolean"
+        ? valores.get(CLAVES_AJUSTES_SISTEMA.notasObligatoriasRechazo) as boolean
+        : true,
+      creado_en: actualizadoEn,
+      actualizado_en: actualizadoEn
     };
   }
 
   return {
     async obtenerAjustesSistema() {
-      const { data, error } = await supabase
-        .from("ajuste_sistema")
-        .select("*")
-        .eq("id", AJUSTES_SISTEMA_ID)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (data) return data;
-
-      const { data: creado, error: crearError } = await supabase
-        .from("ajuste_sistema")
-        .insert({
-          id: AJUSTES_SISTEMA_ID,
-          nombre_plataforma: "Semillas",
-          correo_soporte: null,
-          zona_horaria: "America/Guayaquil",
-          notas_obligatorias_cambios: true,
-          notas_obligatorias_rechazo: true
-        })
-        .select("*")
-        .single();
-
-      if (crearError || !creado) throw crearError ?? new Error("No se pudieron crear los ajustes del sistema");
-      return creado;
+      return leerAjustesSistema();
     },
 
     async actualizarAjustesSistema(body: UpdateAjustesSistemaInput, actorId: string) {
-      const actuales = await this.obtenerAjustesSistema();
-      const { data, error } = await supabase
-        .from("ajuste_sistema")
-        .upsert({
-          id: AJUSTES_SISTEMA_ID,
-          nombre_plataforma: body.nombre_plataforma ?? actuales.nombre_plataforma,
-          correo_soporte: body.correo_soporte === undefined ? actuales.correo_soporte : body.correo_soporte,
-          zona_horaria: body.zona_horaria ?? actuales.zona_horaria,
-          notas_obligatorias_cambios: body.notas_obligatorias_cambios ?? actuales.notas_obligatorias_cambios,
-          notas_obligatorias_rechazo: body.notas_obligatorias_rechazo ?? actuales.notas_obligatorias_rechazo,
-          actualizado_en: new Date().toISOString()
-        })
-        .select("*")
-        .single();
+      const actuales = await leerAjustesSistema();
+      const siguientes = {
+        nombre_plataforma: body.nombre_plataforma ?? actuales.nombre_plataforma,
+        correo_soporte: body.correo_soporte === undefined ? actuales.correo_soporte : body.correo_soporte,
+        zona_horaria: body.zona_horaria ?? actuales.zona_horaria,
+        notas_obligatorias_cambios: body.notas_obligatorias_cambios ?? actuales.notas_obligatorias_cambios,
+        notas_obligatorias_rechazo: body.notas_obligatorias_rechazo ?? actuales.notas_obligatorias_rechazo
+      };
+      const actualizadoEn = new Date().toISOString();
+      const { error } = await supabase.from("configuracion_plataforma").upsert([
+        { clave: CLAVES_AJUSTES_SISTEMA.nombrePlataforma, categoria: "administracion", valor: siguientes.nombre_plataforma, descripcion: "Nombre administrativo de la plataforma.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.correoSoporte, categoria: "administracion", valor: siguientes.correo_soporte, descripcion: "Correo de soporte de la plataforma.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.zonaHoraria, categoria: "administracion", valor: siguientes.zona_horaria, descripcion: "Zona horaria de referencia.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.notasObligatoriasCambios, categoria: "administracion", valor: siguientes.notas_obligatorias_cambios, descripcion: "Exige notas al solicitar cambios.", actualizado_por: actorId, actualizado_en: actualizadoEn },
+        { clave: CLAVES_AJUSTES_SISTEMA.notasObligatoriasRechazo, categoria: "administracion", valor: siguientes.notas_obligatorias_rechazo, descripcion: "Exige motivo al rechazar contenido.", actualizado_por: actorId, actualizado_en: actualizadoEn }
+      ], { onConflict: "clave" });
 
-      if (error || !data) throw error ?? new Error("No se pudieron guardar los ajustes del sistema");
+      if (error) throw error;
+      const data = await leerAjustesSistema();
 
       await registrarAuditoria({
         actorId,
         accion: "actualizar_ajustes",
-        tipoEntidad: "ajuste_sistema",
+        tipoEntidad: "configuracion_plataforma",
         antes: actuales,
         despues: data
       });
@@ -522,7 +626,8 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     },
 
     async crearActividad(body: CreateActivityInput) {
-      const { data: activity, error } = await supabase.from("actividad").insert({ tema_id: body.tema_id, paso_id: body.paso_id ?? null, grupo_edad_id: body.grupo_edad_id, tipo_actividad_id: body.tipo_actividad_id, titulo: body.titulo, consigna: body.consigna, retroalimentacion: body.retroalimentacion ?? null, orden: body.orden, xp_recompensa: body.xp_recompensa, limite_tiempo_seg: body.limite_tiempo_seg ?? null, dificultad: body.dificultad, obligatorio: body.obligatorio, configuracion: body.configuracion as Json }).select("*").single();
+      const configuracion = await validarConfiguracionActividadPersistida(body.tipo_actividad_id, body.configuracion);
+      const { data: activity, error } = await supabase.from("actividad").insert({ tema_id: body.tema_id, paso_id: body.paso_id ?? null, grupo_edad_id: body.grupo_edad_id, tipo_actividad_id: body.tipo_actividad_id, titulo: body.titulo, consigna: body.consigna, retroalimentacion: body.retroalimentacion ?? null, orden: body.orden, xp_recompensa: body.xp_recompensa, limite_tiempo_seg: body.limite_tiempo_seg ?? null, dificultad: body.dificultad, obligatorio: body.obligatorio, configuracion: configuracion as Json }).select("*").single();
       if (error || !activity) throw error;
       if (body.opciones.length > 0) {
         const rows = body.opciones.map((opcion) => ({ actividad_id: activity.id, etiqueta: opcion.etiqueta, texto: opcion.texto, correcta: opcion.correcta, orden: opcion.orden, retroalimentacion: opcion.retroalimentacion ?? null }));
@@ -536,6 +641,11 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     },
 
     async actualizarActividad(actividadId: string, body: UpdateActivityInput) {
+      const configuracion = body.configuracion === undefined ? undefined : await (async () => {
+        const { data: actual, error } = await supabase.from("actividad").select("tipo_actividad_id").eq("id", actividadId).single();
+        if (error || !actual) throw new NotFoundError("Actividad no encontrada");
+        return validarConfiguracionActividadPersistida(actual.tipo_actividad_id, body.configuracion);
+      })();
       const { data: activity, error } = await supabase.from("actividad").update({
         ...(body.tema_id !== undefined ? { tema_id: body.tema_id } : {}),
         ...(body.paso_id !== undefined ? { paso_id: body.paso_id } : {}),
@@ -549,7 +659,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         ...(body.limite_tiempo_seg !== undefined ? { limite_tiempo_seg: body.limite_tiempo_seg } : {}),
         ...(body.dificultad !== undefined ? { dificultad: body.dificultad } : {}),
         ...(body.obligatorio !== undefined ? { obligatorio: body.obligatorio } : {}),
-        ...(body.configuracion !== undefined ? { configuracion: body.configuracion as Json } : {}),
+        ...(configuracion !== undefined ? { configuracion: configuracion as Json } : {}),
         actualizado_en: new Date().toISOString()
       } as Database["public"]["Tables"]["actividad"]["Update"]).eq("id", actividadId).select("*").single();
       if (error || !activity) throw new NotFoundError("Actividad no encontrada");
@@ -670,15 +780,24 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     },
 
     async publicarTema(temaId: string, userId: string) {
-      const completitud = await calcularCompletitudTema(temaId);
-      if (!completitud.listo_para_revision) throw new BadRequestError("El tema todavía no está completo para publicarse", completitud);
       const { data: theme, error: themeError } = await supabase.from("tema").select("id, estado, version_contenido").eq("id", temaId).single();
       if (themeError || !theme) throw new NotFoundError("Tema no encontrado");
-      if (theme.estado !== "aprobado" && theme.estado !== "publicado") throw new BadRequestError("El tema debe aprobarse antes de publicarse");
+      if (theme.estado === "publicado") return mapTheme(theme as Record<string, unknown>);
+      const completitud = await calcularCompletitudTema(temaId, { requiereRevisionAprobada: true });
+      if (!completitud.listo_para_revision) throw new UnprocessableEntityError("El tema todavía no está completo para publicarse", completitud);
+      if (!puedePublicar(theme.estado as "borrador" | "revision" | "aprobado" | "publicado" | "archivado", completitud.revisionAprobada)) {
+        throw new BadRequestError("El tema debe aprobarse antes de publicarse");
+      }
+      validarTransicionEditorial(theme.estado as "aprobado", "publicado");
       const currentVersion = theme.version_contenido ?? 0;
-      const { data, error } = await supabase.from("tema").update({ estado: "publicado", version_contenido: currentVersion + 1, publicado_por: userId, publicado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() }).eq("id", temaId).select("*").single();
+      const { data: filasPublicadas, error } = await supabase.rpc("publicar_tema_con_auditoria", {
+        p_tema_id: temaId,
+        p_actor_id: userId,
+        p_version_esperada: currentVersion,
+      });
       if (error) throw error;
-      await registrarAuditoria({ actorId: userId, accion: "publicar", tipoEntidad: "tema", entidadId: temaId, despues: data });
+      const data = filasPublicadas?.[0];
+      if (!data) throw new BadRequestError("El tema cambió mientras se publicaba; vuelve a cargarlo");
       return mapTheme(data as Record<string, unknown>);
     },
 

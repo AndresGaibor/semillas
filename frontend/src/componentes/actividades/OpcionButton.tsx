@@ -1,6 +1,6 @@
 import { Check, X } from "lucide-react";
-import imgVerdadero from "../../assets/images/icons/Verdadero.png";
-import imgFalso from "../../assets/images/icons/Falso.png";
+import imgVerdadero from "../../assets/images/icons/Verdadero.webp";
+import imgFalso from "../../assets/images/icons/Falso.webp";
 
 interface OpcionButtonProps {
   isTrueButton: boolean;

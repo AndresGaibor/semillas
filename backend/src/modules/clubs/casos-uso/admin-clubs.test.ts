@@ -110,7 +110,7 @@ function crearRepositorioTransaccional(miembros: Array<{ usuario_id: string; rol
 
 describe("casos de uso administrativos de clubes", () => {
   test("lista clubes incluyendo los filtros administrativos", async () => {
-    const filtros = { q: "aventura", activo: false, limit: 20, offset: 0 };
+    const filtros = { q: "aventura", activo: false, orden: "miembros" as const, limit: 20, offset: 0 };
     const clubes = [{
       id: "club-1",
       nombre: "Club de aventura",
@@ -160,10 +160,20 @@ describe("casos de uso administrativos de clubes", () => {
         id: "club-1",
         nombre: "Club de aventura",
         descripcion: null,
+        codigo_invitacion: "AVENTURA",
         activo: true,
         creado_en: "2026-07-12T00:00:00.000Z",
       },
-      miembros: [{ usuario_id: "miembro-1", apodo: "Semillero", rol_miembro: "miembro", unido_en: "2026-07-12T00:00:00.000Z" }],
+      miembros: [{
+        usuario_id: "miembro-1",
+        apodo: "Semillero",
+        rol_miembro: "miembro",
+        unido_en: "2026-07-12T00:00:00.000Z",
+        url_avatar: null,
+        xp_total: 0,
+        xp_semana: 0,
+        actividades_semana: 0,
+      }],
       retos: [{
         id: "reto-1",
         nombre: "Reto de lectura",
@@ -352,4 +362,77 @@ describe("casos de uso administrativos de clubes", () => {
       { metodo: "actualizar", argumentos: [{ rolMiembro: "miembro" }] },
     ]);
   });
+  test("crea un club y asigna al responsable inicial", async () => {
+    const { repositorio, llamadas } = crearRepositorioAdmin({
+      obtenerCreadorClub: async () => ({ id: "lider-1", nombre_visible: "Luz" }),
+      buscarCodigoInvitacion: async () => null,
+      crearClub: async (datos: Record<string, unknown>) => {
+        llamadas.push({ metodo: "crearClub", argumentos: [datos] });
+        return { ...club(), codigoInvitacion: String(datos.codigoInvitacion), creadoPor: String(datos.creadoPor) };
+      },
+      agregarMiembro: async (datos: Record<string, unknown>) => {
+        llamadas.push({ metodo: "agregarMiembro", argumentos: [datos] });
+        return datos;
+      },
+      eliminarClub: async () => undefined,
+    });
+    const casos = crearCasosUsoAdminClubs(repositorio);
+
+    const resultado = await casos.crear({
+      nombre: "Club de aventura",
+      descripcion: "Aprender juntos",
+      liderUsuarioId: "lider-1",
+    }, "admin-1");
+
+    expect(resultado).toMatchObject({
+      id: "club-1",
+      lider: { usuario_id: "lider-1", apodo: "Luz" },
+    });
+    expect(llamadas.find((llamada) => llamada.metodo === "crearClub")?.argumentos[0]).toMatchObject({
+      nombre: "Club de aventura",
+      descripcion: "Aprender juntos",
+      creadoPor: "admin-1",
+    });
+    expect(llamadas).toContainEqual({
+      metodo: "agregarMiembro",
+      argumentos: [{ clubId: "club-1", usuarioId: "lider-1", rolMiembro: "lider" }],
+    });
+  });
+
+  test("agrega un usuario activo como miembro sin duplicar membresías", async () => {
+    const { repositorio, llamadas } = crearRepositorioAdmin({
+      obtenerCreadorClub: async () => ({ id: "miembro-2", nombre_visible: "Paz" }),
+      obtenerMembresia: async () => null,
+      agregarMiembro: async (...argumentos: unknown[]) => {
+        llamadas.push({ metodo: "agregarMiembro", argumentos });
+        return { clubId: "club-1", usuarioId: "miembro-2", rolMiembro: "miembro" };
+      },
+    });
+    const casos = crearCasosUsoAdminClubs(repositorio);
+
+    expect(await casos.agregarMiembro("club-1", "miembro-2")).toEqual({ added: true, usuario_id: "miembro-2" });
+    expect(llamadas).toContainEqual({
+      metodo: "agregarMiembro",
+      argumentos: [{ clubId: "club-1", usuarioId: "miembro-2", rolMiembro: "miembro" }],
+    });
+  });
+
+  test("actualiza nombre y descripción sin exigir membresía al administrador", async () => {
+    const { repositorio, llamadas } = crearRepositorioAdmin({
+      actualizarClub: async (...argumentos: unknown[]) => {
+        llamadas.push({ metodo: "actualizarClub", argumentos });
+        return { ...club(), nombre: "Nuevo nombre", descripcion: "Nueva descripción" };
+      },
+    });
+    const casos = crearCasosUsoAdminClubs(repositorio);
+
+    const resultado = await casos.actualizar("club-1", { nombre: "Nuevo nombre", descripcion: "Nueva descripción" });
+
+    expect(resultado).toMatchObject({ nombre: "Nuevo nombre", descripcion: "Nueva descripción" });
+    expect(llamadas).toContainEqual({
+      metodo: "actualizarClub",
+      argumentos: ["club-1", { nombre: "Nuevo nombre", descripcion: "Nueva descripción" }],
+    });
+  });
+
 });

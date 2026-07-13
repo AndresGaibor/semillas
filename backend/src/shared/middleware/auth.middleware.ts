@@ -1,6 +1,8 @@
 import { createMiddleware } from "hono/factory";
 import type { AppBindings, AuthSessionUser } from "../../config/env";
 import { createSupabaseAdmin, createSupabaseAuthClient } from "../../db/client";
+import { crearAuthRepository } from "../../modules/auth/auth.repository";
+import { crearCasoResolverSesion } from "../../modules/auth/casos-uso/resolver-sesion";
 import { verificarTokenInvitado } from "../security/guest-token";
 import { UnauthorizedError } from "../errors/http-error";
 
@@ -57,57 +59,9 @@ export const authMiddleware = createMiddleware<AppBindings>(async (c, next) => {
   }
 
   const usuarioSupabase = await obtenerUsuarioSupabase(c.env, authHeader);
-  const { data: appUser, error: userError } = await db
-    .from("usuario_app")
-    .select("id, rol, proveedor, nombre_visible, correo")
-    .eq("id_externo", usuarioSupabase.id)
-    .maybeSingle();
-
-  if (userError) throw userError;
-
-  if (!appUser) {
-    const { data: createdUser, error: createError } = await db
-      .from("usuario_app")
-      .insert({
-        proveedor: usuarioSupabase.provider,
-        id_externo: usuarioSupabase.id,
-        correo: usuarioSupabase.email,
-        nombre_visible: usuarioSupabase.displayName,
-        rol: "usuario"
-      })
-      .select("id, rol, nombre_visible, correo")
-      .single();
-
-    if (createError || !createdUser) throw createError;
-
-    const { error: profileError } = await db.from("perfil").insert({
-      usuario_id: createdUser.id,
-      apodo: createdUser.nombre_visible
-    });
-    if (profileError) {
-      await db.from("usuario_app").delete().eq("id", createdUser.id);
-      throw profileError;
-    }
-
-    c.set("user", {
-      id: createdUser.id,
-      role: createdUser.rol,
-      displayName: createdUser.nombre_visible,
-      email: createdUser.correo,
-      provider: usuarioSupabase.provider
-    });
-    c.set("authSessionUser", usuarioSupabase);
-    await next();
-    return;
-  }
-
-  c.set("user", {
-    id: appUser.id,
-    role: appUser.rol,
-    displayName: appUser.nombre_visible,
-    email: appUser.correo,
-    provider: appUser.proveedor
-  });
+  const resolverSesion = crearCasoResolverSesion(crearAuthRepository(db));
+  const usuario = await resolverSesion(usuarioSupabase);
+  c.set("user", usuario);
   c.set("authSessionUser", usuarioSupabase);
   await next();
 });

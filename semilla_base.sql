@@ -461,6 +461,7 @@ CREATE TABLE IF NOT EXISTS logro_usuario (
   usuario_id          uuid NOT NULL REFERENCES usuario_app(id) ON DELETE CASCADE,
   logro_id   uuid NOT NULL REFERENCES logro(id),
   ganado_en        timestamptz NOT NULL DEFAULT now(),
+  reclamado_en     timestamptz,
   PRIMARY KEY (usuario_id, logro_id)
 );
 
@@ -557,6 +558,8 @@ CREATE TABLE IF NOT EXISTS revision_contenido (
   enviado_por     uuid REFERENCES usuario_app(id),
   revisado_por      uuid REFERENCES usuario_app(id),
   notas            text,
+  notas_envio      text,
+  notas_revision   text,
   creado_en       timestamptz NOT NULL DEFAULT now(),
   revisado_en      timestamptz
 );
@@ -574,23 +577,46 @@ CREATE TABLE IF NOT EXISTS registro_auditoria (
   creado_en      timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE OR REPLACE FUNCTION sincronizar_notas_revision_contenido()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.notas_revision IS NOT NULL THEN
+    NEW.notas := NEW.notas_revision;
+  ELSIF NEW.notas_envio IS NOT NULL THEN
+    NEW.notas := NEW.notas_envio;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS sincronizar_notas_revision_contenido_trigger ON revision_contenido;
+CREATE TRIGGER sincronizar_notas_revision_contenido_trigger
+BEFORE INSERT OR UPDATE OF notas, notas_envio, notas_revision ON revision_contenido
+FOR EACH ROW EXECUTE FUNCTION sincronizar_notas_revision_contenido();
+
 CREATE INDEX IF NOT EXISTS ix_auditoria_entidad ON registro_auditoria(tipo_entidad, entidad_id);
 CREATE INDEX IF NOT EXISTS ix_auditoria_actor_tiempo ON registro_auditoria(actor_usuario_id, creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_revision_contenido_estado_creado_en ON revision_contenido(estado, creado_en DESC);
 
-CREATE TABLE IF NOT EXISTS ajuste_sistema (
-  id            text PRIMARY KEY DEFAULT 'global',
-  nombre_plataforma text NOT NULL DEFAULT 'Semillas',
-  correo_soporte text,
-  zona_horaria   text NOT NULL DEFAULT 'America/Guayaquil',
-  notas_obligatorias_cambios boolean NOT NULL DEFAULT true,
-  notas_obligatorias_rechazo boolean NOT NULL DEFAULT true,
-  creado_en      timestamptz NOT NULL DEFAULT now(),
+CREATE TABLE IF NOT EXISTS configuracion_plataforma (
+  clave text PRIMARY KEY,
+  categoria text NOT NULL,
+  valor jsonb NOT NULL,
+  descripcion text,
+  actualizado_por uuid REFERENCES usuario_app(id) ON DELETE SET NULL,
   actualizado_en timestamptz NOT NULL DEFAULT now()
 );
 
-INSERT INTO ajuste_sistema (id, nombre_plataforma, correo_soporte, zona_horaria, notas_obligatorias_cambios, notas_obligatorias_rechazo)
-VALUES ('global', 'Semillas', NULL, 'America/Guayaquil', true, true)
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO configuracion_plataforma (clave, categoria, valor, descripcion)
+VALUES
+  ('administracion.nombre_plataforma', 'administracion', to_jsonb('Semillas'::text), 'Nombre administrativo de la plataforma.'),
+  ('administracion.correo_soporte', 'administracion', 'null'::jsonb, 'Correo de soporte de la plataforma.'),
+  ('administracion.zona_horaria', 'administracion', to_jsonb('America/Guayaquil'::text), 'Zona horaria de referencia.'),
+  ('administracion.notas_obligatorias_cambios', 'administracion', 'true'::jsonb, 'Exige notas al solicitar cambios.'),
+  ('administracion.notas_obligatorias_rechazo', 'administracion', 'true'::jsonb, 'Exige motivo al rechazar contenido.')
+ON CONFLICT (clave) DO NOTHING;
 
 -- ============================================================
 --  9. VISTAS ÚTILES PARA API / REPORTES
@@ -623,6 +649,27 @@ SELECT
     LIMIT 1
   ) AS nombre_nivel
 FROM v_xp_usuario ux;
+
+CREATE OR REPLACE VIEW v_admin_revisiones
+WITH (security_invoker = true)
+AS
+SELECT
+  revision.id,
+  revision.tema_id,
+  revision.estado,
+  revision.notas_envio,
+  revision.notas_revision,
+  revision.creado_en,
+  revision.revisado_en,
+  tema.titulo,
+  senda.nombre AS senda,
+  enviado.nombre_visible AS enviado_por,
+  revisado.nombre_visible AS revisado_por
+FROM revision_contenido AS revision
+JOIN tema ON tema.id = revision.tema_id
+JOIN senda ON senda.id = tema.senda_id
+LEFT JOIN usuario_app AS enviado ON enviado.id = revision.enviado_por
+LEFT JOIN usuario_app AS revisado ON revisado.id = revision.revisado_por;
 
 CREATE OR REPLACE VIEW v_ranking_club AS
 SELECT
@@ -770,15 +817,18 @@ BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
     REVOKE ALL ON ALL TABLES IN SCHEMA public FROM anon;
     REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon;
+    REVOKE ALL ON v_admin_revisiones FROM anon;
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
     REVOKE ALL ON ALL TABLES IN SCHEMA public FROM authenticated;
     REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM authenticated;
+    REVOKE ALL ON v_admin_revisiones FROM authenticated;
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
     GRANT USAGE ON SCHEMA public TO service_role;
     GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
     GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
+    GRANT SELECT ON v_admin_revisiones TO service_role;
   END IF;
 END $$;
 

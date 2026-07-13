@@ -14,6 +14,7 @@ import { Route as RestablecerContrasenaRouteImport } from './routes/restablecer-
 import { Route as RecuperarContrasenaRouteImport } from './routes/recuperar-contrasena'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as InstallRouteImport } from './routes/install'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRequiredRouteImport } from './routes/admin-required'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -35,6 +36,7 @@ import { Route as AdminSendasRouteImport } from './routes/admin.sendas'
 import { Route as AdminRevisionRouteImport } from './routes/admin.revision'
 import { Route as AdminReportesRouteImport } from './routes/admin.reportes'
 import { Route as AdminMediosRouteImport } from './routes/admin.medios'
+import { Route as AdminLogrosRouteImport } from './routes/admin.logros'
 import { Route as AdminClubesRouteImport } from './routes/admin.clubes'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminActividadesRouteImport } from './routes/admin.actividades'
@@ -51,6 +53,8 @@ import { Route as AdminUsuariosNewRouteImport } from './routes/admin.usuarios.ne
 import { Route as AdminUsuariosUserIdRouteImport } from './routes/admin.usuarios.$userId'
 import { Route as AdminTemasNewRouteImport } from './routes/admin.temas.new'
 import { Route as AdminSendasNewRouteImport } from './routes/admin.sendas.new'
+import { Route as AdminLogrosNuevoRouteImport } from './routes/admin.logros.nuevo'
+import { Route as AdminClubesClubIdRouteImport } from './routes/admin.clubes.$clubId'
 import { Route as AdminTemasThemeIdPreviewRouteImport } from './routes/admin.temas.$themeId.preview'
 import { Route as AdminTemasThemeIdEditRouteImport } from './routes/admin.temas.$themeId.edit'
 import { Route as AdminTemasThemeIdDetalleRouteImport } from './routes/admin.temas.$themeId.detalle'
@@ -81,6 +85,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstallRoute = InstallRouteImport.update({
+  id: '/install',
+  path: '/install',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -188,6 +197,11 @@ const AdminMediosRoute = AdminMediosRouteImport.update({
   path: '/medios',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLogrosRoute = AdminLogrosRouteImport.update({
+  id: '/logros',
+  path: '/logros',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminClubesRoute = AdminClubesRouteImport.update({
   id: '/clubes',
   path: '/clubes',
@@ -270,6 +284,16 @@ const AdminSendasNewRoute = AdminSendasNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AdminSendasRoute,
 } as any)
+const AdminLogrosNuevoRoute = AdminLogrosNuevoRouteImport.update({
+  id: '/nuevo',
+  path: '/nuevo',
+  getParentRoute: () => AdminLogrosRoute,
+} as any)
+const AdminClubesClubIdRoute = AdminClubesClubIdRouteImport.update({
+  id: '/$clubId',
+  path: '/$clubId',
+  getParentRoute: () => AdminClubesRoute,
+} as any)
 const AdminTemasThemeIdPreviewRoute =
   AdminTemasThemeIdPreviewRouteImport.update({
     id: '/$themeId/preview',
@@ -310,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/admin-required': typeof AdminRequiredRoute
   '/app': typeof AppRouteWithChildren
+  '/install': typeof InstallRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/recuperar-contrasena': typeof RecuperarContrasenaRoute
@@ -317,7 +342,8 @@ export interface FileRoutesByFullPath {
   '/verificar-correo': typeof VerificarCorreoRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
-  '/admin/clubes': typeof AdminClubesRoute
+  '/admin/clubes': typeof AdminClubesRouteWithChildren
+  '/admin/logros': typeof AdminLogrosRouteWithChildren
   '/admin/medios': typeof AdminMediosRoute
   '/admin/reportes': typeof AdminReportesRoute
   '/admin/revision': typeof AdminRevisionRoute
@@ -334,6 +360,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/admin/clubes/$clubId': typeof AdminClubesClubIdRoute
+  '/admin/logros/nuevo': typeof AdminLogrosNuevoRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
@@ -358,13 +386,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acceso-denegado': typeof AccesoDenegadoRoute
   '/admin-required': typeof AdminRequiredRoute
+  '/install': typeof InstallRoute
   '/login': typeof LoginRoute
   '/recuperar-contrasena': typeof RecuperarContrasenaRoute
   '/restablecer-contrasena': typeof RestablecerContrasenaRoute
   '/verificar-correo': typeof VerificarCorreoRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
-  '/admin/clubes': typeof AdminClubesRoute
+  '/admin/clubes': typeof AdminClubesRouteWithChildren
+  '/admin/logros': typeof AdminLogrosRouteWithChildren
   '/admin/medios': typeof AdminMediosRoute
   '/admin/reportes': typeof AdminReportesRoute
   '/admin/revision': typeof AdminRevisionRoute
@@ -381,6 +411,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/admin/clubes/$clubId': typeof AdminClubesClubIdRoute
+  '/admin/logros/nuevo': typeof AdminLogrosNuevoRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
@@ -408,6 +440,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/admin-required': typeof AdminRequiredRoute
   '/app': typeof AppRouteWithChildren
+  '/install': typeof InstallRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRouteWithChildren
   '/recuperar-contrasena': typeof RecuperarContrasenaRoute
@@ -415,7 +448,8 @@ export interface FileRoutesById {
   '/verificar-correo': typeof VerificarCorreoRoute
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
-  '/admin/clubes': typeof AdminClubesRoute
+  '/admin/clubes': typeof AdminClubesRouteWithChildren
+  '/admin/logros': typeof AdminLogrosRouteWithChildren
   '/admin/medios': typeof AdminMediosRoute
   '/admin/reportes': typeof AdminReportesRoute
   '/admin/revision': typeof AdminRevisionRoute
@@ -432,6 +466,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/admin/clubes/$clubId': typeof AdminClubesClubIdRoute
+  '/admin/logros/nuevo': typeof AdminLogrosNuevoRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
@@ -460,6 +496,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-required'
     | '/app'
+    | '/install'
     | '/login'
     | '/onboarding'
     | '/recuperar-contrasena'
@@ -468,6 +505,7 @@ export interface FileRouteTypes {
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
+    | '/admin/logros'
     | '/admin/medios'
     | '/admin/reportes'
     | '/admin/revision'
@@ -484,6 +522,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/onboarding/'
+    | '/admin/clubes/$clubId'
+    | '/admin/logros/nuevo'
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
@@ -508,6 +548,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acceso-denegado'
     | '/admin-required'
+    | '/install'
     | '/login'
     | '/recuperar-contrasena'
     | '/restablecer-contrasena'
@@ -515,6 +556,7 @@ export interface FileRouteTypes {
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
+    | '/admin/logros'
     | '/admin/medios'
     | '/admin/reportes'
     | '/admin/revision'
@@ -531,6 +573,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/onboarding'
+    | '/admin/clubes/$clubId'
+    | '/admin/logros/nuevo'
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
@@ -557,6 +601,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-required'
     | '/app'
+    | '/install'
     | '/login'
     | '/onboarding'
     | '/recuperar-contrasena'
@@ -565,6 +610,7 @@ export interface FileRouteTypes {
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
+    | '/admin/logros'
     | '/admin/medios'
     | '/admin/reportes'
     | '/admin/revision'
@@ -581,6 +627,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/onboarding/'
+    | '/admin/clubes/$clubId'
+    | '/admin/logros/nuevo'
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
@@ -608,6 +656,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AdminRequiredRoute: typeof AdminRequiredRoute
   AppRoute: typeof AppRouteWithChildren
+  InstallRoute: typeof InstallRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   RecuperarContrasenaRoute: typeof RecuperarContrasenaRoute
@@ -651,6 +700,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/install': {
+      id: '/install'
+      path: '/install'
+      fullPath: '/install'
+      preLoaderRoute: typeof InstallRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -800,6 +856,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMediosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/logros': {
+      id: '/admin/logros'
+      path: '/logros'
+      fullPath: '/admin/logros'
+      preLoaderRoute: typeof AdminLogrosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/clubes': {
       id: '/admin/clubes'
       path: '/clubes'
@@ -912,6 +975,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSendasNewRouteImport
       parentRoute: typeof AdminSendasRoute
     }
+    '/admin/logros/nuevo': {
+      id: '/admin/logros/nuevo'
+      path: '/nuevo'
+      fullPath: '/admin/logros/nuevo'
+      preLoaderRoute: typeof AdminLogrosNuevoRouteImport
+      parentRoute: typeof AdminLogrosRoute
+    }
+    '/admin/clubes/$clubId': {
+      id: '/admin/clubes/$clubId'
+      path: '/$clubId'
+      fullPath: '/admin/clubes/$clubId'
+      preLoaderRoute: typeof AdminClubesClubIdRouteImport
+      parentRoute: typeof AdminClubesRoute
+    }
     '/admin/temas/$themeId/preview': {
       id: '/admin/temas/$themeId/preview'
       path: '/$themeId/preview'
@@ -956,6 +1033,30 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminClubesRouteChildren {
+  AdminClubesClubIdRoute: typeof AdminClubesClubIdRoute
+}
+
+const AdminClubesRouteChildren: AdminClubesRouteChildren = {
+  AdminClubesClubIdRoute: AdminClubesClubIdRoute,
+}
+
+const AdminClubesRouteWithChildren = AdminClubesRoute._addFileChildren(
+  AdminClubesRouteChildren,
+)
+
+interface AdminLogrosRouteChildren {
+  AdminLogrosNuevoRoute: typeof AdminLogrosNuevoRoute
+}
+
+const AdminLogrosRouteChildren: AdminLogrosRouteChildren = {
+  AdminLogrosNuevoRoute: AdminLogrosNuevoRoute,
+}
+
+const AdminLogrosRouteWithChildren = AdminLogrosRoute._addFileChildren(
+  AdminLogrosRouteChildren,
+)
 
 interface AdminSendasRouteChildren {
   AdminSendasNewRoute: typeof AdminSendasNewRoute
@@ -1010,7 +1111,8 @@ const AdminUsuariosRouteWithChildren = AdminUsuariosRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminActividadesRoute: typeof AdminActividadesRoute
   AdminAjustesRoute: typeof AdminAjustesRoute
-  AdminClubesRoute: typeof AdminClubesRoute
+  AdminClubesRoute: typeof AdminClubesRouteWithChildren
+  AdminLogrosRoute: typeof AdminLogrosRouteWithChildren
   AdminMediosRoute: typeof AdminMediosRoute
   AdminReportesRoute: typeof AdminReportesRoute
   AdminRevisionRoute: typeof AdminRevisionRoute
@@ -1023,7 +1125,8 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminActividadesRoute: AdminActividadesRoute,
   AdminAjustesRoute: AdminAjustesRoute,
-  AdminClubesRoute: AdminClubesRoute,
+  AdminClubesRoute: AdminClubesRouteWithChildren,
+  AdminLogrosRoute: AdminLogrosRouteWithChildren,
   AdminMediosRoute: AdminMediosRoute,
   AdminReportesRoute: AdminReportesRoute,
   AdminRevisionRoute: AdminRevisionRoute,
@@ -1093,6 +1196,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AdminRequiredRoute: AdminRequiredRoute,
   AppRoute: AppRouteWithChildren,
+  InstallRoute: InstallRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   RecuperarContrasenaRoute: RecuperarContrasenaRoute,

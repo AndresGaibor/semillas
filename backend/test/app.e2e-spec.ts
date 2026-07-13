@@ -23,4 +23,31 @@ describe("Semillas API (e2e)", () => {
       },
     });
   });
+
+  it("ruta inexistente devuelve 404", async () => {
+    const respuesta = await app.request("/ruta-inexistente", {}, env);
+
+    expect(respuesta.status).toBe(404);
+  });
+
+  it("rechaza mutaciones y recursos privados sin autenticación", async () => {
+    const [admin, media] = await Promise.all([
+      app.request("/administracion/resumen", {}, env),
+      app.request("/media/550e8400-e29b-41d4-a716-446655440099/url", {}, env),
+    ]);
+
+    expect(admin.status).toBe(401);
+    expect(media.status).toBe(401);
+    await expect(admin.json()).resolves.toMatchObject({ exito: false, codigo: "UNAUTHORIZED" });
+    await expect(media.json()).resolves.toMatchObject({ exito: false, codigo: "UNAUTHORIZED" });
+  });
+
+  it("rechaza un origen CORS no autorizado", async () => {
+    const respuesta = await app.fetch(new Request("http://localhost/health", {
+      headers: { Origin: "https://malicioso.example" },
+    }), env);
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.headers.get("access-control-allow-origin")).toBeNull();
+  });
 });

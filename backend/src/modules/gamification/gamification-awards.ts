@@ -1,6 +1,7 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
+import { calcularRachaDiaria } from "./racha.service";
 
 export type LogroDesbloqueado = {
   id: string;
@@ -15,37 +16,9 @@ type MetricasLogros = {
   dias_racha: number;
 };
 
-function fechaUtc(fecha: Date) {
-  return fecha.toISOString().slice(0, 10);
-}
-
-function restarDias(fecha: Date, cantidad: number) {
-  const copia = new Date(Date.UTC(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate()));
-  copia.setUTCDate(copia.getUTCDate() - cantidad);
-  return copia;
-}
-
-function calcularRacha(dias: string[]) {
-  if (dias.length === 0) return 0;
-
-  const disponibles = new Set(dias);
-  const ahora = new Date();
-  const hoy = fechaUtc(ahora);
-  const ayer = fechaUtc(restarDias(ahora, 1));
-  let cursor = disponibles.has(hoy) ? ahora : disponibles.has(ayer) ? restarDias(ahora, 1) : null;
-  if (!cursor) return 0;
-
-  let racha = 0;
-  while (disponibles.has(fechaUtc(cursor))) {
-    racha += 1;
-    cursor = restarDias(cursor, 1);
-  }
-  return racha;
-}
-
 async function obtenerMetricas(db: DbClient, usuarioId: string): Promise<MetricasLogros> {
   const [[temas], [actividades], filasDias] = await Promise.all([
-    db
+      db
       .select({ total: sql<number>`count(*)::int` })
       .from(schema.progresoTemaUsuario)
       .where(and(
@@ -62,22 +35,22 @@ async function obtenerMetricas(db: DbClient, usuarioId: string): Promise<Metrica
       ))
       .limit(1),
     db
-      .select({ dia: sql<string>`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'UTC')::date::text` })
+      .select({ dia: sql<string>`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date::text` })
       .from(schema.eventoProgreso)
       .where(and(
         eq(schema.eventoProgreso.usuarioId, usuarioId),
         inArray(schema.eventoProgreso.tipoEvento, ["tema_completado", "actividad_respondida"]),
         sql`(${schema.eventoProgreso.tipoEvento} = 'tema_completado' or ${schema.eventoProgreso.correcta} = true)`,
       ))
-      .groupBy(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'UTC')::date`)
-      .orderBy(desc(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'UTC')::date`))
+      .groupBy(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date`)
+      .orderBy(desc(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date`))
       .limit(366),
   ]);
 
   return {
     temas_completados: Number(temas?.total ?? 0),
     actividades_completadas: Number(actividades?.total ?? 0),
-    dias_racha: calcularRacha(filasDias.map((fila) => fila.dia)),
+    dias_racha: calcularRachaDiaria(filasDias.map((fila) => fila.dia)).actual,
   };
 }
 
@@ -165,15 +138,21 @@ export async function reclamarLogro(
 
     // Marcar como reclamado
     const ahora = new Date();
-    await tx
+    const [reclamado] = await tx
       .update(schema.logroUsuario)
       .set({ reclamadoEn: ahora })
       .where(
         and(
           eq(schema.logroUsuario.usuarioId, usuarioId),
           eq(schema.logroUsuario.logroId, logroId),
+          isNull(schema.logroUsuario.reclamadoEn),
         )
-      );
+      )
+      .returning({ logroId: schema.logroUsuario.logroId });
+
+    if (!reclamado) {
+      return { bonoXp: 0, nombre: existente.nombre ?? "" };
+    }
 
     // Otorgar bono XP si corresponde
     const bonoXp = Math.max(0, Number(existente.bonoXp ?? 0));

@@ -5,8 +5,8 @@ import { LogrosTabsFilter, type CategoriaLogro } from "@/features/gamification/c
 import { InsigniaCardItem } from "@/features/gamification/componentes/insignia-card-item";
 import { ProgresoXpWidget } from "@/features/gamification/componentes/progreso-xp-widget";
 import { ProximaInsigniaWidget } from "@/features/gamification/componentes/proxima-insignia-widget";
-import in1Img from "@/assets/images/Ilustraciones/in1.png";
-import in2Img from "@/assets/images/Ilustraciones/in2.png";
+import in1Img from "@/assets/images/Ilustraciones/in1.webp";
+import in2Img from "@/assets/images/Ilustraciones/in2.webp";
 import "@/routes/app-logros.css";
 
 const insigniasMock = [

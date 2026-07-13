@@ -166,6 +166,10 @@ export function crearCasosUsoClubs(repositorio: ClubsRepository) {
     ranking: (clubId: string) => repositorio.obtenerRanking(clubId),
 
     listarRetos: async (clubId: string, userId: string) => {
+      const club = await repositorio.obtenerClub(clubId);
+      if (!club || !club.activo) {
+        return { error: { mensaje: "Club inactivo", codigo: "FORBIDDEN", estado: 403 } } as const;
+      }
       const retos = await repositorio.listarRetos(clubId);
       return Promise.all(retos.map(async (reto) => {
         const [progreso, recompensa] = await Promise.all([
@@ -185,6 +189,10 @@ export function crearCasosUsoClubs(repositorio: ClubsRepository) {
     },
 
     reclamarReto: async (clubId: string, retoId: string, userId: string) => {
+      const club = await repositorio.obtenerClub(clubId);
+      if (!club || !club.activo) {
+        return { error: { mensaje: "Club inactivo", codigo: "FORBIDDEN", estado: 403 } } as const;
+      }
       const membership = await repositorio.obtenerMembresia(userId, clubId);
       if (!membership) {
         return { error: { mensaje: "No perteneces a este club", codigo: "FORBIDDEN", estado: 403 } } as const;
@@ -204,6 +212,10 @@ export function crearCasosUsoClubs(repositorio: ClubsRepository) {
     },
 
     crearReto: async (clubId: string, body: CrearRetoEntrada, userId: string) => {
+      const club = await repositorio.obtenerClub(clubId);
+      if (!club || !club.activo) {
+        return { error: { mensaje: "Club inactivo", codigo: "FORBIDDEN", estado: 403 } } as const;
+      }
       const membership = await repositorio.obtenerMembresia(userId, clubId);
       if (!puedeAdministrar(membership?.rolMiembro)) {
         return { error: { mensaje: "Solo el líder puede crear retos", codigo: "FORBIDDEN", estado: 403 } } as const;

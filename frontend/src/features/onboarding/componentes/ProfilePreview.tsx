@@ -1,5 +1,5 @@
 import { MAPA_AVATARES } from "@/shared/constants/avatares";
-import fondoAvatarImg from "@/assets/images/backgrounds/Fondo Avatar.png";
+import fondoAvatarImg from "@/assets/images/backgrounds/Fondo Avatar.webp";
 import { Sparkles } from "lucide-react";
 
 interface ProfilePreviewProps {

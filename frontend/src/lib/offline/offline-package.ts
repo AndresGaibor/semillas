@@ -1,4 +1,5 @@
 import type { ActividadLocal, PasoLocal, TemaLocal } from "./db";
+import { crearMapaIdsLocales, obtenerIdLocal } from "./local-id-map";
 
 export type PaqueteOfflineRespuesta = {
   paquete_id: string | null;
@@ -148,9 +149,19 @@ export function construirRutaMediaOffline(recursoId: string): string {
   return `/__offline_media/${recursoId}`;
 }
 
-export function mapearPaqueteOfflineARegistros(paquete: PaqueteOfflineRespuesta): RegistrosOfflinePaquete {
+export function mapearPaqueteOfflineARegistros(
+  paquete: PaqueteOfflineRespuesta,
+  mapaExistente: ReadonlyMap<string, string> = new Map(),
+): RegistrosOfflinePaquete {
+  const idsServidor = [
+    paquete.tema.id,
+    ...paquete.pasos.map((paso) => paso.id),
+    ...paquete.actividades.map((actividad) => actividad.id),
+  ];
+  const idsLocales = crearMapaIdsLocales(idsServidor, mapaExistente);
+  const idTemaLocal = obtenerIdLocal(idsLocales, paquete.tema.id);
   const tema: TemaLocal = {
-    localId: paquete.tema.id,
+    localId: idTemaLocal,
     serverId: paquete.tema.id,
     paqueteId: paquete.paquete_id,
     paqueteVersionContenido: paquete.tema.version_contenido,
@@ -188,12 +199,12 @@ export function mapearPaqueteOfflineARegistros(paquete: PaqueteOfflineRespuesta)
 
   const pasoLocalPorServerId = new Map<string, string>();
   const pasos: PasoLocal[] = paquete.pasos.map((paso) => {
-    const localId = paso.id;
+    const localId = obtenerIdLocal(idsLocales, paso.id);
     pasoLocalPorServerId.set(paso.id, localId);
     return {
       localId,
       serverId: paso.id,
-      temaLocalId: tema.localId,
+      temaLocalId: idTemaLocal,
       orden: paso.orden,
       obligatorio: paso.obligatorio,
       tipoPasoId: paso.tipo_paso?.id ?? null,
@@ -224,9 +235,9 @@ export function mapearPaqueteOfflineARegistros(paquete: PaqueteOfflineRespuesta)
   });
 
   const actividades: ActividadLocal[] = paquete.actividades.map((actividad) => ({
-    localId: actividad.id,
+    localId: obtenerIdLocal(idsLocales, actividad.id),
     serverId: actividad.id,
-    temaLocalId: tema.localId,
+    temaLocalId: idTemaLocal,
     pasoLocalId: actividad.paso_id ? pasoLocalPorServerId.get(actividad.paso_id) ?? null : null,
     grupoEdadId: actividad.grupo_edad_id,
     tipoActividadId: actividad.tipo_actividad_id,

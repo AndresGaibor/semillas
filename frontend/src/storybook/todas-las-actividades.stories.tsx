@@ -98,7 +98,7 @@ function ActividadCard({
       case "rompecabezas": {
         const config = actividad.configuracion || {};
         const imgUrl =
-          (config.imagen as string) || "/src/assets/images/Ilustraciones/Tema1.png";
+          (config.imagen as string) || "/src/assets/images/Ilustraciones/Tema1.webp";
         return (
           <Rompecabezas
             imagen={imgUrl}
@@ -248,7 +248,7 @@ export const TodasLasActividades: Story = {
           "Rompecabezas",
           "Arma la imagen.",
           {
-            imagen: "/src/assets/images/Ilustraciones/Tema1.png",
+            imagen: "/src/assets/images/Ilustraciones/Tema1.webp",
             filas: 3,
             columnas: 3,
           },

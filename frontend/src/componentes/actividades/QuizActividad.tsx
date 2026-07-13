@@ -1,5 +1,5 @@
 import { Check, X, ArrowLeft, ArrowRight } from "lucide-react";
-import imgBannerQuiz from "../../assets/images/Ilustraciones/banner_quiz.png";
+import imgBannerQuiz from "../../assets/images/Ilustraciones/banner_quiz.webp";
 import { Boton } from "@/componentes/ui/boton";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 import { unirClases } from "@/lib/utilidades";

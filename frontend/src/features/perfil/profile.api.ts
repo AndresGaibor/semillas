@@ -1,6 +1,9 @@
 import { peticion } from "../../shared/api/api";
+import { RUTAS_API } from "../../shared/api/rutas-api";
 import type { Perfil, Usuario } from "../../shared/api/api";
 import { db, type PerfilLocal } from "@/lib/offline/db";
+import { obtenerScopeOffline } from "@/lib/offline/user-scope";
+import { claveCacheScope } from "@/lib/offline/scoped-cache";
 
 const CACHE_KEY_PROGRESO = "semillas_progreso_cache_v1";
 
@@ -31,7 +34,8 @@ export async function actualizarPerfil(datos: ActualizarPerfilDatos) {
     metodo: "PATCH",
     cuerpo: datos,
   });
-  const local = await db.perfil.toCollection().first();
+  const scopeId = await obtenerScopeOffline();
+  const local = scopeId ? await db.perfil.where("scopeId").equals(scopeId).first() : undefined;
   if (local) {
     await db.perfil.update(local.localId, {
       apodo: perfil.apodo,
@@ -97,17 +101,17 @@ export type ProgresoMiRespuesta = {
 
 export async function obtenerMiProgreso(): Promise<ProgresoMiRespuesta> {
   if (!navigator.onLine) {
-    const local = leerCacheProgreso();
+    const local = await leerCacheProgreso();
     if (local) return local;
     return { progresos_tema: [], progresos_actividad: [] };
   }
 
   try {
     const data = await peticion<ProgresoMiRespuesta>("/progreso/mi");
-    guardarCacheProgreso(data);
+    await guardarCacheProgreso(data);
     return data;
   } catch (error) {
-    const local = leerCacheProgreso();
+    const local = await leerCacheProgreso();
     if (local) return local;
     throw error;
   }
@@ -118,22 +122,26 @@ export function obtenerMiGamificacion() {
 }
 
 export function reclamarCuentaInvitada() {
-  return peticion<{ vinculada: boolean; usuario: Usuario }>("/perfil/vincular-cuenta", {
+  return peticion<{ vinculada: boolean; usuario: Usuario }>(RUTAS_API.PERFIL.VINCULAR_CUENTA, {
     metodo: "POST",
   });
 }
 
-function guardarCacheProgreso(data: ProgresoMiRespuesta): void {
+async function guardarCacheProgreso(data: ProgresoMiRespuesta): Promise<void> {
+  const clave = claveCacheScope(CACHE_KEY_PROGRESO, await obtenerScopeOffline());
+  if (!clave) return;
   try {
-    localStorage.setItem(CACHE_KEY_PROGRESO, JSON.stringify({ data, savedAt: new Date().toISOString() }));
+    localStorage.setItem(clave, JSON.stringify({ data, savedAt: new Date().toISOString() }));
   } catch {
     // localStorage puede estar lleno o bloqueado; no es crítico
   }
 }
 
-function leerCacheProgreso(): ProgresoMiRespuesta | null {
+async function leerCacheProgreso(): Promise<ProgresoMiRespuesta | null> {
+  const clave = claveCacheScope(CACHE_KEY_PROGRESO, await obtenerScopeOffline());
+  if (!clave) return null;
   try {
-    const raw = localStorage.getItem(CACHE_KEY_PROGRESO);
+    const raw = localStorage.getItem(clave);
     if (raw) {
       const parsed = JSON.parse(raw) as { data?: ProgresoMiRespuesta };
       if (parsed.data) return parsed.data;
@@ -146,7 +154,8 @@ function leerCacheProgreso(): ProgresoMiRespuesta | null {
 
 async function guardarPerfilLocal(usuario: Usuario, perfil: Perfil): Promise<void> {
   const now = new Date().toISOString();
-  const existing = await db.perfil.toCollection().first();
+  const scopeId = usuario.proveedor === "invitado" ? `invitado:${usuario.id}` : `usuario:${usuario.id}`;
+  const existing = await db.perfil.where("usuarioId").equals(usuario.id).first();
   const registro: PerfilLocal = {
     localId: existing?.localId ?? perfil.id ?? crypto.randomUUID(),
     serverId: perfil.id,
@@ -164,12 +173,14 @@ async function guardarPerfilLocal(usuario: Usuario, perfil: Perfil): Promise<voi
     createdAt: perfil.creado_en ?? existing?.createdAt ?? now,
     updatedAt: perfil.actualizado_en ?? now,
     syncStatus: "synced",
+    scopeId,
   };
   await db.perfil.put(registro);
 }
 
 async function obtenerPerfilLocal() {
-  const local = await db.perfil.toCollection().first();
+  const scopeId = await obtenerScopeOffline();
+  const local = scopeId ? await db.perfil.where("scopeId").equals(scopeId).first() : undefined;
   if (!local) return null;
   return {
     usuario: {

@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 import { StateView } from "@/componentes/ui/state-view";
 import { FASES_CRECER, type FaseCrecerConfig } from "../crecer-fases";
+import { NarradorPaso } from "./narrador-paso";
 import "./crecer-focus.css";
 
 interface ContenidoPaso {
   titulo?: string;
   cuerpo?: string;
   instruccion_corta?: string | null;
+  recurso_audio_id?: string | null;
 }
 
 interface RutaAccion {
@@ -210,6 +212,8 @@ export function CrecerLayout({
               {paso?.cuerpo ? (
                 <div className="crecer-focus__reading">{paso.cuerpo}</div>
               ) : null}
+
+              <NarradorPaso recursoAudioId={paso?.recurso_audio_id} habilitado={audioEnabled} />
 
               {children ? (
                 <div className="crecer-focus__activities">{children}</div>

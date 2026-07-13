@@ -121,6 +121,7 @@ export interface ProgresoUsuarioLocal {
   updatedAt: string;
   deletedAt?: string | null;
   syncStatus: SyncRecordStatus;
+  scopeId?: string;
 }
 
 export interface EventoOutbox {
@@ -149,6 +150,7 @@ export interface EventoOutbox {
   retries: number;
   lastError?: string;
   createdAt: number;
+  scopeId?: string;
 }
 
 export interface SyncState {
@@ -157,6 +159,7 @@ export interface SyncState {
   lastSyncExito: boolean;
   pendingCount: number;
   updatedAt: string;
+  scopeId?: string;
 }
 
 export interface PerfilLocal {
@@ -176,6 +179,7 @@ export interface PerfilLocal {
   createdAt: string;
   updatedAt: string;
   syncStatus: "synced" | "pending" | "error";
+  scopeId?: string;
 }
 
 export interface ClubCacheEntry {
@@ -201,6 +205,13 @@ export interface MediaCache {
   accessedAt: number;
 }
 
+export interface MediaCacheReference {
+  id?: number;
+  serverId: string;
+  temaLocalId: string;
+  createdAt: number;
+}
+
 export interface DescargaJobLocal {
   temaServerId: string;
   estado: "preparando" | "descargando" | "guardando" | "completada" | "error";
@@ -219,6 +230,7 @@ class SemillasDatabase extends Dexie {
   perfil!: EntityTable<PerfilLocal, "localId">;
   clubsCache!: EntityTable<ClubCacheEntry, "key">;
   mediaCache!: EntityTable<MediaCache, "id">;
+  mediaReferences!: EntityTable<MediaCacheReference, "id">;
   descargaJobs!: EntityTable<DescargaJobLocal, "temaServerId">;
 
   constructor() {
@@ -240,7 +252,7 @@ class SemillasDatabase extends Dexie {
       pasos: "localId, &serverId, temaLocalId, orden, syncStatus",
       actividades: "localId, &serverId, temaLocalId, pasoLocalId, grupoEdadId, tipoActividadCodigo, syncStatus",
       progresoUsuario: "localId, serverId, temaLocalId, pasoLocalId, actividadLocalId, syncStatus, updatedAt",
-      eventosOutbox: "++id, &localId, tipoEvento, createdAt, retries",
+      eventosOutbox: "++id, &localId, tipoEvento, scopeId, createdAt, retries",
       syncState: "id",
       perfil: "localId, serverId, syncStatus",
       mediaCache: "++id, &serverId, tipo, urlOriginal, cachedAt, accessedAt",
@@ -250,6 +262,16 @@ class SemillasDatabase extends Dexie {
     this.version(3).stores({
       clubsCache: "key",
       mediaCache: "++id, &serverId, temaLocalId, tipo, urlOriginal, cachedAt, accessedAt",
+    });
+
+    this.version(4).stores({
+      progresoUsuario: "localId, serverId, temaLocalId, pasoLocalId, actividadLocalId, scopeId, syncStatus, updatedAt",
+      syncState: "id, scopeId, updatedAt",
+      perfil: "localId, serverId, usuarioId, scopeId, syncStatus",
+    });
+
+    this.version(5).stores({
+      mediaReferences: "++id, &[serverId+temaLocalId], serverId, temaLocalId, createdAt",
     });
   }
 }

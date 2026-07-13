@@ -1,5 +1,7 @@
 # API de Semillas
 
+**Owner:** M7 · **Revisión:** 2026-07-13
+
 ## Base
 
 - Runtime: Cloudflare Workers
@@ -220,9 +222,28 @@ Devuelve nivel y logros del usuario.
 
 ### `GET /clubes/:clubId/ranking`
 
+El ranking usa apodo y avatar permitidos. El desempate es determinista por XP
+semanal descendente, XP total descendente, apodo ascendente y una clave interna
+estable que no se expone en el DTO.
+
 ### `GET /clubes/:clubId/retos`
 
 ### `POST /clubes/:clubId/retos`
+
+### `POST /clubes/:clubId/reportes`
+
+Permite a un miembro reportar a otro miembro con categoría cerrada y detalle
+limitado. El cuerpo usa `miembro_token` (token opaco, no un ID de usuario). El
+backend aplica rate limiting y no habilita chat libre.
+
+### `GET /administracion/reportes-clubes`
+
+Lista reportes para administradores.
+
+### `PATCH /administracion/reportes-clubes/:reporteId`
+
+Permite pasar un reporte a revisión, resolverlo o descartarlo. Cada cambio se
+audita.
 
 ## Media
 

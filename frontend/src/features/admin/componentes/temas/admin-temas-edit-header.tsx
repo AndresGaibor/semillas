@@ -1,4 +1,4 @@
-import imgBoySheep from "@/assets/images/Ilustraciones/in2.png";
+import imgBoySheep from "@/assets/images/Ilustraciones/in2.webp";
 
 type AdminTemasEditHeaderProps = {
   title: string;

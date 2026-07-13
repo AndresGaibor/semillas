@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import type { Actividad } from "../../shared/api/api";
-import { AudioActividadSchema } from "../../shared/schemas/actividad.schema";
 import { playSound } from "../../lib/audio";
 import { Check, X } from "lucide-react";
 import { CompletadoCard } from "./CompletadoCard";

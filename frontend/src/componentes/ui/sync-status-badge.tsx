@@ -14,11 +14,20 @@ export function SyncStatusBadge() {
     );
   }
 
+  if (status.isSyncing) {
+    return (
+      <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+        <RefreshCw size={12} className="animate-spin" />
+        <span>Reintentando</span>
+      </div>
+    );
+  }
+
   if (status.failedCount > 0) {
     return (
       <div className="flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
         <AlertCircle size={12} />
-        <span>{status.failedCount} con error</span>
+        <span>Requiere revisión ({status.failedCount})</span>
       </div>
     );
   }

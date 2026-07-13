@@ -112,9 +112,9 @@ Variables principales:
 
 | Variable | Ubicacion | Descripcion |
 |---|---|---|
-| `VITE_API_URL` | `frontend/.env.local` | URL publica de la API. |
+| `VITE_API_URL` | `frontend/.env.local` | URL publica de la API. Debe apuntar a `https://api-semillas.andresalexander14.workers.dev`. |
 | `APP_ENV` | `backend/.dev.vars` | Ambiente de ejecucion. |
-| `CORS_ORIGIN` | `backend/.dev.vars` | Origen permitido para CORS. |
+| `CORS_ORIGIN` | `backend/.dev.vars` | Origen permitido para CORS. Normalmente `https://semillas.pages.dev`. |
 | `SUPABASE_URL` | `backend/.dev.vars` | URL del proyecto Supabase. |
 | `SUPABASE_ANON_KEY` | `backend/.dev.vars` | Clave publica de Supabase. |
 | `SUPABASE_SERVICE_ROLE_KEY` | `backend/.dev.vars` | Clave secreta de servidor. No commitear. |
@@ -144,6 +144,13 @@ CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://.../postgr
 6. Verificar que el arranque muestre `env.HYPERDRIVE (...) Hyperdrive Config local`.
 
 Si aparece `proxy request failed` o `EHOSTUNREACH`, revisar que la conexión local de Hyperdrive sea accesible desde tu máquina y lleve `sslmode=require`.
+
+### CSP y conexion al backend
+
+- La CSP del frontend se define en `frontend/public/_headers`.
+- En `connect-src` se agrego `https://api-semillas.andresalexander14.workers.dev` para permitir llamadas al Worker de API.
+- El resto de la CSP se mantuvo igual; solo cambio la lista de origenes permitidos para conexiones.
+- Despues de editar ese archivo hay que volver a desplegar el frontend para que Cloudflare Pages publique el nuevo header.
 
 ## Desarrollo
 
@@ -251,6 +258,17 @@ Los eventos de progreso usan `evento_id_cliente` para evitar duplicar XP, insign
 
 ## Seguridad
 
+## Documentación canónica
+
+- [Instalación](docs/instalacion.md)
+- [Arquitectura](docs/arquitectura.md)
+- [API](docs/api.md) · [OpenAPI y backend](docs/backend-api.md)
+- [Base de datos](docs/base-datos.md) · [Offline y sincronización](docs/offline-sync.md)
+- [Seguridad](docs/seguridad.md) · [Pruebas](docs/pruebas.md) · [Despliegue](docs/despliegue.md)
+- [Manual de usuario](docs/manual-usuario.md) · [Manual de administrador](docs/manual-administrador.md) · [CMS](docs/cms.md)
+- [Operación y backup/restore](docs/operacion/README.md)
+- [Estado y vigencia documental](docs/estado-docs.md)
+
 Semillas esta disenado para menores, por lo que la seguridad es parte del nucleo del producto.
 
 Reglas principales:
@@ -290,9 +308,18 @@ Los secretos de produccion deben configurarse en Cloudflare Workers, no en archi
 
 ## Documentacion
 
+- [`docs/estado-docs.md`](docs/estado-docs.md): índice canónico y vigencia documental.
 - [`docs/arquitectura.md`](docs/arquitectura.md): vista general de capas, flujos y modulos del sistema.
 - [`docs/api.md`](docs/api.md): referencia canónica de la API y sus endpoints.
 - [`docs/backend-api.md`](docs/backend-api.md): endpoints, auth, roles, variables y comandos de API.
+- [`docs/base-datos.md`](docs/base-datos.md): modelo, integridad, RLS y Storage.
+- [`docs/offline-sync.md`](docs/offline-sync.md): Dexie, outbox, push/pull y recuperación.
+- [`docs/seguridad.md`](docs/seguridad.md): secretos, permisos y seguridad de menores.
+- [`docs/pruebas.md`](docs/pruebas.md): comandos y criterios de calidad.
+- [`docs/instalacion.md`](docs/instalacion.md): instalación local reproducible.
+- [`docs/despliegue.md`](docs/despliegue.md): despliegue y rollback.
+- [`docs/manual-usuario.md`](docs/manual-usuario.md) · [`docs/manual-administrador.md`](docs/manual-administrador.md) · [`docs/cms.md`](docs/cms.md): manuales funcionales.
+- [`docs/operacion/README.md`](docs/operacion/README.md): runbooks de operación.
 - [`docs/media-storage.md`](docs/media-storage.md): flujo de media privada con Supabase Storage.
 - [`docs/documento_guia_RF_RNF_proyecto_semillas.md`](docs/documento_guia_RF_RNF_proyecto_semillas.md): guia funcional y no funcional del proyecto.
 - [`docs/estado-proyecto/README.md`](docs/estado-proyecto/README.md): indice del estado actual, tareas y brechas del proyecto.

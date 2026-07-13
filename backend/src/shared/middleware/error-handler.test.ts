@@ -76,4 +76,18 @@ describe("errorHandler", () => {
       codigo: "INTERNAL_SERVER_ERROR"
     });
   });
+
+  it("no expone secretos, hosts ni stack en errores desconocidos", async () => {
+    const app = new Hono<AppBindings>();
+    app.get("/", () => {
+      throw new Error("password=secreto host=db-interno stack=privado");
+    });
+    app.onError(errorHandler);
+
+    const response = await app.fetch(new Request("http://localhost/"), ENTORNO_TEST);
+    const cuerpo = await response.text();
+    expect(cuerpo).not.toContain("secreto");
+    expect(cuerpo).not.toContain("db-interno");
+    expect(cuerpo).not.toContain("stack");
+  });
 });

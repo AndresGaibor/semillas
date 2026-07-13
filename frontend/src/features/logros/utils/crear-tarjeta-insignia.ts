@@ -1,3 +1,6 @@
+import { normalizarNombreInsignia } from "./crear-tarjeta-insignia.utils";
+export { normalizarNombreInsignia } from "./crear-tarjeta-insignia.utils";
+
 const TAMANO = 1080;
 
 export async function crearTarjetaInsignia(nombreInsignia: string, imagenUrl: string): Promise<File> {
@@ -99,7 +102,7 @@ export async function crearTarjetaInsignia(nombreInsignia: string, imagenUrl: st
     }, "image/png", .95);
   });
 
-  return new File([blob], `insignia-${normalizarNombre(nombreInsignia)}.png`, { type: "image/png" });
+  return new File([blob], `insignia-${normalizarNombreInsignia(nombreInsignia)}.png`, { type: "image/png" });
 }
 
 export function descargarTarjetaInsignia(archivo: File): void {
@@ -189,13 +192,4 @@ function escribirTextoCentrado(
   lineas.slice(0, 2).forEach((lineaActual, indice) => {
     ctx.fillText(lineaActual, x, y + indice * interlineado);
   });
-}
-
-function normalizarNombre(valor: string): string {
-  return valor
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }

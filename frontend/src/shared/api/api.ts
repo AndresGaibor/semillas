@@ -1,6 +1,7 @@
 import { env } from "../config/env";
 import { sessionStorageApi } from "./session";
 import { ErrorApi } from "./error-api";
+export { RUTAS_API } from "./rutas-api";
 
 export type { Usuario, Perfil, Senda, GrupoEdad, Tema, Paso, Actividad, EventoProgreso } from "./schemas";
 import type { EventoProgreso } from "./schemas";
@@ -36,11 +37,17 @@ export async function peticion<T>(
     if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${env.apiUrl}${ruta}`, {
-    method: opciones?.metodo ?? "GET",
-    headers,
-    body: opciones?.cuerpo ? JSON.stringify(opciones.cuerpo) : undefined,
-  });
+  const cuerpo = opciones?.cuerpo ? JSON.stringify(opciones.cuerpo) : undefined;
+  let res: Response;
+  try {
+    res = await fetch(`${env.apiUrl}${ruta}`, {
+      method: opciones?.metodo ?? "GET",
+      headers,
+      body: cuerpo,
+    });
+  } catch {
+    throw new ErrorApi("Error de conexión", 0, "NETWORK_ERROR");
+  }
 
   const resultado = await res.json().catch(() => null);
 
@@ -62,37 +69,3 @@ export interface Autenticacion {
   encabezado_token: "x-guest-token";
   token: string;
 }
-
-export const RUTAS_API = {
-  CLUBES: {
-    LISTAR: "/clubes",
-    MIOS: "/clubes/mios",
-    CREAR: "/clubes",
-    UNIRSE: "/clubes/unirse",
-    DETALLE: (id: string) => `/clubes/${id}`,
-    SALIR: (id: string) => `/clubes/${id}/salir`,
-    REGENERAR_CODIGO: (id: string) => `/clubes/${id}/regenerar-codigo`,
-    TRANSFERIR: (id: string) => `/clubes/${id}/transferir-liderazgo`,
-    MIEMBRO: (id: string, usuarioId: string) => `/clubes/${id}/miembros/${usuarioId}`,
-    RANKING: (id: string) => `/clubes/${id}/ranking`,
-    RETOS: (id: string) => `/clubes/${id}/retos`,
-    RECLAMAR_RETO: (id: string, retoId: string) => `/clubes/${id}/retos/${retoId}/reclamar`,
-  },
-  SYNC: {
-    PUSH: "/sync/push",
-    PULL: "/sync/pull",
-  },
-  PROGRESO: {
-    REGISTRAR: "/progreso/eventos",
-    MI: "/progreso/mi",
-  },
-  MEDIA: {
-    LISTAR: "/media",
-    SUBIR: "/media/subir",
-    VER: (id: string) => `/media/${id}`,
-    URL_FIRMADA: (id: string) => `/media/${id}/url`,
-    ACTUALIZAR: (id: string) => `/media/${id}`,
-    REEMPLAZAR: (id: string) => `/media/${id}/reemplazar`,
-    ELIMINAR: (id: string) => `/media/${id}`,
-  },
-} as const;

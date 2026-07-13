@@ -1,9 +1,9 @@
-import conectarImg from "@/assets/images/Ilustraciones/Conectar.png";
-import relatarImg from "@/assets/images/Ilustraciones/Relatar.png";
-import ensenarImg from "@/assets/images/Ilustraciones/Ensenar.png";
-import comprobarImg from "@/assets/images/Ilustraciones/Comprobar.png";
-import experimentarImg from "@/assets/images/Ilustraciones/Experimentar.png";
-import recompensarImg from "@/assets/images/Ilustraciones/Recompensa.png";
+import conectarImg from "@/assets/images/Ilustraciones/Conectar.webp";
+import relatarImg from "@/assets/images/Ilustraciones/Relatar.webp";
+import ensenarImg from "@/assets/images/Ilustraciones/Ensenar.webp";
+import comprobarImg from "@/assets/images/Ilustraciones/Comprobar.webp";
+import experimentarImg from "@/assets/images/Ilustraciones/Experimentar.webp";
+import recompensarImg from "@/assets/images/Ilustraciones/Recompensa.webp";
 
 export type CodigoFaseCrecer =
   | "conectar"

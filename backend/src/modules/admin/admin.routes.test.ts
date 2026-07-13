@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import app from "../../app";
 import type { AppBindings } from "../../config/env";
 import { crearModuloAdmin } from "./admin.routes";
+import { UnprocessableEntityError } from "../../shared/errors/http-error";
+import { errorHandler } from "../../shared/middleware/error-handler";
 
 const env: AppBindings["Bindings"] = {
   APP_ENV: "development",
@@ -43,6 +45,45 @@ function responderSupabase(casos: Array<{ metodo: string; path: string; responde
 }
 
 describe("admin.routes", () => {
+  it("bloquea el bypass directo de publicación con errores estructurados", async () => {
+    responderSupabase([
+      {
+        metodo: "GET",
+        path: "/rest/v1/usuario_app",
+        responder: () => new Response(JSON.stringify({
+          id: "usuario-admin",
+          rol: "administrador",
+          proveedor: "invitado",
+          nombre_visible: "Admin",
+          correo: null,
+          activo: true,
+          token_invitado_hash: TOKEN_INVITADO_HASH,
+        }), { headers: { "content-type": "application/json" } }),
+      },
+    ]);
+
+    const appAdmin = new Hono<AppBindings>();
+    appAdmin.onError(errorHandler);
+    appAdmin.route("/administracion", crearModuloAdmin(() => ({
+      publicarTema: async () => {
+        throw new UnprocessableEntityError("El tema todavía no está completo", {
+          errores: [{ codigo: "MATRIZ_INCOMPLETA", ruta: "crecer.semillas.conectar", mensaje: "Falta contenido" }],
+        });
+      },
+    }) as unknown as ReturnType<typeof import("./admin.repository").crearAdminRepository>));
+
+    const response = await appAdmin.fetch(new Request("http://localhost/administracion/temas/tema-1/publicar", {
+      method: "POST",
+      headers: { "x-guest-user-id": "usuario-admin", "x-guest-token": TOKEN_INVITADO },
+    }), env);
+    const body = await response.json() as { exito: false; codigo: string; detalle: { errores: Array<{ codigo: string }> } };
+
+    expect(response.status).toBe(422);
+    expect(body.exito).toBe(false);
+    expect(body.codigo).toBe("UNPROCESSABLE_ENTITY");
+    expect(body.detalle.errores[0]?.codigo).toBe("MATRIZ_INCOMPLETA");
+  });
+
   it("archiva un tema existente y conserva su identidad", async () => {
     let cuerpoActualizacion: Record<string, unknown> | null = null;
 
@@ -466,23 +507,29 @@ describe("admin.routes", () => {
       },
       {
         metodo: "GET",
-        path: "/rest/v1/ajuste_sistema",
+        path: "/rest/v1/configuracion_plataforma",
         responder: () =>
-          new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: true, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } })
+          new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } })
       },
       {
         metodo: "GET",
-        path: "/rest/v1/ajuste_sistema",
+        path: "/rest/v1/configuracion_plataforma",
         responder: () =>
-          new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: true, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } })
+          new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } })
       },
       {
         metodo: "POST",
-        path: "/rest/v1/ajuste_sistema",
+        path: "/rest/v1/configuracion_plataforma",
         responder: async (request) => {
           patchBody = JSON.parse(await request.clone().text()) as Record<string, unknown>;
-          return new Response(JSON.stringify({ id: "global", nombre_plataforma: "Semillas", correo_soporte: "ayuda@semillas.org", zona_horaria: "America/Guayaquil", notas_obligatorias_cambios: false, notas_obligatorias_rechazo: true, actualizado_en: "2026-07-13T00:00:00.000Z" }), { headers: { "content-type": "application/json" } });
+          return new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } });
         }
+      },
+      {
+        metodo: "GET",
+        path: "/rest/v1/configuracion_plataforma",
+        responder: () =>
+          new Response(JSON.stringify(ajustesConfiguracion()), { headers: { "content-type": "application/json" } })
       },
       {
         metodo: "POST",
@@ -526,9 +573,20 @@ describe("admin.routes", () => {
 
     expect(responsePatch.status).toBe(200);
     expect(patchBody).toMatchObject({
-      id: "global",
-      correo_soporte: "ayuda@semillas.org",
-      notas_obligatorias_cambios: false
+      0: { clave: "administracion.nombre_plataforma", valor: "Semillas" },
+      1: { clave: "administracion.correo_soporte", valor: "ayuda@semillas.org" },
+      3: { clave: "administracion.notas_obligatorias_cambios", valor: false }
     });
   });
 });
+
+function ajustesConfiguracion() {
+  const actualizado_en = "2026-07-13T00:00:00.000Z";
+  return [
+    { clave: "administracion.nombre_plataforma", valor: "Semillas", actualizado_en },
+    { clave: "administracion.correo_soporte", valor: "soporte@semillas.org", actualizado_en },
+    { clave: "administracion.zona_horaria", valor: "America/Guayaquil", actualizado_en },
+    { clave: "administracion.notas_obligatorias_cambios", valor: true, actualizado_en },
+    { clave: "administracion.notas_obligatorias_rechazo", valor: true, actualizado_en }
+  ];
+}

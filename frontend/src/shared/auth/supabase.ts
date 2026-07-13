@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env";
-import { db } from "../../lib/offline/db";
 import { queryClient } from "../../app/query-client";
 import {
   cerrarSesionAutenticadaConCliente,
@@ -12,6 +11,9 @@ import {
   vincularGoogleConCliente,
   sincronizarSesionAutenticadaConCliente,
 } from "./supabase.helpers";
+import { limpiarDatosSesionOffline } from "./logout-cleanup";
+import { obtenerScopeOffline } from "@/lib/offline/user-scope";
+import { limpiarCacheClubesScope } from "@/features/clubes/club-cache-storage";
 
 export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
   auth: {
@@ -42,15 +44,16 @@ export async function vincularGoogle() {
 }
 
 export async function cerrarSesionAutenticada() {
+  const scopeId = await obtenerScopeOffline();
   await cerrarSesionAutenticadaConCliente(supabase);
-  await Promise.all([
-    db.perfil.clear(),
-    db.progresoUsuario.clear(),
-    db.eventosOutbox.clear(),
-    db.syncState.clear(),
-    db.descargaJobs.clear(),
-  ]);
-  queryClient.clear();
+  // Los datos offline permanecen asociados a su scope para que el usuario
+  // pueda continuar después; al cambiar de cuenta nunca se reutilizan.
+  await limpiarDatosSesionOffline({
+    clearOfflineTables: scopeId ? [() => limpiarCacheClubesScope(scopeId)] : [],
+    listCacheNames: typeof caches === "undefined" ? undefined : () => caches.keys(),
+    deleteCache: typeof caches === "undefined" ? undefined : (nombre) => caches.delete(nombre),
+    clearQueries: () => queryClient.clear(),
+  });
 }
 
 export async function registrarConCorreo(email: string, password: string) {

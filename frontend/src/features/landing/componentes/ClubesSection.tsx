@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Boton } from "@/componentes/ui/boton";
 import { Users } from "lucide-react";
-import clubesImg from "@/assets/images/Ilustraciones/Ninos 2.png";
+import clubesImg from "@/assets/images/Ilustraciones/Ninos 2.webp";
 
 export function ClubesSection() {
   return (
