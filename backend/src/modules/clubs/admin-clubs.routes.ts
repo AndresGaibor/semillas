@@ -11,9 +11,12 @@ import { createChallengeSchema, transferLeadershipSchema } from "./clubs.schemas
 import { crearClubsRepository } from "./clubs.repository";
 import { crearCasosUsoAdminClubs } from "./casos-uso/admin-clubs";
 import {
+  actualizarClubAdminSchema,
   adminClubListSchema,
+  agregarMiembroAdminSchema,
   cerrarRetoAdminSchema,
   clubParamsSchema,
+  crearClubAdminSchema,
   miembroClubParamsSchema,
   retoClubParamsSchema,
 } from "./admin-clubs.schemas";
@@ -132,6 +135,33 @@ export function crearModuloAdminClubs(dependencias: DependenciasAdminClubs = {})
     return responderExito(await crearCasos(c).listar({ ...filtros, activo }));
   });
 
+  adminClubsRoutes.post("/", zValidator("json", crearClubAdminSchema), async (c) => ejecutarEnTransaccion(c, async ({ casos, registrarAuditoria }) => {
+    const body = c.req.valid("json");
+    const resultado = await casos.crear({
+      nombre: body.nombre,
+      descripcion: body.descripcion,
+      liderUsuarioId: body.lider_usuario_id,
+    }, c.get("user").id);
+    if (esResultadoConError(resultado)) {
+      return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
+    }
+    await registrarAuditoria({
+      actor_usuario_id: c.get("user").id,
+      accion: "club.creado",
+      tipo_entidad: "club",
+      entidad_id: resultado.id,
+      datos_antes: null,
+      datos_despues: {
+        id: resultado.id,
+        nombre: resultado.nombre,
+        descripcion: resultado.descripcion,
+        activo: resultado.activo,
+        lider: resultado.lider,
+      },
+    });
+    return responderExito(resultado, 201);
+  }));
+
   adminClubsRoutes.get("/:clubId", zValidator("param", clubParamsSchema), async (c) => {
     const resultado = await crearCasos(c).obtenerDetalle(c.req.param("clubId"));
     if (esResultadoConError(resultado)) {
@@ -139,6 +169,34 @@ export function crearModuloAdminClubs(dependencias: DependenciasAdminClubs = {})
     }
     return responderExito(resultado);
   });
+
+  adminClubsRoutes.patch("/:clubId", zValidator("param", clubParamsSchema), zValidator("json", actualizarClubAdminSchema), async (c) => ejecutarYAuditar(
+    c,
+    "club.actualizado",
+    c.req.valid("param").clubId,
+    async (repositorio) => estadoClub(await repositorio.obtenerClub(c.req.valid("param").clubId)),
+    (casos) => casos.actualizar(c.req.valid("param").clubId, c.req.valid("json")),
+    async (repositorio) => estadoClub(await repositorio.obtenerClub(c.req.valid("param").clubId)),
+  ));
+
+  adminClubsRoutes.post("/:clubId/miembros", zValidator("param", clubParamsSchema), zValidator("json", agregarMiembroAdminSchema), async (c) => ejecutarYAuditar(
+    c,
+    "club.miembro_agregado",
+    c.req.valid("param").clubId,
+    async () => null,
+    (casos) => casos.agregarMiembro(c.req.valid("param").clubId, c.req.valid("json").usuario_id),
+    async (repositorio) => estadoMiembro(await repositorio.obtenerMembresia(c.req.valid("json").usuario_id, c.req.valid("param").clubId), c.req.valid("json").usuario_id, c.req.valid("param").clubId),
+    201,
+  ));
+
+  adminClubsRoutes.post("/:clubId/regenerar-codigo", zValidator("param", clubParamsSchema), async (c) => ejecutarYAuditar(
+    c,
+    "club.codigo_regenerado",
+    c.req.valid("param").clubId,
+    async (repositorio) => estadoClub(await repositorio.obtenerClub(c.req.valid("param").clubId)),
+    (casos) => casos.regenerarCodigo(c.req.valid("param").clubId),
+    async (repositorio) => estadoClub(await repositorio.obtenerClub(c.req.valid("param").clubId)),
+  ));
 
   adminClubsRoutes.post("/:clubId/archivar", zValidator("param", clubParamsSchema), async (c) => ejecutarYAuditar(
     c,

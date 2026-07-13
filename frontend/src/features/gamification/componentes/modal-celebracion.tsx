@@ -2,6 +2,7 @@ import * as React from "react";
 import { X, Share2, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { crearTarjetaInsignia, descargarTarjetaInsignia } from "../../logros/utils/crear-tarjeta-insignia";
+import { toast } from "sonner";
 
 interface ModalCelebracionProps {
   nombre: string;
@@ -35,7 +36,7 @@ function compartirTwitterX(nombre: string, xp: number) {
   window.open(url, "_blank", "noopener,noreferrer,width=600,height=400");
 }
 
-async function compartirConImagen(red: 'whatsapp' | 'facebook' | 'twitter' | 'native', nombre: string, xp: number, imagenUrl: string) {
+export async function compartirConImagen(red: 'whatsapp' | 'facebook' | 'twitter' | 'native', nombre: string, xp: number, imagenUrl: string) {
   const texto = generarTextoCompartir(nombre, xp);
   try {
     const archivo = await crearTarjetaInsignia(nombre, imagenUrl);
@@ -62,7 +63,10 @@ async function compartirConImagen(red: 'whatsapp' | 'facebook' | 'twitter' | 'na
     if (red === 'facebook') compartirFacebook(nombre);
     if (red === 'twitter') compartirTwitterX(nombre, xp);
     if (red === 'native' && typeof navigator.share === "function") {
-      navigator.share({ title: `¡Insignia "${nombre}"!`, text: texto, url: window.location.href }).catch(() => {});
+      navigator.share({ title: `¡Insignia "${nombre}"!`, text: texto, url: window.location.href }).catch((error) => {
+        console.warn("No se pudo compartir la insignia de forma nativa:", error);
+        toast.error("No se pudo abrir el compartir nativo.");
+      });
     }
   }
   return false;

@@ -29,8 +29,12 @@ const cabecerasUsuario = {
 };
 
 type CasoAdminClubs = {
-  listar: (filtros: { q?: string; activo?: boolean; limit: number; offset: number }) => Promise<unknown>;
+  listar: (filtros: { q?: string; activo?: boolean; orden?: "recientes" | "nombre" | "miembros"; limit: number; offset: number }) => Promise<unknown>;
   quitarMiembro: (clubId: string, usuarioId: string, administradorId: string) => Promise<unknown>;
+  crear?: (...argumentos: unknown[]) => Promise<unknown>;
+  actualizar?: (...argumentos: unknown[]) => Promise<unknown>;
+  agregarMiembro?: (...argumentos: unknown[]) => Promise<unknown>;
+  regenerarCodigo?: (...argumentos: unknown[]) => Promise<unknown>;
   crearReto?: () => Promise<unknown>;
   archivar?: () => Promise<unknown>;
   reactivar?: () => Promise<unknown>;
@@ -149,7 +153,44 @@ describe("rutas administrativas de clubes", () => {
       }],
       meta: { total: 1, limit: 20, offset: 0 },
     });
-    expect(filtros).toEqual({ activo: false, limit: 20, offset: 0 });
+    expect(filtros).toEqual({ activo: false, orden: "recientes", limit: 20, offset: 0 });
+  });
+
+  it("crea un club con responsable inicial y registra auditoría sin guardar el código", async () => {
+    responderPerfil("administrador");
+    const auditoria: Array<Record<string, unknown>> = [];
+    const app = crearApp({
+      listar: async () => ({ items: [], meta: { total: 0 } }),
+      quitarMiembro: async () => ({ removed: true }),
+      crear: async () => ({
+        id: CLUB_ID,
+        nombre: "Aventureros",
+        descripcion: null,
+        codigo_invitacion: "SECRETO1",
+        activo: true,
+        creado_en: "2026-07-12T00:00:00.000Z",
+        lider: { usuario_id: USUARIO_ID, apodo: "Semillero" },
+      }),
+    }, async (registro) => {
+      auditoria.push(registro);
+    });
+
+    const response = await app.fetch(new Request("http://localhost/administracion/clubes", {
+      method: "POST",
+      headers: { ...cabecerasAdmin, "content-type": "application/json" },
+      body: JSON.stringify({ nombre: "Aventureros", lider_usuario_id: USUARIO_ID }),
+    }), env);
+    const cuerpo = await response.json() as { datos: { codigo_invitacion: string } };
+
+    expect(response.status).toBe(201);
+    expect(cuerpo.datos.codigo_invitacion).toBe("SECRETO1");
+    expect(auditoria).toHaveLength(1);
+    expect(auditoria[0]).toMatchObject({
+      accion: "club.creado",
+      entidad_id: CLUB_ID,
+      datos_despues: { nombre: "Aventureros", lider: { usuario_id: USUARIO_ID } },
+    });
+    expect(JSON.stringify(auditoria[0])).not.toContain("SECRETO1");
   });
 
   it("registra auditoria al expulsar un miembro", async () => {
@@ -208,6 +249,9 @@ describe("rutas administrativas de clubes", () => {
 
   it.each([
     ["GET", "/administracion/clubes/id-invalido", undefined],
+    ["PATCH", "/administracion/clubes/id-invalido", { nombre: "Club válido" }],
+    ["POST", "/administracion/clubes/id-invalido/miembros", { usuario_id: USUARIO_ID }],
+    ["POST", "/administracion/clubes/id-invalido/regenerar-codigo", undefined],
     ["POST", "/administracion/clubes/id-invalido/archivar", undefined],
     ["POST", "/administracion/clubes/id-invalido/reactivar", undefined],
     ["DELETE", "/administracion/clubes/id-invalido/miembros/usuario-invalido", undefined],
@@ -237,6 +281,9 @@ describe("rutas administrativas de clubes", () => {
   });
 
   it.each([
+    ["actualiza", "PATCH", `/administracion/clubes/${CLUB_ID}`, { nombre: "Nuevo nombre" }, "actualizar", { id: CLUB_ID }, 200],
+    ["agrega miembro", "POST", `/administracion/clubes/${CLUB_ID}/miembros`, { usuario_id: USUARIO_ID }, "agregarMiembro", { added: true }, 201],
+    ["regenera código", "POST", `/administracion/clubes/${CLUB_ID}/regenerar-codigo`, undefined, "regenerarCodigo", { codigo_invitacion: "NUEVO123" }, 200],
     ["archiva", "POST", `/administracion/clubes/${CLUB_ID}/archivar`, undefined, "archivar", { archived: true }, 200],
     ["reactiva", "POST", `/administracion/clubes/${CLUB_ID}/reactivar`, undefined, "reactivar", { reactivated: true }, 200],
     ["expulsa", "DELETE", `/administracion/clubes/${CLUB_ID}/miembros/${USUARIO_ID}`, undefined, "quitarMiembro", { removed: true }, 200],
@@ -268,6 +315,9 @@ describe("rutas administrativas de clubes", () => {
   });
 
   it.each([
+    ["actualizar", "PATCH", `/administracion/clubes/${CLUB_ID}`, { nombre: "Nuevo nombre" }],
+    ["agregarMiembro", "POST", `/administracion/clubes/${CLUB_ID}/miembros`, { usuario_id: USUARIO_ID }],
+    ["regenerarCodigo", "POST", `/administracion/clubes/${CLUB_ID}/regenerar-codigo`, undefined],
     ["archivar", "POST", `/administracion/clubes/${CLUB_ID}/archivar`, undefined],
     ["reactivar", "POST", `/administracion/clubes/${CLUB_ID}/reactivar`, undefined],
     ["quitarMiembro", "DELETE", `/administracion/clubes/${CLUB_ID}/miembros/${USUARIO_ID}`, undefined],

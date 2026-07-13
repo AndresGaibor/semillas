@@ -327,8 +327,9 @@ export async function syncFull(): Promise<SyncResult> {
       logrosDesbloqueados: pushResult.logrosDesbloqueados,
       timestamp: new Date().toISOString(),
     };
-  } catch {
+  } catch (error) {
     await actualizarEstadoSync(false);
+    notificarFalloSincronizacion("No pudimos sincronizar tu progreso en segundo plano.");
     return {
       exito: false,
       procesados: 0,
@@ -377,6 +378,10 @@ async function actualizarEstadoSync(exito: boolean): Promise<void> {
     pendingCount: await getPendingCount(),
     updatedAt: ahora,
   });
+}
+
+export function notificarFalloSincronizacion(mensaje: string): void {
+  window.dispatchEvent(new CustomEvent("semillas:sync-error", { detail: { mensaje } }));
 }
 
 function getAuthHeaders(conJson: boolean): Record<string, string> {

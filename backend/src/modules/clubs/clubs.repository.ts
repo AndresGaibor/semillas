@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
@@ -33,12 +33,17 @@ export function crearClubsRepository(db: DbClient) {
       return db.select().from(schema.club).where(and(...condiciones)).orderBy(desc(schema.club.creadoEn));
     },
 
-    async listarClubesAdministracion(input: { q?: string; activo?: boolean; limit: number; offset: number }) {
+    async listarClubesAdministracion(input: { q?: string; activo?: boolean; orden?: "recientes" | "nombre" | "miembros"; limit: number; offset: number }) {
       const condiciones = [];
       if (input.q) condiciones.push(ilike(schema.club.nombre, `%${input.q}%`));
       if (input.activo !== undefined) condiciones.push(eq(schema.club.activo, input.activo));
 
       const filtro = condiciones.length > 0 ? and(...condiciones) : undefined;
+      const orden = input.orden === "nombre"
+        ? asc(schema.club.nombre)
+        : input.orden === "miembros"
+          ? desc(sql<number>`count(distinct ${schema.miembroClub.usuarioId})`)
+          : desc(schema.club.creadoEn);
       const [clubes, [conteo]] = await Promise.all([
         db
           .select({
@@ -79,7 +84,7 @@ export function crearClubsRepository(db: DbClient) {
           .leftJoin(schema.retoClub, eq(schema.retoClub.clubId, schema.club.id))
           .where(filtro)
           .groupBy(schema.club.id)
-          .orderBy(desc(schema.club.creadoEn))
+          .orderBy(orden)
           .limit(input.limit)
           .offset(input.offset),
         db.select({ total: sql<number>`count(*)` }).from(schema.club).where(filtro),

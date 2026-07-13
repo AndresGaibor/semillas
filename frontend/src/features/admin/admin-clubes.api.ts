@@ -3,6 +3,7 @@ import { peticion } from "../../shared/api/api";
 export type FiltrosClubesAdmin = {
   q?: string;
   estado: "activo" | "archivado" | "todos";
+  orden?: "recientes" | "nombre" | "miembros";
   limit: number;
   offset: number;
 };
@@ -33,6 +34,7 @@ export type ClubAdminDetalle = {
   id: string;
   nombre: string;
   descripcion: string | null;
+  codigo_invitacion: string;
   activo: boolean;
   creado_en: string;
 };
@@ -42,6 +44,10 @@ export type MiembroClubAdmin = {
   apodo: string;
   rol_miembro: string | null;
   unido_en: string | null;
+  url_avatar: string | null;
+  xp_total: number;
+  xp_semana: number;
+  actividades_semana: number;
 };
 
 export type RetoClubAdmin = {
@@ -55,6 +61,17 @@ export type RetoClubAdmin = {
   fecha_fin: string;
 };
 
+export type CrearClubAdminSolicitud = {
+  nombre: string;
+  descripcion?: string;
+  lider_usuario_id: string;
+};
+
+export type ActualizarClubAdminSolicitud = {
+  nombre?: string;
+  descripcion?: string | null;
+};
+
 export type CrearRetoClubAdminSolicitud = {
   nombre: string;
   descripcion?: string;
@@ -65,6 +82,19 @@ export type CrearRetoClubAdminSolicitud = {
   fecha_fin: string;
 };
 
+export type UsuarioSeleccionClubAdmin = {
+  id: string;
+  nombre_visible: string | null;
+  correo: string | null;
+  activo: boolean | null;
+  rol: string;
+  perfil: {
+    apodo: string | null;
+    url_avatar?: string | null;
+    avatar_url?: string | null;
+  } | null;
+};
+
 export function listarClubesAdmin(filtros: FiltrosClubesAdmin) {
   const parametros = new URLSearchParams({
     estado: filtros.estado,
@@ -72,13 +102,46 @@ export function listarClubesAdmin(filtros: FiltrosClubesAdmin) {
     offset: String(filtros.offset),
   });
   if (filtros.q) parametros.set("q", filtros.q);
+  if (filtros.orden) parametros.set("orden", filtros.orden);
   const ruta = `/administracion/clubes?${parametros}`;
   return peticion<ListadoClubesAdmin>(ruta);
 }
 
 export function obtenerClubAdmin(idClub: string) {
-  const ruta = `/administracion/clubes/${idClub}`;
-  return peticion<DetalleClubAdmin>(ruta);
+  return peticion<DetalleClubAdmin>(`/administracion/clubes/${idClub}`);
+}
+
+export function crearClubAdmin(datos: CrearClubAdminSolicitud) {
+  return peticion<ClubAdminDetalle & { lider: { usuario_id: string; apodo: string } }>("/administracion/clubes", {
+    metodo: "POST",
+    cuerpo: datos,
+  });
+}
+
+export function actualizarClubAdmin(idClub: string, datos: ActualizarClubAdminSolicitud) {
+  return peticion<ClubAdminDetalle>(`/administracion/clubes/${idClub}`, {
+    metodo: "PATCH",
+    cuerpo: datos,
+  });
+}
+
+export function agregarMiembroClubAdmin(idClub: string, usuarioId: string) {
+  return peticion<{ added: true; usuario_id: string }>(`/administracion/clubes/${idClub}/miembros`, {
+    metodo: "POST",
+    cuerpo: { usuario_id: usuarioId },
+  });
+}
+
+export function regenerarCodigoClubAdmin(idClub: string) {
+  return peticion<{ codigo_invitacion: string }>(`/administracion/clubes/${idClub}/regenerar-codigo`, {
+    metodo: "POST",
+  });
+}
+
+export function buscarUsuariosClubAdmin(q = "") {
+  const parametros = new URLSearchParams({ limit: "30", offset: "0" });
+  if (q.trim()) parametros.set("q", q.trim());
+  return peticion<{ usuarios: UsuarioSeleccionClubAdmin[]; total: number }>(`/administracion/usuarios?${parametros}`);
 }
 
 export function archivarClubAdmin(idClub: string) {

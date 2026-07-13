@@ -22,8 +22,12 @@ const PAGE_HEADER_MAP: Record<string, PageHeaderInfo> = {
     subtitulo: "Gestiona los recursos multimedia de la plataforma.",
   },
   "/admin/usuarios": {
-    titulo: "Panel de administración",
+    titulo: "Administración de usuarios",
     subtitulo: "Administra cuentas, roles y participación dentro de la plataforma.",
+  },
+  "/admin/clubes": {
+    titulo: "Administración de clubes",
+    subtitulo: "Gestiona responsables, miembros y retos cooperativos.",
   },
   "/admin/actividades": {
     titulo: "Panel de administración",
