@@ -28,11 +28,11 @@ export function useThemeEditPage({ themeId }: { themeId: string }) {
   });
 
   const portadaQuery = useQuery({
-    queryKey: ["tema-portada", themeId],
+    queryKey: ["theme-portada", themeId],
     queryFn: () => obtenerUrlPortadaTema(themeId),
     enabled: Boolean(themeQuery.data?.portada_recurso_id),
-    staleTime: 3 * 60 * 1000,
-    gcTime: 4 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 11 * 60 * 1000,
     retry: 1,
   });
 
@@ -49,7 +49,7 @@ export function useThemeEditPage({ themeId }: { themeId: string }) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["admin", "theme", themeId] });
-      await queryClient.invalidateQueries({ queryKey: ["tema-portada", themeId] });
+      await queryClient.invalidateQueries({ queryKey: ["theme-portada", themeId] });
     },
   });
 

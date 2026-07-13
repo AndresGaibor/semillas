@@ -88,6 +88,7 @@ export function useLogrosPage() {
   const query = useQuery({
     queryKey: ["gamification", "me"],
     queryFn: obtenerGamificacionPropia,
+    staleTime: 1000 * 60 * 3,
   });
 
   const reclamarMutation = useMutation({

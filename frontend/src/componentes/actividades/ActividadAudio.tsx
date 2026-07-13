@@ -5,6 +5,16 @@ import { Check, X, Play, Pause, Music, FileText } from "lucide-react";
 import imagenDefault from "../../assets/images/Ilustraciones/Senda del Padre.png";
 import { CompletadoCard } from "./CompletadoCard";
 
+const URL_AUDIO_DEMO = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+
+export function obtenerUrlAudio(configuracion: Record<string, unknown>): string {
+  const audioUrl = configuracion.audio_url;
+
+  return typeof audioUrl === "string" && audioUrl.trim().length > 0
+    ? audioUrl.trim()
+    : URL_AUDIO_DEMO;
+}
+
 interface ReproductorProps {
   audioUrl: string;
   imagenUrl?: string;
@@ -194,11 +204,7 @@ export function ActividadAudio({ actividad, onComplete }: ActividadAudioProps) {
   const letraCancion = (configuracion.letra as string) || 
     "[00:00.00]🎶 (Intro musical)\n[00:05.00]Dios es nuestro Padre\n[00:10.00]El nos ama mucho\n[00:15.00]Nos cuida cada día\n[00:20.00]Y nos da su luz.\n[00:25.00]Escucha su voz\n[00:30.00]En tu corazón\n[00:35.00]Él siempre te guía\n[00:40.00]Con su inmenso amor.";
 
-  // URL original de la base de datos
-  // const audioUrlOriginal = configuracion.audio_url as string | undefined;
-  
-  // URL de prueba de Audio (MP3)
-  const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+  const audioUrl = obtenerUrlAudio(configuracion);
 
   const handleSelectOption = (index: number) => {
     if (completed || selectedOption !== null) return;

@@ -34,14 +34,12 @@ function AdminThemeCrecerPage() {
         <div className="flex items-center gap-4 rounded-2xl bg-slate-50 px-5 py-3"><div><span className="text-[10px] font-black uppercase tracking-[.12em] text-slate-400">Progreso de la franja</span><strong className="mt-1 block text-xl font-black text-slate-800">{editor.pasosCompletos}/{editor.totalPasos} pasos</strong></div><span className="text-2xl font-black text-emerald-600">{editor.progreso}%</span></div>
       </header>
 
-      <section className="admin-editor-section">
-        <div className="admin-editor-section__header"><div><h2>1. Selecciona el público</h2><p>Cada franja tiene una versión independiente de los seis momentos.</p></div></div>
-        {editor.ageGroupsQuery.data ? <AgeGroupSelector ageGroups={editor.ageGroupsQuery.data.filter((group) => !editor.theme?.grupos_edad?.length || editor.theme.grupos_edad.some((available) => available.id === group.id))} selectedAgeGroupId={editor.selectedAgeGroupId} onSelect={editor.setSelectedAgeGroupId} /> : null}
-      </section>
-
-      <section className="admin-editor-section">
-        <div className="admin-editor-section__header"><div><h2>2. Elige el momento CRECER</h2><p>Los indicadores muestran cuáles ya tienen contenido para la franja seleccionada.</p></div></div>
-        <CrecerStepSelector pasos={editor.pasos} activeStepCode={editor.activeStepCode} selectedAgeGroupId={editor.selectedAgeGroupId} stepsData={editor.stepsQuery.data} onSelect={editor.setActiveStepCode} />
+      <section className="admin-crecer-workflow">
+        <div className="admin-crecer-workflow__intro"><span>Preparación</span><p>Selecciona para quién escribes y el momento que vas a completar.</p></div>
+        <div className="admin-crecer-workflow__controls">
+          {editor.ageGroupsQuery.data ? <AgeGroupSelector ageGroups={editor.ageGroupsQuery.data.filter((group) => !editor.theme?.grupos_edad?.length || editor.theme.grupos_edad.some((available) => available.id === group.id))} selectedAgeGroupId={editor.selectedAgeGroupId} onSelect={editor.setSelectedAgeGroupId} /> : null}
+          <CrecerStepSelector pasos={editor.pasos} activeStepCode={editor.activeStepCode} selectedAgeGroupId={editor.selectedAgeGroupId} stepsData={editor.stepsQuery.data} onSelect={editor.setActiveStepCode} />
+        </div>
       </section>
 
       <div className="admin-editor-shell">

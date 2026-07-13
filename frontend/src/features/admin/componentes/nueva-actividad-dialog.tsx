@@ -1,93 +1,98 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Loader } from "lucide-react";
+import { useQueries } from "@tanstack/react-query";
+import { Loader, X } from "lucide-react";
+
+import type { Tema } from "@/shared/api/api";
 import { obtenerTemasAdmin } from "../admin.api";
+
+export const estadosTemaParaNuevaActividad = ["borrador", "revision", "publicado"] as const;
 
 type NuevaActividadDialogProps = {
   onClose: () => void;
 };
 
+type NuevaActividadDialogContenidoProps = {
+  temas: Tema[];
+  isLoading: boolean;
+  selectedThemeId: string;
+  onThemeChange: (themeId: string) => void;
+  onClose: () => void;
+  onContinue: () => void;
+};
+
 export function NuevaActividadDialog({ onClose }: NuevaActividadDialogProps) {
   const navigate = useNavigate();
-  const [selectedThemeId, setSelectedThemeId] = useState<string>("");
-
-  const { data: temas, isLoading } = useQuery({
-    queryKey: ["admin", "themes"],
-    queryFn: () => obtenerTemasAdmin({ status: "publicado" }),
+  const [selectedThemeId, setSelectedThemeId] = useState("");
+  const consultasTemas = useQueries({
+    queries: estadosTemaParaNuevaActividad.map((estado) => ({
+      queryKey: ["admin", "themes", estado],
+      queryFn: () => obtenerTemasAdmin({ status: estado }),
+    })),
   });
+  const temas = deduplicarTemas(consultasTemas.flatMap((consulta) => consulta.data ?? []));
+  const isLoading = consultasTemas.some((consulta) => consulta.isLoading);
 
-  const handleCrear = () => {
-    if (selectedThemeId) {
-      navigate({
-        to: "/admin/temas/$themeId/activities",
-        params: { themeId: selectedThemeId },
-        search: { form: "nueva" },
-      });
-      onClose();
-    }
+  const handleContinue = () => {
+    if (!selectedThemeId) return;
+
+    navigate({
+      to: "/admin/temas/$themeId/activities",
+      params: { themeId: selectedThemeId },
+      search: { form: "nueva" },
+    });
+    onClose();
   };
 
+  return <NuevaActividadDialogContenido temas={temas} isLoading={isLoading} selectedThemeId={selectedThemeId} onThemeChange={setSelectedThemeId} onClose={onClose} onContinue={handleContinue} />;
+}
+
+export function NuevaActividadDialogContenido({ temas, isLoading, selectedThemeId, onThemeChange, onClose, onContinue }: NuevaActividadDialogContenidoProps) {
+  const dialogoRef = useRef<HTMLDivElement>(null);
+  const focoAnteriorRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    focoAnteriorRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialogoRef.current?.focus();
+
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", cerrarConEscape);
+    return () => {
+      document.removeEventListener("keydown", cerrarConEscape);
+      focoAnteriorRef.current?.focus();
+    };
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
-        <h2 className="text-xl font-black text-slate-800 mb-2">Nueva actividad</h2>
-        <p className="text-sm text-slate-500 mb-4">
-          Selecciona el tema al que quieres agregar la nueva actividad.
-        </p>
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center" role="presentation">
+      <button type="button" className="absolute inset-0 bg-slate-950/55" aria-label="Cerrar diálogo" onClick={onClose} />
+      <div ref={dialogoRef} role="dialog" aria-modal="true" aria-labelledby="nueva-actividad-titulo" aria-describedby="nueva-actividad-descripcion" tabIndex={-1} className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl outline-none sm:p-7">
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <span className="admin-eyebrow">Biblioteca editorial</span>
+            <h2 id="nueva-actividad-titulo" className="mt-1 text-xl font-black text-slate-900">Nueva actividad</h2>
+            <p id="nueva-actividad-descripcion" className="mt-2 text-sm leading-6 text-slate-500">Elige el tema donde prepararás la experiencia de aprendizaje.</p>
+          </div>
+          <button type="button" className="admin-icon-button" aria-label="Cerrar diálogo" onClick={onClose}><X size={18} /></button>
+        </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader className="animate-spin text-primario" size={24} />
-          </div>
+          <div className="flex items-center justify-center py-10" aria-live="polite"><Loader className="animate-spin text-primario" size={24} /><span className="sr-only">Cargando temas</span></div>
         ) : (
           <>
-            <div className="mb-4">
-              <label className="block text-xs font-bold text-slate-600 mb-1">
-                Tema
-              </label>
-              <select
-                value={selectedThemeId}
-                onChange={(e) => setSelectedThemeId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2e9e5b]/20 focus:border-[#2e9e5b]"
-              >
-                <option value="">Selecciona un tema...</option>
-                {temas?.map((tema) => (
-                  <option key={tema.id} value={tema.id}>
-                    {tema.titulo}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {temas?.length === 0 && (
-              <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-4">
-                <p className="text-xs text-amber-700">
-                  <i className="fa-solid fa-triangle-exclamation mr-1" />
-                  No hay temas publicados. Crea y publica un tema primero.
-                </p>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={onClose}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCrear}
-                disabled={!selectedThemeId}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-[#2e9e5b] text-white text-sm font-bold hover:bg-[#267d4c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Continuar
-              </button>
-            </div>
+            <label className="admin-field admin-field--wide" htmlFor="tema-nueva-actividad"><span>Tema</span><select id="tema-nueva-actividad" value={selectedThemeId} onChange={(event) => onThemeChange(event.target.value)}><option value="">Selecciona un tema</option>{temas.map((tema) => <option key={tema.id} value={tema.id}>{tema.titulo} · {tema.estado}</option>)}</select></label>
+            {temas.length === 0 ? <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">No hay temas en borrador, revisión o publicados. Crea un tema antes de añadir actividades.</div> : null}
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" className="admin-secondary-button" onClick={onClose}>Cancelar</button><button type="button" className="admin-primary-button" disabled={!selectedThemeId} onClick={onContinue}>Continuar al editor</button></div>
           </>
         )}
       </div>
     </div>
   );
+}
+
+function deduplicarTemas(temas: Tema[]): Tema[] {
+  return [...new Map(temas.map((tema) => [tema.id, tema])).values()];
 }

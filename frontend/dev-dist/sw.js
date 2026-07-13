@@ -81,7 +81,7 @@ define(['./workbox-50595c2f'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "/index.html",
-    "revision": "0.vlclr6uks9k"
+    "revision": "0.de4tb3fm1ok"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
@@ -134,6 +134,19 @@ define(['./workbox-50595c2f'], (function (workbox) { 'use strict';
     "networkTimeoutSeconds": 4,
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 80,
+      maxAgeSeconds: 86400
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(({
+    url,
+    request
+  }) => request.method === "GET" && /\/(perfil|progreso|gamificacion|actividades|clubes)(\/|$)/.test(url.pathname), new workbox.NetworkFirst({
+    "cacheName": "semillas-user-api-v1",
+    "networkTimeoutSeconds": 4,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 40,
       maxAgeSeconds: 86400
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]

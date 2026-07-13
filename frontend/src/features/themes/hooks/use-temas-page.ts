@@ -24,11 +24,13 @@ export function useTemasPage({ searchSenda }: UseTemasPageOptions = {}) {
   const { data: temasApi, isLoading, isError } = useQuery({
     queryKey: ["temas"],
     queryFn: () => obtenerTemas(),
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: progressApi } = useQuery({
     queryKey: ["progress"],
     queryFn: obtenerMiProgreso,
+    staleTime: 1000 * 60 * 3,
   });
 
   const toggleFavorito = useCallback((slug: string) => {

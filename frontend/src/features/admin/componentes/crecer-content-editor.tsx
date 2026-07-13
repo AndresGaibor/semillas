@@ -1,21 +1,17 @@
 import { useRef, type ReactNode } from "react";
 import {
-  Bold,
   Check,
   FileAudio,
   Image,
-  Italic,
-  Link2,
-  List,
   Loader,
   Plus,
-  Quote,
   Save,
   Trash2,
   Upload,
 } from "lucide-react";
 import type { RecursoMultimedia } from "../../media/media.api";
 import type { ReflectionQuestion } from "../hooks/use-theme-crecer-page";
+import { EditorMarkdown } from "./editor-markdown";
 
 interface CrecerStepInfo { id: string; codigo: string; nombre: string; }
 interface AgeGroupInfo { id: string; nombre?: string | null; }
@@ -46,24 +42,10 @@ interface CrecerContentEditorProps {
 export function CrecerContentEditor(props: CrecerContentEditorProps) {
   const imageInput = useRef<HTMLInputElement | null>(null);
   const audioInput = useRef<HTMLInputElement | null>(null);
-  const bodyRef = useRef<HTMLTextAreaElement | null>(null);
   const visualResources = props.resources.filter((resource) => resource.tipo === "imagen" || resource.tipo === "video");
   const audioResources = props.resources.filter((resource) => resource.tipo === "audio");
   const selectedVisual = props.resources.find((resource) => resource.id === props.resourceId) ?? null;
   const selectedAudio = props.resources.find((resource) => resource.id === props.audioResourceId) ?? null;
-
-  const insertMarkdown = (before: string, after = before, placeholder = "texto") => {
-    const textarea = bodyRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = props.body.slice(start, end) || placeholder;
-    props.onBodyChange(`${props.body.slice(0, start)}${before}${selected}${after}${props.body.slice(end)}`);
-    requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selected.length);
-    });
-  };
 
   return (
     <section className="admin-editor-section">
@@ -73,18 +55,11 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
       </div>
 
       <div className="admin-form-grid">
-        <Field label="Título del bloque" wide help="Debe ser corto y describir la idea central del paso."><input value={props.title} maxLength={120} onChange={(event) => props.onTitleChange(event.target.value)} placeholder={props.activeStep?.nombre ?? "Título"} /></Field>
-        <Field label="Instrucción corta" wide help="Guía de una sola frase que verá el estudiante antes de comenzar."><input value={props.shortInstruction} maxLength={240} onChange={(event) => props.onShortInstructionChange(event.target.value)} placeholder="Ejemplo: Escucha y piensa en una ocasión en que te sentiste amado." /></Field>
+        <Field label="Título del bloque" help="Idea central del paso."><input value={props.title} maxLength={120} onChange={(event) => props.onTitleChange(event.target.value)} placeholder={props.activeStep?.nombre ?? "Título"} /></Field>
+        <Field label="Instrucción corta" help="Una frase para comenzar."><input value={props.shortInstruction} maxLength={240} onChange={(event) => props.onShortInstructionChange(event.target.value)} placeholder="Ejemplo: Escucha y piensa..." /></Field>
 
-        <Field label="Contenido principal" wide help="Admite Markdown simple. Mantén párrafos cortos para lectura en web y móvil.">
-          <div className="admin-rich-toolbar" aria-label="Herramientas de formato">
-            <ToolbarButton title="Negrita" onClick={() => insertMarkdown("**", "**")}><Bold size={15} /></ToolbarButton>
-            <ToolbarButton title="Cursiva" onClick={() => insertMarkdown("*", "*")}><Italic size={15} /></ToolbarButton>
-            <ToolbarButton title="Lista" onClick={() => insertMarkdown("- ", "", "elemento")}><List size={15} /></ToolbarButton>
-            <ToolbarButton title="Cita" onClick={() => insertMarkdown("> ", "", "cita bíblica")}><Quote size={15} /></ToolbarButton>
-            <ToolbarButton title="Enlace" onClick={() => insertMarkdown("[", "](https://)", "texto del enlace")}><Link2 size={15} /></ToolbarButton>
-          </div>
-          <textarea ref={bodyRef} rows={14} value={props.body} onChange={(event) => props.onBodyChange(event.target.value)} placeholder="Escribe el contenido pedagógico del paso..." />
+        <Field label="Contenido principal" wide help="Admite texto con formato simple. Mantén párrafos cortos para lectura en web y móvil.">
+          <EditorMarkdown markdown={props.body} onChange={props.onBodyChange} />
         </Field>
 
         <Field label="Recurso visual" help="Imagen o video que acompaña este paso.">
@@ -124,8 +99,7 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
   );
 }
 
-function Field({ label, help, wide, children }: { label: string; help: string; wide?: boolean; children: ReactNode }) { return <label className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}<small>{help}</small></label>; }
-function ToolbarButton({ title, onClick, children }: { title: string; onClick: () => void; children: ReactNode }) { return <button type="button" title={title} aria-label={title} onClick={onClick}>{children}</button>; }
+function Field({ label, help, wide, children }: { label: string; help: string; wide?: boolean; children: ReactNode }) { return <div className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}<small>{help}</small></div>; }
 function MediaSlot({ icon, resource, emptyText, onUpload, onRemove }: { icon: ReactNode; resource: RecursoMultimedia | null; emptyText: string; onUpload: () => void; onRemove: () => void }) {
   return <div className="admin-media-slot"><div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div><div className="min-w-0 flex-1"><strong className="truncate">{resource?.titulo ?? emptyText}</strong><small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Sube un archivo o selecciónalo desde el módulo de medios."}</small><div className="flex gap-3"><button type="button" onClick={onUpload}><Upload size={13} className="inline" /> Subir</button>{resource ? <button type="button" onClick={onRemove} className="!text-red-600">Quitar</button> : null}</div></div></div>;
 }

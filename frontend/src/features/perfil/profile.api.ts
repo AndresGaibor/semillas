@@ -2,6 +2,8 @@ import { peticion } from "../../shared/api/api";
 import type { Perfil, Usuario } from "../../shared/api/api";
 import { db, type PerfilLocal } from "@/lib/offline/db";
 
+const CACHE_KEY_PROGRESO = "semillas_progreso_cache_v1";
+
 export async function obtenerMiPerfil() {
   if (!navigator.onLine) return obtenerPerfilLocalOError();
 
@@ -93,8 +95,22 @@ export type ProgresoMiRespuesta = {
   }>;
 };
 
-export function obtenerMiProgreso() {
-  return peticion<ProgresoMiRespuesta>("/progreso/mi");
+export async function obtenerMiProgreso(): Promise<ProgresoMiRespuesta> {
+  if (!navigator.onLine) {
+    const local = leerCacheProgreso();
+    if (local) return local;
+    return { progresos_tema: [], progresos_actividad: [] };
+  }
+
+  try {
+    const data = await peticion<ProgresoMiRespuesta>("/progreso/mi");
+    guardarCacheProgreso(data);
+    return data;
+  } catch (error) {
+    const local = leerCacheProgreso();
+    if (local) return local;
+    throw error;
+  }
 }
 
 export function obtenerMiGamificacion() {
@@ -105,6 +121,27 @@ export function reclamarCuentaInvitada() {
   return peticion<{ vinculada: boolean; usuario: Usuario }>("/perfil/vincular-cuenta", {
     metodo: "POST",
   });
+}
+
+function guardarCacheProgreso(data: ProgresoMiRespuesta): void {
+  try {
+    localStorage.setItem(CACHE_KEY_PROGRESO, JSON.stringify({ data, savedAt: new Date().toISOString() }));
+  } catch {
+    // localStorage puede estar lleno o bloqueado; no es crítico
+  }
+}
+
+function leerCacheProgreso(): ProgresoMiRespuesta | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY_PROGRESO);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { data?: ProgresoMiRespuesta };
+      if (parsed.data) return parsed.data;
+    }
+  } catch {
+    // cache corrupto, ignorar
+  }
+  return null;
 }
 
 async function guardarPerfilLocal(usuario: Usuario, perfil: Perfil): Promise<void> {

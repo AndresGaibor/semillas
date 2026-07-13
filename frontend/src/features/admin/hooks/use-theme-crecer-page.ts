@@ -5,12 +5,41 @@ import { toast } from "sonner";
 
 import { obtenerPasosAdmin, guardarParlante, obtenerTemaAdmin } from "../../admin/admin.api";
 import { obtenerGruposEdad, obtenerPasosCrecer } from "../../catalog/catalog.api";
-import { obtenerRecursosMultimedia, subirArchivo, type RecursoMultimedia } from "../../media/media.api";
+import {
+  obtenerRecursosMultimedia,
+  obtenerUrlFirmadaRecurso,
+  subirArchivo,
+  type RecursoMultimedia,
+} from "../../media/media.api";
 import { obtenerUrlPortadaTema } from "../../themes/themes.api";
 import { obtenerEstadoTema } from "../../admin/componentes/theme-view.utils";
 
 interface UseThemeCrecerPageProps { themeId: string; }
 export type ReflectionQuestion = { pregunta: string; orden: number };
+
+type SubirImagen = (archivo: File, tipo: "imagen") => Promise<Pick<RecursoMultimedia, "id">>;
+type ObtenerUrlFirmada = (recursoId: string) => Promise<{ url: string }>;
+
+export function validarContenidoCrecer(titulo: string, cuerpo: string) {
+  const tituloLimpio = titulo.trim();
+  const cuerpoLimpio = cuerpo.trim();
+
+  if (tituloLimpio.length < 2) return "El título debe tener al menos 2 caracteres";
+  if (tituloLimpio.length > 120) return "El título no puede superar 120 caracteres";
+  if (cuerpoLimpio.length < 5) return "El contenido debe tener al menos 5 caracteres";
+
+  return null;
+}
+
+export async function subirImagenMarkdown(
+  archivo: File,
+  subir: SubirImagen = subirArchivo,
+  obtenerUrlFirmada: ObtenerUrlFirmada = obtenerUrlFirmadaRecurso,
+) {
+  const recurso = await subir(archivo, "imagen");
+  const { url } = await obtenerUrlFirmada(recurso.id);
+  return url;
+}
 
 export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
   const navigate = useNavigate();
@@ -25,11 +54,11 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
   const [questions, setQuestions] = useState<ReflectionQuestion[]>([]);
 
   const themeQuery = useQuery({ queryKey: ["admin", "theme", themeId], queryFn: () => obtenerTemaAdmin(themeId) });
-  const portadaQuery = useQuery({ queryKey: ["tema-portada", themeId], queryFn: () => obtenerUrlPortadaTema(themeId), enabled: Boolean(themeQuery.data?.portada_recurso_id), staleTime: 3 * 60 * 1000 });
+  const portadaQuery = useQuery({ queryKey: ["theme-portada", themeId], queryFn: () => obtenerUrlPortadaTema(themeId), enabled: Boolean(themeQuery.data?.portada_recurso_id), staleTime: 10 * 60 * 1000 });
   const stepsQuery = useQuery({ queryKey: ["admin", "theme", themeId, "steps"], queryFn: () => obtenerPasosAdmin(themeId) });
-  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
-  const crecerStepsQuery = useQuery({ queryKey: ["catalog", "crecer-steps"], queryFn: obtenerPasosCrecer });
-  const mediaQuery = useQuery({ queryKey: ["admin", "media", "all"], queryFn: obtenerRecursosMultimedia });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad, staleTime: 1000 * 60 * 60 });
+  const crecerStepsQuery = useQuery({ queryKey: ["catalog", "crecer-steps"], queryFn: obtenerPasosCrecer, staleTime: 1000 * 60 * 60 });
+  const mediaQuery = useQuery({ queryKey: ["admin", "media"], queryFn: obtenerRecursosMultimedia });
 
   const theme = themeQuery.data;
   const portadaUrl = portadaQuery.data?.url ?? theme?.portada_recurso?.url_publica ?? null;
@@ -62,7 +91,8 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
     mutationFn: () => {
       const stepType = crecerStepsQuery.data?.find((step) => step.codigo === activeStepCode);
       if (!stepType || !selectedAgeGroupId) throw new Error("Selecciona una franja y un paso");
-      if (!title.trim() || !body.trim()) throw new Error("El título y el contenido son obligatorios");
+      const errorValidacion = validarContenidoCrecer(title, body);
+      if (errorValidacion) throw new Error(errorValidacion);
       return guardarParlante(themeId, {
         tipo_paso_id: stepType.id,
         grupo_edad_id: selectedAgeGroupId,
@@ -95,6 +125,13 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
     onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo subir el recurso"),
   });
 
+  const handleSubirImagenMarkdown = async (archivo: File) => {
+    const url = await subirImagenMarkdown(archivo);
+    await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
+    toast.success("Imagen subida e insertada en el contenido");
+    return url;
+  };
+
   const pasos = crecerStepsQuery.data ?? [];
   const totalPasos = pasos.length || 6;
   const pasosCompletos = pasos.filter((step) => selectedAgeGroupId && stepsQuery.data?.some((contentStep) => contentStep.tipo_paso?.codigo === step.codigo && contentStep.contenidos?.some((content) => content.grupo_edad_id === selectedAgeGroupId && content.titulo?.trim() && content.cuerpo?.trim()))).length;
@@ -110,6 +147,7 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
     resourceId, setResourceId, audioResourceId, setAudioResourceId, questions, setQuestions,
     selectedResource, selectedAudio, media,
     themeQuery, portadaQuery, stepsQuery, ageGroupsQuery, crecerStepsQuery, mediaQuery, saveMutation, uploadMutation,
+    handleSubirImagenMarkdown,
     handleBack: () => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } }),
   };
 }

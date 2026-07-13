@@ -41,13 +41,13 @@ function ContenidoActividad({ actividad, onComplete }: ActividadWrapperProps) {
     void onComplete(actividadId, xp);
   };
 
-  if (actividad.opciones.length > 0) {
+  if (codigo === "cuestionario" && actividad.opciones.length > 0) {
     return <OpcionMultipleServidor actividad={actividad} onComplete={onComplete} />;
   }
 
   switch (codigo) {
     case "actividad_audio":
-      return <ActividadAudio actividad={actividad as any} onComplete={complete} />;
+      return <ActividadAudio actividad={actividad} onComplete={complete} />;
     case "aventura_decisiones":
       return <AventuraDecisiones actividad={actividad as any} onComplete={complete} />;
     case "arrastrar_soltar":

@@ -31,20 +31,18 @@ export function CrecerStepSelector({
   onSelect,
 }: CrecerStepSelectorProps) {
   return (
-    <section className="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eefcf4] text-[#2e9e5b]">
+    <section className="admin-crecer-control">
+      <div className="admin-crecer-control__heading">
+        <div className="admin-crecer-control__icon">
           <BookOpenText size={18} />
         </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-lg font-black text-slate-800">Momentos CRECER</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
-            Elige el momento, edita el contenido y guarda por franja.
-          </p>
+        <div>
+          <h2>Momento CRECER</h2>
+          <p>Elige un momento para editarlo.</p>
         </div>
       </div>
 
-      <div className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+      <div className="admin-crecer-step-options">
         {pasos.map((step) => {
           const isActive = activeStepCode === step.codigo;
           const completed = selectedAgeGroupId
@@ -60,19 +58,19 @@ export function CrecerStepSelector({
               key={step.codigo}
               type="button"
               onClick={() => onSelect(step.codigo)}
-              className={`flex items-center gap-3 rounded-[1.35rem] border px-4 py-3 text-left transition-all ${isActive ? "border-transparent text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+              className={`admin-crecer-step-option ${isActive ? "admin-crecer-step-option--active" : ""}`}
               style={{
                 backgroundColor: isActive ? (step.color_hex ?? "#2e9e5b") : undefined,
               }}
             >
-              <span className={`flex h-9 w-9 items-center justify-center rounded-2xl ${isActive ? "bg-white/15" : "bg-[#eefcf4] text-[#2e9e5b]"}`}>
+              <span className="admin-crecer-step-option__status">
                 {completed ? <Check size={16} /> : <Circle size={16} className={isActive ? "text-white/80" : "text-slate-300"} />}
               </span>
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-black ${isActive ? "text-white" : "text-slate-800"}`}>{step.nombre}</p>
-                <p className={`mt-0.5 text-[11px] font-semibold ${isActive ? "text-white/78" : "text-slate-400"}`}>
+                <p>{step.nombre}</p>
+                <small>
                   {completed ? "Contenido guardado" : "Pendiente de completar"}
-                </p>
+                </small>
               </div>
             </button>
           );

@@ -21,8 +21,8 @@ export function useAdminActivities() {
     queryFn: () => obtenerActividadesAdmin(),
   });
   const temasQuery = useQuery({ queryKey: ["admin", "themes"], queryFn: () => obtenerTemasAdmin() });
-  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: () => obtenerSendas() });
-  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: () => obtenerGruposEdad() });
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: () => obtenerSendas(), staleTime: 1000 * 60 * 60 });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: () => obtenerGruposEdad(), staleTime: 1000 * 60 * 60 });
 
   const dbActivities = activitiesQuery.data?.actividades ?? [];
   const temasBase = temasQuery.data ?? [];

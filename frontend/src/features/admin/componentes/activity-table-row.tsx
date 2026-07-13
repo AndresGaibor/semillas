@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { BadgeEstado } from "@/componentes/ui/badge-estado";
-import { CheckboxCell, FILA_HOVER_CLS } from "./admin.helpers";
+import { FILA_HOVER_CLS } from "./admin.helpers";
 import { MenuAccionesActividad } from "./activity-menu-actions";
 import type { ActivityTableRow } from "./admin-activities-table";
 
@@ -15,8 +15,6 @@ export function FilaActividad({ act, navigate, onEliminar }: FilaActividadProps)
 
   return (
     <tr className={FILA_HOVER_CLS}>
-      <CheckboxCell ariaLabel={`Seleccionar ${act.titulo}`} />
-
       <td className="py-4 px-4">
         <div className="flex items-center gap-3">
           <div

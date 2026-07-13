@@ -9,9 +9,9 @@ import { obtenerSendas } from "../../sendas/sendas.api";
 export function useNewThemePage() {
   const navigate = useNavigate();
 
-  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas });
-  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad });
-  const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas });
+  const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: obtenerSendas, staleTime: 1000 * 60 * 60 });
+  const ageGroupsQuery = useQuery({ queryKey: ["catalog", "age-groups"], queryFn: obtenerGruposEdad, staleTime: 1000 * 60 * 60 });
+  const bibleVersionsQuery = useQuery({ queryKey: ["catalog", "bible-versions"], queryFn: obtenerVersionesBiblicas, staleTime: 1000 * 60 * 60 });
 
   const { register, handleSubmit, control, getValues, setValue } = useForm<CrearTemaSolicitud>({
     defaultValues: {

@@ -29,8 +29,31 @@ function obtenerArreglo(valor: unknown): unknown[] {
   return Array.isArray(valor) ? valor : [];
 }
 
-function esArregloDeEnteros(valor: unknown[], longitud: number): valor is number[] {
-  return valor.length === longitud && valor.every((indice) => typeof indice === "number" && Number.isInteger(indice));
+export function afirmacionesAlineas(valor: unknown): string {
+  return obtenerArreglo(valor)
+    .map((afirmacion) => {
+      if (!esRegistro(afirmacion)) return String(afirmacion);
+
+      const esVerdadero = typeof afirmacion.es_verdadero === "boolean"
+        ? afirmacion.es_verdadero
+        : afirmacion.correcta === true;
+
+      return `${String(afirmacion.texto ?? "")}|${String(esVerdadero)}`;
+    })
+    .join("\n");
+}
+
+function esPermutacionCompleta(valor: unknown, longitud: number): valor is number[] {
+  if (!Array.isArray(valor) || valor.length !== longitud) return false;
+
+  const indices = new Set<number>();
+
+  return valor.every((indice) => {
+    if (!esEnteroEnRango(indice, 0, longitud - 1) || indices.has(indice)) return false;
+
+    indices.add(indice);
+    return true;
+  });
 }
 
 function tieneParesCompletos(pares: unknown[], minimo: number, campos: string[]): boolean {
@@ -59,7 +82,7 @@ export function normalizarConfiguracionActividad(
   if (codigo === "arrastrar_soltar") {
     const items = obtenerArreglo(configuracion.items).filter((item): item is string => typeof item === "string");
     const ordenCorrecto = obtenerArreglo(configuracion.orden_correcto);
-    const tieneOrdenValido = esArregloDeEnteros(ordenCorrecto, items.length);
+    const tieneOrdenValido = esPermutacionCompleta(ordenCorrecto, items.length);
 
     return {
       ...configuracion,
@@ -87,7 +110,7 @@ export function validarActividadParaGuardar({
   configuracion,
   opciones,
 }: ActividadParaGuardar): string | null {
-  if (codigo === "actividad_video" && !esTextoNoVacio(configuracion.video_url)) return "La actividad requiere una URL del video.";
+  if ((codigo === "actividad_video" || codigo === "video") && !esTextoNoVacio(configuracion.video_url)) return "La actividad requiere una URL del video.";
   if (codigo === "actividad_audio" && !esTextoNoVacio(configuracion.audio_url)) return "La actividad requiere una URL del audio.";
 
   if (codigo === "rompecabezas") {
@@ -123,6 +146,28 @@ export function validarActividadParaGuardar({
     const opcionesConTexto = opciones.filter((opcion) => opcion.texto.trim().length > 0);
     if (opcionesConTexto.length < 2 || opcionesConTexto.length > 6) return "El cuestionario requiere entre 2 y 6 opciones no vacías.";
     if (opcionesConTexto.filter((opcion) => opcion.correcta).length !== 1) return "El cuestionario requiere exactamente una respuesta correcta.";
+  }
+
+  if (codigo === "verdadero_falso") {
+    const afirmaciones = obtenerArreglo(configuracion.afirmaciones);
+    const sonAfirmacionesValidas = afirmaciones.length >= 2 && afirmaciones.every(
+      (afirmacion) => esRegistro(afirmacion) && esTextoNoVacio(afirmacion.texto) && typeof afirmacion.es_verdadero === "boolean",
+    );
+    if (!sonAfirmacionesValidas) return "Verdadero o falso requiere al menos dos afirmaciones con texto y valor booleano.";
+  }
+
+  if (codigo === "arrastrar_soltar") {
+    const items = obtenerArreglo(configuracion.items);
+    if (items.length < 2) return "Arrastrar y soltar requiere al menos dos items.";
+    if (!esPermutacionCompleta(configuracion.orden_correcto, items.length)) return "Arrastrar y soltar requiere un orden válido.";
+  }
+
+  if (codigo === "cancion") {
+    const letra = configuracion.letra;
+    if (letra !== undefined && (!Array.isArray(letra) || !letra.every(esTextoNoVacio))) return "La canción requiere una letra con líneas textuales.";
+
+    const acciones = configuracion.acciones;
+    if (acciones !== undefined && (!Array.isArray(acciones) || !acciones.every(esTextoNoVacio))) return "La canción requiere acciones textuales.";
   }
 
   return null;

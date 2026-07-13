@@ -5,19 +5,15 @@ import {
   ArrowLeft,
   ArrowUp,
   Copy,
-  FileAudio,
   Gamepad2,
-  Image as ImageIcon,
   Loader2,
   Pencil,
   Plus,
   Save,
   Trash2,
-  Upload,
-  Video,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import {
@@ -34,10 +30,8 @@ import {
 } from "../features/admin/admin.api";
 import { obtenerGruposEdad, obtenerTiposActividad } from "../features/catalog/catalog.api";
 import { subirArchivo } from "../features/media/media.api";
-import {
-  normalizarConfiguracionActividad,
-  validarActividadParaGuardar,
-} from "../features/admin/componentes/activity-configuration";
+import { normalizarConfiguracionActividad, validarActividadParaGuardar } from "../features/admin/componentes/activity-configuration";
+import { ActivityTypeConfigBuilder } from "../features/admin/componentes/activity-type-config-builder";
 import type { ActivitySearch } from "../features/admin/componentes/activity-search.types";
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
@@ -66,6 +60,13 @@ type ActivityDraft = {
 
 const defaultOptions: OptionDraft[] = ["A", "B", "C", "D"].map((label, index) => ({ etiqueta: label, texto: "", correcta: index === 0, orden: index + 1 }));
 const emptyDraft: ActivityDraft = { paso_id: "", grupo_edad_id: "", tipo_actividad_id: "", titulo: "", consigna: "", retroalimentacion: "", xp_recompensa: 10, limite_tiempo_seg: null, dificultad: "facil", obligatorio: true, configuracion: {}, opciones: defaultOptions };
+
+function esObjetoPlano(valor: unknown): valor is Record<string, unknown> {
+  if (typeof valor !== "object" || valor === null || Array.isArray(valor)) return false;
+
+  const prototipo = Object.getPrototypeOf(valor);
+  return prototipo === Object.prototype || prototipo === null;
+}
 
 function AdminThemeActivitiesPage() {
   const { themeId } = Route.useParams();
@@ -131,11 +132,12 @@ function AdminThemeActivitiesPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      let parsedConfig: Record<string, unknown> = draft.configuracion;
-      try { parsedConfig = JSON.parse(configText) as Record<string, unknown>; } catch { throw new Error("La configuración avanzada no contiene JSON válido"); }
+      let configuracionAvanzada: unknown;
+      try { configuracionAvanzada = JSON.parse(configText); } catch { throw new Error("La configuración avanzada no contiene JSON válido"); }
+      if (!esObjetoPlano(configuracionAvanzada)) throw new Error("La configuración avanzada debe ser un objeto JSON plano.");
       if (!draft.titulo.trim() || !draft.consigna.trim() || !draft.paso_id || !draft.grupo_edad_id || !draft.tipo_actividad_id) throw new Error("Completa los campos obligatorios");
       const codigoTipoActividad = selectedType?.codigo ?? "";
-      const configuracion = normalizarConfiguracionActividad(codigoTipoActividad, parsedConfig);
+      const configuracion = normalizarConfiguracionActividad(codigoTipoActividad, configuracionAvanzada);
       const errorConfiguracion = validarActividadParaGuardar({ codigo: codigoTipoActividad, configuracion, opciones: draft.opciones });
       if (errorConfiguracion) throw new Error(errorConfiguracion);
       const payload = {
@@ -186,7 +188,7 @@ function AdminThemeActivitiesPage() {
   return (
     <div className="admin-theme-studio">
       <header className="admin-theme-library__hero">
-        <div className="flex items-center gap-4"><button type="button" className="admin-icon-button" onClick={() => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } })}><ArrowLeft size={19} /></button><div><span className="admin-eyebrow">Editor interactivo</span><h2 className="!text-2xl">Actividades del tema</h2><p>{themeQuery.data?.titulo ?? "Tema"} · juegos, audio, video y evaluaciones por paso y franja.</p></div></div>
+        <div className="flex items-center gap-4"><button type="button" className="admin-icon-button" aria-label="Volver al tema" onClick={() => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } })}><ArrowLeft size={19} /></button><div><span className="admin-eyebrow">Editor interactivo</span><h2 className="!text-2xl">Actividades del tema</h2><p>{themeQuery.data?.titulo ?? "Tema"} · juegos, audio, video y evaluaciones por paso y franja.</p></div></div>
         <button type="button" className="admin-primary-button" onClick={() => navigate({ search: { form: "nueva" } })}><Plus size={17} /> Nueva actividad</button>
       </header>
 
@@ -203,9 +205,9 @@ function AdminThemeActivitiesPage() {
         </main>
 
         {isFormOpen ? (
-          <aside className="admin-editor-aside !static">
+          <aside className="admin-editor-aside">
             <section className="admin-editor-section">
-              <div className="admin-editor-section__header"><div><h2>{search.form === "editar" ? "Editar actividad" : "Nueva actividad"}</h2><p>El formulario cambia según el tipo seleccionado.</p></div><button type="button" className="admin-icon-button" onClick={closeForm}><X size={18} /></button></div>
+              <div className="admin-editor-section__header"><div><h2>{search.form === "editar" ? "Editar actividad" : "Nueva actividad"}</h2><p>El formulario cambia según el tipo seleccionado.</p></div><button type="button" className="admin-icon-button" aria-label="Cerrar editor de actividad" onClick={closeForm}><X size={18} /></button></div>
               {editQuery.isLoading ? <div className="grid place-items-center py-20"><Loader2 className="animate-spin" /></div> : <ActivityBuilder draft={draft} onChange={setDraft} configText={configText} onConfigTextChange={setConfigText} steps={stepsQuery.data ?? []} groups={groupsQuery.data ?? []} types={typesQuery.data ?? []} selectedTypeCode={selectedType?.codigo ?? ""} onUpload={(file, key, type) => uploadMutation.mutate({ file, key, type })} uploading={uploadMutation.isPending} />}
               <div className="admin-save-bar mt-5"><p>La configuración se guarda como JSON validado por el backend.</p><button type="button" className="admin-primary-button" disabled={saveMutation.isPending || uploadMutation.isPending} onClick={() => saveMutation.mutate()}>{saveMutation.isPending ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />} Guardar</button></div>
             </section>
@@ -217,55 +219,32 @@ function AdminThemeActivitiesPage() {
 }
 
 function ActivityRow({ activity, stepName, onEdit, onDelete, onDuplicate, onUp, onDown, disableUp, disableDown }: { activity: ActividadAdmin; stepName: string; onEdit: () => void; onDelete: () => void; onDuplicate: () => void; onUp: () => void; onDown: () => void; disableUp: boolean; disableDown: boolean }) {
-  return <article className="admin-activity-row"><div className="admin-activity-row__handle"><Gamepad2 size={18} /></div><div className="admin-activity-row__identity"><strong>{activity.titulo}</strong><p>{activity.consigna}</p><div className="admin-activity-row__tags"><span>{stepName}</span><span>{activity.tipo_actividad?.nombre ?? "Actividad"}</span><span>{activity.xp_recompensa} XP</span><span>{activity.dificultad}</span></div></div><div className="admin-activity-row__actions"><button type="button" className="admin-icon-button" disabled={disableUp} onClick={onUp}><ArrowUp size={16} /></button><button type="button" className="admin-icon-button" disabled={disableDown} onClick={onDown}><ArrowDown size={16} /></button><button type="button" className="admin-icon-button" onClick={onEdit}><Pencil size={16} /></button><button type="button" className="admin-icon-button" onClick={onDuplicate}><Copy size={16} /></button><button type="button" className="admin-icon-button !text-red-500" onClick={onDelete}><Trash2 size={16} /></button></div></article>;
+  return <article className="admin-activity-row"><div className="admin-activity-row__handle"><Gamepad2 size={18} /></div><div className="admin-activity-row__identity"><strong>{activity.titulo}</strong><p>{activity.consigna}</p><div className="admin-activity-row__tags"><span>{stepName}</span><span>{activity.tipo_actividad?.nombre ?? "Actividad"}</span><span>{activity.xp_recompensa} XP</span><span>{activity.dificultad}</span></div></div><div className="admin-activity-row__actions"><button type="button" className="admin-icon-button" aria-label={`Subir ${activity.titulo}`} disabled={disableUp} onClick={onUp}><ArrowUp size={16} /></button><button type="button" className="admin-icon-button" aria-label={`Bajar ${activity.titulo}`} disabled={disableDown} onClick={onDown}><ArrowDown size={16} /></button><button type="button" className="admin-icon-button" aria-label={`Editar ${activity.titulo}`} onClick={onEdit}><Pencil size={16} /></button><button type="button" className="admin-icon-button" aria-label={`Duplicar ${activity.titulo}`} onClick={onDuplicate}><Copy size={16} /></button><button type="button" className="admin-icon-button !text-red-500" aria-label={`Eliminar ${activity.titulo}`} onClick={onDelete}><Trash2 size={16} /></button></div></article>;
 }
 
 function ActivityBuilder({ draft, onChange, configText, onConfigTextChange, steps, groups, types, selectedTypeCode, onUpload, uploading }: { draft: ActivityDraft; onChange: (draft: ActivityDraft) => void; configText: string; onConfigTextChange: (value: string) => void; steps: Array<{ id: string; tipo_paso?: { nombre?: string | null } | null }>; groups: Array<{ id: string; nombre: string }>; types: Array<{ id: string; codigo: string; nombre: string; descripcion: string | null; es_juego: boolean }>; selectedTypeCode: string; onUpload: (file: File, key: string, type: "imagen" | "audio" | "video") => void; uploading: boolean }) {
   const update = <K extends keyof ActivityDraft>(key: K, value: ActivityDraft[K]) => onChange({ ...draft, [key]: value });
-  const updateConfig = (key: string, value: unknown) => {
-    const next = key === "__merge__" && value && typeof value === "object"
-      ? { ...draft.configuracion, ...(value as Record<string, unknown>) }
-      : { ...draft.configuracion, [key]: value };
-    update("configuracion", next);
-    onConfigTextChange(JSON.stringify(next, null, 2));
+  const updateConfig = (configuracion: Record<string, unknown>) => {
+    update("configuracion", configuracion);
+    onConfigTextChange(JSON.stringify(configuracion, null, 2));
   };
-  const isQuiz = ["cuestionario", "quiz", "opcion_multiple", "actividad_audio", "actividad_video", "video"].some((code) => selectedTypeCode.includes(code));
+  const resetType = (tipoActividadId: string) => {
+    const tipo = types.find((item) => item.id === tipoActividadId);
+    const tieneContenidoConfigurado = Object.keys(draft.configuracion).length > 0 || draft.opciones.some((opcion) => opcion.texto.trim());
+    if (tieneContenidoConfigurado && !window.confirm("Cambiar el tipo elimina su configuración actual. ¿Deseas continuar?")) return;
+    const opciones = tipo?.codigo === "cuestionario" ? defaultOptions.map((option) => ({ ...option })) : [];
+    onChange({ ...draft, tipo_actividad_id: tipoActividadId, configuracion: {}, opciones });
+    onConfigTextChange("{}");
+  };
+  const isQuiz = selectedTypeCode === "cuestionario";
 
-  return <div className="admin-form-grid">
-    <Field label="Paso CRECER"><select value={draft.paso_id} onChange={(event) => update("paso_id", event.target.value)}><option value="">Selecciona un paso</option>{steps.map((step) => <option key={step.id} value={step.id}>{step.tipo_paso?.nombre ?? "Paso"}</option>)}</select></Field>
-    <Field label="Franja"><select value={draft.grupo_edad_id} onChange={(event) => update("grupo_edad_id", event.target.value)}><option value="">Selecciona una franja</option>{groups.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></Field>
-    <Field label="Tipo" wide><select value={draft.tipo_actividad_id} onChange={(event) => { onChange({ ...draft, tipo_actividad_id: event.target.value, configuracion: {} }); onConfigTextChange("{}"); }}><option value="">Selecciona el tipo</option>{types.map((type) => <option key={type.id} value={type.id}>{type.nombre}</option>)}</select></Field>
-    <Field label="Título" wide><input value={draft.titulo} onChange={(event) => update("titulo", event.target.value)} /></Field>
-    <Field label="Consigna" wide><textarea rows={3} value={draft.consigna} onChange={(event) => update("consigna", event.target.value)} /></Field>
-    <Field label="Retroalimentación" wide><textarea rows={2} value={draft.retroalimentacion} onChange={(event) => update("retroalimentacion", event.target.value)} /></Field>
-    <Field label="XP"><input type="number" min={0} value={draft.xp_recompensa} onChange={(event) => update("xp_recompensa", Number(event.target.value))} /></Field>
-    <Field label="Tiempo límite (segundos)"><input type="number" min={1} value={draft.limite_tiempo_seg ?? ""} onChange={(event) => update("limite_tiempo_seg", event.target.value ? Number(event.target.value) : null)} /></Field>
-    <Field label="Dificultad"><select value={draft.dificultad} onChange={(event) => update("dificultad", event.target.value as ActivityDraft["dificultad"])}><option value="facil">Fácil</option><option value="normal">Normal</option><option value="dificil">Difícil</option></select></Field>
-    <Field label="Obligatoria"><select value={draft.obligatorio ? "si" : "no"} onChange={(event) => update("obligatorio", event.target.value === "si")}><option value="si">Sí</option><option value="no">No</option></select></Field>
-
-    <div className="admin-field admin-field--wide"><span>Configuración del tipo</span><div className="admin-config-builder"><TypeSpecificConfig code={selectedTypeCode} config={draft.configuracion} updateConfig={updateConfig} onUpload={onUpload} uploading={uploading} />{isQuiz ? <OptionsBuilder options={draft.opciones} onChange={(opciones) => update("opciones", opciones)} /> : null}<div className="admin-config-help">Los campos visuales actualizan el JSON. La edición avanzada permite cubrir nuevos tipos sin desplegar otro formulario.</div><textarea rows={8} value={configText} onChange={(event) => onConfigTextChange(event.target.value)} className="font-mono text-xs" aria-label="Configuración JSON avanzada" /></div></div>
+  return <div className="admin-form-stack">
+    <fieldset className="admin-form-section"><legend>Contexto</legend><p>Ubica esta actividad dentro del recorrido CRECER y su franja.</p><div className="admin-form-grid"><Field label="Paso CRECER"><select value={draft.paso_id} onChange={(event) => update("paso_id", event.target.value)}><option value="">Selecciona un paso</option>{steps.map((step) => <option key={step.id} value={step.id}>{step.tipo_paso?.nombre ?? "Paso"}</option>)}</select></Field><Field label="Franja"><select value={draft.grupo_edad_id} onChange={(event) => update("grupo_edad_id", event.target.value)}><option value="">Selecciona una franja</option>{groups.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></Field><Field label="Tipo" wide><select value={draft.tipo_actividad_id} onChange={(event) => resetType(event.target.value)}><option value="">Selecciona un tipo</option>{types.map((type) => <option key={type.id} value={type.id}>{type.nombre}</option>)}</select></Field></div></fieldset>
+    <fieldset className="admin-form-section"><legend>Contenido</legend><p>Define lo que el estudiante verá y recibirá al finalizar.</p><div className="admin-form-grid"><Field label="Título" wide><input value={draft.titulo} onChange={(event) => update("titulo", event.target.value)} /></Field><Field label="Consigna" wide><textarea rows={3} value={draft.consigna} onChange={(event) => update("consigna", event.target.value)} /></Field><Field label="Retroalimentación" wide><textarea rows={2} value={draft.retroalimentacion} onChange={(event) => update("retroalimentacion", event.target.value)} /></Field></div></fieldset>
+    <fieldset className="admin-form-section"><legend>Experiencia</legend><p>Ajusta el reto y la recompensa sin complicar el contenido.</p><div className="admin-form-grid"><Field label="XP"><input type="number" min={0} value={draft.xp_recompensa} onChange={(event) => update("xp_recompensa", Number(event.target.value))} /></Field><Field label="Tiempo límite (segundos)"><input type="number" min={1} value={draft.limite_tiempo_seg ?? ""} onChange={(event) => update("limite_tiempo_seg", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Dificultad"><select value={draft.dificultad} onChange={(event) => update("dificultad", event.target.value as ActivityDraft["dificultad"])}><option value="facil">Fácil</option><option value="normal">Normal</option><option value="dificil">Difícil</option></select></Field><Field label="Obligatoria"><select value={draft.obligatorio ? "si" : "no"} onChange={(event) => update("obligatorio", event.target.value === "si")}><option value="si">Sí</option><option value="no">No</option></select></Field></div></fieldset>
+    <fieldset className="admin-form-section"><legend>Configuración del tipo</legend><p>Usa el constructor guiado para preparar la experiencia interactiva.</p><div className="admin-config-builder"><ActivityTypeConfigBuilder codigo={selectedTypeCode} configuracion={draft.configuracion} onChange={updateConfig} onUpload={onUpload} uploading={uploading} />{isQuiz ? <OptionsBuilder options={draft.opciones} onChange={(opciones) => update("opciones", opciones)} /> : null}<details className="admin-advanced-config"><summary>Configuración avanzada para expertos</summary><p>Modifica JSON solo si necesitas una propiedad compatible que no aparece arriba.</p><textarea rows={8} value={configText} onChange={(event) => onConfigTextChange(event.target.value)} className="font-mono text-xs" aria-label="Configuración JSON avanzada" /></details></div></fieldset>
   </div>;
 }
 
-function TypeSpecificConfig({ code, config, updateConfig, onUpload, uploading }: { code: string; config: Record<string, unknown>; updateConfig: (key: string, value: unknown) => void; onUpload: (file: File, key: string, type: "imagen" | "audio" | "video") => void; uploading: boolean }) {
-  if (!code) return <p className="text-xs text-slate-500">Selecciona un tipo para ver sus campos especializados.</p>;
-  if (code.includes("video")) return <><ConfigField label="URL del video" value={String(config.video_url ?? "")} onChange={(value) => updateConfig("video_url", value)} /><MediaUpload label="Subir video" icon={<Video size={18} />} accept="video/*" disabled={uploading} onFile={(file) => onUpload(file, "video_url", "video")} /></>;
-  if (code.includes("audio") || code.includes("cancion")) return <><ConfigField label="URL del audio" value={String(config.audio_url ?? config.cancion_url ?? "")} onChange={(value) => updateConfig(code.includes("cancion") ? "cancion_url" : "audio_url", value)} /><MediaUpload label="Subir audio" icon={<FileAudio size={18} />} accept="audio/*" disabled={uploading} onFile={(file) => onUpload(file, code.includes("cancion") ? "cancion_url" : "audio_url", "audio")} /><ConfigArea label="Letra o transcripción" value={String(config.letra ?? "")} onChange={(value) => updateConfig("letra", value)} /></>;
-  if (code.includes("completar")) return <><ConfigArea label="Frase con espacio" value={String(config.frase ?? "")} onChange={(value) => updateConfig("frase", value)} /><ConfigField label="Respuesta" value={String(config.respuesta ?? "")} onChange={(value) => updateConfig("respuesta", value)} /></>;
-  if (code.includes("verdadero")) return <ConfigArea label="Afirmaciones (una por línea: texto|true o false)" value={arrayToLines(config.afirmaciones)} onChange={(value) => updateConfig("afirmaciones", value.split("\n").filter(Boolean).map((line) => { const [texto="", correcta] = line.split("|"); return { texto: texto.trim(), correcta: correcta?.trim() === "true" }; }))} />;
-  if (code.includes("relacionar")) return <ConfigArea label="Pares (izquierda|derecha)" value={pairsToLines(config.pares)} onChange={(value) => updateConfig("pares", value.split("\n").filter(Boolean).map((line) => { const [izquierda, derecha] = line.split("|"); return { izquierda: izquierda?.trim(), derecha: derecha?.trim() }; }))} />;
-  if (code.includes("arrastrar") || code.includes("secuencia")) return <ConfigArea label="Elementos en orden (uno por línea)" value={simpleArrayToLines(config.items)} onChange={(value) => { const items = value.split("\n").filter(Boolean); updateConfig("__merge__", { items, orden_correcto: items }); }} />;
-  if (code.includes("sopa")) return <><ConfigField label="Palabras separadas por coma" value={simpleArrayToLines(config.palabras).replaceAll("\n", ", ")} onChange={(value) => updateConfig("palabras", value.split(",").map((item) => item.trim()).filter(Boolean))} /><ConfigField label="Filas" value={String(config.filas ?? 12)} type="number" onChange={(value) => updateConfig("filas", Number(value))} /><ConfigField label="Columnas" value={String(config.columnas ?? 12)} type="number" onChange={(value) => updateConfig("columnas", Number(value))} /></>;
-  if (code.includes("rompecabezas")) return <><ConfigField label="URL de imagen" value={String(config.imagen ?? "")} onChange={(value) => updateConfig("imagen", value)} /><MediaUpload label="Subir imagen" icon={<ImageIcon size={18} />} accept="image/*" disabled={uploading} onFile={(file) => onUpload(file, "imagen", "imagen")} /><ConfigField label="Filas" type="number" value={String(config.filas ?? 3)} onChange={(value) => updateConfig("filas", Number(value))} /><ConfigField label="Columnas" type="number" value={String(config.columnas ?? 3)} onChange={(value) => updateConfig("columnas", Number(value))} /></>;
-  if (code.includes("aventura")) return <ConfigArea label="Escenas JSON" value={JSON.stringify(config.escenas ?? [], null, 2)} onChange={(value) => { try { updateConfig("escenas", JSON.parse(value)); } catch { /* se valida en JSON avanzado */ } }} />;
-  return <p className="text-xs leading-6 text-slate-500">Este tipo usa opciones y configuración avanzada. Puedes definir cualquier propiedad compatible con el renderizador.</p>;
-}
-
-function OptionsBuilder({ options, onChange }: { options: OptionDraft[]; onChange: (options: OptionDraft[]) => void }) { return <div className="admin-option-builder"><strong className="text-xs text-slate-700">Opciones de respuesta</strong>{options.map((option, index) => <div key={`${option.etiqueta}-${index}`} className="admin-option-row"><span>{option.etiqueta}</span><input value={option.texto} onChange={(event) => onChange(options.map((item, itemIndex) => itemIndex === index ? { ...item, texto: event.target.value } : item))} /><label><input type="radio" name="correct-answer" checked={option.correcta} onChange={() => onChange(options.map((item, itemIndex) => ({ ...item, correcta: itemIndex === index })))} /> Correcta</label><button type="button" className="admin-icon-button !h-8 !w-8 !text-red-500" onClick={() => onChange(options.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, etiqueta: String.fromCharCode(65 + itemIndex), orden: itemIndex + 1 })))}><Trash2 size={14} /></button></div>)}<button type="button" className="admin-secondary-button w-fit" onClick={() => onChange([...options, { etiqueta: String.fromCharCode(65 + options.length), texto: "", correcta: false, orden: options.length + 1 }])}><Plus size={14} /> Agregar opción</button></div>; }
-function Field({ label, wide, children }: { label: string; wide?: boolean; children: React.ReactNode }) { return <label className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}</label>; }
-function ConfigField({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (value: string) => void; type?: string }) { return <label className="admin-field"><span>{label}</span><input type={type} value={value} onChange={(event) => onChange(event.target.value)} /></label>; }
-function ConfigArea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <label className="admin-field"><span>{label}</span><textarea rows={5} value={value} onChange={(event) => onChange(event.target.value)} /></label>; }
-function MediaUpload({ label, icon, accept, disabled, onFile }: { label: string; icon: React.ReactNode; accept: string; disabled: boolean; onFile: (file: File) => void }) { return <label className="admin-media-slot cursor-pointer"><div className="admin-media-slot__preview">{icon}</div><div><strong>{label}</strong><small>El archivo se registra en Medios y su URL queda en la configuración.</small><span className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-violet-600"><Upload size={14} /> {disabled ? "Subiendo..." : "Seleccionar archivo"}</span></div><input className="hidden" type="file" accept={accept} disabled={disabled} onChange={(event) => { const file = event.target.files?.[0]; if (file) onFile(file); }} /></label>; }
-function arrayToLines(value: unknown) { return Array.isArray(value) ? value.map((item) => typeof item === "object" && item ? `${String((item as any).texto ?? "")}|${String((item as any).correcta ?? false)}` : String(item)).join("\n") : ""; }
-function pairsToLines(value: unknown) { return Array.isArray(value) ? value.map((item) => `${String((item as any)?.izquierda ?? "")}|${String((item as any)?.derecha ?? "")}`).join("\n") : ""; }
-function simpleArrayToLines(value: unknown) { return Array.isArray(value) ? value.map(String).join("\n") : ""; }
+function OptionsBuilder({ options, onChange }: { options: OptionDraft[]; onChange: (options: OptionDraft[]) => void }) { return <div className="admin-option-builder"><strong className="text-xs text-slate-700">Opciones de respuesta</strong>{options.map((option, index) => <div key={`${option.etiqueta}-${index}`} className="admin-option-row"><span>{option.etiqueta}</span><input value={option.texto} onChange={(event) => onChange(options.map((item, itemIndex) => itemIndex === index ? { ...item, texto: event.target.value } : item))} /><label><input type="radio" name="correct-answer" checked={option.correcta} onChange={() => onChange(options.map((item, itemIndex) => ({ ...item, correcta: itemIndex === index })))} /> Correcta</label><button type="button" className="admin-icon-button !h-8 !w-8 !text-red-500" aria-label={`Eliminar opción ${option.etiqueta}`} onClick={() => onChange(options.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, etiqueta: String.fromCharCode(65 + itemIndex), orden: itemIndex + 1 })))}><Trash2 size={14} /></button></div>)}<button type="button" className="admin-secondary-button w-fit" onClick={() => onChange([...options, { etiqueta: String.fromCharCode(65 + options.length), texto: "", correcta: false, orden: options.length + 1 }])}><Plus size={14} /> Agregar opción</button></div>; }
+function Field({ label, wide, children }: { label: string; wide?: boolean; children: ReactNode }) { return <label className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}</label>; }

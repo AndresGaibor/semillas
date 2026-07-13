@@ -80,6 +80,7 @@ export function useActivityFormState({
   const ageGroupsQuery = useQuery({
     queryKey: ["catalog", "age-groups"],
     queryFn: obtenerGruposEdad,
+    staleTime: 1000 * 60 * 60,
   });
 
   const activityToEditQuery = useQuery({
@@ -131,7 +132,8 @@ export function useActivityFormState({
 
   const activityTypesQuery = useQuery({
     queryKey: ["catalog", "activity-types"],
-    queryFn: obtenerTiposActividad
+    queryFn: obtenerTiposActividad,
+    staleTime: 1000 * 60 * 60,
   });
 
   const resetForm = () => {

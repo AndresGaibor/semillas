@@ -2,6 +2,16 @@ import { env } from "../config/env";
 import { sessionStorageApi } from "./session";
 import { ErrorApi } from "./error-api";
 
+export function obtenerMensajeErrorApi(error: unknown): string {
+  if (typeof error === "string" && error.trim()) return error;
+  if (error && typeof error === "object") {
+    const detalle = error as { mensaje?: unknown; message?: unknown };
+    if (typeof detalle.mensaje === "string" && detalle.mensaje.trim()) return detalle.mensaje;
+    if (typeof detalle.message === "string" && detalle.message.trim()) return detalle.message;
+  }
+  return "Error de conexión";
+}
+
 export async function peticion<T>(
   ruta: string,
   opciones?: {
@@ -32,7 +42,7 @@ export async function peticion<T>(
   const resultado = await res.json().catch(() => null);
 
   if (!res.ok || !resultado?.exito) {
-    const mensaje = resultado?.error ?? "Error de conexión";
+    const mensaje = obtenerMensajeErrorApi(resultado?.error);
     const codigo = resultado?.codigo;
     throw new ErrorApi(mensaje, res.status, codigo);
   }

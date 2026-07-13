@@ -61,7 +61,7 @@ export function useDescargaJobs() {
   return useQuery({
     queryKey: ["offline", "jobs"],
     queryFn: () => db.descargaJobs.toArray(),
-    refetchInterval: 2_000,
+    refetchInterval: 10_000,
   });
 }
 

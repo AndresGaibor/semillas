@@ -1,3 +1,4 @@
+import { BookOpenCheck, Plus } from "lucide-react";
 import { useState } from "react";
 import { NuevaActividadDialog } from "./nueva-actividad-dialog";
 
@@ -6,26 +7,20 @@ export function AdminActivitiesHeader() {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm text-left">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-900/30">
-            <i className="fa-solid fa-pen-to-square text-2xl text-orange-500" />
+      <div className="relative overflow-hidden rounded-3xl border border-emerald-100 bg-white p-5 text-left shadow-sm sm:p-7">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-emerald-100/70 blur-2xl" aria-hidden="true" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-950 text-emerald-100 shadow-lg shadow-emerald-950/15"><BookOpenCheck size={23} aria-hidden="true" /></div>
+            <div>
+              <span className="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">Biblioteca editorial</span>
+              <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900">Actividades</h2>
+              <p className="mt-1 max-w-xl text-sm leading-6 text-slate-500">Diseña, revisa y conecta experiencias de aprendizaje con cada tema y franja.</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-black text-slate-800">Actividades</h2>
-            <p className="text-xs text-slate-500 mt-1 sm:text-sm">Crea, administra y organiza actividades para fortalecer el aprendizaje en cada tema.</p>
-          </div>
-        </div>
-        <div className="flex items-center">
-          <div className="flex rounded-xl overflow-hidden shadow-xs h-[42px]">
-            <button
-              onClick={() => setShowDialog(true)}
-              className="bg-green-brote hover:opacity-90 text-white px-5 font-bold text-sm flex items-center gap-2 transition-colors h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#142e22] cursor-pointer"
-            >
-              <i className="fa-solid fa-plus text-[10px]" />
-              Nueva actividad
-            </button>
-          </div>
+          <button type="button" onClick={() => setShowDialog(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-green-brote px-5 text-sm font-bold text-white shadow-lg shadow-green-700/15 transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
+            <Plus size={17} aria-hidden="true" /> Nueva actividad
+          </button>
         </div>
       </div>
 

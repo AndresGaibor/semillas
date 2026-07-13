@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
   Activity,
   ArrowRight,
@@ -61,13 +62,13 @@ export function PanelAdministracion() {
   }
 
   const data = resumenQuery.data;
-  const metricas = [
+  const metricas = useMemo(() => [
     { label: "Temas", value: data.metricas.temas, detail: `${data.metricas.publicados} publicados`, icon: BookOpenCheck, tone: "emerald" },
     { label: "Usuarios activos", value: data.metricas.usuarios_activos, detail: "Cuentas habilitadas", icon: Users, tone: "blue" },
     { label: "Actividades", value: data.metricas.actividades, detail: "Experiencias creadas", icon: Gamepad2, tone: "amber" },
     { label: "Clubes activos", value: data.metricas.clubes_activos, detail: "Comunidades aprendiendo", icon: UsersRound, tone: "violet" },
-  ] as const;
-  const maxSemana = Math.max(...data.publicaciones_semana.map((item) => item.total), 1);
+  ] as const, [data.metricas.temas, data.metricas.publicados, data.metricas.usuarios_activos, data.metricas.actividades, data.metricas.clubes_activos]);
+  const maxSemana = useMemo(() => Math.max(...data.publicaciones_semana.map((item) => item.total), 1), [data.publicaciones_semana]);
 
   return (
     <div className="admin-dashboard">

@@ -36,8 +36,8 @@ export function AdminActivitiesFilters({
   const temasOpciones = temasBase.map((t) => ({ id: t.id, nombre: t.titulo }));
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="relative flex-1 min-w-[200px]">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(14rem,1.6fr)_repeat(3,minmax(10rem,1fr))_auto] xl:items-center">
+      <div className="relative min-w-0">
         <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
         <input
           type="text"
@@ -48,7 +48,7 @@ export function AdminActivitiesFilters({
         />
       </div>
 
-      <div className="w-full lg:w-48">
+      <div className="min-w-0">
         <SelectFiltro
           opciones={temasOpciones}
           placeholder="Todos los temas"
@@ -58,7 +58,7 @@ export function AdminActivitiesFilters({
         />
       </div>
 
-      <div className="w-full lg:w-48">
+      <div className="min-w-0">
         <SelectFiltro
           opciones={sendasBase}
           placeholder="Todas las sendas"
@@ -68,7 +68,7 @@ export function AdminActivitiesFilters({
         />
       </div>
 
-      <div className="w-full lg:w-48">
+      <div className="min-w-0">
         <SelectFiltro
           opciones={ageGroupsBase}
           placeholder="Todas las franjas"
