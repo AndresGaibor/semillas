@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Bell } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { unirClases } from "@/lib/utilidades";
 
 export interface PropiedadesCampanaBadge extends React.HTMLAttributes<HTMLDivElement> {
   conteo: number;
@@ -15,7 +15,7 @@ export const CampanaBadge: React.FC<PropiedadesCampanaBadge> = ({
 }) => {
   return (
     <div
-      className={cn(
+      className={unirClases(
         "relative inline-flex items-center justify-center size-9 rounded-full border bg-violet-50 border-violet-200/40",
         className,
         clase
