@@ -6,9 +6,6 @@ import { AdminActivitiesHeader } from "@/features/admin/componentes/admin-activi
 import { AdminActivitiesTabs } from "@/features/admin/componentes/admin-activities-tabs";
 import { AdminActivitiesFilters } from "@/features/admin/componentes/admin-activities-filters";
 import { AdminActivitiesTable } from "@/features/admin/componentes/admin-activities-table";
-import { AdminActivitiesSummary } from "@/features/admin/componentes/admin-activities-summary";
-import { AdminXpWidget } from "@/features/admin/componentes/admin-xp-widget";
-import { AdminTipsWidget } from "@/features/admin/componentes/admin-tips-widget";
 import { useAdminActivities } from "@/features/admin/hooks/use-admin-activities";
 
 export const Route = createFileRoute("/admin/actividades")({
@@ -38,7 +35,7 @@ function AdminActivitiesPage() {
   } = useAdminActivities();
 
   return (
-    <div className="flex flex-col gap-6 text-left">
+    <div className="activity-library-page text-left">
       {isLoading && (
         <div className="flex items-center justify-center py-6">
           <Loader className="animate-spin text-primario" size={24} />
@@ -46,43 +43,33 @@ function AdminActivitiesPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="flex flex-col gap-6 lg:col-span-3 min-w-0">
-          <AdminActivitiesHeader />
+      <AdminActivitiesHeader totalActividades={summaryStats.total} publicadas={summaryStats.publicadas} />
 
-          <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm text-left flex flex-col gap-4">
-            <AdminActivitiesTabs activeTab={activeTab} onTabChange={setActiveTab} tabCounts={tabCounts} />
+      <section className="activity-library-toolbar">
+        <AdminActivitiesTabs activeTab={activeTab} onTabChange={setActiveTab} tabCounts={tabCounts} />
 
-            <AdminActivitiesFilters
-              searchValue={searchValue} onSearchChange={setSearchValue}
-              selectedTemaId={selectedTemaId} onTemaChange={setSelectedTemaId}
-              temasBase={temasBase}
-              selectedSendaId={selectedSendaId} onSendaChange={setSelectedSendaId}
-              sendasBase={sendasBase}
-              selectedAgeGroupId={selectedAgeGroupId} onAgeGroupChange={setSelectedAgeGroupId}
-              ageGroupsBase={ageGroupsBase}
-              onClear={clearFilters} tieneFiltros={tieneFiltros}
-            />
-          </div>
+        <AdminActivitiesFilters
+          searchValue={searchValue} onSearchChange={setSearchValue}
+          selectedTemaId={selectedTemaId} onTemaChange={setSelectedTemaId}
+          temasBase={temasBase}
+          selectedSendaId={selectedSendaId} onSendaChange={setSelectedSendaId}
+          sendasBase={sendasBase}
+          selectedAgeGroupId={selectedAgeGroupId} onAgeGroupChange={setSelectedAgeGroupId}
+          ageGroupsBase={ageGroupsBase}
+          onClear={clearFilters} tieneFiltros={tieneFiltros}
+        />
+      </section>
 
-          <AdminActivitiesTable
-            activities={filteredActivities}
-            isLoading={isLoading}
-            totalResultados={filteredTotal}
-            paginaActual={paginaActual}
-            onCambiarPagina={setPaginaActual}
-            porPagina={porPagina}
-            onCambiarPorPagina={setPorPagina}
-            onActividadEliminada={() => queryClient.invalidateQueries({ queryKey: ["admin", "activities"] })}
-          />
-        </div>
-
-        <div className="flex flex-col gap-6">
-          <AdminActivitiesSummary stats={summaryStats} />
-          <AdminXpWidget />
-          <AdminTipsWidget />
-        </div>
-      </div>
+      <AdminActivitiesTable
+        activities={filteredActivities}
+        isLoading={isLoading}
+        totalResultados={filteredTotal}
+        paginaActual={paginaActual}
+        onCambiarPagina={setPaginaActual}
+        porPagina={porPagina}
+        onCambiarPorPagina={setPorPagina}
+        onActividadEliminada={() => queryClient.invalidateQueries({ queryKey: ["admin", "activities"] })}
+      />
     </div>
   );
 }

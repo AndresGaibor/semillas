@@ -45,8 +45,8 @@ async function tieneFirmaValida(archivo: File) {
 
 export function crearCasosUsoMedia(repositorio: ReturnType<typeof crearMediaRepository>) {
   return {
-    async subir({ archivo, tipoRaw, textoAlternativo, userId }: { archivo: File; tipoRaw: unknown; textoAlternativo?: string; userId: string }) {
-      const parsed = crearRecursoSchema.safeParse({ tipo: tipoRaw, textoAlternativo });
+    async subir({ archivo, tipoRaw, textoAlternativo, titulo, userId }: { archivo: File; tipoRaw: unknown; textoAlternativo?: string; titulo?: string; userId: string }) {
+      const parsed = crearRecursoSchema.safeParse({ tipo: tipoRaw, textoAlternativo, titulo });
       if (!parsed.success) return { error: { mensaje: `Datos inválidos: ${parsed.error.issues.map((i) => i.message).join(", ")}`, codigo: "VALIDATION_ERROR", estado: 400 } } as const;
 
       const tipo = parsed.data.tipo as TipoRecurso;
@@ -73,7 +73,7 @@ export function crearCasosUsoMedia(repositorio: ReturnType<typeof crearMediaRepo
           // apunta al endpoint que genera una URL firmada de corta duración.
           url_publica: "",
           texto_alternativo: textoAlternativo ?? null,
-          titulo: cleanName,
+          titulo: parsed.data.titulo ?? cleanName,
           tipo_mime: archivo.type,
           tamano_bytes: archivo.size,
           creado_por: userId,
@@ -119,6 +119,9 @@ export function crearCasosUsoMedia(repositorio: ReturnType<typeof crearMediaRepo
       if (!UUID_REGEX.test(id)) return { error: { mensaje: "El ID del recurso multimedia debe ser un UUID válido", codigo: "VALIDATION_ERROR", estado: 400 } } as const;
       const existente = await repositorio.obtenerRecursoActivo(id);
       if (!existente) throw new NotFoundError("Recurso multimedia no encontrado");
+      if (await repositorio.estaEnUso(id)) {
+        return { error: { mensaje: "No se puede eliminar este recurso porque está en uso como portada o contenido de un paso.", codigo: "MEDIA_IN_USE", estado: 409 } } as const;
+      }
       if (existente.clave_almacenamiento) {
         const bucket = existente.bucket_almacenamiento ?? repositorio.bucket;
         const { error } = await repositorio.eliminarArchivo(bucket, existente.clave_almacenamiento);

@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useRef, type ChangeEvent } from "react";
 import { obtenerRecursosMultimedia, eliminarRecursoMultimedia, subirArchivo } from "../../media/media.api";
+import { toast } from "sonner";
 import type { TipoMedia } from "../componentes/admin-media-type-tabs";
 import type { MediaCardItem } from "../admin-media.types";
 
@@ -124,9 +125,13 @@ export function useAdminMediaPage(): UseAdminMediaPageReturn {
 
   const handleDelete = async (id: string) => {
     if (confirm("¿Estás seguro de que deseas eliminar este recurso?")) {
-      await eliminarRecursoMultimedia(id);
-      queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
-      setSelectedId("");
+      try {
+        await eliminarRecursoMultimedia(id);
+        await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
+        setSelectedId("");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "No se pudo eliminar el recurso");
+      }
     }
   };
 

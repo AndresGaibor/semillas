@@ -18,7 +18,7 @@ export function useAdminActivities() {
 
   const activitiesQuery = useQuery({
     queryKey: ["admin", "activities"],
-    queryFn: () => obtenerActividadesAdmin(),
+    queryFn: () => obtenerActividadesAdmin({ limit: 500 }),
   });
   const temasQuery = useQuery({ queryKey: ["admin", "themes"], queryFn: () => obtenerTemasAdmin() });
   const sendasQuery = useQuery({ queryKey: ["sendas"], queryFn: () => obtenerSendas(), staleTime: 1000 * 60 * 60 });

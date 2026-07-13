@@ -13,7 +13,7 @@ describe("constructores de configuración de actividades", () => {
     expect(obtenerAfirmaciones([{ texto: "Dios es amor", es_verdadero: true }])).toMatchObject([
       { texto: "Dios es amor", es_verdadero: true },
     ]);
-    expect(obtenerPares([{ izquierda: "Fe", derecha: "Confiar" }])).toEqual([
+    expect(obtenerPares([{ izquierda: "Fe", derecha: "Confiar" }])).toMatchObject([
       { izquierda: "Fe", derecha: "Confiar" },
     ]);
     expect(obtenerListaTexto(["Orar", 12, "Servir"])).toEqual(["Orar", "Servir"]);

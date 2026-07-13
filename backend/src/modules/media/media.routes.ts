@@ -14,6 +14,7 @@ mediaRoutes.post("/subir", authMiddleware, requireRole("administrador"), async (
   const archivo = formData.get("archivo");
   const tipoRaw = formData.get("tipo");
   const textoAlternativo = (formData.get("texto_alternativo") as string | null) || undefined;
+  const titulo = (formData.get("titulo") as string | null) || undefined;
 
   if (!archivo || !(archivo instanceof File)) {
     return responderError("El campo 'archivo' es requerido y debe ser un archivo", "VALIDATION_ERROR", 400);
@@ -21,7 +22,7 @@ mediaRoutes.post("/subir", authMiddleware, requireRole("administrador"), async (
 
   const repositorio = crearMediaRepository(c.get("db"));
   const casos = crearCasosUsoMedia(repositorio);
-  const resultado = await casos.subir({ archivo, tipoRaw, textoAlternativo, userId: c.get("user").id });
+  const resultado = await casos.subir({ archivo, tipoRaw, textoAlternativo, titulo, userId: c.get("user").id });
 
   if (esResultadoConError(resultado)) return responderError(resultado.error.mensaje, resultado.error.codigo, resultado.error.estado);
   return responderExito(resultado.recurso, 201);

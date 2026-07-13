@@ -49,11 +49,12 @@ function crearImagenFalsa(nombre = "falsa.png", tipo = "image/png") {
   return new File([new TextEncoder().encode("no-es-una-imagen")], nombre, { type: tipo });
 }
 
-function crearSolicitudSubida(archivo: File, tipo = "imagen", usuarioId = admin.id) {
+function crearSolicitudSubida(archivo: File, tipo = "imagen", usuarioId = admin.id, titulo?: string) {
   const formData = new FormData();
   formData.append("archivo", archivo, archivo.name);
   formData.append("tipo", tipo);
   formData.append("texto_alternativo", "Portada del tema");
+  if (titulo) formData.append("titulo", titulo);
 
   return new Request("http://localhost/media/subir", {
     method: "POST",
@@ -226,12 +227,13 @@ describe("media.routes", () => {
       });
     }) as typeof fetch;
 
-    const response = await app.fetch(crearSolicitudSubida(crearImagen("Portada Feliz.png")), env);
+    const response = await app.fetch(crearSolicitudSubida(crearImagen("Portada Feliz.png"), "imagen", admin.id, "Ilustración del tema"), env);
 
     expect(response.status).toBe(201);
     expect(registroInsertado?.bucket_almacenamiento).toBe("media");
     expect(registroInsertado?.clave_almacenamiento).toEqual(expect.stringMatching(/^imagen\//));
     expect(registroInsertado?.url_publica).toBe("");
+    expect(registroInsertado?.titulo).toBe("Ilustración del tema");
     expect(rutaActualizada).toBe("/media/550e8400-e29b-41d4-a716-446655440099/url");
   });
 
@@ -297,6 +299,57 @@ describe("media.routes", () => {
     expect(actualizacion).toEqual(expect.objectContaining({ activo: false }));
     expect(typeof actualizacion.actualizado_en).toBe("string");
     expect(removioStorage).toBe(true);
+  });
+
+  it("rechaza borrar un recurso usado sin eliminarlo de Storage", async () => {
+    let removioStorage = false;
+    let desactivoRecurso = false;
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      const url = new URL(request.url);
+
+      if (url.pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), { status: 200, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "GET") {
+        return new Response(JSON.stringify({
+          id: "550e8400-e29b-41d4-a716-446655440099",
+          bucket_almacenamiento: "media",
+          clave_almacenamiento: "imagen/admin/recurso.png",
+          activo: true,
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.pathname.includes("/rest/v1/tema") && request.method === "GET") {
+        return new Response(JSON.stringify([{ id: "550e8400-e29b-41d4-a716-446655440201" }]), { status: 200, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.pathname.includes("/storage/v1/object/media") && request.method === "DELETE") {
+        removioStorage = true;
+      }
+
+      if (url.pathname.includes("/rest/v1/recurso_multimedia") && request.method === "PATCH") {
+        desactivoRecurso = true;
+      }
+
+      return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch;
+
+    const response = await app.fetch(
+      new Request("http://localhost/media/550e8400-e29b-41d4-a716-446655440099", {
+        method: "DELETE",
+        headers: { "x-guest-user-id": admin.id, "x-guest-token": TOKEN_INVITADO },
+      }),
+      env,
+    );
+    const body = (await response.json()) as ErrorBody;
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain("está en uso");
+    expect(removioStorage).toBe(false);
+    expect(desactivoRecurso).toBe(false);
   });
 
   it("genera URL firmada corta para un recurso activo", async () => {

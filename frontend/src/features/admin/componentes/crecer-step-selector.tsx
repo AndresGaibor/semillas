@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { BookOpenText, Check, Circle } from "lucide-react";
 
 interface CrecerStep {
@@ -11,6 +12,7 @@ interface StepContent {
   tipo_paso?: { codigo: string } | null;
   contenidos?: Array<{
     grupo_edad_id: string;
+    titulo?: string | null;
     cuerpo?: string | null;
   }> | null;
 }
@@ -33,7 +35,7 @@ export function CrecerStepSelector({
   return (
     <section className="admin-crecer-control">
       <div className="admin-crecer-control__heading">
-        <div className="admin-crecer-control__icon">
+        <div className="admin-crecer-control__icon" aria-hidden="true">
           <BookOpenText size={18} />
         </div>
         <div>
@@ -47,31 +49,37 @@ export function CrecerStepSelector({
           const isActive = activeStepCode === step.codigo;
           const completed = selectedAgeGroupId
             ? stepsData?.some(
-                (s) =>
-                  s.tipo_paso?.codigo === step.codigo &&
-                  s.contenidos?.some((c) => c.grupo_edad_id === selectedAgeGroupId && c.cuerpo && c.cuerpo !== "Contenido pendiente...")
+                (record) =>
+                  record.tipo_paso?.codigo === step.codigo &&
+                  record.contenidos?.some(
+                    (content) =>
+                      content.grupo_edad_id === selectedAgeGroupId &&
+                      Boolean(content.titulo?.trim()) &&
+                      Boolean(content.cuerpo?.trim()) &&
+                      content.cuerpo !== "Contenido pendiente...",
+                  ),
               )
             : false;
+          const style = {
+            "--step-color": step.color_hex ?? "#2e9e5b",
+          } as CSSProperties;
 
           return (
             <button
               key={step.codigo}
               type="button"
               onClick={() => onSelect(step.codigo)}
-              className={`admin-crecer-step-option ${isActive ? "admin-crecer-step-option--active" : ""}`}
-              style={{
-                backgroundColor: isActive ? (step.color_hex ?? "#2e9e5b") : undefined,
-              }}
+              className={`admin-crecer-step-option ${isActive ? "admin-crecer-step-option--active" : ""} ${completed ? "admin-crecer-step-option--complete" : ""}`}
+              style={style}
+              aria-pressed={isActive}
             >
-              <span className="admin-crecer-step-option__status">
-                {completed ? <Check size={16} /> : <Circle size={16} className={isActive ? "text-white/80" : "text-slate-300"} />}
+              <span className="admin-crecer-step-option__status" aria-hidden="true">
+                {completed ? <Check size={15} /> : <Circle size={14} />}
               </span>
-              <div className="min-w-0 flex-1">
-                <p>{step.nombre}</p>
-                <small>
-                  {completed ? "Contenido guardado" : "Pendiente de completar"}
-                </small>
-              </div>
+              <span className="admin-crecer-step-option__copy">
+                <strong>{step.nombre}</strong>
+                <small>{completed ? "Contenido guardado" : isActive ? "Editando ahora" : "Pendiente"}</small>
+              </span>
             </button>
           );
         })}

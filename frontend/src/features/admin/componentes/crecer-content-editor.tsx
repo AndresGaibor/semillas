@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Check,
   FileAudio,
@@ -7,11 +7,11 @@ import {
   Plus,
   Save,
   Trash2,
-  Upload,
 } from "lucide-react";
 import type { RecursoMultimedia } from "../../media/media.api";
 import type { ReflectionQuestion } from "../hooks/use-theme-crecer-page";
 import { EditorMarkdown } from "./editor-markdown";
+import { MediaGalleryDialog } from "./media-gallery-dialog";
 
 interface CrecerStepInfo { id: string; codigo: string; nombre: string; }
 interface AgeGroupInfo { id: string; nombre?: string | null; }
@@ -32,7 +32,7 @@ interface CrecerContentEditorProps {
   onResourceChange: (value: string | null) => void;
   onAudioResourceChange: (value: string | null) => void;
   onQuestionsChange: (questions: ReflectionQuestion[]) => void;
-  onUpload: (file: File, type: "imagen" | "audio" | "video") => void;
+  onUpload: (file: File, type: "imagen" | "audio" | "video", metadata: { titulo: string; textoAlternativo: string }) => void;
   onSave: () => void;
   isPending: boolean;
   isUploading: boolean;
@@ -40,10 +40,7 @@ interface CrecerContentEditorProps {
 }
 
 export function CrecerContentEditor(props: CrecerContentEditorProps) {
-  const imageInput = useRef<HTMLInputElement | null>(null);
-  const audioInput = useRef<HTMLInputElement | null>(null);
-  const visualResources = props.resources.filter((resource) => resource.tipo === "imagen" || resource.tipo === "video");
-  const audioResources = props.resources.filter((resource) => resource.tipo === "audio");
+  const [galleryMode, setGalleryMode] = useState<"visual" | "audio" | null>(null);
   const selectedVisual = props.resources.find((resource) => resource.id === props.resourceId) ?? null;
   const selectedAudio = props.resources.find((resource) => resource.id === props.audioResourceId) ?? null;
 
@@ -63,15 +60,11 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
         </Field>
 
         <Field label="Recurso visual" help="Imagen o video que acompaña este paso.">
-          <MediaSlot icon={<Image size={20} />} resource={selectedVisual} emptyText="Sin imagen o video" onUpload={() => imageInput.current?.click()} onRemove={() => props.onResourceChange(null)} />
-          <input ref={imageInput} type="file" className="hidden" accept="image/*,video/*" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onUpload(file, file.type.startsWith("video/") ? "video" : "imagen"); }} />
-          <select value={props.resourceId ?? ""} onChange={(event) => props.onResourceChange(event.target.value || null)}><option value="">Seleccionar desde Medios</option>{visualResources.map((resource) => <option key={resource.id} value={resource.id}>{resource.titulo}</option>)}</select>
+          <MediaSlot icon={<Image size={20} />} resource={selectedVisual} emptyText="Sin imagen o video" onChoose={() => setGalleryMode("visual")} onRemove={() => props.onResourceChange(null)} />
         </Field>
 
         <Field label="Narración o audio" help="Audio opcional para accesibilidad y niños que todavía no leen.">
-          <MediaSlot icon={<FileAudio size={20} />} resource={selectedAudio} emptyText="Sin audio" onUpload={() => audioInput.current?.click()} onRemove={() => props.onAudioResourceChange(null)} />
-          <input ref={audioInput} type="file" className="hidden" accept="audio/*" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onUpload(file, "audio"); }} />
-          <select value={props.audioResourceId ?? ""} onChange={(event) => props.onAudioResourceChange(event.target.value || null)}><option value="">Seleccionar desde Medios</option>{audioResources.map((resource) => <option key={resource.id} value={resource.id}>{resource.titulo}</option>)}</select>
+          <MediaSlot icon={<FileAudio size={20} />} resource={selectedAudio} emptyText="Sin audio" onChoose={() => setGalleryMode("audio")} onRemove={() => props.onAudioResourceChange(null)} />
         </Field>
 
         <Field label="Preguntas de reflexión" wide help="Se muestran al finalizar el bloque y se adaptan a la franja actual.">
@@ -95,12 +88,33 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
           {props.isPending ? "Guardando..." : "Guardar paso"}
         </button>
       </div>
+
+      <MediaGalleryDialog
+        open={galleryMode !== null}
+        title={galleryMode === "audio" ? "Narración o audio" : "Recurso visual"}
+        acceptedTypes={galleryMode === "audio" ? ["audio"] : ["imagen", "video"]}
+        resources={props.resources}
+        selectedResourceId={galleryMode === "audio" ? props.audioResourceId : props.resourceId}
+        isUploading={props.isUploading}
+        onClose={() => setGalleryMode(null)}
+        onRemove={() => {
+          if (galleryMode === "audio") props.onAudioResourceChange(null);
+          else props.onResourceChange(null);
+          setGalleryMode(null);
+        }}
+        onSelect={(resourceId) => {
+          if (galleryMode === "audio") props.onAudioResourceChange(resourceId);
+          else props.onResourceChange(resourceId);
+          setGalleryMode(null);
+        }}
+        onUpload={(file, metadata) => props.onUpload(file, galleryMode === "audio" ? "audio" : file.type.startsWith("video/") ? "video" : "imagen", metadata)}
+      />
     </section>
   );
 }
 
 function Field({ label, help, wide, children }: { label: string; help: string; wide?: boolean; children: ReactNode }) { return <div className={`admin-field ${wide ? "admin-field--wide" : ""}`}><span>{label}</span>{children}<small>{help}</small></div>; }
-function MediaSlot({ icon, resource, emptyText, onUpload, onRemove }: { icon: ReactNode; resource: RecursoMultimedia | null; emptyText: string; onUpload: () => void; onRemove: () => void }) {
-  return <div className="admin-media-slot"><div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div><div className="min-w-0 flex-1"><strong className="truncate">{resource?.titulo ?? emptyText}</strong><small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Sube un archivo o selecciónalo desde el módulo de medios."}</small><div className="flex gap-3"><button type="button" onClick={onUpload}><Upload size={13} className="inline" /> Subir</button>{resource ? <button type="button" onClick={onRemove} className="!text-red-600">Quitar</button> : null}</div></div></div>;
+function MediaSlot({ icon, resource, emptyText, onChoose, onRemove }: { icon: ReactNode; resource: RecursoMultimedia | null; emptyText: string; onChoose: () => void; onRemove: () => void }) {
+  return <div className="admin-media-slot"><div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div><div className="admin-media-slot__content"><strong title={resource?.titulo}>{resource?.titulo ?? emptyText}</strong><small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Selecciona un recurso de la biblioteca o sube uno nuevo."}</small><div className="flex flex-wrap gap-3"><button type="button" onClick={onChoose}>{resource ? "Cambiar recurso" : "Elegir recurso"}</button>{resource ? <button type="button" onClick={onRemove} className="!text-red-600">Quitar</button> : null}</div></div></div>;
 }
 function formatBytes(bytes: number) { if (!bytes) return "0 KB"; const units = ["B", "KB", "MB", "GB"]; const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1); return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`; }

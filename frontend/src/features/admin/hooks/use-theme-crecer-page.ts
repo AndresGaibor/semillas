@@ -116,7 +116,7 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async ({ file, type }: { file: File; type: "imagen" | "audio" | "video" }) => subirArchivo(file, type, `${activeStep?.nombre ?? "CRECER"} - ${theme?.titulo ?? "tema"}`),
+    mutationFn: async ({ file, type, metadata }: { file: File; type: "imagen" | "audio" | "video"; metadata: { titulo: string; textoAlternativo: string } }) => subirArchivo(file, type, metadata.textoAlternativo || undefined, metadata.titulo || undefined),
     onSuccess: async (resource, variables) => {
       if (variables.type === "audio") setAudioResourceId(resource.id); else setResourceId(resource.id);
       await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });

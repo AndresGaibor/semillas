@@ -37,6 +37,15 @@ export function crearMediaRepository(db: DbClient) {
       if (error) throw error;
       return (data as RecursoMultimediaRow[] | null) ?? [];
     },
+    async estaEnUso(id: string) {
+      const [temaResult, contenidoResult] = await Promise.all([
+        db.from("tema").select("id").eq("portada_recurso_id", id).limit(1),
+        db.from("contenido_paso_tema").select("id").or(`recurso_id.eq.${id},recurso_audio_id.eq.${id}`).limit(1),
+      ]);
+      if (temaResult.error) throw temaResult.error;
+      if (contenidoResult.error) throw contenidoResult.error;
+      return Boolean(temaResult.data?.length || contenidoResult.data?.length);
+    },
     async eliminarRegistro(id: string) {
       const { error } = await db.from("recurso_multimedia").delete().eq("id", id);
       if (error) throw error;

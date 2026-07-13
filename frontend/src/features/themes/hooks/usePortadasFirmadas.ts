@@ -2,7 +2,7 @@ import { useQueries } from "@tanstack/react-query";
 import { obtenerUrlPortadaTema } from "../themes.api";
 import type { Tema } from "@/shared/api/api";
 
-export function debeSolicitarPortada(tema: Tema & { portada?: { id: string } | null }) {
+export function debeSolicitarPortada(tema: Tema & { portada?: { id: string; url_publica?: string; texto_alternativo?: string | null; titulo?: string | null } | null }) {
   return Boolean(tema.portada_recurso_id || tema.portada_recurso?.id || tema.portada?.id);
 }
 

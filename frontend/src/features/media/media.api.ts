@@ -28,13 +28,17 @@ export type RecursoMultimedia = {
 export async function subirArchivo(
   archivo: File,
   tipo: "imagen" | "audio" | "video" | "documento",
-  textoAlternativo?: string
+  textoAlternativo?: string,
+  titulo?: string,
 ): Promise<RecursoMultimedia> {
   const formData = new FormData();
   formData.append("archivo", archivo);
   formData.append("tipo", tipo);
   if (textoAlternativo) {
     formData.append("texto_alternativo", textoAlternativo);
+  }
+  if (titulo) {
+    formData.append("titulo", titulo);
   }
 
   const headers: Record<string, string> = {};
