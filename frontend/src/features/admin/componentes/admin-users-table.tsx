@@ -67,13 +67,13 @@ export function AdminUsersTable({
   }
 
   return (
-    <div className="bg-[#142e22] rounded-3xl border border-[#1a3a2a] p-6 shadow-sm flex flex-col text-left">
+    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col text-left">
       <div className="w-full overflow-x-auto select-none">
         <TablaBase
           encabezados={ENCABEZADOS}
           estadoVacio={<EstadoVacio />}
           colSpanVacio={9}
-          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-emerald-400/50 uppercase"
+          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-slate-400 uppercase"
         >
           {isLoading ? (
             <TablaSkeleton filas={6} columnas={9} />
@@ -91,7 +91,7 @@ export function AdminUsersTable({
         porPagina={10}
         onCambiarPagina={onCambiarPagina}
         opcionesPorPagina={[10, 20]}
-        className="mt-6 pt-4 border-t border-[#1a3a2a]"
+        className="mt-6 pt-4 border-t border-slate-200"
       />
     </div>
   );

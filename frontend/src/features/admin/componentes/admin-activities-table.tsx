@@ -83,14 +83,14 @@ export function AdminActivitiesTable({
   const [actividadAEliminar, setActividadAEliminar] = useState<ActivityTableRow | null>(null);
 
   return (
-    <div className="bg-[#142e22] rounded-3xl border border-[#1a3a2a] p-6 shadow-sm flex flex-col text-left">
+    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col text-left">
       <div className="flex items-center justify-between mb-4 select-none">
-        <span className="text-[13px] font-black text-emerald-100">
+        <span className="text-[13px] font-black text-slate-700">
           {totalResultados} actividades encontradas
         </span>
-        <div className="flex items-center gap-2 text-xs font-bold text-emerald-300/60">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
           <span>Ordenar por:</span>
-          <select className="border border-[#1a3a2a] rounded-lg px-2.5 py-1 bg-[#0d1f17] font-bold text-emerald-200/70 focus:outline-none focus:ring-2 focus:ring-green-600/20 cursor-pointer">
+          <select className="border border-slate-200 rounded-lg px-2.5 py-1 bg-slate-50 font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-green-600/20 cursor-pointer">
             <option>Más recientes</option>
             <option>Mayor XP</option>
             <option>Por orden de lección</option>
@@ -103,7 +103,7 @@ export function AdminActivitiesTable({
           encabezados={ENCABEZADOS}
           estadoVacio={<EstadoVacio />}
           colSpanVacio={8}
-          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-emerald-400/50 uppercase"
+          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-slate-400 uppercase"
         >
           {isLoading ? (
             <TablaSkeleton filas={6} columnas={8} />
@@ -127,7 +127,7 @@ export function AdminActivitiesTable({
         onCambiarPagina={onCambiarPagina}
         onCambiarPorPagina={onCambiarPorPagina}
         opcionesPorPagina={[10, 20, 50]}
-        className="mt-6 pt-4 border-t border-[#1a3a2a]"
+        className="mt-6 pt-4 border-t border-slate-200"
       />
 
       {actividadAEliminar && (

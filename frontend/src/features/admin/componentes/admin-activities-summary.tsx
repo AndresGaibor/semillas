@@ -21,31 +21,31 @@ export function AdminActivitiesSummary({ stats }: AdminActivitiesSummaryProps) {
   return (
     <AdminWidgetCard title="Resumen de actividades" subtitle="Total de actividades">
       <div className="text-5xl font-black text-violet-600 mt-4 mb-5 select-none">{stats.total}</div>
-      <div className="flex flex-col gap-4 text-xs font-semibold text-emerald-200/70">
+      <div className="flex flex-col gap-4 text-xs font-semibold text-slate-600">
         <StatRow
           icon={<i className="fa-solid fa-check text-[10px]" />}
-          iconBg="bg-emerald-900/30 text-emerald-400"
+          iconBg="bg-emerald-100 text-emerald-600"
           label="Publicadas"
           value={stats.publicadas}
           percentage={stats.pubPct}
         />
         <StatRow
           icon={<i className="fa-solid fa-clock text-[10px]" />}
-          iconBg="bg-orange-900/30 text-orange-400"
+          iconBg="bg-orange-100 text-orange-600"
           label="En revisión"
           value={stats.revision}
           percentage={stats.revPct}
         />
         <StatRow
           icon={<i className="fa-solid fa-pencil text-[9px]" />}
-          iconBg="bg-[#1a3a2a] text-emerald-300/60"
+          iconBg="bg-slate-100 text-slate-500"
           label="Borradores"
           value={stats.borradores}
           percentage={stats.borPct}
         />
         <StatRow
           icon={<i className="fa-solid fa-archive text-[10px]" />}
-          iconBg="bg-violet-900/30 text-violet-400"
+          iconBg="bg-violet-100 text-violet-600"
           label="Archivadas"
           value={stats.archivadas}
           percentage={stats.arcPct}

@@ -141,8 +141,8 @@
 .admin-theme-tab{display:inline-flex;align-items:center;gap:.4rem;min-height:2.4rem;padding:.55rem .85rem;border-radius:.75rem;color:var(--admin-text-muted);font-size:.74rem;font-weight:850}
 .admin-theme-tab--active{background:var(--admin-bg-surface);color:var(--admin-accent-success);box-shadow:var(--admin-shadow-sm)}
 .admin-theme-tab span{display:grid;min-width:1.3rem;height:1.3rem;place-items:center;border-radius:999px;background:var(--admin-bg-surface);font-size:.62rem}
-.admin-theme-results{display:flex;flex-direction:column;gap:.7rem}
-.admin-theme-row{display:grid;grid-template-columns:4.4rem minmax(250px,1.3fr) minmax(170px,.7fr) minmax(170px,.65fr) minmax(150px,.55fr) auto;align-items:center;gap:1rem;padding:.85rem 1rem;border:1px solid var(--admin-border-default);border-radius:1.1rem;background:var(--admin-bg-surface);box-shadow:var(--admin-shadow-sm);transition:transform .16s ease,border-color .16s ease}
+.admin-theme-results{display:flex;flex-direction:column;gap:.7rem;overflow-x:auto;padding-bottom:.5rem}
+.admin-theme-row{display:grid;grid-template-columns:4.4rem minmax(250px,1.3fr) minmax(170px,.7fr) minmax(170px,.65fr) minmax(150px,.55fr) auto;min-width:fit-content;align-items:center;gap:1rem;padding:.85rem 1rem;border:1px solid var(--admin-border-default);border-radius:1.1rem;background:var(--admin-bg-surface);box-shadow:var(--admin-shadow-sm);transition:transform .16s ease,border-color .16s ease}
 .admin-theme-row:hover{transform:translateY(-1px);border-color:var(--admin-accent-primary)}
 .admin-theme-row__cover{width:4.4rem;height:4rem;border-radius:.85rem;object-fit:cover;background:var(--admin-bg-muted)}
 .admin-theme-row__identity{min-width:0}

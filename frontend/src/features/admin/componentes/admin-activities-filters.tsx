@@ -38,13 +38,13 @@ export function AdminActivitiesFilters({
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="relative flex-1 min-w-[200px]">
-        <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400/50 text-sm" />
+        <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
         <input
           type="text"
           placeholder="Buscar actividades..."
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#1a3a2a] bg-[#0d1f17] font-semibold text-[13px] text-emerald-50 placeholder-emerald-400/50 focus:border-green-600 focus:bg-[#142e22] focus:outline-hidden focus:ring-2 focus:ring-green-600/10 transition-all"
+          className="w-full pl-11 pr-4 py-2.5 rounded-full border border-slate-200 bg-slate-50 font-semibold text-[13px] text-slate-800 placeholder-slate-400 focus:border-green-600 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-green-600/10 transition-all"
         />
       </div>
 

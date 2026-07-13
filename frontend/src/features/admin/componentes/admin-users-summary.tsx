@@ -62,31 +62,31 @@ export function AdminUsersSummary({ stats }: AdminUsersSummaryProps) {
     <div className="flex flex-col gap-6">
       <AdminWidgetCard title="Resumen de usuarios" subtitle="Total usuarios">
         <div className="text-5xl font-black text-violet-600 mt-4 mb-5 select-none">{stats.total}</div>
-        <div className="flex flex-col gap-4 text-xs font-semibold text-emerald-200/70">
+        <div className="flex flex-col gap-4 text-xs font-semibold text-slate-600">
           <StatRow
             icon={<i className="fa-solid fa-circle-check text-[10px]" />}
-            iconBg="bg-emerald-900/30 text-emerald-400"
+            iconBg="bg-emerald-100 text-emerald-600"
             label="Activos"
             value={stats.activos}
             percentage={stats.actPct}
           />
           <StatRow
             icon={<i className="fa-solid fa-clock text-[10px]" />}
-            iconBg="bg-orange-900/30 text-orange-400"
+            iconBg="bg-orange-100 text-orange-600"
             label="Invitados/Pendientes"
             value={stats.pendientes}
             percentage={stats.pendPct}
           />
           <StatRow
             icon={<i className="fa-solid fa-user-group text-[9px]" />}
-            iconBg="bg-purple-900/30 text-purple-400"
+            iconBg="bg-purple-100 text-purple-600"
             label="Padres vinculados"
             value={stats.padres}
             percentage={stats.padresPct}
           />
           <StatRow
             icon={<i className="fa-solid fa-shield-halved text-[9px]" />}
-            iconBg="bg-blue-900/30 text-blue-400"
+            iconBg="bg-blue-100 text-blue-600"
             label="Administradores"
             value={stats.administradores}
             percentage={stats.adminPct}

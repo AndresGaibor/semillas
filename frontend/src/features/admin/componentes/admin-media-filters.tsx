@@ -46,7 +46,7 @@ export function AdminMediaFilters({
   onSortChange,
 }: Props) {
   return (
-    <div className="bg-[#142e22] rounded-3xl border border-[#1a3a2a] p-5 shadow-sm text-left flex flex-col gap-4">
+    <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm text-left flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <CampoBusqueda
           valor={searchValue}
@@ -54,9 +54,9 @@ export function AdminMediaFilters({
           placeholder="Buscar por nombre o etiqueta..."
           ariaLabel="Buscar recursos multimedia"
           contenedorClassName="flex-1 min-w-[220px]"
-          inputClassName="rounded-full border-[#1a3a2a] bg-[#0d1f17] text-[13px] text-emerald-50 placeholder-emerald-400/50 focus:border-green-600 focus:bg-[#142e22] focus:outline-hidden focus:ring-2 focus:ring-green-600/10 py-2.5"
+          inputClassName="rounded-full border-slate-200 bg-slate-50 text-[13px] text-slate-800 placeholder-emerald-400/50 focus:border-emerald-600 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-600/10 py-2.5"
           icono={
-            <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400/50 text-sm" />
+            <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
           }
         />
 
