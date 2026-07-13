@@ -3,9 +3,9 @@ import { InsigniaCardItem } from "./insignia-card-item";
 import in1Img from "@/assets/images/Ilustraciones/in1.png";
 
 const meta: Meta<typeof InsigniaCardItem> = {
-  title: "Features/Gamification/InsigniaCardItem",
+  title: "04 · Features/Gamification/InsigniaCardItem",
   component: InsigniaCardItem,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

@@ -3,9 +3,9 @@ import { CompartirInsigniaWidget } from "./compartir-insignia-widget";
 import in1Img from "@/assets/images/Ilustraciones/in1.png";
 
 const meta: Meta<typeof CompartirInsigniaWidget> = {
-  title: "Features/Gamification/CompartirInsigniaWidget",
+  title: "04 · Features/Gamification/CompartirInsigniaWidget",
   component: CompartirInsigniaWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

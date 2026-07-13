@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LogrosRachaWidget } from "./logros-racha-widget";
 
 const meta: Meta<typeof LogrosRachaWidget> = {
-  title: "Features/Gamification/LogrosRachaWidget",
+  title: "04 · Features/Gamification/LogrosRachaWidget",
   component: LogrosRachaWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

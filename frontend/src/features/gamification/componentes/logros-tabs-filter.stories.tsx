@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LogrosTabsFilter } from "./logros-tabs-filter";
 
 const meta: Meta<typeof LogrosTabsFilter> = {
-  title: "Features/Gamification/LogrosTabsFilter",
+  title: "04 · Features/Gamification/LogrosTabsFilter",
   component: LogrosTabsFilter,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;

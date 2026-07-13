@@ -3,9 +3,9 @@ import { ProgresoXpWidget } from "./progreso-xp-widget";
 import "@/routes/app-logros.css";
 
 const meta: Meta<typeof ProgresoXpWidget> = {
-  title: "Features/Gamification/ProgresoXpWidget",
+  title: "04 · Features/Gamification/ProgresoXpWidget",
   component: ProgresoXpWidget,
-  tags: ["autodocs"],
+  tags: ["autodocs", "!dev"],
 };
 
 export default meta;
