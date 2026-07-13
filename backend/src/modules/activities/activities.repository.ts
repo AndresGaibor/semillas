@@ -63,10 +63,12 @@ export function crearActivitiesRepository(db: DbClient) {
         .select({
           id: schema.actividad.id,
           temaId: schema.actividad.temaId,
-          xpRecompensa: schema.actividad.xpRecompensa
+          xpRecompensa: schema.actividad.xpRecompensa,
+          tipoCodigo: schema.tipoActividad.codigo
         })
         .from(schema.actividad)
         .innerJoin(schema.tema, eq(schema.actividad.temaId, schema.tema.id))
+        .innerJoin(schema.tipoActividad, eq(schema.actividad.tipoActividadId, schema.tipoActividad.id))
         .where(and(eq(schema.actividad.id, actividadId), eq(schema.tema.estado, "publicado")))
         .limit(1);
 

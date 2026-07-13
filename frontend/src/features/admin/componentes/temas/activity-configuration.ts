@@ -29,6 +29,16 @@ function obtenerArreglo(valor: unknown): unknown[] {
   return Array.isArray(valor) ? valor : [];
 }
 
+function obtenerTexto(opcion: unknown): string {
+  if (typeof opcion === "string") return opcion;
+  if (esRegistro(opcion) && typeof opcion.texto === "string") return opcion.texto;
+  return "";
+}
+
+function esOpcionCorrecta(opcion: unknown): boolean {
+  return esRegistro(opcion) && (opcion.correcta === true || opcion.esCorrecta === true);
+}
+
 export function afirmacionesAlineas(valor: unknown): string {
   return obtenerArreglo(valor)
     .map((afirmacion) => {
@@ -121,6 +131,7 @@ export function validarActividadParaGuardar({
   if (codigo === "completar_versiculo") {
     if (!esTextoNoVacio(configuracion.frase) || !configuracion.frase.includes("__")) return "Completa el versículo con una frase que incluya __.";
     if (!esTextoNoVacio(configuracion.respuesta)) return "Completa el versículo con una respuesta no vacía.";
+    if (obtenerArreglo(configuracion.opciones).filter(esTextoNoVacio).length < 1) return "Completa el versículo requiere un banco de palabras.";
   }
 
   if (codigo === "relacionar_pares" && !tieneParesCompletos(obtenerArreglo(configuracion.pares), 2, ["izquierda", "derecha"])) return "Relacionar pares requiere al menos dos pares con ambos lados.";
@@ -138,8 +149,37 @@ export function validarActividadParaGuardar({
   }
 
   if (codigo === "aventura_decisiones") {
-    const tieneEscena = obtenerArreglo(configuracion.escenas).some((escena) => esRegistro(escena) && esTextoNoVacio(escena.texto));
-    if (!tieneEscena) return "La aventura de decisiones requiere al menos una escena con texto.";
+    const escenas = obtenerArreglo(configuracion.escenas);
+    const tieneEscenaJugable = escenas.some((escena) => {
+      if (!esRegistro(escena) || !esTextoNoVacio(escena.texto)) return false;
+
+      const opciones = obtenerArreglo(escena.opciones);
+      return opciones.length >= 2 && opciones.every((opcion) => esTextoNoVacio(obtenerTexto(opcion))) && opciones.some(esOpcionCorrecta);
+    });
+
+    if (!tieneEscenaJugable) return "La aventura de decisiones requiere escenas con opciones y una respuesta correcta.";
+  }
+
+  if (codigo === "actividad_audio") {
+    if (!esTextoNoVacio(configuracion.audio_url)) return "La actividad requiere una URL del audio.";
+    if (!esTextoNoVacio(configuracion.pregunta)) return "La actividad de audio requiere una pregunta.";
+
+    const opciones = obtenerArreglo(configuracion.opciones);
+    if (opciones.length < 2) return "La actividad de audio requiere al menos dos opciones.";
+
+    const opcionesValidas = opciones.filter((opcion) => esTextoNoVacio(obtenerTexto(opcion)));
+    if (opcionesValidas.length < 2) return "La actividad de audio requiere opciones con texto.";
+    if (opcionesValidas.filter(esOpcionCorrecta).length !== 1) return "La actividad de audio requiere exactamente una respuesta correcta.";
+  }
+
+  if (codigo === "actividad_video") {
+    if (!esTextoNoVacio(configuracion.video_url)) return "La actividad requiere una URL del video.";
+    if (!esTextoNoVacio(configuracion.pregunta)) return "La actividad de video requiere una pregunta.";
+
+    const opciones = obtenerArreglo(configuracion.opciones).filter(esTextoNoVacio);
+    if (opciones.length < 2) return "La actividad de video requiere al menos dos opciones.";
+
+    if (!esEnteroEnRango(configuracion.respuesta_correcta, 0, opciones.length - 1)) return "La actividad de video requiere una respuesta correcta válida.";
   }
 
   if (codigo === "cuestionario") {

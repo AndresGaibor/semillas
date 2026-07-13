@@ -1,76 +1,96 @@
-import { AvatarTexto } from "@/componentes/ui/avatar-texto";
-import { BadgeRol, type TipoRol } from "@/componentes/ui/badge-rol";
-import { BadgeEstadoUsuario, type EstadoUsuario } from "@/componentes/ui/badge-estado-usuario";
-import { InfoNivelXP } from "@/componentes/ui/info-nivel-xp";
-import { FILA_HOVER_CLS, CheckboxCell } from "../dashboard/admin.helpers";
-import { MenuAccionesUsuario } from "./user-row-actions";
+import { ChevronRight, Mail, MoreHorizontal } from "lucide-react";
 
-export type UserTableRow = {
-  id: string;
-  nombre: string;
-  correo: string;
-  avatarImg: string;
-  rol: TipoRol;
-  franja: string;
-  club: string;
-  clubIcon: string;
-  clubIconColor: string;
-  clubBadgeBg: string;
-  nivelText: string;
-  xpText: string;
-  isVinculado: boolean;
-  estado: EstadoUsuario;
-  ultimoAcceso: string;
+import type { UsuarioAdmin } from "../../admin.api";
+import { avatarUsuario, etiquetaRol, etiquetaUltimoAcceso } from "../../hooks/use-admin-users";
+
+type Props = {
+  usuario: UsuarioAdmin;
+  selected: boolean;
+  onToggle: () => void;
+  onView: () => void;
+  onEdit: () => void;
 };
 
-export function FilaUsuario({ usuario: usr }: { usuario: UserTableRow }) {
-  return (
-    <tr className={FILA_HOVER_CLS}>
-      <CheckboxCell ariaLabel={`Seleccionar ${usr.nombre}`} />
+function estadoLabel(estado: UsuarioAdmin["estado"]) {
+  return {
+    activo: "Activo",
+    pendiente: "Pendiente",
+    bloqueado: "Bloqueado",
+  }[estado];
+}
 
-      <td className="py-4 px-4">
-        <AvatarTexto
-          src={usr.avatarImg}
-          alt={usr.nombre}
-          titulo={usr.nombre}
-          subtitulo={usr.correo}
-          avatarClassName="w-9 h-9 rounded-full border-2 border-slate-100"
-          tituloClassName="font-extrabold text-slate-800 text-xs group-hover:text-green-600 transition-colors sm:text-sm"
-          subtituloClassName="text-xs text-slate-400 mt-0.5"
+export type UserTableRow = UsuarioAdmin;
+
+export function FilaUsuario({ usuario, selected, onToggle, onView, onEdit }: Props) {
+  const clubes = usuario.clubes.map((club) => club.nombre).join(", ");
+  const franja = usuario.grupo_edad
+    ? `${usuario.grupo_edad.nombre} · ${usuario.grupo_edad.edad_minima}–${usuario.grupo_edad.edad_maxima}`
+    : "Sin franja";
+
+  return (
+    <tr className={selected ? "is-selected" : undefined}>
+      <td className="admin-users-table__check">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggle}
+          aria-label={`Seleccionar a ${usuario.nombre_visible}`}
         />
       </td>
-
-      <td className="py-4 px-4 whitespace-nowrap">
-        <BadgeRol rol={usr.rol} />
+      <td>
+        <button type="button" className="admin-users-person" onClick={onView}>
+          <img src={avatarUsuario(usuario)} alt="" />
+          <span>
+            <strong>{usuario.nombre_visible}</strong>
+            <small>
+              {usuario.correo ? (
+                <>
+                  <Mail size={12} />
+                  {usuario.correo}
+                </>
+              ) : (
+                "Cuenta sin correo"
+              )}
+            </small>
+          </span>
+        </button>
       </td>
-
-      <td className="py-4 px-4 font-bold text-slate-500 text-xs whitespace-nowrap">
-        {usr.franja}
+      <td>
+        <span className={`admin-users-role admin-users-role--${usuario.rol}`}>
+          {etiquetaRol(usuario.rol)}
+        </span>
       </td>
-
-      <td className="py-4 px-4">
-        <div className="flex items-center gap-2">
-          <div className={`w-5 h-5 rounded-full ${usr.clubBadgeBg} flex items-center justify-center shrink-0`}>
-            <i className={`fa-solid ${usr.clubIcon} text-[9px] ${usr.clubIconColor}`} />
-          </div>
-          <span className="font-bold text-slate-600 text-xs whitespace-nowrap">{usr.club}</span>
-        </div>
+      <td>
+        <span className="admin-users-cell-main">{franja}</span>
       </td>
-
-      <td className="py-4 px-4 whitespace-nowrap">
-        <InfoNivelXP nivelText={usr.nivelText} xpText={usr.xpText} isVinculado={usr.isVinculado} />
+      <td>
+        <span className="admin-users-cell-main">{clubes || "Sin club"}</span>
+        {usuario.vinculos_familiares > 0 ? (
+          <small className="admin-users-cell-helper">
+            {usuario.vinculos_familiares} vínculo{usuario.vinculos_familiares === 1 ? "" : "s"}
+          </small>
+        ) : null}
       </td>
-
-      <td className="py-4 px-4 text-center whitespace-nowrap">
-        <BadgeEstadoUsuario estado={usr.estado} />
+      <td>
+        <span className="admin-users-xp">{usuario.progreso.xp_total.toLocaleString("es-EC")} XP</span>
+        <small className="admin-users-cell-helper">{usuario.progreso.eventos} eventos</small>
       </td>
-
-      <td className="py-4 px-4 text-slate-400 font-bold text-xs whitespace-nowrap">
-        {usr.ultimoAcceso}
+      <td>
+        <span className={`admin-users-status admin-users-status--${usuario.estado}`}>
+          <i aria-hidden="true" />
+          {estadoLabel(usuario.estado)}
+        </span>
       </td>
-
-      <td className="py-4 px-4 text-right">
-        <MenuAccionesUsuario />
+      <td>
+        <span className="admin-users-cell-main">{etiquetaUltimoAcceso(usuario.ultimo_login_en)}</span>
+      </td>
+      <td className="admin-users-table__actions">
+        <button type="button" onClick={onEdit} aria-label={`Editar ${usuario.nombre_visible}`}>
+          <MoreHorizontal size={18} />
+        </button>
+        <button type="button" onClick={onView} aria-label={`Ver detalle de ${usuario.nombre_visible}`}>
+          <ChevronRight size={18} />
+        </button>
       </td>
     </tr>
   );

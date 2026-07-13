@@ -44,7 +44,7 @@ function AdminLayout() {
   }, []);
 
   return (
-    <div className="app-shell app-shell--admin">
+    <div className="app-shell app-shell--admin" data-theme="admin-light">
       <AppSidebar
         activePage={activePage}
         variant="admin"

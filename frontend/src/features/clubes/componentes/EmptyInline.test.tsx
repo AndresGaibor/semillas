@@ -37,11 +37,13 @@ describe("EmptyInline", () => {
   });
 
   it("acepta icono personalizado", () => {
+    const CustomIcon = ({ size }: { size?: number }) => <span data-testid="custom-icon" data-size={size}>★</span>;
+
     const html = renderToStaticMarkup(
       <EmptyInline
         title="Test"
         text="Test"
-        icon={() => <span data-testid="custom-icon">★</span>}
+        icon={CustomIcon}
       />,
     );
     expect(html).toContain("custom-icon");

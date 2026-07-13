@@ -113,6 +113,38 @@ describe("validarActividadParaGuardar", () => {
     expect(resultado).toContain("URL del video");
   });
 
+  it("rechaza una actividad de audio sin pregunta y opciones suficientes", () => {
+    const resultado = validarActividadParaGuardar({
+      codigo: "actividad_audio",
+      configuracion: { audio_url: "https://cdn.ejemplo.com/audio.mp3" },
+      opciones: [],
+    });
+
+    expect(resultado).toContain("pregunta");
+  });
+
+  it("rechaza completar versículo sin banco de palabras", () => {
+    const resultado = validarActividadParaGuardar({
+      codigo: "completar_versiculo",
+      configuracion: { frase: "Ama a tu ____", respuesta: "prójimo" },
+      opciones: [],
+    });
+
+    expect(resultado).toContain("palabras");
+  });
+
+  it("rechaza una aventura sin opciones jugables", () => {
+    const resultado = validarActividadParaGuardar({
+      codigo: "aventura_decisiones",
+      configuracion: {
+        escenas: [{ texto: "Llegas a una bifurcación" }],
+      },
+      opciones: [],
+    });
+
+    expect(resultado).toContain("opciones");
+  });
+
   it("rechaza afirmaciones de verdadero o falso incompletas", () => {
     const resultado = validarActividadParaGuardar({
       codigo: "verdadero_falso",

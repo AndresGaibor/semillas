@@ -1,98 +1,142 @@
-import { Boton } from "@/componentes/ui/boton";
-import { Card } from "@/componentes/ui/card-base";
-import { TablaBase, type EncabezadoTabla } from "@/componentes/ui/tabla-base";
+import { AlertCircle, RefreshCw, Users } from "lucide-react";
+
 import { Paginacion } from "@/componentes/ui/paginacion";
-import { TablaSkeleton } from "@/componentes/ui/tabla-skeleton";
-import { FilaUsuario, type UserTableRow } from "./user-table-row";
-import { EstadoVacio } from "./users-table-empty-state";
+import type { UsuarioAdmin } from "../../admin.api";
+import { FilaUsuario } from "./user-table-row";
 
-export type { UserTableRow } from "./user-table-row";
-
-export type AdminUsersTableProps = {
-  usuarios: UserTableRow[];
+type Props = {
+  usuarios: UsuarioAdmin[];
+  totalResultados: number;
   isLoading: boolean;
+  isFetching?: boolean;
   isError?: boolean;
   errorMensaje?: string;
   onReintentar?: () => void;
-  totalResultados: number;
   paginaActual: number;
+  porPagina: number;
   onCambiarPagina: (pagina: number) => void;
+  onCambiarPorPagina: (cantidad: number) => void;
+  seleccionados: Set<string>;
+  todosSeleccionados: boolean;
+  onToggleUsuario: (usuarioId: string) => void;
+  onTogglePagina: () => void;
+  onView: (usuarioId: string) => void;
+  onEdit: (usuarioId: string) => void;
 };
-
-const ENCABEZADOS: EncabezadoTabla[] = [
-  { contenido: <input type="checkbox" aria-label="Seleccionar todos los usuarios" className="rounded border-slate-300/30 text-green-600 focus:ring-green-600 cursor-pointer" />, className: "w-[40px] text-center" },
-  { contenido: "Usuario", className: "w-[25%]" },
-  { contenido: "Rol" },
-  { contenido: "Franja" },
-  { contenido: "Club" },
-  { contenido: "Nivel" },
-  { contenido: <span className="block text-center">Estado</span> },
-  { contenido: "Último acceso" },
-  { contenido: <span className="block text-right">Acciones</span>, className: "text-right" },
-];
 
 export function AdminUsersTable({
   usuarios,
+  totalResultados,
   isLoading,
+  isFetching,
   isError,
   errorMensaje,
   onReintentar,
-  totalResultados,
   paginaActual,
+  porPagina,
   onCambiarPagina,
-}: AdminUsersTableProps) {
+  onCambiarPorPagina,
+  seleccionados,
+  todosSeleccionados,
+  onToggleUsuario,
+  onTogglePagina,
+  onView,
+  onEdit,
+}: Props) {
   if (isError) {
     return (
-      <Card sombra="sm" className="flex items-center gap-3 border-red-900/30 bg-red-950/30 px-5 py-4">
-        <i className="fa-solid fa-circle-exclamation text-red-500 text-lg" />
+      <section className="admin-users-state admin-users-state--error">
+        <AlertCircle size={28} />
         <div>
-          <p className="font-bold text-red-700 text-sm">Error al cargar usuarios</p>
-          <p className="text-red-500 text-xs mt-0.5">
-            {errorMensaje ?? "No se pudo conectar con el servidor. Verifica que tienes permisos de administrador."}
-          </p>
+          <strong>No se pudieron cargar los usuarios</strong>
+          <p>{errorMensaje || "Verifica la conexión y los permisos del administrador."}</p>
         </div>
-        {onReintentar && (
-          <Boton
-            variante="peligroContorno"
-            tamano="pequeno"
-            forma="pildora"
-            onClick={onReintentar}
-            className="ml-auto text-xs"
-          >
+        {onReintentar ? (
+          <button type="button" onClick={onReintentar}>
+            <RefreshCw size={16} />
             Reintentar
-          </Boton>
-        )}
-      </Card>
+          </button>
+        ) : null}
+      </section>
     );
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col text-left">
-      <div className="w-full overflow-x-auto select-none">
-        <TablaBase
-          encabezados={ENCABEZADOS}
-          estadoVacio={<EstadoVacio />}
-          colSpanVacio={9}
-          encabezadoFilaClassName="text-[10px] font-black tracking-wider text-slate-400 uppercase"
-        >
-          {isLoading ? (
-            <TablaSkeleton filas={6} columnas={9} />
-          ) : (
-            usuarios.map((usr) => (
-              <FilaUsuario key={usr.id} usuario={usr} />
-            ))
-          )}
-        </TablaBase>
+    <section className="admin-users-table-card" aria-busy={isFetching}>
+      <header className="admin-users-table-card__header">
+        <div>
+          <span>Directorio</span>
+          <strong>{totalResultados.toLocaleString("es-EC")} usuarios</strong>
+        </div>
+        {isFetching && !isLoading ? <small>Actualizando…</small> : null}
+      </header>
+
+      <div className="admin-users-table-wrap">
+        <table className="admin-users-table">
+          <thead>
+            <tr>
+              <th className="admin-users-table__check">
+                <input
+                  type="checkbox"
+                  checked={todosSeleccionados}
+                  onChange={onTogglePagina}
+                  aria-label="Seleccionar usuarios de esta página"
+                />
+              </th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Franja</th>
+              <th>Club y vínculos</th>
+              <th>Progreso</th>
+              <th>Estado</th>
+              <th>Último acceso</th>
+              <th aria-label="Acciones" />
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading
+              ? Array.from({ length: 7 }, (_, index) => (
+                  <tr key={index} className="admin-users-skeleton">
+                    <td colSpan={9}>
+                      <span />
+                    </td>
+                  </tr>
+                ))
+              : usuarios.map((usuario) => (
+                  <FilaUsuario
+                    key={usuario.id}
+                    usuario={usuario}
+                    selected={seleccionados.has(usuario.id)}
+                    onToggle={() => onToggleUsuario(usuario.id)}
+                    onView={() => onView(usuario.id)}
+                    onEdit={() => onEdit(usuario.id)}
+                  />
+                ))}
+          </tbody>
+        </table>
       </div>
 
-      <Paginacion
-        total={totalResultados}
-        paginaActual={paginaActual}
-        porPagina={10}
-        onCambiarPagina={onCambiarPagina}
-        opcionesPorPagina={[10, 20]}
-        className="mt-6 pt-4 border-t border-slate-200"
-      />
-    </div>
+      {!isLoading && usuarios.length === 0 ? (
+        <div className="admin-users-state">
+          <Users size={30} />
+          <strong>No hay usuarios que coincidan</strong>
+          <p>Prueba con otros filtros o registra un nuevo usuario.</p>
+        </div>
+      ) : null}
+
+      {!isLoading && totalResultados > 0 ? (
+        <Paginacion
+          total={totalResultados}
+          paginaActual={paginaActual}
+          porPagina={porPagina}
+          onCambiarPagina={onCambiarPagina}
+          onCambiarPorPagina={onCambiarPorPagina}
+          opcionesPorPagina={[10, 20, 50]}
+          className="admin-users-pagination"
+        />
+      ) : null}
+    </section>
   );
 }
+
+export type UserTableRow = UsuarioAdmin;

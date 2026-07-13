@@ -1,3 +1,6 @@
+import { Check, RotateCcw, X } from "lucide-react";
+import { useState } from "react";
+
 import type { Actividad } from "@/shared/api/api";
 import { QuizActividad } from "@/componentes/actividades/QuizActividad";
 import { VerdaderoFalsoActividad } from "@/componentes/actividades/VerdaderoFalsoActividad";
@@ -17,11 +20,12 @@ import { OpcionMultipleServidor } from "./opcion-multiple-servidor";
 interface ActividadWrapperProps {
   actividad: Actividad;
   onComplete: (actividadId: string, xp?: number) => void | Promise<void>;
+  mode?: "live" | "preview";
 }
 
-export function ActividadWrapper({ actividad, onComplete }: ActividadWrapperProps) {
+export function ActividadWrapper({ actividad, onComplete, mode = "live" }: ActividadWrapperProps) {
   return (
-    <article className="crecer-activity-card">
+    <article className={`crecer-activity-card ${mode === "preview" ? "crecer-activity-card--preview" : ""}`}>
       <header className="crecer-activity-card__header">
         <span className="crecer-activity-card__badge">
           {actividad.tipo_actividad?.nombre ?? "Actividad"}
@@ -30,19 +34,21 @@ export function ActividadWrapper({ actividad, onComplete }: ActividadWrapperProp
         {actividad.consigna ? <p>{actividad.consigna}</p> : null}
       </header>
 
-      <ContenidoActividad actividad={actividad} onComplete={onComplete} />
+      <ContenidoActividad actividad={actividad} onComplete={onComplete} mode={mode} />
     </article>
   );
 }
 
-function ContenidoActividad({ actividad, onComplete }: ActividadWrapperProps) {
+function ContenidoActividad({ actividad, onComplete, mode = "live" }: ActividadWrapperProps) {
   const codigo = actividad.tipo_actividad?.codigo ?? "";
   const complete = (actividadId: string, xp?: number) => {
     void onComplete(actividadId, xp);
   };
 
   if (codigo === "cuestionario" && actividad.opciones.length > 0) {
-    return <OpcionMultipleServidor actividad={actividad} onComplete={onComplete} />;
+    return mode === "preview"
+      ? <OpcionMultiplePreview actividad={actividad} />
+      : <OpcionMultipleServidor actividad={actividad} onComplete={onComplete} />;
   }
 
   switch (codigo) {
@@ -91,4 +97,40 @@ function ContenidoActividad({ actividad, onComplete }: ActividadWrapperProps) {
         </div>
       );
   }
+}
+
+function OpcionMultiplePreview({ actividad }: { actividad: Actividad }) {
+  const [seleccionada, setSeleccionada] = useState<string | null>(null);
+  const correcta = actividad.opciones.find((opcion) => opcion.correcta)?.id ?? null;
+
+  return (
+    <div className="activity-preview-options">
+      <div className="activity-preview-options__list">
+        {actividad.opciones.map((opcion) => {
+          const respondida = seleccionada !== null;
+          const isSelected = seleccionada === opcion.id;
+          const isCorrect = opcion.id === correcta;
+          return (
+            <button
+              key={opcion.id}
+              type="button"
+              disabled={respondida}
+              onClick={() => setSeleccionada(opcion.id)}
+              className={`activity-preview-option ${respondida && isCorrect ? "activity-preview-option--correct" : ""} ${respondida && isSelected && !isCorrect ? "activity-preview-option--wrong" : ""}`}
+            >
+              <span>{opcion.etiqueta || "•"}</span>
+              <strong>{opcion.texto}</strong>
+              {respondida && isCorrect ? <Check size={19} /> : null}
+              {respondida && isSelected && !isCorrect ? <X size={19} /> : null}
+            </button>
+          );
+        })}
+      </div>
+      {seleccionada ? (
+        <button type="button" className="activity-preview-options__retry" onClick={() => setSeleccionada(null)}>
+          <RotateCcw size={15} /> Reiniciar simulación
+        </button>
+      ) : null}
+    </div>
+  );
 }

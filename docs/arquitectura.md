@@ -133,6 +133,19 @@ Roles reales en backend:
 - `invitado`
 - `padre`
 
+## Evolucion Futura De Permisos
+
+Por ahora no existe un rol `publicador` ni un rol editorial separado en backend.
+
+Si en el futuro el CMS necesita dividir responsabilidades, la evolucion recomendada es:
+
+- mantener `administrador` como rol de control total,
+- agregar un rol mas acotado solo si hay una necesidad operativa real,
+- preferir un perfil tipo `revisor` o un sistema de permisos antes que un `publicador` generico,
+- no mover esta separacion hasta que haya un flujo claro entre edicion, revision y publicacion.
+
+Nota: la UI frontend hoy muestra `moderador` en algunos componentes, pero ese rol no forma parte del modelo real del backend.
+
 ## Desarrollo Local Con Drizzle
 
 Para que `wrangler dev` use Drizzle de forma correcta en local:

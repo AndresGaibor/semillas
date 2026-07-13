@@ -9,13 +9,18 @@ export type RecursoMultimedia = {
   clave_almacenamiento: string | null;
   url_publica: string;
   texto_alternativo: string | null;
-  titulo: string;
-  tipo_mime: string;
-  tamano_bytes: number;
-  creado_por: string;
+  titulo: string | null;
+  tipo_mime: string | null;
+  tamano_bytes: number | null;
+  ancho_px: number | null;
+  alto_px: number | null;
+  duracion_seg: number | null;
+  creado_por: string | null;
   activo: boolean;
   creado_en: string;
   actualizado_en: string;
+  /** Disponible cuando el backend expone el conteo de referencias. */
+  uso_total?: number | null;
 };
 
 /**

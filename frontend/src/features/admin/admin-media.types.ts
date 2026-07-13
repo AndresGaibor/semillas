@@ -1,3 +1,5 @@
+export type MediaViewMode = "grid" | "list";
+
 export type MediaCardItem = {
   id: string;
   nombre: string;
@@ -5,14 +7,17 @@ export type MediaCardItem = {
   tipoLabel: string;
   imgUrl: string;
   usadoEnCount: number | null;
-  carpeta: string;
-  subidoPor: string;
+  subidoPor: string | null;
   fechaSubido: string;
   fechaTimestamp: number;
   tamano: string;
+  tamanoBytes: number | null;
   formato: string;
+  tipoMime: string | null;
   resolucion: string;
   dimensiones: string;
-  altText: string;
-  etiquetas: string[];
+  anchoPx: number | null;
+  altoPx: number | null;
+  duracionSeg: number | null;
+  altText: string | null;
 };

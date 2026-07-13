@@ -1,8 +1,9 @@
+import type { ComponentType } from "react";
 import { Trophy } from "lucide-react";
 import { Boton } from "@/componentes/ui/boton";
 
 interface EmptyInlineProps {
-  icon?: typeof Trophy;
+  icon?: ComponentType<{ size?: number }>;
   title: string;
   text: string;
   action?: { label: string; onClick: () => void };

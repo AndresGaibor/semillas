@@ -47,6 +47,7 @@ import { Route as AppE_experimentarThemeIdRouteImport } from './routes/app.E_exp
 import { Route as AppE_ensenarThemeIdRouteImport } from './routes/app.E_ensenar.$themeId'
 import { Route as AppC_conectarThemeIdRouteImport } from './routes/app.C_conectar.$themeId'
 import { Route as AppC_comprobarThemeIdRouteImport } from './routes/app.C_comprobar.$themeId'
+import { Route as AdminUsuariosUserIdRouteImport } from './routes/admin.usuarios.$userId'
 import { Route as AdminTemasNewRouteImport } from './routes/admin.temas.new'
 import { Route as AdminSendasNewRouteImport } from './routes/admin.sendas.new'
 import { Route as AdminTemasThemeIdPreviewRouteImport } from './routes/admin.temas.$themeId.preview'
@@ -248,6 +249,11 @@ const AppC_comprobarThemeIdRoute = AppC_comprobarThemeIdRouteImport.update({
   path: '/C_comprobar/$themeId',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminUsuariosUserIdRoute = AdminUsuariosUserIdRouteImport.update({
+  id: '/$userId',
+  path: '/$userId',
+  getParentRoute: () => AdminUsuariosRoute,
+} as any)
 const AdminTemasNewRoute = AdminTemasNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -311,7 +317,7 @@ export interface FileRoutesByFullPath {
   '/admin/revision': typeof AdminRevisionRoute
   '/admin/sendas': typeof AdminSendasRouteWithChildren
   '/admin/temas': typeof AdminTemasRouteWithChildren
-  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/admin/usuarios': typeof AdminUsuariosRouteWithChildren
   '/app/clubes': typeof AppClubesRoute
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
@@ -324,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingIndexRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
+  '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
   '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
   '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
   '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
@@ -356,7 +363,7 @@ export interface FileRoutesByTo {
   '/admin/revision': typeof AdminRevisionRoute
   '/admin/sendas': typeof AdminSendasRouteWithChildren
   '/admin/temas': typeof AdminTemasRouteWithChildren
-  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/admin/usuarios': typeof AdminUsuariosRouteWithChildren
   '/app/clubes': typeof AppClubesRoute
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
@@ -369,6 +376,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingIndexRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
+  '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
   '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
   '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
   '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
@@ -405,7 +413,7 @@ export interface FileRoutesById {
   '/admin/revision': typeof AdminRevisionRoute
   '/admin/sendas': typeof AdminSendasRouteWithChildren
   '/admin/temas': typeof AdminTemasRouteWithChildren
-  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/admin/usuarios': typeof AdminUsuariosRouteWithChildren
   '/app/clubes': typeof AppClubesRoute
   '/app/descargas': typeof AppDescargasRoute
   '/app/logros': typeof AppLogrosRoute
@@ -418,6 +426,7 @@ export interface FileRoutesById {
   '/onboarding/': typeof OnboardingIndexRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
+  '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
   '/app/C_comprobar/$themeId': typeof AppC_comprobarThemeIdRoute
   '/app/C_conectar/$themeId': typeof AppC_conectarThemeIdRoute
   '/app/E_ensenar/$themeId': typeof AppE_ensenarThemeIdRoute
@@ -468,6 +477,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/admin/sendas/new'
     | '/admin/temas/new'
+    | '/admin/usuarios/$userId'
     | '/app/C_comprobar/$themeId'
     | '/app/C_conectar/$themeId'
     | '/app/E_ensenar/$themeId'
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/sendas/new'
     | '/admin/temas/new'
+    | '/admin/usuarios/$userId'
     | '/app/C_comprobar/$themeId'
     | '/app/C_conectar/$themeId'
     | '/app/E_ensenar/$themeId'
@@ -561,6 +572,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/admin/sendas/new'
     | '/admin/temas/new'
+    | '/admin/usuarios/$userId'
     | '/app/C_comprobar/$themeId'
     | '/app/C_conectar/$themeId'
     | '/app/E_ensenar/$themeId'
@@ -860,6 +872,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppC_comprobarThemeIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/admin/usuarios/$userId': {
+      id: '/admin/usuarios/$userId'
+      path: '/$userId'
+      fullPath: '/admin/usuarios/$userId'
+      preLoaderRoute: typeof AdminUsuariosUserIdRouteImport
+      parentRoute: typeof AdminUsuariosRoute
+    }
     '/admin/temas/new': {
       id: '/admin/temas/new'
       path: '/new'
@@ -955,6 +974,18 @@ const AdminTemasRouteWithChildren = AdminTemasRoute._addFileChildren(
   AdminTemasRouteChildren,
 )
 
+interface AdminUsuariosRouteChildren {
+  AdminUsuariosUserIdRoute: typeof AdminUsuariosUserIdRoute
+}
+
+const AdminUsuariosRouteChildren: AdminUsuariosRouteChildren = {
+  AdminUsuariosUserIdRoute: AdminUsuariosUserIdRoute,
+}
+
+const AdminUsuariosRouteWithChildren = AdminUsuariosRoute._addFileChildren(
+  AdminUsuariosRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminActividadesRoute: typeof AdminActividadesRoute
   AdminAjustesRoute: typeof AdminAjustesRoute
@@ -964,7 +995,7 @@ interface AdminRouteChildren {
   AdminRevisionRoute: typeof AdminRevisionRoute
   AdminSendasRoute: typeof AdminSendasRouteWithChildren
   AdminTemasRoute: typeof AdminTemasRouteWithChildren
-  AdminUsuariosRoute: typeof AdminUsuariosRoute
+  AdminUsuariosRoute: typeof AdminUsuariosRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -977,7 +1008,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminRevisionRoute: AdminRevisionRoute,
   AdminSendasRoute: AdminSendasRouteWithChildren,
   AdminTemasRoute: AdminTemasRouteWithChildren,
-  AdminUsuariosRoute: AdminUsuariosRoute,
+  AdminUsuariosRoute: AdminUsuariosRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
 }
 

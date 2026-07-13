@@ -1,41 +1,132 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { AdminUsersFilters, AdminUsersSummary, AdminUsersTable, type UserTableRow } from "@/features/admin/componentes/usuarios";
-import avatar1 from "@/assets/images/avatars/Avatar 1.png";
-import avatar2 from "@/assets/images/avatars/Avatar 2.png";
 
-const usuarios: UserTableRow[] = [
-  { id: "u1", nombre: "María Luz", correo: "maria@example.com", avatarImg: avatar1, rol: "Niño", franja: "8-10 años", club: "Semillitas de Luz", clubIcon: "fa-seedling", clubIconColor: "text-green-600", clubBadgeBg: "bg-green-50", nivelText: "Nivel 8", xpText: "2.480 XP", isVinculado: true, estado: "activo", ultimoAcceso: "Hace 5 min" },
-  { id: "u2", nombre: "Mateo Paz", correo: "mateo@example.com", avatarImg: avatar2, rol: "Adolescente", franja: "11-13 años", club: "Guardianes de Paz", clubIcon: "fa-shield", clubIconColor: "text-blue-600", clubBadgeBg: "bg-blue-50", nivelText: "Nivel 5", xpText: "1.730 XP", isVinculado: false, estado: "pendiente", ultimoAcceso: "Ayer" },
+import type { EstadoUsuarioAdmin, UsuarioAdmin } from "@/features/admin/admin.api";
+import {
+  AdminUsersFilters,
+  AdminUsersSummary,
+  AdminUsersTable,
+} from "@/features/admin/componentes/usuarios";
+import "@/routes/admin-users-studio.css";
+
+const usuarios: UsuarioAdmin[] = [
+  {
+    id: "u1",
+    nombre_visible: "María Luz",
+    correo: "maria@example.com",
+    activo: true,
+    estado: "activo",
+    rol: "usuario",
+    proveedor: "correo",
+    creado_en: "2026-07-01T10:00:00Z",
+    actualizado_en: "2026-07-12T10:00:00Z",
+    ultimo_login_en: "2026-07-12T14:20:00Z",
+    perfil: { id: "p1", apodo: "María", avatar_url: null, clave_avatar: null, grupo_edad_id: "g1", prefiere_audio: true, tamano_texto_preferido: "mediano" },
+    grupo_edad: { id: "g1", codigo: "semillas", nombre: "Semillas", edad_minima: 5, edad_maxima: 8 },
+    clubes: [{ id: "c1", nombre: "Semillitas de Luz", rol_miembro: "miembro", unido_en: "2026-07-01T10:00:00Z" }],
+    vinculos_familiares: 1,
+    progreso: { xp_total: 2480, eventos: 37 },
+  },
+  {
+    id: "u2",
+    nombre_visible: "Familia Paz",
+    correo: "familia@example.com",
+    activo: true,
+    estado: "pendiente",
+    rol: "padre",
+    proveedor: "correo",
+    creado_en: "2026-07-10T10:00:00Z",
+    actualizado_en: "2026-07-10T10:00:00Z",
+    ultimo_login_en: null,
+    perfil: null,
+    grupo_edad: null,
+    clubes: [],
+    vinculos_familiares: 2,
+    progreso: { xp_total: 0, eventos: 0 },
+  },
 ];
+
+const catalogos = {
+  grupos_edad: [
+    { id: "g1", codigo: "semillas", nombre: "Semillas", edad_minima: 5, edad_maxima: 8 },
+    { id: "g2", codigo: "exploradores", nombre: "Exploradores", edad_minima: 9, edad_maxima: 12 },
+  ],
+  clubes: [{ id: "c1", nombre: "Semillitas de Luz", activo: true }],
+  tutores: [{ id: "u2", nombre_visible: "Familia Paz", correo: "familia@example.com" }],
+};
 
 function VistaUsuarios({ estado = "datos" }: { estado?: "datos" | "cargando" | "vacio" | "error" }) {
   const [buscar, setBuscar] = useState("");
   const [rol, setRol] = useState("");
   const [franja, setFranja] = useState("");
-  const [estadoFiltro, setEstadoFiltro] = useState("");
+  const [estadoFiltro, setEstadoFiltro] = useState<EstadoUsuarioAdmin | "">("");
   const [club, setClub] = useState("");
   const [pagina, setPagina] = useState(1);
-  const limpiar = () => { setBuscar(""); setRol(""); setFranja(""); setEstadoFiltro(""); setClub(""); };
+  const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
+
   return (
-    <div className="min-h-screen bg-slate-50 p-3 sm:p-8">
-      <div className="mx-auto grid max-w-[1500px] gap-5">
-        <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><h2 className="text-2xl font-black text-slate-800">Usuarios</h2><p className="mt-1 text-sm text-slate-500">Administra perfiles, roles y acceso.</p></div>
-        <AdminUsersFilters searchValue={buscar} onSearchChange={setBuscar} selectedRol={rol} onRolChange={setRol} selectedFranja={franja} onFranjaChange={setFranja} selectedEstado={estadoFiltro} onEstadoChange={setEstadoFiltro} selectedClub={club} onClubChange={setClub} onClear={limpiar} />
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_310px]">
-          <AdminUsersTable usuarios={estado === "vacio" ? [] : usuarios} isLoading={estado === "cargando"} isError={estado === "error"} errorMensaje="No fue posible consultar los perfiles." onReintentar={() => undefined} totalResultados={estado === "vacio" ? 0 : 128} paginaActual={pagina} onCambiarPagina={setPagina} />
-          <AdminUsersSummary stats={{ total: 128, activos: 112, bloqueados: 4, pendientes: 12, ninos: 61, adolescentes: 37, padres: 18, moderadores: 8, administradores: 4, actPct: 88, pendPct: 9, blockPct: 3, ninosPct: 48, adolPct: 29, padresPct: 14, modPct: 6, adminPct: 3 }} />
-        </div>
+    <div className="min-h-screen bg-slate-50 p-8">
+      <div className="admin-users-page mx-auto max-w-[1500px]">
+        <AdminUsersSummary stats={{ total: 128, activos: 112, pendientes: 12, bloqueados: 4, administradores: 4, padres: 18 }} />
+        <AdminUsersFilters
+          searchValue={buscar}
+          onSearchChange={setBuscar}
+          selectedRol={rol}
+          onRolChange={setRol}
+          selectedFranja={franja}
+          onFranjaChange={setFranja}
+          selectedEstado={estadoFiltro}
+          onEstadoChange={(value) => setEstadoFiltro(value as EstadoUsuarioAdmin | "")}
+          selectedClub={club}
+          onClubChange={setClub}
+          catalogos={catalogos}
+          tieneFiltros={Boolean(buscar || rol || franja || estadoFiltro || club)}
+          onClear={() => {
+            setBuscar("");
+            setRol("");
+            setFranja("");
+            setEstadoFiltro("");
+            setClub("");
+          }}
+        />
+        <AdminUsersTable
+          usuarios={estado === "vacio" ? [] : usuarios}
+          totalResultados={estado === "vacio" ? 0 : 128}
+          isLoading={estado === "cargando"}
+          isError={estado === "error"}
+          errorMensaje="No fue posible consultar los perfiles."
+          onReintentar={() => undefined}
+          paginaActual={pagina}
+          porPagina={20}
+          onCambiarPagina={setPagina}
+          onCambiarPorPagina={() => undefined}
+          seleccionados={seleccionados}
+          todosSeleccionados={false}
+          onToggleUsuario={(id) => setSeleccionados((actual) => {
+            const siguiente = new Set(actual);
+            if (siguiente.has(id)) siguiente.delete(id);
+            else siguiente.add(id);
+            return siguiente;
+          })}
+          onTogglePagina={() => undefined}
+          onView={() => undefined}
+          onEdit={() => undefined}
+        />
       </div>
     </div>
   );
 }
 
-const meta = { title: "Pantallas/Administración/Usuarios", component: VistaUsuarios, parameters: { layout: "fullscreen" } } satisfies Meta<typeof VistaUsuarios>;
+const meta = {
+  title: "Pantallas/Administración/Usuarios",
+  component: VistaUsuarios,
+  parameters: { layout: "fullscreen" },
+} satisfies Meta<typeof VistaUsuarios>;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
+
 export const Escritorio: Story = {};
-export const MovilApp: Story = { globals: { viewport: { value: "movilApp", isRotated: false } } };
 export const Cargando: Story = { args: { estado: "cargando" } };
 export const Vacio: Story = { args: { estado: "vacio" } };
 export const Error: Story = { args: { estado: "error" } };

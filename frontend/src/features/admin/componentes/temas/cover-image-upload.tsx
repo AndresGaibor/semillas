@@ -88,7 +88,7 @@ export function CoverImageUpload(props: CoverImageUploadProps = {}) {
           )}
         </div>
         <div className="admin-media-slot__content">
-          <strong title={cover?.titulo}>
+          <strong title={cover?.titulo ?? undefined}>
             {cover?.titulo ?? "Añade una portada"}
           </strong>
           <small>

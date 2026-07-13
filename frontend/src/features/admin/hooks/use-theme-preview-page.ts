@@ -12,7 +12,7 @@ import {
   resolverPortadaTemaAdmin,
   usePortadasFirmadasAdmin,
 } from "@/features/admin/admin-theme-cover";
-import { obtenerEstadoTema } from "@/features/admin/componentes/temas";
+import { obtenerEstadoTema } from "@/features/admin/componentes/temas/theme-view.utils";
 import type { Paso } from "@/shared/api/api";
 
 export type ThemePreviewMode = "overview" | "lesson";

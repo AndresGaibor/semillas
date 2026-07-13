@@ -3,6 +3,15 @@ import type { Actividad, EventoProgreso } from "../../shared/api/api";
 import { obtenerActividadLocalPorServerId } from "@/lib/offline/offline-read";
 import { enviarEventosProgreso } from "@/features/progress/progress.api";
 
+export type ResponderActividadInput = {
+  evento_id_cliente: string;
+  opcion_id_seleccionada?: string;
+  texto_respuesta?: string;
+  completada?: true;
+  ocurrido_en_cliente?: string;
+  dispositivo_id?: string;
+};
+
 export async function obtenerActividad(idActividad: string) {
   if (!navigator.onLine) {
     const local = await obtenerActividadLocalPorServerId(idActividad);
@@ -23,16 +32,7 @@ export function obtenerActividades() {
   return peticion<Actividad[]>("/actividades");
 }
 
-export async function responderActividad(
-  idActividad: string,
-  datos: {
-    evento_id_cliente: string;
-    opcion_id_seleccionada?: string;
-    texto_respuesta?: string;
-    ocurrido_en_cliente?: string;
-    dispositivo_id?: string;
-  },
-) {
+export async function responderActividad(idActividad: string, datos: ResponderActividadInput) {
   if (navigator.onLine) {
     try {
       return await peticion<{
@@ -59,20 +59,17 @@ export async function responderActividad(
   return responderLocalmente(local, datos);
 }
 
-async function responderLocalmente(
-  actividad: Actividad,
-  datos: {
-    evento_id_cliente: string;
-    opcion_id_seleccionada?: string;
-    texto_respuesta?: string;
-    ocurrido_en_cliente?: string;
-    dispositivo_id?: string;
-  },
-) {
-  const seleccionada = actividad.opciones.find((opcion) => opcion.id === datos.opcion_id_seleccionada);
-  if (!seleccionada) throw new Error("Selecciona una opción válida.");
+async function responderLocalmente(actividad: Actividad, datos: ResponderActividadInput) {
+  const esFinalizacionGuiada = datos.completada === true;
+  const seleccionada = datos.opcion_id_seleccionada
+    ? actividad.opciones.find((opcion) => opcion.id === datos.opcion_id_seleccionada)
+    : null;
 
-  const correcta = Boolean(seleccionada.correcta);
+  if (!esFinalizacionGuiada && !seleccionada) {
+    throw new Error("Selecciona una opción válida.");
+  }
+
+  const correcta = esFinalizacionGuiada || Boolean(seleccionada?.correcta);
   const opcionCorrecta = actividad.opciones.find((opcion) => opcion.correcta);
   const evento: EventoProgreso = {
     evento_id_cliente: datos.evento_id_cliente,
@@ -85,8 +82,9 @@ async function responderLocalmente(
     ocurrido_en_cliente: datos.ocurrido_en_cliente ?? new Date().toISOString(),
     dispositivo_id: datos.dispositivo_id,
     datos: {
-      opcion_id_seleccionada: datos.opcion_id_seleccionada,
+      opcion_id_seleccionada: datos.opcion_id_seleccionada ?? null,
       texto_respuesta: datos.texto_respuesta ?? null,
+      completada: esFinalizacionGuiada,
       resultado_provisional_offline: true,
     },
   };
@@ -98,7 +96,10 @@ async function responderLocalmente(
       correcta,
       xp_otorgada: 0,
       opcion_correcta_id: opcionCorrecta?.id ?? null,
-      retroalimentacion: seleccionada.retroalimentacion ?? opcionCorrecta?.retroalimentacion ?? actividad.retroalimentacion,
+      retroalimentacion:
+        seleccionada?.retroalimentacion ??
+        opcionCorrecta?.retroalimentacion ??
+        actividad.retroalimentacion,
     },
     duplicado: false,
     offline: true,

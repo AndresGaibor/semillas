@@ -14,11 +14,15 @@ import {
   updateActivitySchema,
   updateThemeSchema,
   updateUserSchema,
+  inviteUserSchema,
+  createChildUserSchema,
+  bulkUserActionSchema,
   upsertStepContentSchema,
   createSendaSchema,
   updateSendaSchema
 } from "./admin.schemas";
 import { crearAdminRepository } from "./admin.repository";
+import { crearAdminUsersRepository } from "./admin-users.repository";
 import { crearCasoObtenerResumen } from "./casos-uso/resumen";
 import { crearCasosUsoActividades } from "./casos-uso/actividades";
 import { crearCasosUsoTemas } from "./casos-uso/temas";
@@ -26,18 +30,24 @@ import { crearCasosUsoUsuarios } from "./casos-uso/usuarios";
 import { crearCasosUsoSendas } from "./casos-uso/sendas";
 
 type CrearRepositorioAdmin = typeof crearAdminRepository;
+type CrearRepositorioUsuarios = typeof crearAdminUsersRepository;
 
-export function crearModuloAdmin(crearRepositorio: CrearRepositorioAdmin = crearAdminRepository) {
+export function crearModuloAdmin(
+  crearRepositorio: CrearRepositorioAdmin = crearAdminRepository,
+  crearRepositorioUsuarios: CrearRepositorioUsuarios = crearAdminUsersRepository
+) {
   const adminRoutes = new Hono<AppBindings>();
 
   function obtenerCasosUso(c: Context<AppBindings>) {
-    const repositorio = crearRepositorio({ supabase: c.get("db"), drizzle: c.get("drizzle") });
+    const dependencias = { supabase: c.get("db"), drizzle: c.get("drizzle") };
+    const repositorio = crearRepositorio(dependencias);
+    const repositorioUsuarios = crearRepositorioUsuarios(dependencias);
 
     return {
       resumen: crearCasoObtenerResumen(repositorio),
       actividades: crearCasosUsoActividades(repositorio),
       temas: crearCasosUsoTemas(repositorio),
-      usuarios: crearCasosUsoUsuarios(repositorio),
+      usuarios: crearCasosUsoUsuarios(repositorioUsuarios),
       sendas: crearCasosUsoSendas(repositorio)
     };
   }
@@ -88,10 +98,37 @@ export function crearModuloAdmin(crearRepositorio: CrearRepositorioAdmin = crear
   adminRoutes.post("/temas/:tema_id/borrador", async (c) => responderExito(await obtenerCasosUso(c).temas.guardarBorrador(c.req.param("tema_id"))));
   adminRoutes.post("/temas/:tema_id/archivar", async (c) => responderExito(await obtenerCasosUso(c).temas.archivar(c.req.param("tema_id"))));
   adminRoutes.post("/temas/:tema_id/duplicar", async (c) => responderExito(await obtenerCasosUso(c).temas.duplicar(c.req.param("tema_id"), c.get("user")), 201));
-  adminRoutes.get("/usuarios", async (c) => responderExito(await obtenerCasosUso(c).usuarios.listar({ q: c.req.query("q") ?? undefined, rol: c.req.query("rol") ?? undefined, limit: Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100), offset: Math.max(Number(c.req.query("offset") ?? "0"), 0) })));
-  adminRoutes.get("/usuarios/:usuario_id", async (c) => responderExito(await obtenerCasosUso(c).usuarios.obtener(c.req.param("usuario_id"))));
-  adminRoutes.patch("/usuarios/:usuario_id", zValidator("json", updateUserSchema), async (c) => responderExito(await obtenerCasosUso(c).usuarios.actualizar(c.req.param("usuario_id"), c.req.valid("json"))));
-  adminRoutes.delete("/usuarios/:usuario_id", async (c) => responderExito(await obtenerCasosUso(c).usuarios.eliminar(c.req.param("usuario_id"))));
+  adminRoutes.get("/usuarios", async (c) => responderExito(await obtenerCasosUso(c).usuarios.listar({
+    q: c.req.query("q") ?? undefined,
+    rol: c.req.query("rol") ?? undefined,
+    estado: (c.req.query("estado") as "activo" | "pendiente" | "bloqueado" | undefined) ?? undefined,
+    grupoEdadId: c.req.query("grupo_edad_id") ?? undefined,
+    clubId: c.req.query("club_id") ?? undefined,
+    limit: Math.min(Math.max(Number(c.req.query("limit") ?? "20"), 1), 100),
+    offset: Math.max(Number(c.req.query("offset") ?? "0"), 0)
+  })));
+  adminRoutes.post("/usuarios/invitar", zValidator("json", inviteUserSchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).usuarios.invitar(c.req.valid("json"), c.get("user").id), 201)
+  );
+  adminRoutes.post("/usuarios/menores", zValidator("json", createChildUserSchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).usuarios.crearMenor(c.req.valid("json"), c.get("user").id), 201)
+  );
+  adminRoutes.post("/usuarios/acciones", zValidator("json", bulkUserActionSchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).usuarios.accionMasiva(c.req.valid("json"), c.get("user").id))
+  );
+  adminRoutes.get("/usuarios/:usuario_id", async (c) =>
+    responderExito(await obtenerCasosUso(c).usuarios.obtener(c.req.param("usuario_id")))
+  );
+  adminRoutes.patch("/usuarios/:usuario_id", zValidator("json", updateUserSchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).usuarios.actualizar(
+      c.req.param("usuario_id"),
+      c.req.valid("json"),
+      c.get("user").id
+    ))
+  );
+  adminRoutes.delete("/usuarios/:usuario_id", async (c) =>
+    responderExito(await obtenerCasosUso(c).usuarios.eliminar(c.req.param("usuario_id"), c.get("user").id))
+  );
 
   return adminRoutes;
 }

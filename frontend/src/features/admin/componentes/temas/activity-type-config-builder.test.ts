@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { obtenerAfirmaciones, obtenerPares } from "./activity-type-config-builder";
+import { obtenerAfirmaciones, obtenerPares } from "./activity-config-utils";
 
 describe("constructores de configuración de actividades", () => {
   it("conserva los identificadores de filas de verdadero o falso", () => {

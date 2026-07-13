@@ -1,13 +1,21 @@
+import {
+  AlertTriangle,
+  Check,
+  FileAudio,
+  FileText,
+  FileVideo,
+  Image as ImageIcon,
+} from "lucide-react";
+
 import { Paginacion } from "@/componentes/ui/paginacion";
-import { Card } from "@/componentes/ui/card-base";
-import { ImageWithFallback } from "@/componentes/ui/image-with-fallback";
+import type { MediaCardItem, MediaViewMode } from "../../admin-media.types";
 import { MediaTypeBadge } from "./media-type-badge";
-import type { MediaCardItem } from "../../admin-media.types";
 
 type Props = {
   items: MediaCardItem[];
   totalItems: number;
   selectedId: string;
+  viewMode: MediaViewMode;
   onSelect: (id: string) => void;
   paginaActual: number;
   porPagina: number;
@@ -19,89 +27,235 @@ export function AdminMediaGrid({
   items,
   totalItems,
   selectedId,
+  viewMode,
   onSelect,
   paginaActual,
   porPagina,
   onCambiarPagina,
   onCambiarPorPagina,
 }: Props) {
-  const visibleCount = items.length;
-
   return (
-    <>
-      <div className="text-xs text-slate-400 font-bold select-none">
-        {totalItems} recursos encontrados
+    <section className="min-w-0">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-xs font-extrabold text-slate-500" aria-live="polite">
+          {totalItems === 1
+            ? "1 recurso encontrado"
+            : `${totalItems} recursos encontrados`}
+        </p>
+        {selectedId ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-extrabold text-emerald-700">
+            <Check size={13} /> Recurso seleccionado
+          </span>
+        ) : null}
       </div>
 
-      {visibleCount === 0 ? (
-        <Card sombra="sm" className="flex flex-col items-center justify-center py-20 text-center select-none">
-          <i className="fa-regular fa-image text-slate-300 text-5xl mb-4" />
-          <p className="text-sm text-slate-500 font-extrabold">
-            No se encontraron recursos
+      {items.length === 0 ? (
+        <div className="flex min-h-[360px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 text-center shadow-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+            <ImageIcon size={27} aria-hidden="true" />
+          </div>
+          <h2 className="mt-4 text-base font-black text-slate-800">
+            No encontramos recursos
+          </h2>
+          <p className="mt-1 max-w-sm text-sm font-medium leading-relaxed text-slate-500">
+            Cambia el tipo, limpia la búsqueda o sube un archivo nuevo.
           </p>
-          <p className="text-xs text-slate-400 mt-1">
-            Intenta ajustar los filtros de b&uacute;squeda.
-          </p>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {items.map((item) => {
-            const isSelected = item.id === selectedId;
-            return (
-              <Card
+        </div>
+      ) : viewMode === "list" ? (
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="hidden grid-cols-[72px_minmax(0,1fr)_120px_130px_110px] gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500 md:grid">
+            <span>Vista</span>
+            <span>Recurso</span>
+            <span>Tipo</span>
+            <span>Tamaño</span>
+            <span>Fecha</span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {items.map((item) => (
+              <MediaListRow
                 key={item.id}
-                onClick={() => onSelect(item.id)}
-                sombra={isSelected ? "md" : "sm"}
-                hoverEffect="none"
-                className={`p-3 flex flex-col text-left transition-all relative cursor-pointer select-none group ${
-                  isSelected
-                    ? "border-2 border-green-600 shadow-md shadow-green-600/20"
-                    : "border-slate-200 hover:border-emerald-600 hover:shadow-sm"
-                }`}
-              >
-                <div className="w-full h-32 rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/50 relative flex items-center justify-center shrink-0">
-                  <ImageWithFallback src={item.imgUrl} alt={item.nombre} tipo={item.tipo} />
-
-                  <div className="absolute left-2.5 bottom-2.5 w-6 h-6 rounded-lg bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-[11px]">
-                    {item.tipo === "imagen" && <i className="fa-regular fa-image" />}
-                    {item.tipo === "audio" && <i className="fa-solid fa-volume-high" />}
-                    {item.tipo === "video" && <i className="fa-solid fa-circle-play" />}
-                    {item.tipo === "documento" && <i className="fa-solid fa-file-pdf" />}
-                  </div>
-
-                  {isSelected && (
-                    <div className="absolute left-2.5 top-2.5 w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-white text-[10px] shadow-sm">
-                      <i className="fa-solid fa-check" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col mt-3.5 min-w-0">
-                  <span className="font-extrabold text-slate-800 text-xs truncate group-hover:text-green-600 transition-colors sm:text-sm">
-                    {item.nombre}
-                  </span>
-
-                  <div className="flex items-center mt-1">
-                    <MediaTypeBadge tipo={item.tipo} />
-                  </div>
-
-                  <div className="mt-3 text-xs text-slate-400 font-bold">
-                    {item.usadoEnCount === null ? "Uso no calculado" : `Usado en ${item.usadoEnCount} contenidos`}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+                item={item}
+                selected={item.id === selectedId}
+                onSelect={() => onSelect(item.id)}
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
+          {items.map((item) => (
+            <MediaGridCard
+              key={item.id}
+              item={item}
+              selected={item.id === selectedId}
+              onSelect={() => onSelect(item.id)}
+            />
+          ))}
         </div>
       )}
 
-      <Paginacion
-        total={totalItems}
-        paginaActual={paginaActual}
-        porPagina={porPagina}
-        onCambiarPagina={onCambiarPagina}
-        onCambiarPorPagina={onCambiarPorPagina}
+      <div className="mt-5">
+        <Paginacion
+          total={totalItems}
+          paginaActual={paginaActual}
+          porPagina={porPagina}
+          onCambiarPagina={onCambiarPagina}
+          onCambiarPorPagina={onCambiarPorPagina}
+        />
+      </div>
+    </section>
+  );
+}
+
+function MediaGridCard({
+  item,
+  selected,
+  onSelect,
+}: {
+  item: MediaCardItem;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className={`group min-w-0 overflow-hidden rounded-3xl border bg-white text-left shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 ${
+        selected
+          ? "border-violet-500 ring-2 ring-violet-100"
+          : "border-slate-200 hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
+      }`}
+    >
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+        <MediaPreview item={item} />
+        <span className="absolute bottom-3 left-3">
+          <MediaTypeBadge tipo={item.tipo} />
+        </span>
+        {selected ? (
+          <span className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg">
+            <Check size={17} strokeWidth={3} />
+          </span>
+        ) : null}
+      </div>
+
+      <div className="p-4">
+        <h3
+          className="line-clamp-2 min-h-10 text-sm font-black leading-5 text-slate-900 transition group-hover:text-violet-700"
+          title={item.nombre}
+        >
+          {item.nombre}
+        </h3>
+        <div className="mt-3 flex items-center justify-between gap-2 text-xs font-bold text-slate-500">
+          <span>{item.tamano}</span>
+          <span>{item.formato}</span>
+        </div>
+        <div className="mt-3 flex min-h-6 items-center border-t border-slate-100 pt-3 text-[11px] font-bold text-slate-400">
+          {item.tipo === "imagen" && !item.altText ? (
+            <span className="inline-flex items-center gap-1.5 text-amber-700">
+              <AlertTriangle size={13} /> Falta texto alternativo
+            </span>
+          ) : item.usadoEnCount !== null ? (
+            <span>
+              {item.usadoEnCount === 0
+                ? "Sin referencias"
+                : `Usado en ${item.usadoEnCount} contenidos`}
+            </span>
+          ) : (
+            <span>{item.fechaSubido}</span>
+          )}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function MediaListRow({
+  item,
+  selected,
+  onSelect,
+}: {
+  item: MediaCardItem;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className={`grid w-full grid-cols-[64px_minmax(0,1fr)] items-center gap-3 px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500 md:grid-cols-[72px_minmax(0,1fr)_120px_130px_110px] md:gap-4 md:px-4 ${
+        selected ? "bg-violet-50" : "bg-white hover:bg-slate-50"
+      }`}
+    >
+      <span className="relative h-14 overflow-hidden rounded-xl bg-slate-100">
+        <MediaPreview item={item} compact />
+        {selected ? (
+          <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-white">
+            <Check size={11} strokeWidth={3} />
+          </span>
+        ) : null}
+      </span>
+
+      <span className="min-w-0">
+        <strong className="block truncate text-sm font-black text-slate-900">
+          {item.nombre}
+        </strong>
+        <span className="mt-1 block truncate text-xs font-semibold text-slate-500 md:hidden">
+          {item.tipoLabel} · {item.tamano} · {item.fechaSubido}
+        </span>
+        {item.tipo === "imagen" && !item.altText ? (
+          <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-amber-700">
+            <AlertTriangle size={12} /> Falta texto alternativo
+          </span>
+        ) : null}
+      </span>
+
+      <span className="hidden md:block">
+        <MediaTypeBadge tipo={item.tipo} />
+      </span>
+      <span className="hidden text-xs font-bold text-slate-600 md:block">
+        {item.tamano}
+      </span>
+      <span className="hidden truncate text-xs font-semibold text-slate-500 md:block">
+        {item.fechaSubido}
+      </span>
+    </button>
+  );
+}
+
+function MediaPreview({
+  item,
+  compact = false,
+}: {
+  item: MediaCardItem;
+  compact?: boolean;
+}) {
+  if (item.tipo === "imagen") {
+    return (
+      <img
+        src={item.imgUrl}
+        alt=""
+        loading="lazy"
+        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
       />
-    </>
+    );
+  }
+
+  const Icon =
+    item.tipo === "audio"
+      ? FileAudio
+      : item.tipo === "video"
+        ? FileVideo
+        : FileText;
+
+  return (
+    <span
+      className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 text-slate-400 ${
+        compact ? "" : "group-hover:text-violet-500"
+      }`}
+    >
+      <Icon size={compact ? 24 : 38} aria-hidden="true" />
+    </span>
   );
 }

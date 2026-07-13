@@ -151,24 +151,213 @@ export function eliminarActividad(idActividad: string) {
   });
 }
 
+export type EstadoUsuarioAdmin = "activo" | "pendiente" | "bloqueado";
+export type RolUsuarioAdmin = "administrador" | "usuario" | "invitado" | "padre";
+
 export type UsuarioAdmin = {
   id: string;
-  nombre_visible: string | null;
+  nombre_visible: string;
   correo: string | null;
-  activo: boolean | null;
-  rol: string;
+  activo: boolean;
+  estado: EstadoUsuarioAdmin;
+  rol: RolUsuarioAdmin;
+  proveedor: "google" | "facebook" | "invitado" | "correo";
+  creado_en: string;
+  actualizado_en: string;
   ultimo_login_en: string | null;
   perfil: {
-    apodo: string | null;
-    nivel_actual: number | null;
-    xp_acumulada: number | null;
+    id: string;
+    apodo: string;
     avatar_url: string | null;
+    clave_avatar: string | null;
     grupo_edad_id: string | null;
+    prefiere_audio: boolean;
+    tamano_texto_preferido: string;
   } | null;
+  grupo_edad: {
+    id: string;
+    codigo: string;
+    nombre: string;
+    edad_minima: number;
+    edad_maxima: number;
+  } | null;
+  clubes: Array<{
+    id: string;
+    nombre: string;
+    rol_miembro: string;
+    unido_en: string;
+  }>;
+  vinculos_familiares: number;
+  progreso: {
+    xp_total: number;
+    eventos: number;
+  };
 };
 
-export function obtenerUsuariosAdmin() {
-  return peticion<{ usuarios: UsuarioAdmin[] }>("/administracion/usuarios");
+export type UsuarioAdminDetalle = UsuarioAdmin & {
+  vinculos: Array<{
+    id: string;
+    tipo: "tutor" | "menor";
+    relacion: string;
+    estado: string;
+    aceptado_en: string | null;
+    usuario: {
+      id: string;
+      nombre_visible: string;
+      correo: string | null;
+    };
+  }>;
+  estadisticas: {
+    temas_total: number;
+    temas_completados: number;
+    actividades_total: number;
+    actividades_completadas: number;
+    intentos: number;
+    xp_total: number;
+  };
+  actividad_reciente: Array<{
+    id: string;
+    tipo: string;
+    tema_id: string | null;
+    actividad_id: string | null;
+    puntaje: number | null;
+    correcta: boolean | null;
+    xp_otorgada: number;
+    ocurrido_en: string;
+  }>;
+  auditoria: Array<{
+    id: string;
+    accion: string;
+    datos_antes: unknown;
+    datos_despues: unknown;
+    actor_usuario_id: string | null;
+    creado_en: string;
+  }>;
+};
+
+export type CatalogosUsuariosAdmin = {
+  grupos_edad: Array<{
+    id: string;
+    codigo: string;
+    nombre: string;
+    edad_minima: number;
+    edad_maxima: number;
+  }>;
+  clubes: Array<{ id: string; nombre: string; activo: boolean }>;
+  tutores: Array<{ id: string; nombre_visible: string; correo: string | null }>;
+};
+
+export type ListadoUsuariosAdmin = {
+  usuarios: UsuarioAdmin[];
+  total: number;
+  resumen: {
+    total: number;
+    activos: number;
+    pendientes: number;
+    bloqueados: number;
+    administradores: number;
+    padres: number;
+  };
+  catalogos: CatalogosUsuariosAdmin;
+};
+
+export type ObtenerUsuariosAdminParams = {
+  q?: string;
+  rol?: string;
+  estado?: string;
+  grupo_edad_id?: string;
+  club_id?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export function obtenerUsuariosAdmin(params: ObtenerUsuariosAdminParams = {}) {
+  const busqueda = new URLSearchParams();
+  if (params.q) busqueda.set("q", params.q);
+  if (params.rol) busqueda.set("rol", params.rol);
+  if (params.estado) busqueda.set("estado", params.estado);
+  if (params.grupo_edad_id) busqueda.set("grupo_edad_id", params.grupo_edad_id);
+  if (params.club_id) busqueda.set("club_id", params.club_id);
+  busqueda.set("limit", String(params.limit ?? 20));
+  busqueda.set("offset", String(params.offset ?? 0));
+  return peticion<ListadoUsuariosAdmin>(`/administracion/usuarios?${busqueda.toString()}`);
+}
+
+export function obtenerUsuarioAdmin(usuarioId: string) {
+  return peticion<UsuarioAdminDetalle>(`/administracion/usuarios/${usuarioId}`);
+}
+
+export type ActualizarUsuarioAdminSolicitud = {
+  rol?: RolUsuarioAdmin;
+  nombre_visible?: string;
+  activo?: boolean;
+  apodo?: string;
+  grupo_edad_id?: string | null;
+  avatar_url?: string | null;
+  prefiere_audio?: boolean;
+  tamano_texto_preferido?: "pequeno" | "mediano" | "grande";
+  club_ids?: string[];
+};
+
+export function actualizarUsuarioAdmin(usuarioId: string, datos: ActualizarUsuarioAdminSolicitud) {
+  return peticion<UsuarioAdminDetalle>(`/administracion/usuarios/${usuarioId}`, {
+    metodo: "PATCH",
+    cuerpo: datos,
+  });
+}
+
+export function desactivarUsuarioAdmin(usuarioId: string) {
+  return peticion<{ desactivado: boolean }>(`/administracion/usuarios/${usuarioId}`, {
+    metodo: "DELETE",
+  });
+}
+
+export type InvitarUsuarioAdminSolicitud = {
+  correo: string;
+  nombre_visible: string;
+  rol: Exclude<RolUsuarioAdmin, "invitado">;
+  apodo?: string;
+  grupo_edad_id?: string | null;
+  club_id?: string | null;
+  redirect_to?: string;
+};
+
+export function invitarUsuarioAdmin(datos: InvitarUsuarioAdminSolicitud) {
+  return peticion<UsuarioAdminDetalle>("/administracion/usuarios/invitar", {
+    metodo: "POST",
+    cuerpo: datos,
+  });
+}
+
+export type CrearMenorAdminSolicitud = {
+  nombre_visible: string;
+  apodo: string;
+  grupo_edad_id: string;
+  tutor_id?: string | null;
+  relacion?: string;
+  club_id?: string | null;
+  prefiere_audio?: boolean;
+  tamano_texto_preferido?: "pequeno" | "mediano" | "grande";
+};
+
+export function crearMenorAdmin(datos: CrearMenorAdminSolicitud) {
+  return peticion<{
+    usuario: UsuarioAdminDetalle;
+    credencial_temporal: { usuario_id: string; token: string };
+  }>("/administracion/usuarios/menores", {
+    metodo: "POST",
+    cuerpo: datos,
+  });
+}
+
+export function accionMasivaUsuariosAdmin(
+  usuarioIds: string[],
+  accion: "activar" | "desactivar"
+) {
+  return peticion<{ actualizados: number }>("/administracion/usuarios/acciones", {
+    metodo: "POST",
+    cuerpo: { usuario_ids: usuarioIds, accion },
+  });
 }
 
 export type ActividadAdmin = {

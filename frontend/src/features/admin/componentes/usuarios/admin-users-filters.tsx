@@ -1,50 +1,22 @@
-import { Boton } from "@/componentes/ui/boton";
-import { CampoBusqueda } from "@/componentes/ui/navegacion-tabs";
-import { SelectFiltro } from "@/componentes/ui/select-filtro";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 
-export type AdminUsersFiltersProps = {
+import type { CatalogosUsuariosAdmin, EstadoUsuarioAdmin } from "../../admin.api";
+
+type Props = {
   searchValue: string;
-  onSearchChange: (val: string) => void;
+  onSearchChange: (value: string) => void;
   selectedRol: string;
-  onRolChange: (val: string) => void;
+  onRolChange: (value: string) => void;
   selectedFranja: string;
-  onFranjaChange: (val: string) => void;
-  selectedEstado: string;
-  onEstadoChange: (val: string) => void;
+  onFranjaChange: (value: string) => void;
+  selectedEstado: EstadoUsuarioAdmin | "";
+  onEstadoChange: (value: string) => void;
   selectedClub: string;
-  onClubChange: (val: string) => void;
+  onClubChange: (value: string) => void;
+  catalogos: CatalogosUsuariosAdmin;
+  tieneFiltros: boolean;
   onClear: () => void;
 };
-
-const OPCIONES_ROL: { id: string; nombre: string }[] = [
-  { id: "Niño", nombre: "Niño" },
-  { id: "Adolescente", nombre: "Adolescente" },
-  { id: "Padre/Madre", nombre: "Padre/Madre" },
-  { id: "Moderador", nombre: "Moderador" },
-  { id: "Administrador", nombre: "Administrador" },
-];
-
-const OPCIONES_FRANJA: { id: string; nombre: string }[] = [
-  { id: "8-10 años", nombre: "8-10 años" },
-  { id: "11-13 años", nombre: "11-13 años" },
-  { id: "14+ años", nombre: "14+ años" },
-  { id: "Todas", nombre: "Todas" },
-  { id: "-", nombre: "-" },
-];
-
-const OPCIONES_ESTADO: { id: string; nombre: string }[] = [
-  { id: "activo", nombre: "Activo" },
-  { id: "pendiente", nombre: "Pendiente" },
-  { id: "bloqueado", nombre: "Bloqueado" },
-];
-
-const OPCIONES_CLUB: { id: string; nombre: string }[] = [
-  { id: "Semillitas de Luz", nombre: "Semillitas de Luz" },
-  { id: "Guardianes de Paz", nombre: "Guardianes de Paz" },
-  { id: "Corazones Valientes", nombre: "Corazones Valientes" },
-  { id: "Jóvenes en Misión", nombre: "Jóvenes en Misión" },
-  { id: "Todos los clubes", nombre: "Todos los clubes" },
-];
 
 export function AdminUsersFilters({
   searchValue,
@@ -57,72 +29,78 @@ export function AdminUsersFilters({
   onEstadoChange,
   selectedClub,
   onClubChange,
+  catalogos,
+  tieneFiltros,
   onClear,
-}: AdminUsersFiltersProps) {
-  const tieneFiltros = !!(searchValue || selectedRol || selectedFranja || selectedEstado || selectedClub);
-
+}: Props) {
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm text-left flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <CampoBusqueda
-          valor={searchValue}
-          onChange={onSearchChange}
-          placeholder="Buscar usuario por nombre o email..."
-          contenedorClassName="flex-1 min-w-[220px]"
-          inputClassName="rounded-full pl-10 py-2.5 text-[13px] focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 placeholder:text-slate-400 placeholder:font-normal"
+    <section className="admin-users-filters" aria-label="Filtros de usuarios">
+      <div className="admin-users-search">
+        <Search size={17} aria-hidden="true" />
+        <input
+          value={searchValue}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Buscar por nombre o correo"
+          aria-label="Buscar usuarios"
         />
-
-        <div className="w-full lg:w-48">
-          <SelectFiltro
-            opciones={OPCIONES_ROL}
-            placeholder="Rol"
-            etiquetaAria="Filtrar por rol"
-            value={selectedRol}
-            onChange={(e) => onRolChange(e.target.value)}
-          />
-        </div>
-
-        <div className="w-full lg:w-48">
-          <SelectFiltro
-            opciones={OPCIONES_FRANJA}
-            placeholder="Franja"
-            etiquetaAria="Filtrar por franja"
-            value={selectedFranja}
-            onChange={(e) => onFranjaChange(e.target.value)}
-          />
-        </div>
-
-        <div className="w-full lg:w-48">
-          <SelectFiltro
-            opciones={OPCIONES_ESTADO}
-            placeholder="Estado"
-            etiquetaAria="Filtrar por estado"
-            value={selectedEstado}
-            onChange={(e) => onEstadoChange(e.target.value)}
-          />
-        </div>
-
-        <div className="w-full lg:w-48">
-          <SelectFiltro
-            opciones={OPCIONES_CLUB}
-            placeholder="Club"
-            etiquetaAria="Filtrar por club"
-            value={selectedClub}
-            onChange={(e) => onClubChange(e.target.value)}
-          />
-        </div>
-
-        {tieneFiltros && (
-          <Boton
-            variante="contorno"
-            tamano="pequeno"
-            forma="pildora"
-            onClick={onClear}
-          >
-            Limpiar filtros
-          </Boton>
-        )}
+        {searchValue ? (
+          <button type="button" onClick={() => onSearchChange("")} aria-label="Limpiar búsqueda">
+            <X size={15} />
+          </button>
+        ) : null}
       </div>
-    </div>
+
+      <label>
+        <span className="sr-only">Rol</span>
+        <select value={selectedRol} onChange={(event) => onRolChange(event.target.value)}>
+          <option value="">Todos los roles</option>
+          <option value="administrador">Administradores</option>
+          <option value="padre">Padres y tutores</option>
+          <option value="usuario">Estudiantes</option>
+          <option value="invitado">Invitados</option>
+        </select>
+      </label>
+
+      <label>
+        <span className="sr-only">Franja</span>
+        <select value={selectedFranja} onChange={(event) => onFranjaChange(event.target.value)}>
+          <option value="">Todas las franjas</option>
+          {catalogos.grupos_edad.map((grupo) => (
+            <option key={grupo.id} value={grupo.id}>
+              {grupo.nombre} ({grupo.edad_minima}–{grupo.edad_maxima})
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        <span className="sr-only">Estado</span>
+        <select value={selectedEstado} onChange={(event) => onEstadoChange(event.target.value)}>
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="pendiente">Invitación pendiente</option>
+          <option value="bloqueado">Bloqueados</option>
+        </select>
+      </label>
+
+      <label>
+        <span className="sr-only">Club</span>
+        <select value={selectedClub} onChange={(event) => onClubChange(event.target.value)}>
+          <option value="">Todos los clubes</option>
+          {catalogos.clubes.map((club) => (
+            <option key={club.id} value={club.id}>
+              {club.nombre}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {tieneFiltros ? (
+        <button type="button" className="admin-users-filter-clear" onClick={onClear}>
+          <SlidersHorizontal size={15} />
+          Limpiar
+        </button>
+      ) : null}
+    </section>
   );
 }

@@ -1,119 +1,70 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader, Check, X, ArrowLeft, Zap, CloudOff } from "lucide-react";
+import { ArrowLeft, CloudOff, Gamepad2, Loader2, RotateCcw, Sparkles, Timer, Trophy } from "lucide-react";
+
+import { ActividadWrapper } from "@/features/crecer/componentes/actividad-wrapper";
 import { useActivityPage } from "../features/activities/hooks/use-activity-page";
+import "./app-activity-page.css";
 
 export const Route = createFileRoute("/app/actividades/$activityId")({
-  component: ActivityPage
+  component: ActivityPage,
 });
 
 function ActivityPage() {
   const { activityId } = Route.useParams();
   const {
     activity,
-    result,
+    completed,
     resultadoOffline,
-    selected,
-    handleSelectOption,
+    handleComplete,
     handleGoBack,
-    activityQuery
+    activityQuery,
+    completionMutation,
   } = useActivityPage(activityId);
 
   if (activityQuery.isLoading) {
+    return <div className="student-activity-state"><Loader2 className="animate-spin" size={28} /><span>Preparando la actividad…</span></div>;
+  }
+
+  if (activityQuery.isError || !activity) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader className="animate-spin text-[#2e9e5b]" size={24} />
+      <div className="student-activity-state student-activity-state--error">
+        <Gamepad2 size={30} />
+        <h1>No pudimos abrir esta actividad</h1>
+        <p>{activityQuery.error instanceof Error ? activityQuery.error.message : "Intenta nuevamente en unos segundos."}</p>
+        <button type="button" onClick={() => activityQuery.refetch()}><RotateCcw size={17} /> Reintentar</button>
       </div>
     );
   }
 
   return (
-    <div>
-      <button onClick={handleGoBack} className="flex items-center gap-1 text-sm text-[#123b2c]/50 mb-4">
-        <ArrowLeft size={16} /> Volver
-      </button>
-
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap className="text-[#f4b740]" size={18} />
-          <span className="text-sm font-medium text-[#f4b740]">{activity?.xp_recompensa} XP</span>
+    <main className="student-activity-page">
+      <header className="student-activity-toolbar">
+        <button type="button" onClick={handleGoBack}><ArrowLeft size={18} /> Volver al tema</button>
+        <div className="student-activity-toolbar__meta">
+          <span><Sparkles size={15} /> {activity.tipo_actividad?.nombre ?? "Actividad"}</span>
+          {activity.limite_tiempo_seg ? <span><Timer size={15} /> {activity.limite_tiempo_seg} s</span> : null}
+          <span className="student-activity-toolbar__xp"><Trophy size={15} /> {activity.xp_recompensa} XP</span>
         </div>
+      </header>
 
-        <h1 className="text-xl font-bold text-[#123b2c] mb-2">{activity?.titulo}</h1>
-        <p className="text-[#123b2c]/70 mb-6">{activity?.consigna}</p>
+      <section className="student-activity-stage">
+        <ActividadWrapper actividad={activity} onComplete={handleComplete} />
+      </section>
 
-        <div className="grid gap-2">
-          {activity?.opciones?.map((option) => {
-            const isSelected = selected === option.id;
-            const isAnswered = !!result;
-            const isCorrectOption = result?.resultado.opcion_correcta_id === option.id;
+      {completionMutation.isPending ? (
+        <div className="student-activity-sync" role="status"><Loader2 className="animate-spin" size={18} /><span>Guardando tu progreso…</span></div>
+      ) : null}
 
-            let bg = "bg-[#f7f4ec] hover:bg-[#e8e5dd]";
-            if (isAnswered && isCorrectOption) bg = "bg-[#2e9e5b]/10 border-[#2e9e5b]";
-            else if (isAnswered && isSelected && !isCorrectOption) bg = "bg-[#ee6c4d]/10 border-[#ee6c4d]";
-            else if (isSelected) bg = "bg-[#2e9e5b]/10 border-[#2e9e5b]";
-
-            return (
-              <button
-                key={option.id}
-                onClick={() => handleSelectOption(option.id)}
-                disabled={!!result}
-                className={`w-full text-left p-4 rounded-xl border-2 transition-all ${bg} ${
-                  isAnswered && isCorrectOption ? "border-[#2e9e5b]" : ""
-                } ${isAnswered && isSelected && !isCorrectOption ? "border-[#ee6c4d]" : ""} ${
-                  isSelected && !isAnswered ? "border-[#2e9e5b]" : "border-transparent"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-sm shrink-0">
-                    {option.etiqueta}
-                  </span>
-                  <span className="flex-1 text-[#123b2c]">{option.texto}</span>
-                  {isAnswered && isCorrectOption && <Check className="text-[#2e9e5b]" size={20} />}
-                  {isAnswered && isSelected && !isCorrectOption && <X className="text-[#ee6c4d]" size={20} />}
-                </div>
-              </button>
-            );
-          })}
+      {resultadoOffline ? (
+        <div className="student-activity-offline" role="status">
+          <CloudOff size={20} />
+          <div><strong>Progreso guardado en este dispositivo</strong><span>Lo sincronizaremos y sumaremos el XP cuando recuperes conexión.</span></div>
         </div>
+      ) : null}
 
-        {result && (
-          <div className={`mt-6 p-4 rounded-xl ${result.resultado.correcta ? "bg-[#2e9e5b]/10" : "bg-[#ee6c4d]/10"}`}>
-            <div className="flex items-center gap-2 mb-1">
-              {result.resultado.correcta ? (
-                <Check className="text-[#2e9e5b]" size={20} />
-              ) : (
-                <X className="text-[#ee6c4d]" size={20} />
-              )}
-              <strong className={result.resultado.correcta ? "text-[#2e9e5b]" : "text-[#ee6c4d]"}>
-                {result.resultado.correcta ? "¡Correcto!" : "Intenta de nuevo"}
-              </strong>
-            </div>
-            <p className="text-sm text-[#123b2c]/60">
-              {result.resultado.retroalimentacion
-                ?? (result.resultado.correcta ? `Ganaste ${result.resultado.xp_otorgada} XP` : "Sigue practicando")}
-            </p>
-          </div>
-        )}
-
-        {resultadoOffline && (
-          <div className="mt-4 flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 p-4 text-violet-800" role="status">
-            <CloudOff size={20} className="mt-0.5 shrink-0" />
-            <div>
-              <strong className="block">Respuesta guardada en este dispositivo</strong>
-              <span className="text-sm text-violet-700">La validaremos y sumaremos el XP cuando vuelvas a tener conexión.</span>
-            </div>
-          </div>
-        )}
-
-        {result && (
-          <button
-            onClick={handleGoBack}
-            className="w-full mt-4 bg-[#2e9e5b] text-white py-3 rounded-xl font-semibold hover:bg-[#267d4c] transition-colors"
-          >
-            Volver al inicio
-          </button>
-        )}
-      </div>
-    </div>
+      {completed && !completionMutation.isPending ? (
+        <button type="button" className="student-activity-return" onClick={handleGoBack}>Continuar con el tema</button>
+      ) : null}
+    </main>
   );
 }

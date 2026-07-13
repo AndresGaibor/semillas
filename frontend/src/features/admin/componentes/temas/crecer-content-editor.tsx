@@ -151,7 +151,7 @@ function MediaSlot({ icon, resource, emptyText, onChoose, onRemove }: { icon: Re
     >
       <div className="admin-media-slot__preview">{resource?.tipo === "imagen" ? <img src={resource.url_publica} alt="" /> : icon}</div>
       <div className="admin-media-slot__content">
-        <strong title={resource?.titulo}>{resource?.titulo ?? emptyText}</strong>
+        <strong title={resource?.titulo ?? undefined}>{resource?.titulo ?? emptyText}</strong>
         <small>{resource ? `${resource.tipo} · ${formatBytes(resource.tamano_bytes)}` : "Selecciona un recurso de la biblioteca o sube uno nuevo."}</small>
         <div className="flex flex-wrap gap-3">
           <button type="button" onClick={(e) => e.stopPropagation()}>{resource ? "Cambiar recurso" : "Elegir recurso"}</button>
@@ -161,4 +161,4 @@ function MediaSlot({ icon, resource, emptyText, onChoose, onRemove }: { icon: Re
     </div>
   );
 }
-function formatBytes(bytes: number) { if (!bytes) return "0 KB"; const units = ["B", "KB", "MB", "GB"]; const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1); return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`; }
+function formatBytes(bytes: number | null) { if (!bytes) return "0 KB"; const units = ["B", "KB", "MB", "GB"]; const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1); return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`; }

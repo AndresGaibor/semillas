@@ -56,9 +56,9 @@ const acceptByType: Record<TipoSeleccionable, string> = {
 };
 
 const maxFileSizeByType: Record<TipoSeleccionable, number> = {
-  imagen: 10 * 1024 * 1024,
-  audio: 30 * 1024 * 1024,
-  video: 100 * 1024 * 1024,
+  imagen: 5 * 1024 * 1024,
+  audio: 20 * 1024 * 1024,
+  video: 50 * 1024 * 1024,
 };
 
 export function MediaGalleryDialog({
@@ -216,11 +216,11 @@ export function MediaGalleryDialog({
         selectedType === "todos" || resource.tipo === selectedType;
       const matchesSearch =
         !normalizedSearch ||
-        resource.titulo.toLocaleLowerCase().includes(normalizedSearch) ||
+        (resource.titulo ?? "").toLocaleLowerCase().includes(normalizedSearch) ||
         resource.texto_alternativo
           ?.toLocaleLowerCase()
           .includes(normalizedSearch) ||
-        resource.tipo_mime.toLocaleLowerCase().includes(normalizedSearch);
+        (resource.tipo_mime ?? "").toLocaleLowerCase().includes(normalizedSearch);
 
       return matchesType && matchesSearch;
     });
@@ -452,7 +452,7 @@ export function MediaGalleryDialog({
                       ) : null}
 
                       <span className="media-library-card__body">
-                        <strong title={resource.titulo}>
+                        <strong title={resource.titulo ?? undefined}>
                           {resource.titulo || "Recurso sin título"}
                         </strong>
                         <span>
@@ -553,8 +553,8 @@ export function MediaGalleryDialog({
                 </span>
                 <span>
                   <small>Recurso seleccionado</small>
-                  <strong title={pendingResource.titulo}>
-                    {pendingResource.titulo}
+                  <strong title={pendingResource.titulo ?? undefined}>
+                    {pendingResource.titulo || "Recurso sin título"}
                   </strong>
                 </span>
               </>
@@ -662,16 +662,16 @@ function ResourceDetails({
         <MediaPreview
           tipo={resource.tipo}
           url={resource.url_publica}
-          alt={resource.texto_alternativo || resource.titulo}
+          alt={resource.texto_alternativo || resource.titulo || "Recurso multimedia"}
           onExpand={onExpand}
         />
       </div>
 
       <div className="media-library-details__heading">
         <span>{getTypeLabel(resource.tipo)}</span>
-        <h3 title={resource.titulo}>{resource.titulo}</h3>
+        <h3 title={resource.titulo ?? undefined}>{resource.titulo || "Recurso sin título"}</h3>
         <p>
-          {formatBytes(resource.tamano_bytes)} · {resource.tipo_mime}
+          {formatBytes(resource.tamano_bytes)} · {resource.tipo_mime || "Formato no disponible"}
         </p>
       </div>
 
@@ -1028,7 +1028,7 @@ function formatDate(value: string) {
   });
 }
 
-function formatBytes(bytes: number) {
+function formatBytes(bytes: number | null) {
   if (!bytes) return "0 KB";
   const units = ["B", "KB", "MB", "GB"];
   const index = Math.min(

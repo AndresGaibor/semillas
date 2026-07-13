@@ -244,6 +244,22 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
     },
 
     async listarActividades(filtros: { temaId?: string; tipoId?: string; grupoEdadId?: string; estado?: string; limit: number; offset: number }) {
+      let themeIdsByStatus: string[] | null = null;
+      if (filtros.estado && filtros.estado !== "todas") {
+        const estadoTema = filtros.estado === "publicada"
+          ? "publicado"
+          : filtros.estado === "revision"
+            ? "revision"
+            : "borrador";
+        const { data: temasEstado, error: temasEstadoError } = await supabase
+          .from("tema")
+          .select("id")
+          .eq("estado", estadoTema as Database["public"]["Enums"]["estado_publicacion"]);
+        if (temasEstadoError) throw temasEstadoError;
+        themeIdsByStatus = (temasEstado ?? []).map((tema) => tema.id);
+        if (themeIdsByStatus.length === 0) return { actividades: [], total: 0 };
+      }
+
       let query = supabase
         .from("actividad")
         .select(`
@@ -259,7 +275,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       if (filtros.temaId) query = query.eq("tema_id", filtros.temaId);
       if (filtros.tipoId) query = query.eq("tipo_actividad_id", filtros.tipoId);
       if (filtros.grupoEdadId) query = query.eq("grupo_edad_id", filtros.grupoEdadId);
-      if (filtros.estado) query = query.eq("obligatorio", filtros.estado === "publicada");
+      if (themeIdsByStatus) query = query.in("tema_id", themeIdsByStatus);
 
       const { data, error, count } = await query;
       if (error) throw error;
