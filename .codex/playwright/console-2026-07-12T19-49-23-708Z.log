@@ -1,0 +1,18 @@
+[    2862ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=7d00eb98:14335
+[    3269ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://localhost:5174/:0
+[    3309ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8787/perfil:0
+[    3347ms] [WARNING] Bootstrap: vinculacion no completada ErrorApi: Falta token de autenticación
+    at peticion (http://localhost:5174/src/shared/api/api.ts:23:9)
+    at async obtenerMiPerfil (http://localhost:5174/src/features/perfil/profile.api.ts:6:21)
+    at async redirigirSegunOnboarding (http://localhost:5174/src/app/providers.tsx:35:26)
+    at async intentarVinculacion (http://localhost:5174/src/app/providers.tsx:57:5) @ http://localhost:5174/@vite/client:524
+[    7876ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=ac636bc3:14335
+[    8036ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8787/perfil:0
+[    8038ms] [WARNING] Bootstrap: vinculacion no completada ErrorApi: Falta token de autenticación
+    at peticion (http://localhost:5174/src/shared/api/api.ts:23:9)
+    at async obtenerMiPerfil (http://localhost:5174/src/features/perfil/profile.api.ts:6:21)
+    at async redirigirSegunOnboarding (http://localhost:5174/src/app/providers.tsx:35:26)
+    at async intentarVinculacion (http://localhost:5174/src/app/providers.tsx:57:5) @ http://localhost:5174/@vite/client:524
+[    8323ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://localhost:5174/:0
+[   10576ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8787/sync/pull:0
+[   12005ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8787/sync/pull:0

@@ -1,0 +1,47 @@
+- generic [ref=f80e2]:
+  - generic [ref=f80e15]:
+    - banner [ref=f80e16]:
+      - link "Ir al inicio de Semillas" [ref=f80e17] [cursor=pointer]:
+        - /url: /
+        - img "Logo de Semillas" [ref=f80e18]
+        - generic [ref=f80e19]: Semillas
+      - generic [ref=f80e21]:
+        - button "Cambiar a modo oscuro" [ref=f80e22] [cursor=pointer]
+        - button "Abrir ayuda" [ref=f80e25] [cursor=pointer]
+    - main [ref=f80e29]:
+      - region [ref=f80e30]:
+        - generic [ref=f80e31]: Paso 1 de 2
+        - heading "Elige tu franja de edad" [level=1] [ref=f80e32]
+        - paragraph [ref=f80e33]: Adaptaremos las historias y actividades a tu etapa. Podrás cambiarla después.
+      - generic "Progreso del registro" [ref=f80e34]:
+        - generic [ref=f80e35]:
+          - generic [ref=f80e36]: "1"
+          - generic [ref=f80e37]: Tu edad
+        - generic [ref=f80e38]:
+          - generic [ref=f80e39]: "2"
+          - generic [ref=f80e40]: Tu información
+      - group "Selecciona tu franja de edad" [ref=f80e41]:
+        - generic [ref=f80e43]:
+          - generic [ref=f80e44] [cursor=pointer]:
+            - radio "Semillas 5–8 años Descubre a Dios con historias y actividades sencillas." [ref=f80e45]
+            - generic [ref=f80e50]:
+              - generic [ref=f80e51]:
+                - heading "Semillas" [level=2] [ref=f80e52]
+                - generic [ref=f80e53]: 5–8 años
+              - paragraph [ref=f80e54]: Descubre a Dios con historias y actividades sencillas.
+          - generic [ref=f80e55] [cursor=pointer]:
+            - radio "Exploradores 9–12 años Aprende más de Dios y entiende su Palabra." [ref=f80e56]
+            - generic [ref=f80e61]:
+              - generic [ref=f80e62]:
+                - heading "Exploradores" [level=2] [ref=f80e63]
+                - generic [ref=f80e64]: 9–12 años
+              - paragraph [ref=f80e65]: Aprende más de Dios y entiende su Palabra.
+          - generic [ref=f80e66] [cursor=pointer]:
+            - radio "Embajadores 13–17 años Profundiza tu fe y vive con propósito." [ref=f80e67]
+            - generic [ref=f80e72]:
+              - generic [ref=f80e73]:
+                - heading "Embajadores" [level=2] [ref=f80e74]
+                - generic [ref=f80e75]: 13–17 años
+              - paragraph [ref=f80e76]: Profundiza tu fe y vive con propósito.
+      - button "Selecciona una opción" [disabled] [ref=f80e78]
+  - region "Notifications alt+T"

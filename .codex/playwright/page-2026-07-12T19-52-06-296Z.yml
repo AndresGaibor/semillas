@@ -1,0 +1,173 @@
+- generic [ref=f10e2]:
+  - dialog [ref=f10e3]:
+    - banner [ref=f10e4]:
+      - generic [ref=f10e5]: Semillas
+      - generic [ref=f10e11]:
+        - generic [ref=f10e12]:
+          - generic [ref=f10e13]: 👦
+          - generic [ref=f10e15]: "7"
+        - button "Cerrar instalador" [ref=f10e16] [cursor=pointer]
+    - main [ref=f10e20]:
+      - generic [ref=f10e21]:
+        - generic [ref=f10e22]:
+          - heading "Instala Semillas y aprende sin conexión 🌱" [level=1] [ref=f10e23]
+          - paragraph [ref=f10e24]: Instala la app en tu dispositivo y descarga lecciones para aprender en cualquier lugar.
+        - generic [ref=f10e25]: Semillas
+      - generic [ref=f10e38]:
+        - heading "Cómo agregar Semillas a tu pantalla de inicio" [level=2] [ref=f10e39]
+        - generic [ref=f10e40]:
+          - generic [ref=f10e41]:
+            - generic [ref=f10e42]: "1"
+            - strong [ref=f10e47]: Toca Compartir
+            - paragraph [ref=f10e48]: Presiona el botón Compartir en el menú de tu navegador.
+          - generic [ref=f10e49]:
+            - generic [ref=f10e50]: "2"
+            - strong [ref=f10e53]: Elige "Agregar a inicio"
+            - paragraph [ref=f10e54]: Selecciona la opción "Agregar a pantalla de inicio".
+          - generic [ref=f10e55]:
+            - generic [ref=f10e56]: "3"
+            - generic [ref=f10e57]: ✨
+            - strong [ref=f10e62]: ¡Listo!
+            - paragraph [ref=f10e63]: Semillas aparecerá en tu pantalla de inicio como una app.
+        - generic [ref=f10e64]: Es seguro, rápido y no ocupa mucho espacio.
+      - generic [ref=f10e68]:
+        - heading "Disfruta de todas las ventajas" [level=2] [ref=f10e69]
+        - generic [ref=f10e70]:
+          - generic [ref=f10e75]:
+            - strong [ref=f10e76]: Acceso rápido
+            - paragraph [ref=f10e77]: Abre Semillas desde tu pantalla de inicio con un solo toque.
+          - generic [ref=f10e84]:
+            - strong [ref=f10e85]: Uso offline
+            - paragraph [ref=f10e86]: Descarga lecciones y continúa aprendiendo aún sin internet.
+      - generic [ref=f10e87]:
+        - generic [ref=f10e88]:
+          - heading "Descargar lección para offline" [level=2] [ref=f10e90]
+          - button "Ver todas" [ref=f10e93] [cursor=pointer]
+        - generic [ref=f10e94]:
+          - generic [ref=f10e95]:
+            - img "Jesús enseñando con parábolas" [ref=f10e96]
+            - generic [ref=f10e97]:
+              - generic [ref=f10e98]: Senda del Hijo
+              - strong [ref=f10e99]: Jesús enseña con parábolas
+              - generic [ref=f10e100]: 📖 Lección 3 de 24 · 🕒 12 min
+          - button "Descargar lección" [ref=f10e101] [cursor=pointer]
+    - contentinfo [ref=f10e105]:
+      - button "Agregar a pantalla de inicio Instala Semillas como app" [ref=f10e106] [cursor=pointer]:
+        - generic [ref=f10e110]:
+          - generic [ref=f10e111]: Agregar a pantalla de inicio
+          - generic [ref=f10e112]: Instala Semillas como app
+      - button "Descargar ahora Guardar lección para offline" [ref=f10e113] [cursor=pointer]:
+        - generic [ref=f10e117]:
+          - generic [ref=f10e118]: Descargar ahora
+          - generic [ref=f10e119]: Guardar lección para offline
+  - generic [ref=f10e120]:
+    - button "Cerrar menú principal"
+    - complementary [ref=f10e121]:
+      - generic [ref=f10e122]:
+        - img "Semillas" [ref=f10e124]
+        - button "Cerrar menú" [ref=f10e125] [cursor=pointer]:
+          - generic [ref=f10e126]: 
+      - navigation "Navegación principal" [ref=f10e128]:
+        - generic [ref=f10e129]:
+          - link "Inicio" [ref=f10e130] [cursor=pointer]:
+            - /url: /app
+            - generic [ref=f10e131]: 
+          - link "Mis temas" [ref=f10e133] [cursor=pointer]:
+            - /url: /app/temas
+            - generic [ref=f10e134]: 
+          - link "Clubes" [ref=f10e136] [cursor=pointer]:
+            - /url: /app/clubes
+            - generic [ref=f10e137]: 
+          - link "Insignias" [ref=f10e139] [cursor=pointer]:
+            - /url: /app/logros
+            - generic [ref=f10e140]: 
+          - link "Perfil" [ref=f10e142] [cursor=pointer]:
+            - /url: /app/perfil
+            - generic [ref=f10e143]: 
+          - link "Descargas" [ref=f10e145] [cursor=pointer]:
+            - /url: /app/descargas
+            - generic [ref=f10e146]: 
+      - button "Cerrar sesión" [ref=f10e150] [cursor=pointer]:
+        - generic [ref=f10e151]: 
+    - generic [ref=f10e153]:
+      - banner "Encabezado de la pantalla" [ref=f10e154]:
+        - generic [ref=f10e155]:
+          - link "Ir al inicio" [ref=f10e156] [cursor=pointer]:
+            - /url: /app
+            - img "Semillas" [ref=f10e157]
+          - heading "Descargas" [level=1] [ref=f10e158]
+          - generic [ref=f10e159]:
+            - button "Notificaciones" [ref=f10e161] [cursor=pointer]
+            - button "Abrir menú de cuenta" [ref=f10e165] [cursor=pointer]
+      - main [ref=f10e167]:
+        - generic [ref=f10e169]:
+          - region "Estado del contenido sin conexión" [ref=f10e170]:
+            - generic [ref=f10e176]:
+              - generic [ref=f10e177]: Con conexión
+              - heading "Lleva tus lecciones contigo" [level=2] [ref=f10e182]
+              - paragraph [ref=f10e183]: Descarga temas completos con historias, audios, imágenes y actividades para abrirlos cuando no tengas señal.
+            - generic [ref=f10e184]:
+              - button "Gestionar" [ref=f10e185] [cursor=pointer]
+              - button "Ocultar información de descargas" [ref=f10e189] [cursor=pointer]: ×
+          - region "Resumen del almacenamiento offline" [ref=f10e190]:
+            - generic [ref=f10e195]:
+              - generic [ref=f10e196]:
+                - heading "Contenido en este dispositivo" [level=2] [ref=f10e197]
+                - generic [ref=f10e198]: 0 temas
+              - paragraph [ref=f10e199]: 0 MB en paquetes de Semillas · 46 MB usados por la app
+              - generic "0% del almacenamiento disponible utilizado" [ref=f10e200]
+              - generic [ref=f10e201]:
+                - generic [ref=f10e202]: 10286 MB disponibles para el sitio
+                - generic [ref=f10e207]: Protección no concedida
+            - button "Gestionar" [ref=f10e213] [cursor=pointer]
+          - region "Filtros de descargas" [ref=f10e217]:
+            - tablist "Estado de descarga" [ref=f10e218]:
+              - tab "Todos 3" [selected] [ref=f10e219] [cursor=pointer]:
+                - generic [ref=f10e220]: Todos
+                - generic [ref=f10e221]: "3"
+              - tab "En mi dispositivo 0" [ref=f10e222] [cursor=pointer]:
+                - generic [ref=f10e223]: En mi dispositivo
+                - generic [ref=f10e224]: "0"
+              - tab "Por descargar 3" [ref=f10e225] [cursor=pointer]:
+                - generic [ref=f10e226]: Por descargar
+                - generic [ref=f10e227]: "3"
+              - tab "Actualizaciones 0" [ref=f10e228] [cursor=pointer]:
+                - generic [ref=f10e229]: Actualizaciones
+                - generic [ref=f10e230]: "0"
+            - generic [ref=f10e231]:
+              - generic [ref=f10e232]:
+                - generic [ref=f10e236]: Buscar temas para descargar
+                - searchbox "Buscar temas para descargar" [ref=f10e237]
+              - generic [ref=f10e238]:
+                - generic [ref=f10e239]: Ordenar
+                - combobox "Ordenar" [ref=f10e240]:
+                  - option "Más recientes" [selected]
+                  - option "Nombre"
+                  - option "Mayor tamaño"
+          - generic [ref=f10e241]:
+            - article [ref=f10e242]:
+              - generic [ref=f10e243]: Senda del Padre
+              - generic [ref=f10e246]:
+                - heading "El Amor de Dios" [level=3] [ref=f10e249]
+                - generic "Datos del tema"
+                - button "Descargar" [ref=f10e251] [cursor=pointer]
+            - article [ref=f10e255]:
+              - generic [ref=f10e256]: Senda del Hijo
+              - generic [ref=f10e259]:
+                - heading "Jesús enseña con parábolas" [level=3] [ref=f10e262]
+                - generic "Datos del tema"
+                - button "Descargar" [ref=f10e264] [cursor=pointer]
+            - article [ref=f10e268]:
+              - generic [ref=f10e269]: Senda del Espíritu Santo
+              - generic [ref=f10e272]:
+                - heading "Los frutos del Espíritu" [level=3] [ref=f10e275]
+                - generic "Datos del tema"
+                - button "Descargar" [ref=f10e277] [cursor=pointer]
+      - navigation "Navegación principal móvil" [ref=f10e281]:
+        - generic [ref=f10e282]:
+          - button "Inicio" [ref=f10e283] [cursor=pointer]
+          - button "Jugar" [ref=f10e289] [cursor=pointer]
+          - button "Clubes" [ref=f10e295] [cursor=pointer]
+          - button "Logros" [ref=f10e303] [cursor=pointer]
+          - button "Perfil" [ref=f10e309] [cursor=pointer]
+  - region "Notifications alt+T"

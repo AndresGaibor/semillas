@@ -1,0 +1,28 @@
+- generic [ref=f52e2]:
+  - generic [ref=f52e90]:
+    - banner [ref=f52e91]:
+      - link "Ir al inicio de Semillas" [ref=f52e92] [cursor=pointer]:
+        - /url: /
+        - img "Logo de Semillas" [ref=f52e93]
+        - generic [ref=f52e94]:
+          - generic [ref=f52e95]: Semillas
+          - generic [ref=f52e96]: Crecer en la Palabra, vivir Su verdad
+      - generic [ref=f52e97]:
+        - button "Cambiar a modo oscuro" [ref=f52e98] [cursor=pointer]
+        - button "Abrir ayuda" [ref=f52e101] [cursor=pointer]:
+          - generic [ref=f52e105]: Ayuda
+    - main [ref=f52e106]:
+      - region [ref=f52e107]:
+        - generic [ref=f52e108]: Paso 1 de 2
+        - heading "Elige tu franja de edad" [level=1] [ref=f52e109]
+        - paragraph [ref=f52e110]: Adaptaremos las historias y actividades a tu etapa. Podrás cambiarla después.
+      - generic "Progreso del registro" [ref=f52e111]:
+        - generic [ref=f52e112]:
+          - generic [ref=f52e113]: "1"
+          - generic [ref=f52e114]: Tu edad
+        - generic [ref=f52e115]:
+          - generic [ref=f52e116]: "2"
+          - generic [ref=f52e117]: Tu información
+      - group "Selecciona tu franja de edad" [ref=f52e118]
+      - button "Selecciona una opción" [disabled] [ref=f52e140]
+  - region "Notifications alt+T"

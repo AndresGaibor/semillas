@@ -1,0 +1,59 @@
+- generic [ref=f5e2]:
+  - generic [ref=f5e357]:
+    - banner [ref=f5e358]:
+      - link "Ir al inicio de Semillas" [ref=f5e359] [cursor=pointer]:
+        - /url: /
+        - img "Logo de Semillas" [ref=f5e360]
+        - generic [ref=f5e361]: Semillas
+      - generic [ref=f5e363]:
+        - button "Cambiar a modo claro" [pressed] [ref=f5e364] [cursor=pointer]
+        - button "Abrir ayuda" [ref=f5e371] [cursor=pointer]
+    - main [ref=f5e375]:
+      - region [ref=f5e376]:
+        - generic [ref=f5e377]:
+          - generic [ref=f5e378]:
+            - generic [ref=f5e379]: Paso 2 de 2
+            - heading "Crea tu perfil" [level=1] [ref=f5e380]
+            - paragraph [ref=f5e381]: Cuéntanos un poco sobre ti para personalizar tu experiencia en Semillas.
+          - progressbar "Progreso del registro" [ref=f5e382]:
+            - 'button "Volver al paso 1: Tu edad" [ref=f5e383] [cursor=pointer]':
+              - generic [ref=f5e387]: Tu edad
+            - generic [ref=f5e388]:
+              - generic [ref=f5e389]: "2"
+              - generic [ref=f5e390]: Perfil
+          - region "1 ¿Cómo quieres que te llamemos?" [ref=f5e391]:
+            - generic [ref=f5e392]:
+              - generic [ref=f5e393]: "1"
+              - generic [ref=f5e394]: ¿Cómo quieres que te llamemos?
+            - textbox [ref=f5e399]:
+              - /placeholder: Escribe tu apodo
+            - generic [ref=f5e400]: 0/20 caracteres
+          - group "2 Elige un avatar que te represente" [ref=f5e401]:
+            - generic [ref=f5e402]:
+              - generic [ref=f5e403]: "2"
+              - generic [ref=f5e404]: Elige un avatar que te represente
+            - generic [ref=f5e405]:
+              - generic "Seleccionar avatar 1" [ref=f5e406] [cursor=pointer]:
+                - radio "Seleccionar avatar 1" [checked]
+              - generic "Seleccionar avatar 2" [ref=f5e410] [cursor=pointer]:
+                - radio "Seleccionar avatar 2"
+              - generic "Seleccionar avatar 3" [ref=f5e411] [cursor=pointer]:
+                - radio "Seleccionar avatar 3"
+              - generic "Seleccionar avatar 4" [ref=f5e412] [cursor=pointer]:
+                - radio "Seleccionar avatar 4"
+              - generic "Seleccionar avatar 5" [ref=f5e413] [cursor=pointer]:
+                - radio "Seleccionar avatar 5"
+              - generic "Seleccionar avatar 6" [ref=f5e414] [cursor=pointer]:
+                - radio "Seleccionar avatar 6"
+              - generic "Seleccionar avatar 7" [ref=f5e415] [cursor=pointer]:
+                - radio "Seleccionar avatar 7"
+              - generic "Seleccionar avatar 8" [ref=f5e416] [cursor=pointer]:
+                - radio "Seleccionar avatar 8"
+              - generic "Seleccionar avatar 9" [ref=f5e417] [cursor=pointer]:
+                - radio "Seleccionar avatar 9"
+              - generic "Seleccionar avatar 10" [ref=f5e418] [cursor=pointer]:
+                - radio "Seleccionar avatar 10"
+        - generic [ref=f5e420]:
+          - button "Atrás" [ref=f5e421] [cursor=pointer]
+          - button "Finalizar" [disabled] [ref=f5e425]
+  - region "Notifications alt+T"

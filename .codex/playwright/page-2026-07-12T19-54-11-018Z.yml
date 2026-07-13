@@ -1,0 +1,184 @@
+- generic [ref=f36e2]:
+  - dialog [ref=f36e3]:
+    - banner [ref=f36e4]:
+      - generic [ref=f36e5]: Semillas
+      - generic [ref=f36e11]:
+        - generic [ref=f36e12]:
+          - generic [ref=f36e13]: 👦
+          - generic [ref=f36e15]: "7"
+        - button "Cerrar instalador" [ref=f36e16] [cursor=pointer]
+    - main [ref=f36e20]:
+      - generic [ref=f36e21]:
+        - generic [ref=f36e22]:
+          - heading "Instala Semillas y aprende sin conexión 🌱" [level=1] [ref=f36e23]
+          - paragraph [ref=f36e24]: Instala la app en tu dispositivo y descarga lecciones para aprender en cualquier lugar.
+        - generic [ref=f36e25]: Semillas
+      - generic [ref=f36e38]:
+        - heading "Cómo agregar Semillas a tu pantalla de inicio" [level=2] [ref=f36e39]
+        - generic [ref=f36e40]:
+          - generic [ref=f36e41]:
+            - generic [ref=f36e42]: "1"
+            - strong [ref=f36e47]: Toca Compartir
+            - paragraph [ref=f36e48]: Presiona el botón Compartir en el menú de tu navegador.
+          - generic [ref=f36e49]:
+            - generic [ref=f36e50]: "2"
+            - strong [ref=f36e53]: Elige "Agregar a inicio"
+            - paragraph [ref=f36e54]: Selecciona la opción "Agregar a pantalla de inicio".
+          - generic [ref=f36e55]:
+            - generic [ref=f36e56]: "3"
+            - generic [ref=f36e57]: ✨
+            - strong [ref=f36e62]: ¡Listo!
+            - paragraph [ref=f36e63]: Semillas aparecerá en tu pantalla de inicio como una app.
+        - generic [ref=f36e64]: Es seguro, rápido y no ocupa mucho espacio.
+      - generic [ref=f36e68]:
+        - heading "Disfruta de todas las ventajas" [level=2] [ref=f36e69]
+        - generic [ref=f36e70]:
+          - generic [ref=f36e75]:
+            - strong [ref=f36e76]: Acceso rápido
+            - paragraph [ref=f36e77]: Abre Semillas desde tu pantalla de inicio con un solo toque.
+          - generic [ref=f36e84]:
+            - strong [ref=f36e85]: Uso offline
+            - paragraph [ref=f36e86]: Descarga lecciones y continúa aprendiendo aún sin internet.
+      - generic [ref=f36e87]:
+        - generic [ref=f36e88]:
+          - heading "Descargar lección para offline" [level=2] [ref=f36e90]
+          - button "Ver todas" [ref=f36e93] [cursor=pointer]
+        - generic [ref=f36e94]:
+          - generic [ref=f36e95]:
+            - img "Jesús enseñando con parábolas" [ref=f36e96]
+            - generic [ref=f36e97]:
+              - generic [ref=f36e98]: Senda del Hijo
+              - strong [ref=f36e99]: Jesús enseña con parábolas
+              - generic [ref=f36e100]: 📖 Lección 3 de 24 · 🕒 12 min
+          - button "Descargar lección" [ref=f36e101] [cursor=pointer]
+    - contentinfo [ref=f36e105]:
+      - button "Agregar a pantalla de inicio Instala Semillas como app" [ref=f36e106] [cursor=pointer]:
+        - generic [ref=f36e110]:
+          - generic [ref=f36e111]: Agregar a pantalla de inicio
+          - generic [ref=f36e112]: Instala Semillas como app
+      - button "Descargar ahora Guardar lección para offline" [ref=f36e113] [cursor=pointer]:
+        - generic [ref=f36e117]:
+          - generic [ref=f36e118]: Descargar ahora
+          - generic [ref=f36e119]: Guardar lección para offline
+  - generic [ref=f36e120]:
+    - button "Cerrar menú principal"
+    - complementary [ref=f36e121]:
+      - generic [ref=f36e122]:
+        - img "Semillas" [ref=f36e124]
+        - button "Cerrar menú" [ref=f36e125] [cursor=pointer]:
+          - generic [ref=f36e126]: 
+      - navigation "Navegación principal" [ref=f36e128]:
+        - generic [ref=f36e129]:
+          - link "Inicio" [ref=f36e130] [cursor=pointer]:
+            - /url: /app
+            - generic [ref=f36e131]: 
+          - link "Mis temas" [ref=f36e133] [cursor=pointer]:
+            - /url: /app/temas
+            - generic [ref=f36e134]: 
+          - link "Clubes" [ref=f36e137] [cursor=pointer]:
+            - /url: /app/clubes
+            - generic [ref=f36e138]: 
+          - link "Insignias" [ref=f36e140] [cursor=pointer]:
+            - /url: /app/logros
+            - generic [ref=f36e141]: 
+          - link "Perfil" [ref=f36e143] [cursor=pointer]:
+            - /url: /app/perfil
+            - generic [ref=f36e144]: 
+          - link "Descargas" [ref=f36e146] [cursor=pointer]:
+            - /url: /app/descargas
+            - generic [ref=f36e147]: 
+      - button "Cerrar sesión" [ref=f36e150] [cursor=pointer]:
+        - generic [ref=f36e151]: 
+    - generic [ref=f36e153]:
+      - banner "Encabezado de la pantalla" [ref=f36e154]:
+        - generic [ref=f36e155]:
+          - link "Ir al inicio" [ref=f36e156] [cursor=pointer]:
+            - /url: /app
+            - img "Semillas" [ref=f36e157]
+          - heading "Mis temas" [level=1] [ref=f36e158]
+          - generic [ref=f36e159]:
+            - button "Notificaciones" [ref=f36e161] [cursor=pointer]
+            - button "Abrir menú de cuenta" [ref=f36e165] [cursor=pointer]
+      - main [ref=f36e167]:
+        - region "Catálogo de temas" [ref=f36e170]:
+          - generic [ref=f36e172]:
+            - generic [ref=f36e178]:
+              - strong [ref=f36e179]: "3"
+              - generic [ref=f36e180]: Temas
+            - generic [ref=f36e187]:
+              - strong [ref=f36e188]: "0"
+              - generic [ref=f36e189]: Completados
+            - generic [ref=f36e195]:
+              - strong [ref=f36e196]: "0"
+              - generic [ref=f36e197]: En progreso
+          - generic "Filtros de temas" [ref=f36e198]:
+            - generic [ref=f36e199]:
+              - button "Todas" [pressed] [ref=f36e200] [cursor=pointer]
+              - button "Padre" [ref=f36e208] [cursor=pointer]
+              - button "Hijo" [ref=f36e216] [cursor=pointer]
+              - button "Espíritu" [ref=f36e224] [cursor=pointer]
+            - generic [ref=f36e232]:
+              - button "Todos 3" [ref=f36e233] [cursor=pointer]:
+                - generic [ref=f36e234]: Todos
+                - generic [ref=f36e235]: "3"
+              - button "Completados 0" [ref=f36e236] [cursor=pointer]:
+                - generic [ref=f36e237]: Completados
+                - generic [ref=f36e238]: "0"
+              - button "En progreso 0" [ref=f36e239] [cursor=pointer]:
+                - generic [ref=f36e240]: En progreso
+                - generic [ref=f36e241]: "0"
+              - button "Favoritos 0" [ref=f36e242] [cursor=pointer]:
+                - generic [ref=f36e243]: Favoritos
+                - generic [ref=f36e244]: "0"
+            - textbox "Buscar por título o descripción" [ref=f36e251]
+          - generic [ref=f36e252]:
+            - button "El Amor de Dios Agregar El Amor de Dios a favoritos Senda del Padre El Amor de Dios 20 min 150 XP 0% Empezar tema" [ref=f36e253] [cursor=pointer]:
+              - generic [ref=f36e254]:
+                - img "El Amor de Dios" [ref=f36e255]
+                - button "Agregar El Amor de Dios a favoritos" [ref=f36e256]
+              - generic [ref=f36e259]:
+                - generic [ref=f36e260]:
+                  - generic [ref=f36e261]: Senda del Padre
+                  - heading "El Amor de Dios" [level=3] [ref=f36e263]
+                  - generic [ref=f36e264]:
+                    - generic [ref=f36e265]: 20 min
+                    - generic [ref=f36e269]: 150 XP
+                - generic [ref=f36e273]:
+                  - generic [ref=f36e274]: 0%
+                  - generic [ref=f36e277]: Empezar tema
+            - button "Jesús enseña con parábolas Agregar Jesús enseña con parábolas a favoritos Senda del Hijo Jesús enseña con parábolas 20 min 150 XP 0% Empezar tema" [ref=f36e278] [cursor=pointer]:
+              - generic [ref=f36e279]:
+                - img "Jesús enseña con parábolas" [ref=f36e280]
+                - button "Agregar Jesús enseña con parábolas a favoritos" [ref=f36e281]
+              - generic [ref=f36e284]:
+                - generic [ref=f36e285]:
+                  - generic [ref=f36e286]: Senda del Hijo
+                  - heading "Jesús enseña con parábolas" [level=3] [ref=f36e288]
+                  - generic [ref=f36e289]:
+                    - generic [ref=f36e290]: 20 min
+                    - generic [ref=f36e294]: 150 XP
+                - generic [ref=f36e298]:
+                  - generic [ref=f36e299]: 0%
+                  - generic [ref=f36e302]: Empezar tema
+            - button "Los frutos del Espíritu Agregar Los frutos del Espíritu a favoritos Senda del Espíritu Santo Los frutos del Espíritu 20 min 150 XP 0% Empezar tema" [ref=f36e303] [cursor=pointer]:
+              - generic [ref=f36e304]:
+                - img "Los frutos del Espíritu" [ref=f36e305]
+                - button "Agregar Los frutos del Espíritu a favoritos" [ref=f36e306]
+              - generic [ref=f36e309]:
+                - generic [ref=f36e310]:
+                  - generic [ref=f36e311]: Senda del Espíritu Santo
+                  - heading "Los frutos del Espíritu" [level=3] [ref=f36e312]
+                  - generic [ref=f36e313]:
+                    - generic [ref=f36e314]: 20 min
+                    - generic [ref=f36e318]: 150 XP
+                - generic [ref=f36e322]:
+                  - generic [ref=f36e323]: 0%
+                  - generic [ref=f36e326]: Empezar tema
+      - navigation "Navegación principal móvil" [ref=f36e327]:
+        - generic [ref=f36e328]:
+          - button "Inicio" [ref=f36e329] [cursor=pointer]
+          - button "Jugar" [ref=f36e335] [cursor=pointer]
+          - button "Clubes" [ref=f36e341] [cursor=pointer]
+          - button "Logros" [ref=f36e349] [cursor=pointer]
+          - button "Perfil" [ref=f36e355] [cursor=pointer]
+  - region "Notifications alt+T"

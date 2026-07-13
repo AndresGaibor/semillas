@@ -1,0 +1,12 @@
+- generic [ref=f75e2]:
+  - main [ref=f75e3]:
+    - generic [ref=f75e4]:
+      - generic [ref=f75e10]:
+        - heading "Acceso restringido" [level=1] [ref=f75e11]
+        - paragraph [ref=f75e12]: Tu cuenta actual no tiene permisos para esta seccion. Si crees que es un error, contacta a un administrador.
+      - generic [ref=f75e13]:
+        - link "Volver a mi inicio" [ref=f75e14] [cursor=pointer]:
+          - /url: /app
+        - link "Iniciar sesion con otra cuenta" [ref=f75e15] [cursor=pointer]:
+          - /url: /login
+  - region "Notifications alt+T"

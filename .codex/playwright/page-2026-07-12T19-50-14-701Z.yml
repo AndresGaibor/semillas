@@ -1,0 +1,137 @@
+- generic [ref=f5e2]:
+  - generic [ref=f5e14]:
+    - banner [ref=f5e15]:
+      - generic [ref=f5e16]:
+        - link "Ir al inicio de Semillas" [ref=f5e17] [cursor=pointer]:
+          - /url: "#top"
+          - img "Logo de Semillas" [ref=f5e18]
+          - generic [ref=f5e19]:
+            - generic [ref=f5e20]: Semillas
+            - generic [ref=f5e21]: Crecer en la Palabra, vivir Su verdad
+        - button "Cerrar menú" [expanded] [ref=f5e194] [cursor=pointer]
+      - generic [ref=f5e22]:
+        - navigation "Navegación principal" [ref=f5e23]:
+          - link "Inicio" [ref=f5e24] [cursor=pointer]:
+            - /url: "#top"
+          - link "Sendas" [ref=f5e25] [cursor=pointer]:
+            - /url: "#sendas"
+          - link "Clubes" [ref=f5e26] [cursor=pointer]:
+            - /url: "#clubes"
+          - link "Metodología" [ref=f5e27] [cursor=pointer]:
+            - /url: "#metodologia"
+        - generic [ref=f5e28]:
+          - button "Cambiar a modo claro" [active] [pressed] [ref=f5e198] [cursor=pointer]
+          - button [ref=f5e32] [cursor=pointer]:
+            - link "Entrar Web" [ref=f5e34]:
+              - /url: /login?redirect=%2Fonboarding
+          - button "APK próximamente" [disabled]
+    - main [ref=f5e37]:
+      - generic [ref=f5e38]:
+        - generic [ref=f5e39]:
+          - generic [ref=f5e40]: Aprender puede ser una aventura
+          - heading [level=1] [ref=f5e41]:
+            - text: Aprende la Palabra de Dios
+            - generic [ref=f5e42]: jugando
+          - paragraph [ref=f5e46]: Semillas es una plataforma cristiana para niños que enseña el evangelio de forma lúdica, interactiva y confiable.
+          - button [ref=f5e48] [cursor=pointer]:
+            - link "Comenzar ahora" [ref=f5e50]:
+              - /url: /login?redirect=%2Fonboarding
+          - generic "Beneficios clave de la plataforma" [ref=f5e53]:
+            - generic [ref=f5e54]: Contenido seguro
+            - generic [ref=f5e59]: Para niños de 5 a 14 años
+            - generic [ref=f5e64]: Basada en la Biblia
+        - img "Jesús caminando con niños en un paisaje alegre" [ref=f5e69]
+      - generic [ref=f5e70]:
+        - generic [ref=f5e71]:
+          - generic [ref=f5e72]: Explora
+          - heading "Las tres Sendas" [level=2] [ref=f5e73]
+          - paragraph [ref=f5e74]: Recorre un camino de fe pensado para aprender, crecer y compartir.
+        - generic [ref=f5e75]:
+          - link "Explorar la Senda del Padre" [ref=f5e76] [cursor=pointer]:
+            - /url: /login?redirect=%2Fonboarding
+            - generic [ref=f5e77]:
+              - generic [ref=f5e78]: Senda del
+              - heading "Padre" [level=3] [ref=f5e79]
+              - paragraph [ref=f5e80]: Dios es nuestro Padre amoroso.
+          - link "Explorar la Senda del Hijo" [ref=f5e84] [cursor=pointer]:
+            - /url: /login?redirect=%2Fonboarding
+            - generic [ref=f5e85]:
+              - generic [ref=f5e86]: Senda del
+              - heading "Hijo" [level=3] [ref=f5e87]
+              - paragraph [ref=f5e88]: Jesús es nuestro Salvador y amigo.
+          - link "Explorar la Senda del Espíritu Santo" [ref=f5e92] [cursor=pointer]:
+            - /url: /login?redirect=%2Fonboarding
+            - generic [ref=f5e93]:
+              - generic [ref=f5e94]: Senda del
+              - heading "Espíritu Santo" [level=3] [ref=f5e95]
+              - paragraph [ref=f5e96]: El Espíritu Santo nos guía y fortalece.
+      - generic [ref=f5e100]:
+        - generic [ref=f5e101]:
+          - generic [ref=f5e102]: Cómo funciona
+          - heading "Una experiencia simple y divertida" [level=2] [ref=f5e103]
+          - paragraph [ref=f5e104]: Todo está pensado para que niñas y niños aprendan de forma clara, segura y motivadora.
+        - generic [ref=f5e105]:
+          - article [ref=f5e106]:
+            - generic [ref=f5e111]:
+              - heading "Aprende con CRECER" [level=3] [ref=f5e112]
+              - paragraph [ref=f5e113]: Una metodología sencilla que convierte el aprendizaje en una aventura espiritual.
+          - article [ref=f5e114]:
+            - generic [ref=f5e120]:
+              - heading "Funciona offline" [level=3] [ref=f5e121]
+              - paragraph [ref=f5e122]: Descarga la app y continúa aprendiendo incluso sin conexión a internet.
+          - article [ref=f5e123]:
+            - generic [ref=f5e131]:
+              - heading "Gana insignias y XP" [level=3] [ref=f5e132]
+              - paragraph [ref=f5e133]: Completa actividades, gana experiencia y desbloquea recompensas.
+      - generic [ref=f5e134]:
+        - generic [ref=f5e135]:
+          - generic [ref=f5e136]: Comunidad
+          - heading "Únete a los Clubes" [level=2] [ref=f5e137]
+          - paragraph [ref=f5e138]: Comparte lo que aprendes en grupo, en compañía de amigos, y forma parte de una comunidad cristiana llena de alegría.
+          - button [ref=f5e139] [cursor=pointer]:
+            - link "Ver clubes" [ref=f5e141]:
+              - /url: /login?redirect=%2Fonboarding
+        - generic:
+          - img "Niños cuidando una pequeña planta"
+      - generic [ref=f5e147]:
+        - generic [ref=f5e148]:
+          - generic [ref=f5e149]: Metodología
+          - heading "Nuestra metodología CRECER" [level=2] [ref=f5e150]
+          - paragraph [ref=f5e151]: Seis pasos para conocer, vivir y compartir la Palabra de Dios.
+        - generic "Pasos de la metodología CRECER" [ref=f5e152]:
+          - article [ref=f5e153]:
+            - generic [ref=f5e154]: C
+            - heading "Conectar" [level=3] [ref=f5e155]
+            - paragraph [ref=f5e156]: Me conecto con Dios y Su verdad.
+          - article [ref=f5e157]:
+            - generic [ref=f5e158]: R
+            - heading "Relatar" [level=3] [ref=f5e159]
+            - paragraph [ref=f5e160]: Escucho y comprendo lo que dice la Biblia.
+          - article [ref=f5e161]:
+            - generic [ref=f5e162]: E
+            - heading "Enseñar" [level=3] [ref=f5e163]
+            - paragraph [ref=f5e164]: Aprendo y aplico en mi vida.
+          - article [ref=f5e165]:
+            - generic [ref=f5e166]: C
+            - heading "Comprobar" [level=3] [ref=f5e167]
+            - paragraph [ref=f5e168]: Refuerzo lo aprendido con actividades.
+          - article [ref=f5e169]:
+            - generic [ref=f5e170]: E
+            - heading "Experimentar" [level=3] [ref=f5e171]
+            - paragraph [ref=f5e172]: Vivo lo aprendido en lo cotidiano.
+          - article [ref=f5e173]:
+            - generic [ref=f5e174]: R
+            - heading "Recompensar" [level=3] [ref=f5e175]
+            - paragraph [ref=f5e176]: Dios me motiva a seguir creciendo.
+    - contentinfo [ref=f5e177]:
+      - generic [ref=f5e178]:
+        - generic [ref=f5e179]:
+          - img "Logo de Semillas" [ref=f5e180]
+          - generic [ref=f5e181]: Semillas
+        - paragraph [ref=f5e182]: Crecer en la Palabra, vivir Su verdad
+        - paragraph [ref=f5e183]: © 2026 Semillas. Todos los derechos reservados.
+      - generic [ref=f5e184]: Hecho con amor para la próxima generación.
+      - generic [ref=f5e189]:
+        - paragraph [ref=f5e190]: “Id por todo el mundo y predicad el evangelio a toda criatura.”
+        - generic [ref=f5e191]: Marcos 16:15
+  - region "Notifications alt+T"

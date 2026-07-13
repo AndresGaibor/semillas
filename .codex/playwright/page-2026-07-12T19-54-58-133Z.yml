@@ -1,0 +1,123 @@
+- generic [ref=f47e2]:
+  - generic [ref=f47e3]:
+    - button "Cerrar menú principal"
+    - complementary [ref=f47e4]:
+      - generic [ref=f47e5]:
+        - img "Semillas" [ref=f47e7]
+        - button "Cerrar menú" [ref=f47e8] [cursor=pointer]:
+          - generic [ref=f47e9]: 
+      - navigation "Navegación principal" [ref=f47e11]:
+        - generic [ref=f47e12]:
+          - link "Inicio" [ref=f47e13] [cursor=pointer]:
+            - /url: /app
+            - generic [ref=f47e14]: 
+          - link "Mis temas" [ref=f47e16] [cursor=pointer]:
+            - /url: /app/temas
+            - generic [ref=f47e17]: 
+          - link "Clubes" [ref=f47e20] [cursor=pointer]:
+            - /url: /app/clubes
+            - generic [ref=f47e21]: 
+          - link "Insignias" [ref=f47e23] [cursor=pointer]:
+            - /url: /app/logros
+            - generic [ref=f47e24]: 
+          - link "Perfil" [ref=f47e26] [cursor=pointer]:
+            - /url: /app/perfil
+            - generic [ref=f47e27]: 
+          - link "Descargas" [ref=f47e29] [cursor=pointer]:
+            - /url: /app/descargas
+            - generic [ref=f47e30]: 
+      - button "Cerrar sesión" [ref=f47e33] [cursor=pointer]:
+        - generic [ref=f47e34]: 
+    - generic [ref=f47e36]:
+      - banner "Encabezado de la pantalla" [ref=f47e37]:
+        - generic [ref=f47e38]:
+          - link "Ir al inicio" [ref=f47e39] [cursor=pointer]:
+            - /url: /app
+            - img "Semillas" [ref=f47e40]
+          - heading "Mis temas" [level=1] [ref=f47e41]
+          - generic [ref=f47e42]:
+            - button "Notificaciones" [ref=f47e44] [cursor=pointer]
+            - button "Abrir menú de cuenta" [ref=f47e48] [cursor=pointer]
+      - main [ref=f47e50]:
+        - region "Catálogo de temas" [ref=f47e53]:
+          - generic [ref=f47e55]:
+            - generic [ref=f47e61]:
+              - strong [ref=f47e62]: "3"
+              - generic [ref=f47e63]: Temas
+            - generic [ref=f47e70]:
+              - strong [ref=f47e71]: "0"
+              - generic [ref=f47e72]: Completados
+            - generic [ref=f47e78]:
+              - strong [ref=f47e79]: "0"
+              - generic [ref=f47e80]: En progreso
+          - generic "Filtros de temas" [ref=f47e81]:
+            - generic [ref=f47e82]:
+              - button "Todas" [pressed] [ref=f47e83] [cursor=pointer]
+              - button "Padre" [ref=f47e91] [cursor=pointer]
+              - button "Hijo" [ref=f47e99] [cursor=pointer]
+              - button "Espíritu" [ref=f47e107] [cursor=pointer]
+            - generic [ref=f47e115]:
+              - button "Todos 3" [ref=f47e116] [cursor=pointer]:
+                - generic [ref=f47e117]: Todos
+                - generic [ref=f47e118]: "3"
+              - button "Completados 0" [ref=f47e119] [cursor=pointer]:
+                - generic [ref=f47e120]: Completados
+                - generic [ref=f47e121]: "0"
+              - button "En progreso 0" [ref=f47e122] [cursor=pointer]:
+                - generic [ref=f47e123]: En progreso
+                - generic [ref=f47e124]: "0"
+              - button "Favoritos 0" [ref=f47e125] [cursor=pointer]:
+                - generic [ref=f47e126]: Favoritos
+                - generic [ref=f47e127]: "0"
+            - textbox "Buscar por título o descripción" [ref=f47e134]
+          - generic [ref=f47e135]:
+            - button "El Amor de Dios Agregar El Amor de Dios a favoritos Senda del Padre El Amor de Dios 20 min 150 XP 0% Empezar tema" [ref=f47e136] [cursor=pointer]:
+              - generic [ref=f47e137]:
+                - img "El Amor de Dios" [ref=f47e138]
+                - button "Agregar El Amor de Dios a favoritos" [ref=f47e139]
+              - generic [ref=f47e142]:
+                - generic [ref=f47e143]:
+                  - generic [ref=f47e144]: Senda del Padre
+                  - heading "El Amor de Dios" [level=3] [ref=f47e146]
+                  - generic [ref=f47e147]:
+                    - generic [ref=f47e148]: 20 min
+                    - generic [ref=f47e152]: 150 XP
+                - generic [ref=f47e156]:
+                  - generic [ref=f47e157]: 0%
+                  - generic [ref=f47e160]: Empezar tema
+            - button "Jesús enseña con parábolas Agregar Jesús enseña con parábolas a favoritos Senda del Hijo Jesús enseña con parábolas 20 min 150 XP 0% Empezar tema" [ref=f47e161] [cursor=pointer]:
+              - generic [ref=f47e162]:
+                - img "Jesús enseña con parábolas" [ref=f47e163]
+                - button "Agregar Jesús enseña con parábolas a favoritos" [ref=f47e164]
+              - generic [ref=f47e167]:
+                - generic [ref=f47e168]:
+                  - generic [ref=f47e169]: Senda del Hijo
+                  - heading "Jesús enseña con parábolas" [level=3] [ref=f47e171]
+                  - generic [ref=f47e172]:
+                    - generic [ref=f47e173]: 20 min
+                    - generic [ref=f47e177]: 150 XP
+                - generic [ref=f47e181]:
+                  - generic [ref=f47e182]: 0%
+                  - generic [ref=f47e185]: Empezar tema
+            - button "Los frutos del Espíritu Agregar Los frutos del Espíritu a favoritos Senda del Espíritu Santo Los frutos del Espíritu 20 min 150 XP 0% Empezar tema" [ref=f47e186] [cursor=pointer]:
+              - generic [ref=f47e187]:
+                - img "Los frutos del Espíritu" [ref=f47e188]
+                - button "Agregar Los frutos del Espíritu a favoritos" [ref=f47e189]
+              - generic [ref=f47e192]:
+                - generic [ref=f47e193]:
+                  - generic [ref=f47e194]: Senda del Espíritu Santo
+                  - heading "Los frutos del Espíritu" [level=3] [ref=f47e195]
+                  - generic [ref=f47e196]:
+                    - generic [ref=f47e197]: 20 min
+                    - generic [ref=f47e201]: 150 XP
+                - generic [ref=f47e205]:
+                  - generic [ref=f47e206]: 0%
+                  - generic [ref=f47e209]: Empezar tema
+      - navigation "Navegación principal móvil" [ref=f47e210]:
+        - generic [ref=f47e211]:
+          - button "Inicio" [ref=f47e212] [cursor=pointer]
+          - button "Jugar" [ref=f47e218] [cursor=pointer]
+          - button "Clubes" [ref=f47e224] [cursor=pointer]
+          - button "Logros" [ref=f47e232] [cursor=pointer]
+          - button "Perfil" [ref=f47e238] [cursor=pointer]
+  - region "Notifications alt+T"

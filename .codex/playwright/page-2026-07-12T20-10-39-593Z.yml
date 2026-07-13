@@ -1,0 +1,36 @@
+- generic [ref=f77e2]:
+  - generic [ref=f77e16]:
+    - banner [ref=f77e17]:
+      - link "Ir al inicio de Semillas" [ref=f77e18] [cursor=pointer]:
+        - /url: /
+        - img "Logo de Semillas" [ref=f77e19]
+        - generic [ref=f77e20]: Semillas
+      - generic [ref=f77e22]:
+        - button "Cambiar a modo oscuro" [ref=f77e23] [cursor=pointer]
+        - 'generic "Idioma actual: Español" [ref=f77e26]': ES
+    - main [ref=f77e31]:
+      - region "Opciones de inicio de sesión" [ref=f77e32]:
+        - generic [ref=f77e33]:
+          - generic [ref=f77e34]:
+            - generic [ref=f77e35]: Tu aventura comienza aquí
+            - heading "Bienvenido a Semillas" [level=1] [ref=f77e36]
+            - paragraph [ref=f77e37]: Inicia sesión para continuar tu aventura de fe y aprendizaje.
+          - tablist "Métodos de acceso" [ref=f77e38]:
+            - tab "Redes sociales" [selected] [ref=f77e39] [cursor=pointer]
+            - tab "Correo electrónico" [ref=f77e40] [cursor=pointer]
+          - group "Opciones de acceso" [ref=f77e41]:
+            - button "Continuar con Google" [ref=f77e42] [cursor=pointer]
+            - button "Continuar con Facebook" [ref=f77e44] [cursor=pointer]
+            - separator [ref=f77e46]:
+              - generic [ref=f77e48]: o explora sin cuenta
+            - button "Jugar como invitado Explora sin cuenta. Tu progreso no se guardará." [ref=f77e50] [cursor=pointer]:
+              - generic [ref=f77e52]:
+                - generic [ref=f77e53]: Jugar como invitado
+                - generic [ref=f77e54]: Explora sin cuenta. Tu progreso no se guardará.
+          - generic "Características de Semillas" [ref=f77e55]:
+            - generic [ref=f77e56]: Contenido seguro
+            - generic [ref=f77e60]: Aprende jugando
+            - generic [ref=f77e64]: Basada en la Biblia
+          - paragraph [ref=f77e67]:
+            - generic [ref=f77e72]: Tu información está protegida.
+  - region "Notifications alt+T"

@@ -9,9 +9,20 @@
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "storybook:build": "storybook build",
     "test": "bun test src",
     "storybook:coverage": "node ../scripts/check-storybook-coverage.mjs",
-    "storybook:check": "bun run storybook:coverage && bun run build-storybook",
+    "storybook:categories": "node ../scripts/migrate-storybook-categories.mjs",
+    "storybook:categories:write": "node ../scripts/migrate-storybook-categories.mjs --write",
+    "storybook:determinism": "node ../scripts/check-storybook-determinism.mjs",
+    "storybook:determinism:write": "node ../scripts/check-storybook-determinism.mjs --write",
+    "storybook:tags": "node ../scripts/check-storybook-tags.mjs",
+    "storybook:tags:write": "node ../scripts/check-storybook-tags.mjs --write",
+    "storybook:architecture": "node ../scripts/check-storybook-architecture.mjs",
+    "storybook:test": "vitest --config vitest.config.ts --run",
+    "storybook:test:a11y": "vitest --config vitest.config.ts --run",
+    "storybook:check": "bun run storybook:categories && bun run storybook:determinism && bun run storybook:tags && bun run storybook:architecture && bun run storybook:coverage && bun run storybook:build",
+    "storybook:ci": "bun run storybook:check && bun run storybook:test",
     "ui:check": "node ../scripts/check-ui-ux-slop.mjs"
   },
   "dependencies": {
@@ -38,8 +49,9 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^10.5.0",
-    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/addon-a11y": "10.4.6",
+    "@storybook/addon-docs": "10.4.6",
+    "@storybook/addon-vitest": "10.4.6",
     "@storybook/react-vite": "^10.4.6",
     "@tailwindcss/vite": "4.3.2",
     "@tanstack/router-plugin": "1.168.19",
@@ -48,11 +60,16 @@
     "@types/react-dom": "19.2.3",
     "@types/uuid": "11.0.0",
     "@vitejs/plugin-react": "6.0.3",
+    "@vitest/browser": "4.1.10",
+    "@vitest/browser-playwright": "4.1.10",
+    "msw": "^2.15.0",
+    "msw-storybook-addon": "^2.0.7",
     "storybook": "^10.4.6",
     "tailwindcss": "4.3.2",
     "tw-animate-css": "^1.4.0",
     "typescript": "7.0.2",
     "vite": "8.1.4",
-    "vite-plugin-pwa": "1.3.0"
+    "vite-plugin-pwa": "1.3.0",
+    "vitest": "^4.1.10"
   }
 }

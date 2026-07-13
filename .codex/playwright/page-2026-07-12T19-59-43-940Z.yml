@@ -1,0 +1,105 @@
+- generic [ref=f52e2]:
+  - generic [ref=f52e247]:
+    - complementary [ref=f52e248]:
+      - generic [ref=f52e249]:
+        - img "Semillas" [ref=f52e251]
+        - text: 
+      - navigation "Navegación principal" [ref=f52e252]:
+        - generic [ref=f52e253]:
+          - link "Inicio" [ref=f52e254] [cursor=pointer]:
+            - /url: /app
+            - generic [ref=f52e255]: 
+          - link "Mis temas" [ref=f52e258] [cursor=pointer]:
+            - /url: /app/temas
+            - generic [ref=f52e259]: 
+          - link "Clubes" [ref=f52e261] [cursor=pointer]:
+            - /url: /app/clubes
+            - generic [ref=f52e262]: 
+          - link "Insignias" [ref=f52e264] [cursor=pointer]:
+            - /url: /app/logros
+            - generic [ref=f52e265]: 
+          - link "Perfil" [ref=f52e267] [cursor=pointer]:
+            - /url: /app/perfil
+            - generic [ref=f52e268]: 
+          - link "Descargas" [ref=f52e270] [cursor=pointer]:
+            - /url: /app/descargas
+            - generic [ref=f52e271]: 
+      - button "Cerrar sesión" [ref=f52e274] [cursor=pointer]:
+        - generic [ref=f52e275]: 
+    - main [ref=f52e278]:
+      - generic [ref=f52e280]:
+        - region [ref=f52e281]:
+          - generic [ref=f52e284]:
+            - generic [ref=f52e285]: Tu aventura de hoy
+            - heading "Sigue creciendo, Semillero" [level=2] [ref=f52e286]
+            - paragraph [ref=f52e287]: Retoma una lección corta, explora una senda o avanza un paso más hoy.
+            - link "Empezar una lección" [ref=f52e288] [cursor=pointer]:
+              - /url: /app/temas
+        - region "Resumen de progreso" [ref=f52e295]:
+          - article [ref=f52e296]:
+            - generic [ref=f52e301]:
+              - generic [ref=f52e302]: Nivel
+              - generic [ref=f52e303]: "1"
+              - generic [ref=f52e304]: Nivel 1
+          - article [ref=f52e305]:
+            - generic [ref=f52e310]:
+              - generic [ref=f52e311]: XP
+              - generic [ref=f52e312]: "0"
+              - generic [ref=f52e313]: Puntos acumulados
+          - article [ref=f52e314]:
+            - generic [ref=f52e322]:
+              - generic [ref=f52e323]: Insignias
+              - generic [ref=f52e324]: "0"
+              - generic [ref=f52e325]: Logros ganados
+        - generic [ref=f52e326]:
+          - region [ref=f52e328]:
+            - generic [ref=f52e329]:
+              - heading "Elige tu senda" [level=2] [ref=f52e330]
+              - generic [ref=f52e331]: Explora una ruta para seguir aprendiendo
+            - generic [ref=f52e332]:
+              - link "Abrir temas de Padre" [ref=f52e333] [cursor=pointer]:
+                - /url: /app/temas?sendas=padre
+                - generic [ref=f52e338]:
+                  - generic [ref=f52e339]: Senda del
+                  - heading "Padre" [level=3] [ref=f52e340]
+                  - paragraph [ref=f52e341]: Dios es nuestro Padre amoroso.
+                  - generic [ref=f52e342]:
+                    - generic [ref=f52e343]: Explorar
+                    - generic [ref=f52e344]: 
+              - link "Abrir temas de Hijo" [ref=f52e346] [cursor=pointer]:
+                - /url: /app/temas?sendas=hijo
+                - generic [ref=f52e351]:
+                  - generic [ref=f52e352]: Senda del
+                  - heading "Hijo" [level=3] [ref=f52e353]
+                  - paragraph [ref=f52e354]: Jesús es nuestro Salvador y amigo.
+                  - generic [ref=f52e355]:
+                    - generic [ref=f52e356]: Explorar
+                    - generic [ref=f52e357]: 
+              - link "Abrir temas de Espíritu Santo" [ref=f52e359] [cursor=pointer]:
+                - /url: /app/temas?sendas=espiritu
+                - generic [ref=f52e364]:
+                  - generic [ref=f52e365]: Senda del
+                  - heading "Espíritu Santo" [level=3] [ref=f52e366]
+                  - paragraph [ref=f52e367]: El Espíritu Santo nos guía y fortalece.
+                  - generic [ref=f52e368]:
+                    - generic [ref=f52e369]: Explorar
+                    - generic [ref=f52e370]: 
+          - complementary "Inspiración y próximo objetivo" [ref=f52e372]:
+            - generic [ref=f52e373]:
+              - generic [ref=f52e378]:
+                - generic [ref=f52e379]: Versículo
+                - heading "Del día" [level=2] [ref=f52e380]
+              - generic [ref=f52e382]:
+                - paragraph [ref=f52e383]: "\"Confía en Jehova con todo tu corazón, y no te apoyes en tu propia prudencia.\""
+                - paragraph [ref=f52e384]: "- Proverbios 3:5"
+            - generic [ref=f52e387]:
+              - generic [ref=f52e393]:
+                - generic [ref=f52e394]: Siguiente objetivo
+                - heading "Completa tu primera lección" [level=2] [ref=f52e395]
+              - paragraph [ref=f52e396]: Elige una Senda, termina un tema y comienza a ganar XP e insignias.
+              - generic [ref=f52e397]:
+                - link "Elegir un tema" [ref=f52e398] [cursor=pointer]:
+                  - /url: /app/temas
+                - link "Ver insignias" [ref=f52e402] [cursor=pointer]:
+                  - /url: /app/logros
+  - region "Notifications alt+T"

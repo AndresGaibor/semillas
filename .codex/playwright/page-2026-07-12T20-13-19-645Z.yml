@@ -1,0 +1,47 @@
+- generic [ref=f3e2]:
+  - generic [ref=f3e4]:
+    - banner [ref=f3e5]:
+      - link "Ir al inicio de Semillas" [ref=f3e6] [cursor=pointer]:
+        - /url: /
+        - img "Logo de Semillas" [ref=f3e7]
+        - generic [ref=f3e8]:
+          - generic [ref=f3e9]: Semillas
+          - generic [ref=f3e10]: Crecer en la Palabra, vivir Su verdad
+      - generic [ref=f3e11]:
+        - button "Cambiar a modo oscuro" [ref=f3e12] [cursor=pointer]
+        - 'generic "Idioma actual: Español" [ref=f3e15]': Español
+    - main [ref=f3e20]:
+      - region "Opciones de inicio de sesión" [ref=f3e21]:
+        - generic [ref=f3e22]:
+          - generic [ref=f3e23]:
+            - generic [ref=f3e24]: Tu aventura comienza aquí
+            - heading "Bienvenido a Semillas" [level=1] [ref=f3e25]
+            - paragraph [ref=f3e26]: Inicia sesión para continuar tu aventura de fe y aprendizaje.
+          - tablist "Métodos de acceso" [ref=f3e27]:
+            - tab "Redes sociales" [selected] [ref=f3e28] [cursor=pointer]
+            - tab "Correo electrónico" [ref=f3e29] [cursor=pointer]
+          - group "Opciones de acceso" [ref=f3e30]:
+            - button "Continuar con Google" [ref=f3e31] [cursor=pointer]
+            - button "Continuar con Facebook" [ref=f3e33] [cursor=pointer]
+            - separator [ref=f3e35]:
+              - generic [ref=f3e37]: o explora sin cuenta
+            - button "Jugar como invitado Explora sin cuenta. Tu progreso no se guardará." [ref=f3e39] [cursor=pointer]:
+              - generic [ref=f3e41]:
+                - generic [ref=f3e42]: Jugar como invitado
+                - generic [ref=f3e43]: Explora sin cuenta. Tu progreso no se guardará.
+      - region "Ilustración y beneficios" [ref=f3e44]:
+        - generic [ref=f3e45]:
+          - generic [ref=f3e46]: 💜 Aprende, crece y comparte su amor.
+          - img "Niños cuidando una pequeña planta" [ref=f3e49]
+        - generic [ref=f3e50]:
+          - article [ref=f3e51]:
+            - generic [ref=f3e53]:
+              - heading "Tu progreso se sincroniza" [level=2] [ref=f3e54]
+              - paragraph [ref=f3e55]: Continúa aprendiendo desde cualquier dispositivo.
+          - article [ref=f3e56]:
+            - generic [ref=f3e58]:
+              - heading "Un entorno seguro" [level=2] [ref=f3e59]
+              - paragraph [ref=f3e60]: Contenido apropiado y protegido para niños.
+        - paragraph [ref=f3e61]:
+          - generic [ref=f3e63]: Privacidad protegida. Nunca compartimos tu información.
+  - region "Notifications alt+T"
