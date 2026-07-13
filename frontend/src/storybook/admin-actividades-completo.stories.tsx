@@ -1,11 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import type { GrupoEdad, Senda, Tema } from "@/shared/api/api";
-import { AdminActivitiesFilters } from "@/features/admin/componentes/admin-activities-filters";
-import { AdminActivitiesHeader } from "@/features/admin/componentes/admin-activities-header";
-import { AdminActivitiesSummary } from "@/features/admin/componentes/admin-activities-summary";
-import { AdminActivitiesTable, type ActivityTableRow } from "@/features/admin/componentes/admin-activities-table";
-import { AdminActivitiesTabs } from "@/features/admin/componentes/admin-activities-tabs";
+import { AdminActivitiesFilters, AdminActivitiesHeader, AdminActivitiesSummary, AdminActivitiesTable, AdminActivitiesTabs, type ActivityTableRow } from "@/features/admin/componentes/temas";
 import { StoryRouter } from "./story-router";
 
 const sendas: Senda[] = [

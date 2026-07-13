@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useAdminMediaPage } from "../features/admin/hooks/use-admin-media-page";
 
-import { AdminMediaHeader } from "../features/admin/componentes/admin-media-header";
-import { AdminMediaTypeTabs } from "../features/admin/componentes/admin-media-type-tabs";
-import { AdminMediaFilters } from "../features/admin/componentes/admin-media-filters";
-import { AdminMediaGrid } from "../features/admin/componentes/admin-media-grid";
-import { AdminMediaDetailPanel } from "../features/admin/componentes/admin-media-detail-panel";
-import { AdminMediaLoadingState } from "../features/admin/componentes/admin-media-loading-state";
-import { AdminMediaUploadProgress } from "../features/admin/componentes/admin-media-upload-progress";
+import {
+  AdminMediaHeader,
+  AdminMediaTypeTabs,
+  AdminMediaFilters,
+  AdminMediaGrid,
+  AdminMediaDetailPanel,
+  AdminMediaLoadingState,
+  AdminMediaUploadProgress,
+} from "@/features/admin/componentes/medios";
 
 export const Route = createFileRoute("/admin/medios")({
   component: AdminMediosPage,

@@ -11,7 +11,7 @@ import {
 import type { RecursoMultimedia } from "../../media/media.api";
 import type { ReflectionQuestion } from "../hooks/use-theme-crecer-page";
 import { EditorMarkdown } from "./editor-markdown";
-import { MediaGalleryDialog } from "./media-gallery-dialog";
+import { MediaGalleryDialog } from "../medios/media-gallery-dialog";
 
 interface CrecerStepInfo { id: string; codigo: string; nombre: string; }
 interface AgeGroupInfo { id: string; nombre?: string | null; }
@@ -78,18 +78,20 @@ export function CrecerContentEditor(props: CrecerContentEditorProps) {
           <MediaSlot icon={<FileAudio size={20} />} resource={selectedAudio} emptyText="Sin audio" onChoose={() => setGalleryMode("audio")} onRemove={() => props.onAudioResourceChange(null)} />
         </Field>
 
-        <Field label="Preguntas de reflexión" wide help="Se muestran al finalizar el bloque y se adaptan a la franja actual.">
-          <div className="admin-question-list">
-            {props.questions.map((question, index) => (
-              <div key={`${question.orden}-${index}`} className="admin-question-row">
-                <span>{index + 1}</span>
-                <input value={question.pregunta} onChange={(event) => props.onQuestionsChange(props.questions.map((item, itemIndex) => itemIndex === index ? { ...item, pregunta: event.target.value } : item))} placeholder="Escribe una pregunta abierta..." />
-                <button type="button" aria-label="Eliminar pregunta" onClick={() => props.onQuestionsChange(props.questions.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, orden: itemIndex + 1 })))}><Trash2 size={15} /></button>
-              </div>
-            ))}
-            <button type="button" className="admin-secondary-button w-fit" onClick={() => props.onQuestionsChange([...props.questions, { pregunta: "", orden: props.questions.length + 1 }])}><Plus size={15} /> Agregar pregunta</button>
-          </div>
-        </Field>
+        {props.activeStep?.codigo === "experimentar" ? (
+          <Field label="Preguntas de reflexión" wide help="Se muestran al finalizar el bloque y se adaptan a la franja actual.">
+            <div className="admin-question-list">
+              {props.questions.map((question, index) => (
+                <div key={`${question.orden}-${index}`} className="admin-question-row">
+                  <span>{index + 1}</span>
+                  <input value={question.pregunta} onChange={(event) => props.onQuestionsChange(props.questions.map((item, itemIndex) => itemIndex === index ? { ...item, pregunta: event.target.value } : item))} placeholder="Escribe una pregunta abierta..." />
+                  <button type="button" aria-label="Eliminar pregunta" onClick={() => props.onQuestionsChange(props.questions.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, orden: itemIndex + 1 })))}><Trash2 size={15} /></button>
+                </div>
+              ))}
+              <button type="button" className="admin-secondary-button w-fit" onClick={() => props.onQuestionsChange([...props.questions, { pregunta: "", orden: props.questions.length + 1 }])}><Plus size={15} /> Agregar pregunta</button>
+            </div>
+          </Field>
+        ) : null}
       </div>
 
       <div className="admin-save-bar mt-5">

@@ -1,10 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import logoKids from "@/assets/images/Ilustraciones/Ninos 2.png";
-import { AdminSectionHeader } from "@/features/admin/componentes/admin-section-header";
-import { AdminUsersFilters } from "@/features/admin/componentes/admin-users-filters";
-import { AdminUsersTable } from "@/features/admin/componentes/admin-users-table";
-import { AdminUsersSummary } from "@/features/admin/componentes/admin-users-summary";
+import { AdminSectionHeader } from "@/features/admin/componentes/dashboard";
+import { AdminUsersFilters, AdminUsersTable, AdminUsersSummary } from "@/features/admin/componentes/usuarios";
 import { useAdminUsers } from "@/features/admin/hooks/use-admin-users";
 
 export const Route = createFileRoute("/admin/usuarios")({

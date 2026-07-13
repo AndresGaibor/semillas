@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { AdminActivitiesHeader } from "@/features/admin/componentes/admin-activities-header";
-import { AdminActivitiesTabs } from "@/features/admin/componentes/admin-activities-tabs";
-import { AdminActivitiesFilters } from "@/features/admin/componentes/admin-activities-filters";
-import { AdminActivitiesTable } from "@/features/admin/componentes/admin-activities-table";
+import {
+  AdminActivitiesHeader,
+  AdminActivitiesTabs,
+  AdminActivitiesFilters,
+  AdminActivitiesTable,
+} from "@/features/admin/componentes/temas";
 import { useAdminActivities } from "@/features/admin/hooks/use-admin-activities";
 
 export const Route = createFileRoute("/admin/actividades")({

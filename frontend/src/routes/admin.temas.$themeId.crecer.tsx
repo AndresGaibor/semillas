@@ -11,9 +11,7 @@ import {
   Volume2,
 } from "lucide-react";
 
-import { AgeGroupSelector } from "../features/admin/componentes/age-group-selector";
-import { CrecerContentEditor } from "../features/admin/componentes/crecer-content-editor";
-import { CrecerStepSelector } from "../features/admin/componentes/crecer-step-selector";
+import { AgeGroupSelector, CrecerContentEditor, CrecerStepSelector } from "@/features/admin/componentes/temas";
 import { useThemeCrecerPage } from "../features/admin/hooks/use-theme-crecer-page";
 
 export const Route = createFileRoute("/admin/temas/$themeId/crecer")({

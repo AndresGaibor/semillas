@@ -39,9 +39,8 @@ import {
 import { useThemeActivitiesMutation } from "../features/admin/hooks/use-theme-activities";
 import { obtenerGruposEdad, obtenerTiposActividad } from "../features/catalog/catalog.api";
 import { subirArchivo } from "../features/media/media.api";
-import { normalizarConfiguracionActividad, validarActividadParaGuardar } from "../features/admin/componentes/temas/activity-configuration";
-import { ActivityTypeConfigBuilder } from "../features/admin/componentes/temas/activity-type-config-builder";
-import type { ActivitySearch } from "../features/admin/componentes/temas/activity-search.types";
+import { normalizarConfiguracionActividad, validarActividadParaGuardar, ActivityTypeConfigBuilder } from "@/features/admin/componentes/temas";
+import type { ActivitySearch } from "@/features/admin/componentes/temas";
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
   component: AdminThemeActivitiesPage,

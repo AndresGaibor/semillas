@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { AdminUsersFilters } from "@/features/admin/componentes/admin-users-filters";
-import { AdminUsersSummary } from "@/features/admin/componentes/admin-users-summary";
-import { AdminUsersTable, type UserTableRow } from "@/features/admin/componentes/admin-users-table";
+import { AdminUsersFilters, AdminUsersSummary, AdminUsersTable, type UserTableRow } from "@/features/admin/componentes/usuarios";
 import avatar1 from "@/assets/images/avatars/Avatar 1.png";
 import avatar2 from "@/assets/images/avatars/Avatar 2.png";
 

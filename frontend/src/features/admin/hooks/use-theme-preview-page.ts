@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { obtenerTemaAdmin, obtenerPasosAdmin, obtenerActividadesAdmin } from "@/features/admin/admin.api";
 import { resolverPortadaTemaAdmin, usePortadasFirmadasAdmin } from "@/features/admin/admin-theme-cover";
-import { obtenerEstadoTema } from "@/features/admin/componentes/theme-view.utils";
+import { obtenerEstadoTema } from "@/features/admin/componentes/temas";
 import type { Actividad } from "@/shared/api/api";
 
 type UseThemePreviewPageOptions = {

@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Loader, FileText } from "lucide-react";
 
-import { formatearFechaHoraTema, formatearFechaTema } from "../features/admin/componentes/theme-view.utils";
-import { ThemePreviewHeader, type ThemePreviewHeaderProps } from "../features/admin/componentes/theme-preview-header";
-import { CrecerStepsList } from "../features/admin/componentes/crecer-steps-list";
-import { SectionCard, EmptyState } from "../features/admin/componentes/section-card";
-import { PreviewSidebar } from "../features/admin/componentes/preview-sidebar";
+import { formatearFechaHoraTema, formatearFechaTema, ThemePreviewHeader, CrecerStepsList, SectionCard, EmptyState, PreviewSidebar } from "@/features/admin/componentes/temas";
 import { BadgeInfo } from "lucide-react";
 import { useThemePreviewPage } from "../features/admin/hooks/use-theme-preview-page";
 
