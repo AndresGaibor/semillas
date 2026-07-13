@@ -344,3 +344,49 @@ export function reordenarActividades(idTema: string, actividadIds: string[]) {
     cuerpo: { actividad_ids: actividadIds },
   });
 }
+
+export type SendaAdmin = {
+  id: string;
+  codigo: string;
+  nombre: string;
+  descripcion: string | null;
+  color_hex: string;
+  nombre_icono: string | null;
+  orden: number;
+  activo: boolean;
+  creado_en: string;
+};
+
+export type CrearSendaSolicitud = {
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  color_hex: string;
+  nombre_icono?: string;
+  orden: number;
+  activo?: boolean;
+};
+
+export function obtenerSendasAdmin() {
+  return peticion<SendaAdmin[]>("/administracion/sendas");
+}
+
+export function obtenerSendaAdmin(id: string) {
+  return peticion<SendaAdmin>(`/administracion/sendas/${id}`);
+}
+
+export function crearSendaAdmin(datos: CrearSendaSolicitud) {
+  return peticion<SendaAdmin>("/administracion/sendas", {
+    metodo: "POST",
+    cuerpo: datos,
+  });
+}
+
+export type ActualizarSendaSolicitud = Partial<CrearSendaSolicitud>;
+
+export function actualizarSendaAdmin(id: string, datos: ActualizarSendaSolicitud) {
+  return peticion<SendaAdmin>(`/administracion/sendas/${id}`, {
+    metodo: "PATCH",
+    cuerpo: datos,
+  });
+}

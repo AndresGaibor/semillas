@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "../../db/database.types";
 import { schema, type DbClient } from "../../db/client";
@@ -24,6 +24,8 @@ type UpsertStepContentInput = z.infer<typeof upsertStepContentSchema>;
 type CreateActivityInput = z.infer<typeof createActivitySchema>;
 type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 type UpdateUserInput = z.infer<typeof updateUserSchema>;
+type CreateSendaInput = z.infer<typeof import("./admin.schemas").createSendaSchema>;
+type UpdateSendaInput = z.infer<typeof import("./admin.schemas").updateSendaSchema>;
 type ReorderActivitiesInput = z.infer<typeof reorderActivitiesSchema>;
 type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
 type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;
@@ -761,6 +763,63 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       const [existing] = await clienteDrizzle.select({ id: schema.usuarioApp.id }).from(schema.usuarioApp).where(eq(schema.usuarioApp.id, usuarioId)).limit(1); if (!existing) throw new NotFoundError("Usuario no encontrado");
       await clienteDrizzle.update(schema.usuarioApp).set({ activo: false, actualizadoEn: new Date() }).where(eq(schema.usuarioApp.id, usuarioId));
       return { eliminado: true };
+    },
+
+    async listarSendas() {
+      const clienteDrizzle = requerirDrizzle();
+      return clienteDrizzle
+        .select()
+        .from(schema.senda)
+        .orderBy(asc(schema.senda.orden));
+    },
+
+    async crearSenda(body: CreateSendaInput) {
+      const clienteDrizzle = requerirDrizzle();
+      const [senda] = await clienteDrizzle
+        .insert(schema.senda)
+        .values({
+          codigo: body.codigo,
+          nombre: body.nombre,
+          descripcion: body.descripcion ?? null,
+          colorHex: body.color_hex,
+          nombreIcono: body.nombre_icono ?? null,
+          orden: body.orden,
+          activo: body.activo
+        })
+        .returning();
+      return senda;
+    },
+
+    async obtenerSenda(sendaId: string) {
+      const clienteDrizzle = requerirDrizzle();
+      const [senda] = await clienteDrizzle
+        .select()
+        .from(schema.senda)
+        .where(eq(schema.senda.id, sendaId))
+        .limit(1);
+      if (!senda) throw new NotFoundError("Senda no encontrada");
+      return senda;
+    },
+
+    async actualizarSenda(sendaId: string, body: UpdateSendaInput) {
+      const clienteDrizzle = requerirDrizzle();
+      
+      const updateData: any = {};
+      if (body.codigo !== undefined) updateData.codigo = body.codigo;
+      if (body.nombre !== undefined) updateData.nombre = body.nombre;
+      if (body.descripcion !== undefined) updateData.descripcion = body.descripcion;
+      if (body.color_hex !== undefined) updateData.colorHex = body.color_hex;
+      if (body.nombre_icono !== undefined) updateData.nombreIcono = body.nombre_icono;
+      if (body.orden !== undefined) updateData.orden = body.orden;
+      if (body.activo !== undefined) updateData.activo = body.activo;
+
+      const [senda] = await clienteDrizzle
+        .update(schema.senda)
+        .set(updateData)
+        .where(eq(schema.senda.id, sendaId))
+        .returning();
+      if (!senda) throw new NotFoundError("Senda no encontrada");
+      return senda;
     }
   };
 }

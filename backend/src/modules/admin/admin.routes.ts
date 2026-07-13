@@ -14,13 +14,16 @@ import {
   updateActivitySchema,
   updateThemeSchema,
   updateUserSchema,
-  upsertStepContentSchema
+  upsertStepContentSchema,
+  createSendaSchema,
+  updateSendaSchema
 } from "./admin.schemas";
 import { crearAdminRepository } from "./admin.repository";
 import { crearCasoObtenerResumen } from "./casos-uso/resumen";
 import { crearCasosUsoActividades } from "./casos-uso/actividades";
 import { crearCasosUsoTemas } from "./casos-uso/temas";
 import { crearCasosUsoUsuarios } from "./casos-uso/usuarios";
+import { crearCasosUsoSendas } from "./casos-uso/sendas";
 
 export function crearModuloAdmin() {
   const adminRoutes = new Hono<AppBindings>();
@@ -32,7 +35,8 @@ export function crearModuloAdmin() {
       resumen: crearCasoObtenerResumen(repositorio),
       actividades: crearCasosUsoActividades(repositorio),
       temas: crearCasosUsoTemas(repositorio),
-      usuarios: crearCasosUsoUsuarios(repositorio)
+      usuarios: crearCasosUsoUsuarios(repositorio),
+      sendas: crearCasosUsoSendas(repositorio)
     };
   }
 
@@ -43,6 +47,11 @@ export function crearModuloAdmin() {
     const casos = obtenerCasosUso(c);
     return responderExito(await casos.resumen.ejecutar());
   });
+
+  adminRoutes.get("/sendas", async (c) => responderExito(await obtenerCasosUso(c).sendas.listar()));
+  adminRoutes.post("/sendas", zValidator("json", createSendaSchema), async (c) => responderExito(await obtenerCasosUso(c).sendas.crear(c.req.valid("json")), 201));
+  adminRoutes.get("/sendas/:id", async (c) => responderExito(await obtenerCasosUso(c).sendas.obtener(c.req.param("id"))));
+  adminRoutes.patch("/sendas/:id", zValidator("json", updateSendaSchema), async (c) => responderExito(await obtenerCasosUso(c).sendas.actualizar(c.req.param("id"), c.req.valid("json"))));
   adminRoutes.get("/resumen/detallado", async (c) => responderExito(await obtenerCasosUso(c).resumen.ejecutarDetallado()));
   adminRoutes.get("/actividades", async (c) => {
     const casos = obtenerCasosUso(c);

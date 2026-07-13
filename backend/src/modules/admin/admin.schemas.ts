@@ -102,3 +102,23 @@ export const resolveReviewSchema = z.object({
   estado: z.enum(["aprobado", "cambios_solicitados", "rechazado"]),
   notas: z.string().max(2000).optional()
 });
+
+export const createSendaSchema = z.object({
+  codigo: z.string().min(2).max(50),
+  nombre: z.string().min(2).max(100),
+  descripcion: z.string().optional(),
+  color_hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  nombre_icono: z.string().optional(),
+  orden: z.number().int().min(1),
+  activo: z.boolean().default(false)
+});
+
+export const updateSendaSchema = z.object({
+  codigo: z.string().min(2).max(50).optional(),
+  nombre: z.string().min(2).max(100).optional(),
+  descripcion: z.string().optional(),
+  color_hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  nombre_icono: z.string().optional(),
+  orden: z.number().int().min(1).optional(),
+  activo: z.boolean().optional()
+});
