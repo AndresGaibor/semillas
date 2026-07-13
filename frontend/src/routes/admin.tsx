@@ -7,8 +7,6 @@ import { obtenerMiPerfil } from "../features/perfil/profile.api";
 import { sessionStorageApi } from "../shared/api/session";
 import { resolverAccesoAdmin } from "../shared/auth/admin-access";
 import { queryClient } from "../app/query-client";
-import "./app.css";
-import "./admin-content-studio.css";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
@@ -39,6 +37,10 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
+  useEffect(() => {
+    void Promise.all([import("./app.css"), import("./admin-content-studio.css")]);
+  }, []);
+
   const { sidebarOpen, closeSidebar, openSidebar, handleLogout, pageHeader, activePage } = useAdminLayout();
 
   useEffect(() => {
@@ -57,7 +59,8 @@ function AdminLayout() {
         onLogout={handleLogout}
       />
 
-      <main className="app-shell__main app-shell__main--admin">
+      <a className="skip-link" href="#main-content">Ir al contenido</a>
+      <main id="main-content" className="app-shell__main app-shell__main--admin">
         <AppTopbar
           title={pageHeader.titulo}
           subtitle={pageHeader.subtitulo}

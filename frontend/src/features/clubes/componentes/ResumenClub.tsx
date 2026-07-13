@@ -62,7 +62,7 @@ export function ResumenClub({ retos, ranking, onViewChallenges, onViewRanking, o
         </div>
         <div className="club-ranking-preview">
           {ranking.slice(0, 3).map((member) => (
-            <RankingRow key={member.usuario_id} member={member} compact />
+            <RankingRow key={member.miembro_token} member={member} compact />
           ))}
           {ranking.length === 0 ? (
             <p className="club-muted">El ranking aparecerá cuando el grupo empiece a completar actividades.</p>

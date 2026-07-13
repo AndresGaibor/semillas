@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Globe, Mail, ArrowRight } from "lucide-react";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import "../estilos.css";
 import "./login.css";
 

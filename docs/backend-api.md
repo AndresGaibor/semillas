@@ -1,5 +1,7 @@
 # Semillas API — Documentación Técnica
 
+**Owner:** M7 · **Revisión:** 2026-07-13
+
 ## Stack
 
 ```

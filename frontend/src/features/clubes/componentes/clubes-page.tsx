@@ -31,6 +31,7 @@ import { CrearClubCard } from "./CrearClubCard";
 import { CrearClubModal } from "./CrearClubModal";
 import { CrearRetoModal } from "./CrearRetoModal";
 import { AgregarClubModal } from "./AgregarClubModal";
+import { ReportarClubDialog } from "./reportar-club-dialog";
 
 const VISTAS: Array<{ id: VistaClub; label: string; icon: typeof Trophy; soloLider?: boolean }> = [
   { id: "resumen", label: "Resumen", icon: Sparkles },
@@ -43,7 +44,6 @@ const VISTAS: Array<{ id: VistaClub; label: string; icon: typeof Trophy; soloLid
 export function ClubesPage() {
   const page = useClubesPage();
   const detalle = page.detalleQuery.data;
-  const currentUserId = page.meQuery.data?.usuario.id;
   const club = detalle ?? page.club;
   const tabs = VISTAS.filter((item) => !item.soloLider || page.isLeader);
 
@@ -173,7 +173,6 @@ export function ClubesPage() {
             <RankingClub
               ranking={page.rankingQuery.data ?? []}
               loading={page.rankingQuery.isLoading}
-              currentUserId={currentUserId}
             />
           ) : null}
 
@@ -191,17 +190,17 @@ export function ClubesPage() {
           {detalle && page.vista === "miembros" ? (
             <MiembrosClub
               members={detalle.members}
-              currentUserId={currentUserId}
               isLeader={page.isLeader}
               pending={page.actionPending}
               onRemove={(member) => {
-                if (window.confirm(`¿Retirar a ${member.apodo} del club?`)) page.removeMember(member.usuario_id);
+                if (window.confirm(`¿Retirar a ${member.apodo} del club?`)) page.removeMember(member.miembro_token);
               }}
               onTransfer={(member) => {
                 if (window.confirm(`¿Transferir el liderazgo a ${member.apodo}? Tú pasarás a ser miembro.`)) {
-                  page.transferLeadership(member.usuario_id);
+                  page.transferLeadership(member.miembro_token);
                 }
               }}
+              onReport={page.setReportingMember}
             />
           ) : null}
 
@@ -243,6 +242,15 @@ export function ClubesPage() {
           </button>
         </aside>
       </div>
+
+      {page.reportingMember ? (
+        <ReportarClubDialog
+          miembro={page.reportingMember}
+          pendiente={page.reporting}
+          onClose={() => page.setReportingMember(null)}
+          onSubmit={page.reportMember}
+        />
+      ) : null}
 
       {page.showCreate ? (
         <AgregarClubModal

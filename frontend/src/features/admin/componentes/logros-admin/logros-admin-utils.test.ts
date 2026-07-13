@@ -24,12 +24,15 @@ describe("logros-admin-utils", () => {
     expect(() => obtenerCriterio("desconocido" as never)).toThrow(/no soportado/);
   });
 
-  it("rechaza códigos vacíos, con mayúsculas o con caracteres inválidos", () => {
+  it("rechaza códigos vacíos y caracteres inválidos", () => {
     expect(validarCodigoLogro("")).toMatch(/al menos 3/);
     expect(validarCodigoLogro("AB")).toMatch(/al menos 3/);
-    expect(validarCodigoLogro("PRIMER-TEMA")).toMatch(/minúsculas/);
     expect(validarCodigoLogro("con espacio")).toBeTruthy();
     expect(validarCodigoLogro("con@simbolo")).toBeTruthy();
+  });
+
+  it("normaliza mayúsculas al validar", () => {
+    expect(validarCodigoLogro("PRIMER-TEMA")).toBeNull();
   });
 
   it("acepta códigos en minúsculas con números y separadores", () => {

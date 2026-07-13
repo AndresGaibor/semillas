@@ -42,6 +42,7 @@ export type FilaProgresoActividadSincronizacion = {
 };
 
 export interface SyncRepository {
+  ejecutarAtomico?<T>(operacion: (repositorio: SyncRepository) => Promise<T>): Promise<T>;
   listarEventosUsuario(usuarioId: string, since?: string): Promise<FilaEventoSincronizacion[]>;
   listarProgresoTemas(usuarioId: string): Promise<FilaProgresoTemaSincronizacion[]>;
   listarProgresoActividades(usuarioId: string): Promise<FilaProgresoActividadSincronizacion[]>;
@@ -524,6 +525,10 @@ export function crearSyncRepository({ db }: Dependencias): SyncRepository {
 
     async evaluarLogrosUsuario(usuarioId) {
       return evaluarYDesbloquearLogros(db, usuarioId);
-    }
+    },
+
+    async ejecutarAtomico<T>(operacion: (repositorio: SyncRepository) => Promise<T>) {
+      return db.transaction(async (tx) => operacion(crearSyncRepository({ db: tx as unknown as DbClient })));
+    },
   };
 }

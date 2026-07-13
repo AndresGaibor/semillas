@@ -1,14 +1,14 @@
-import { ArrowLeftRight, MoreHorizontal, UserMinus, Users, Zap } from "lucide-react";
+import { ArrowLeftRight, Flag, MoreHorizontal, UserMinus, Users, Zap } from "lucide-react";
 import type { MiembroClub } from "@/features/clubes/clubes.api";
 import { resolverAvatar } from "@/shared/constants/avatares";
 
 interface MiembrosClubProps {
   members: MiembroClub[];
-  currentUserId?: string;
   isLeader: boolean;
   pending: boolean;
   onRemove: (member: MiembroClub) => void;
   onTransfer: (member: MiembroClub) => void;
+  onReport: (member: MiembroClub) => void;
 }
 
 function roleName(role: string) {
@@ -19,7 +19,7 @@ function formatMonth(value: string) {
   return new Intl.DateTimeFormat("es-EC", { month: "short", year: "numeric" }).format(new Date(value));
 }
 
-export function MiembrosClub({ members, currentUserId, isLeader, pending, onRemove, onTransfer }: MiembrosClubProps) {
+export function MiembrosClub({ members, isLeader, pending, onRemove, onTransfer, onReport }: MiembrosClubProps) {
   return (
     <section className="club-section-card">
       <header>
@@ -33,10 +33,10 @@ export function MiembrosClub({ members, currentUserId, isLeader, pending, onRemo
       <div className="club-members-list">
         {members.map((member) => {
           const avatar = resolverAvatar(member.clave_avatar || member.url_avatar || "1");
-          const isMe = member.usuario_id === currentUserId;
+          const isMe = member.es_actual;
           const isMemberLeader = ["lider", "propietario"].includes(member.rol_miembro);
           return (
-            <article key={member.usuario_id} className="club-member-row">
+            <article key={member.miembro_token} className="club-member-row">
               <img src={avatar} alt="" aria-hidden="true" />
               <div className="club-member-row__identity">
                 <strong>{member.apodo}{isMe ? " · Tú" : ""}</strong>
@@ -50,6 +50,9 @@ export function MiembrosClub({ members, currentUserId, isLeader, pending, onRemo
                 <details className="club-member-actions">
                   <summary aria-label={`Acciones para ${member.apodo}`}><MoreHorizontal size={20} /></summary>
                   <div>
+                    <button type="button" disabled={pending} onClick={() => onReport(member)}>
+                      <Flag size={16} /> Reportar
+                    </button>
                     <button type="button" disabled={pending} onClick={() => onTransfer(member)}>
                       <ArrowLeftRight size={16} /> Transferir liderazgo
                     </button>
@@ -59,7 +62,10 @@ export function MiembrosClub({ members, currentUserId, isLeader, pending, onRemo
                   </div>
                 </details>
               ) : (
-                <span className="club-role-pill" data-leader={isMemberLeader}>{roleName(member.rol_miembro)}</span>
+                <>
+                  <span className="club-role-pill" data-leader={isMemberLeader}>{roleName(member.rol_miembro)}</span>
+                  {!isMe ? <button className="club-member-report" type="button" onClick={() => onReport(member)} aria-label={`Reportar a ${member.apodo}`}><Flag size={16} /></button> : null}
+                </>
               )}
             </article>
           );

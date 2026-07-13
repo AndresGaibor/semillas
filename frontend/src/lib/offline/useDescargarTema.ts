@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { db, type TemaLocal } from "./db";
-import { cachearMediosPaqueteOffline, eliminarMedioDeCache } from "./media-cache";
+import { eliminarMedioDeCache } from "./media-cache";
+import { descargarMediosTransaccional, eliminarMediosPromovidosNoUsados } from "./download-transaction";
 import { mapearPaqueteOfflineARegistros, type PaqueteOfflineRespuesta } from "./offline-package";
 import { queueEventoProgreso } from "./outbox";
+import { obtenerScopeOffline } from "./user-scope";
 import { peticion } from "@/shared/api/api";
 
 type DescargaTemaParams = {
@@ -37,7 +39,22 @@ export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitad
         cuerpo: { grupo_edad_id: grupoEdadId },
       });
 
-      const registros = mapearPaqueteOfflineARegistros(paquete);
+      const temaExistente = await db.temas.where("serverId").equals(paquete.tema.id).first();
+      const idsExistentes = new Map<string, string>();
+      if (temaExistente?.serverId) idsExistentes.set(temaExistente.serverId, temaExistente.localId);
+      if (temaExistente) {
+        const [pasosExistentes, actividadesExistentes] = await Promise.all([
+          db.pasos.where("temaLocalId").equals(temaExistente.localId).toArray(),
+          db.actividades.where("temaLocalId").equals(temaExistente.localId).toArray(),
+        ]);
+        for (const paso of pasosExistentes) {
+          if (paso.serverId) idsExistentes.set(paso.serverId, paso.localId);
+        }
+        for (const actividad of actividadesExistentes) {
+          if (actividad.serverId) idsExistentes.set(actividad.serverId, actividad.localId);
+        }
+      }
+      const registros = mapearPaqueteOfflineARegistros(paquete, idsExistentes);
       const temaLocalId = registros.tema.localId;
       const ahora = new Date().toISOString();
 
@@ -61,23 +78,37 @@ export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitad
         temaLocalId,
       }));
 
-      await db.transaction("rw", [db.temas, db.pasos, db.actividades, db.mediaCache], async () => {
-        await db.pasos.where("temaLocalId").equals(temaLocalId).delete();
-        await db.actividades.where("temaLocalId").equals(temaLocalId).delete();
-        await db.mediaCache.where("temaLocalId").equals(temaLocalId).delete();
-        await db.temas.put(tema);
-        if (pasos.length > 0) await db.pasos.bulkPut(pasos);
-        if (actividades.length > 0) await db.actividades.bulkPut(actividades);
-      });
-
-      await cachearMediosPaqueteOffline(paquete, temaLocalId, (progreso) => {
-        if (onProgress) onProgress(Math.max(10, Math.min(95, progreso)));
+      const mediosAnteriores = new Set((temaExistente?.mediaServerIds ?? []));
+      const registrosMedios = await descargarMediosTransaccional(paquete, temaLocalId, (progreso) => {
+        onProgress?.(Math.max(10, Math.min(95, progreso)));
         void db.temas.update(temaLocalId, {
           descargaProgreso: Math.max(10, Math.min(95, progreso)),
           descargaEstado: "descargando",
           updatedAt: new Date().toISOString(),
         });
       });
+
+      try {
+        await db.transaction("rw", [db.temas, db.pasos, db.actividades, db.mediaCache, db.mediaReferences], async () => {
+        await db.pasos.where("temaLocalId").equals(temaLocalId).delete();
+        await db.actividades.where("temaLocalId").equals(temaLocalId).delete();
+        await db.mediaReferences.where("temaLocalId").equals(temaLocalId).delete();
+        await db.temas.put(tema);
+        if (pasos.length > 0) await db.pasos.bulkPut(pasos);
+        if (actividades.length > 0) await db.actividades.bulkPut(actividades);
+        if (registrosMedios.length > 0) await db.mediaCache.bulkPut(registrosMedios);
+        if (registrosMedios.length > 0) {
+          await db.mediaReferences.bulkPut(registrosMedios.map((registro) => ({
+            serverId: registro.serverId,
+            temaLocalId,
+            createdAt: Date.now(),
+          })));
+        }
+        });
+      } catch (error) {
+        await eliminarMediosPromovidosNoUsados(registrosMedios.map((registro) => registro.serverId), mediosAnteriores);
+        throw error;
+      }
 
       await db.temas.update(temaLocalId, {
         descargaEstado: "descargado",
@@ -93,6 +124,11 @@ export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitad
         downloadedAt: ahora,
         updatedAt: ahora,
       });
+
+      await eliminarMediosPromovidosNoUsados(
+        [...mediosAnteriores].filter((mediaId) => !paquete.medios.some((medio) => medio.id === mediaId)),
+        new Set(paquete.medios.map((medio) => medio.id)),
+      );
 
       await queueEventoProgreso("tema_descargado", {
         temaLocalId,
@@ -111,13 +147,15 @@ export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitad
 }
 
 export async function eliminarTemaDescargado(temaServerId: string): Promise<void> {
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) throw new Error("No hay una sesión offline activa.");
   const tema = await db.temas.where("serverId").equals(temaServerId).first();
   if (!tema) return;
 
   const [pasos, actividades, eventos] = await Promise.all([
     db.pasos.where("temaLocalId").equals(tema.localId).toArray(),
     db.actividades.where("temaLocalId").equals(tema.localId).toArray(),
-    db.eventosOutbox.toArray(),
+    db.eventosOutbox.filter((evento) => evento.scopeId === scopeId).toArray(),
   ]);
   const pasoIds = new Set(pasos.map((paso) => paso.localId));
   const actividadIds = new Set(actividades.map((actividad) => actividad.localId));
@@ -132,17 +170,17 @@ export async function eliminarTemaDescargado(temaServerId: string): Promise<void
     throw new Error("Este tema tiene progreso pendiente. Conéctate y sincroniza antes de eliminarlo.");
   }
 
-  const otrosTemas = await db.temas.filter((item) => item.localId !== tema.localId).toArray();
-  const mediosCompartidos = new Set(otrosTemas.flatMap((item) => item.mediaServerIds ?? []));
-  await db.transaction("rw", [db.temas, db.pasos, db.actividades, db.progresoUsuario, db.eventosOutbox, db.descargaJobs], async () => {
-    await db.eventosOutbox.toCollection().filter((evento) => evento.temaLocalId === tema.localId && evento.tipoEvento === "tema_descargado").delete();
+  await db.transaction("rw", [db.temas, db.pasos, db.actividades, db.progresoUsuario, db.eventosOutbox, db.descargaJobs, db.mediaReferences, db.mediaCache], async () => {
+    await db.eventosOutbox.toCollection().filter((evento) => evento.scopeId === scopeId && evento.temaLocalId === tema.localId && evento.tipoEvento === "tema_descargado").delete();
     await db.pasos.where("temaLocalId").equals(tema.localId).delete();
     await db.actividades.where("temaLocalId").equals(tema.localId).delete();
-    await db.progresoUsuario.where("temaLocalId").equals(tema.localId).delete();
+    await db.progresoUsuario.where("temaLocalId").equals(tema.localId).filter((item) => item.scopeId === scopeId).delete();
+    await db.mediaReferences.where("temaLocalId").equals(tema.localId).delete();
     await db.temas.delete(tema.localId);
     await db.descargaJobs.delete(temaServerId);
   });
   for (const mediaId of tema.mediaServerIds ?? []) {
-    if (!mediosCompartidos.has(mediaId)) await eliminarMedioDeCache(mediaId);
+    const referencias = await db.mediaReferences.where("serverId").equals(mediaId).count();
+    if (referencias === 0) await eliminarMedioDeCache(mediaId);
   }
 }

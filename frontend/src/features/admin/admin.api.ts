@@ -378,7 +378,7 @@ export function obtenerAjustesAdmin() {
 }
 
 export function guardarAjustesAdmin(datos: ActualizarAjustesAdminSolicitud) {
-  return peticion<AjustesAdmin>("/administracion/ajustes", {
+  return peticion<AjustesAdmin>("/administracion/ajustes-plataforma", {
     metodo: "PATCH",
     cuerpo: datos,
   });

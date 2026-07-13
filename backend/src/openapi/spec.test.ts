@@ -3,7 +3,7 @@ import { openApiSpec } from "./spec";
 
 const spec = openApiSpec as unknown as {
   paths: Record<string, any>;
-  components: { schemas: Record<string, any> };
+  components: { schemas: Record<string, any>; securitySchemes: Record<string, any> };
 };
 
 function resolverSchema(schema: any) {
@@ -153,5 +153,12 @@ describe("openapi spec", () => {
     expect(Object.keys(responseDuplicado.properties.datos.properties)).toEqual(["duplicado", "mensaje"]);
     expect(responseCreado.properties).not.toHaveProperty("duplicado");
     expect(responseDuplicado.properties).not.toHaveProperty("duplicado");
+  });
+
+  it("declara autenticación Bearer, sesión invitada y vinculación de cuenta", () => {
+    expect(spec.components.securitySchemes.bearerAuth).toMatchObject({ type: "http", scheme: "bearer" });
+    expect(spec.components.securitySchemes.guestUserId).toMatchObject({ type: "apiKey", in: "header", name: "X-Guest-User-Id" });
+    expect(spec.components.securitySchemes.guestToken).toMatchObject({ type: "apiKey", in: "header", name: "X-Guest-Token" });
+    expect(spec.paths["/perfil/vincular-cuenta"].post.responses[409]).toBeDefined();
   });
 });

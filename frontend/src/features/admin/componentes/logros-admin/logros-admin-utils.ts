@@ -1,4 +1,4 @@
-import type { CodigoCriterioLogro } from "../admin-logros.api";
+import type { CodigoCriterioLogro } from "../../admin-logros.api";
 
 export type CriterioLogroDescripcion = {
   codigo: CodigoCriterioLogro;

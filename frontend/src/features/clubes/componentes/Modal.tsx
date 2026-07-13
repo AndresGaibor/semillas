@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useDialogAccessibility } from "@/shared/accessibility/dialog";
 
 interface ModalProps {
   title: string;
@@ -8,6 +9,10 @@ interface ModalProps {
 }
 
 export function Modal({ title, subtitle, onClose, children }: ModalProps) {
+  const hoja = useRef<HTMLElement>(null);
+
+  useDialogAccessibility(hoja, onClose);
+
   return (
     <div
       className="club-modal"
@@ -18,7 +23,7 @@ export function Modal({ title, subtitle, onClose, children }: ModalProps) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <section className="club-modal__sheet">
+      <section ref={hoja} className="club-modal__sheet">
         <header>
           <div>
             <h2 id="club-modal-title">{title}</h2>

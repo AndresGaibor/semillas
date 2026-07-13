@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import logoOriginal from "@/assets/images/logos/Logo_original.png";
+import logoOriginal from "@/assets/images/logos/Logo_original.webp";
 
 export function WelcomeBanner() {
   const [isVisible, setIsVisible] = useState(false);

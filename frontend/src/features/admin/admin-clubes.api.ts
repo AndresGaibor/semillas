@@ -61,6 +61,20 @@ export type RetoClubAdmin = {
   fecha_fin: string;
 };
 
+export type ReporteClubAdmin = {
+  id: string;
+  club_id: string;
+  reportado_por: string;
+  reportado_usuario_id: string;
+  categoria: "contenido_inapropiado" | "acoso" | "datos_personales" | "otro";
+  detalle: string | null;
+  estado: "abierto" | "en_revision" | "resuelto" | "descartado";
+  resuelto_por: string | null;
+  nota_resolucion: string | null;
+  creado_en: string;
+  actualizado_en: string;
+};
+
 export type CrearClubAdminSolicitud = {
   nombre: string;
   descripcion?: string;
@@ -174,5 +188,17 @@ export function cerrarRetoClubAdmin(idClub: string, retoId: string, motivo: stri
   return peticion<{ closed: true }>(`/administracion/clubes/${idClub}/retos/${retoId}/cerrar`, {
     metodo: "POST",
     cuerpo: { motivo },
+  });
+}
+
+export function listarReportesClubAdmin(estado?: ReporteClubAdmin["estado"]) {
+  const query = estado ? `?estado=${encodeURIComponent(estado)}` : "";
+  return peticion<ReporteClubAdmin[]>(`/administracion/reportes-clubes${query}`);
+}
+
+export function resolverReporteClubAdmin(idReporte: string, datos: { estado: "en_revision" | "resuelto" | "descartado"; nota?: string }) {
+  return peticion<ReporteClubAdmin>(`/administracion/reportes-clubes/${encodeURIComponent(idReporte)}`, {
+    metodo: "PATCH",
+    cuerpo: datos,
   });
 }

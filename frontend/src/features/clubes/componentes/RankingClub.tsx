@@ -7,10 +7,9 @@ import { ClubesContentSkeleton } from "./ClubesContentSkeleton";
 interface RankingClubProps {
   ranking: MiembroRankingClub[];
   loading: boolean;
-  currentUserId?: string;
 }
 
-export function RankingClub({ ranking, loading, currentUserId }: RankingClubProps) {
+export function RankingClub({ ranking, loading }: RankingClubProps) {
   return (
     <section className="club-section-card">
       <header>
@@ -27,9 +26,9 @@ export function RankingClub({ ranking, loading, currentUserId }: RankingClubProp
         <div className="club-ranking-list">
           {ranking.map((member) => (
             <RankingRow
-              key={member.usuario_id}
+              key={member.miembro_token}
               member={member}
-              isMe={member.usuario_id === currentUserId}
+              isMe={member.es_actual}
             />
           ))}
           {ranking.length === 0 ? (

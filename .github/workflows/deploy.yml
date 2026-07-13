@@ -1,3 +1,188 @@
-# Deploy manejado por integración nativa de Cloudflare (dashboard)
-# Frontend → Cloudflare Pages (conectado directo desde el dashboard)
-# Backend → Cloudflare Workers (conectado directo desde el dashboard)
+name: Deploy Semillas
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  staging:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Instalar dependencias reproducibles
+        run: bun install --frozen-lockfile
+
+      - name: Validar suite, documentación y artefacto PWA
+        run: |
+          bun run check
+          bun run docs:check
+          bun run docs:freshness
+          bun run performance:bundle
+          bun run pwa:check
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Guardar artifact PWA aprobado para promoción
+        uses: actions/upload-artifact@v4
+        with:
+          name: semillas-frontend-${{ github.sha }}
+          path: frontend/dist/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Instalar cliente PostgreSQL para backup remoto
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+
+      - name: Crear y verificar backup de staging
+        run: |
+          BACKUP_DIR="backups/staging-${GITHUB_SHA}" bun run backup:db
+          BACKUP_DIR="backups/staging-${GITHUB_SHA}" bun run backup:storage
+          BACKUP_DIR="backups/staging-${GITHUB_SHA}" bun run restore:verify
+        env:
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Guardar backup de staging como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-staging-${{ github.sha }}
+          path: backups/staging-${{ github.sha }}/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Aplicar migraciones al proyecto remoto de staging
+        run: |
+          bunx supabase link --project-ref "$SUPABASE_PROJECT_REF" --skip-pooler
+          bun run db:migrate
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+
+      - name: Desplegar API staging
+        run: bun run deploy:backend:staging
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Desplegar PWA staging
+        run: bun run deploy:frontend:staging
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT_NAME: ${{ vars.CF_PAGES_PROJECT_NAME }}
+
+      - name: Smoke staging
+        run: bun run smoke:staging
+        env:
+          STAGING_API_URL: ${{ vars.STAGING_API_URL }}
+          STAGING_FRONTEND_URL: ${{ vars.STAGING_FRONTEND_URL }}
+
+  production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Instalar dependencias reproducibles
+        run: bun install --frozen-lockfile
+
+      - name: Validar artefacto aprobado
+        run: |
+          bun run check
+          bun run docs:check
+          bun run docs:freshness
+          bun run performance:bundle
+          bun run pwa:check
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Descargar artifact PWA aprobado en staging
+        uses: actions/download-artifact@v4
+        with:
+          name: semillas-frontend-${{ vars.STAGING_COMMIT_SHA }}
+          path: frontend/dist/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ vars.STAGING_ARTIFACT_RUN_ID }}
+
+      - name: Verificar artifact PWA promovido
+        run: |
+          test -s frontend/dist/index.html
+          test -s frontend/dist/sw.js
+          bun run performance:bundle
+          bun run pwa:check
+
+      - name: Instalar cliente PostgreSQL para backup remoto
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+
+      - name: Crear y verificar backup de producción
+        run: |
+          BACKUP_DIR="backups/production-${GITHUB_SHA}" bun run backup:db
+          BACKUP_DIR="backups/production-${GITHUB_SHA}" bun run backup:storage
+          BACKUP_DIR="backups/production-${GITHUB_SHA}" bun run restore:verify
+        env:
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Guardar backup de producción como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-production-${{ github.sha }}
+          path: backups/production-${{ github.sha }}/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Aplicar migraciones compatibles al proyecto remoto de producción
+        run: |
+          bunx supabase link --project-ref "$SUPABASE_PROJECT_REF" --skip-pooler
+          bun run db:migrate
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+
+      - name: Desplegar API producción
+        run: bun run deploy:backend:production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Desplegar PWA producción
+        run: bun run deploy:frontend:artifact
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT_NAME: ${{ vars.CF_PAGES_PROJECT_NAME }}
+
+      - name: Smoke producción
+        run: bun run smoke:production
+        env:
+          PRODUCTION_API_URL: ${{ vars.PRODUCTION_API_URL }}
+          PRODUCTION_FRONTEND_URL: ${{ vars.PRODUCTION_FRONTEND_URL }}

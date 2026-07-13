@@ -2283,7 +2283,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      publicar_tema_con_auditoria: {
+        Args: {
+          p_tema_id: string
+          p_actor_id: string
+          p_version_esperada: number
+        }
+        Returns: Database["public"]["Tables"]["tema"]["Row"][]
+      }
     }
     Enums: {
       estado_publicacion:

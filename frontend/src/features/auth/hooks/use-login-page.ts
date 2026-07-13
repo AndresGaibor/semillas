@@ -5,8 +5,9 @@ import { crearSesionInvitado, iniciarSesionFacebook, iniciarSesionGoogle } from 
 import { sessionStorageApi } from "@/shared/api/session";
 import { sincronizarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerMiPerfil, reclamarCuentaInvitada } from "@/features/perfil/profile.api";
-import { esFacebookPermitidoEnOrigen, obtenerRedirectGoogle, obtenerRedirectFacebook } from "@/features/auth/social-login";
+import { esFacebookPermitidoEnOrigen, estaGoogleHabilitado, obtenerRedirectGoogle, obtenerRedirectFacebook } from "@/features/auth/social-login";
 import { obtenerRutaPostLogin } from "@/shared/auth/post-login";
+import { migrarInvitadoSiCorresponde } from "../migracion-invitado";
 
 type UseLoginPageOptions = {
   redirectTo: string;
@@ -17,6 +18,7 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
   const queryClient = useQueryClient();
   const [tabActivo, setTabActivo] = useState<"social" | "email">("social");
   const facebookDisponible = esFacebookPermitidoEnOrigen(window.location.origin);
+  const googleDisponible = estaGoogleHabilitado();
 
   const guestMutation = useMutation({
     mutationFn: crearSesionInvitado,
@@ -37,10 +39,12 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
 
   const handleEmailSuccess = async () => {
     await sincronizarSesionAutenticada();
-    if (sessionStorageApi.getGuestUserId()) {
-      await reclamarCuentaInvitada().catch(() => undefined);
-      sessionStorageApi.clearGuestSession();
-    }
+    await migrarInvitadoSiCorresponde({
+      guestUserId: sessionStorageApi.getGuestUserId(),
+      accessToken: sessionStorageApi.getAccessToken(),
+      vincularCuenta: reclamarCuentaInvitada,
+      limpiarSesionInvitado: () => sessionStorageApi.clearGuestSession(),
+    });
     const perfilRespuesta = await queryClient.ensureQueryData({
       queryKey: ["me"],
       queryFn: obtenerMiPerfil,
@@ -55,6 +59,7 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
     guestMutation,
     googleMutation,
     facebookMutation,
+    googleDisponible,
     handleEmailSuccess,
     facebookDisponible,
   };

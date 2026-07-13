@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import conectar from "@/assets/images/Ilustraciones/Conectar.png";
-import sendaPadre from "@/assets/images/Ilustraciones/Senda del Padre.png";
-import tema1 from "@/assets/images/Ilustraciones/Tema1.png";
-import tema2 from "@/assets/images/Ilustraciones/Tema2.png";
+import conectar from "@/assets/images/Ilustraciones/Conectar.webp";
+import sendaPadre from "@/assets/images/Ilustraciones/Senda del Padre.webp";
+import tema1 from "@/assets/images/Ilustraciones/Tema1.webp";
+import tema2 from "@/assets/images/Ilustraciones/Tema2.webp";
 
 import { Rompecabezas, type RompecabezasProps } from "./Rompecabezas";
 

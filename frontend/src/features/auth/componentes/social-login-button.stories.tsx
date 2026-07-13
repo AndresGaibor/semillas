@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SocialLoginButton } from "./social-login-button";
-import googleIcon from "@/assets/images/icons/google.png";
-import guestIcon from "@/assets/images/icons/invitado.png";
+import googleIcon from "@/assets/images/icons/google.webp";
+import guestIcon from "@/assets/images/icons/invitado.webp";
 
 const meta: Meta<typeof SocialLoginButton> = {
   title: "Features/Auth/SocialLoginButton",

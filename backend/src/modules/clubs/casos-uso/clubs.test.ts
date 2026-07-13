@@ -67,6 +67,7 @@ describe("clubes", () => {
   test("calcula porcentaje y aporte de un reto", async () => {
     const now = new Date();
     const { repo } = crearRepositorio({
+      obtenerClub: async () => ({ activo: true }),
       listarRetos: async () => [{
         id: "reto-1",
         clubId: "club-1",
@@ -84,7 +85,8 @@ describe("clubes", () => {
     });
     const casos = crearCasosUsoClubs(repo);
 
-    const [reto] = await casos.listarRetos("club-1", "user-1");
+    const retos = await casos.listarRetos("club-1", "user-1");
+    const reto = Array.isArray(retos) ? retos[0] : undefined;
 
     expect(reto?.porcentaje).toBe(60);
     expect(reto?.miAporte).toBe(2);
@@ -104,6 +106,7 @@ describe("clubes", () => {
   test("reclama una recompensa solo cuando el reto está completo", async () => {
     const now = new Date();
     const { repo } = crearRepositorio({
+      obtenerClub: async () => ({ activo: true }),
       obtenerReto: async () => ({
         id: "reto-1", clubId: "club-1", nombre: "Meta", descripcion: null,
         codigoMetrica: "xp_grupal", valorObjetivo: 100, xpReto: 50,

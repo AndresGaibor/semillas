@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Boton } from "@/componentes/ui/boton";
-import { Download, Menu, Monitor, X } from "lucide-react";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import { Menu, Monitor, X } from "lucide-react";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import { esEnlaceLandingActivo, obtenerHrefLandingInicial, crearScrollSpy } from "./Navbar.helpers";
 import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 
@@ -16,8 +16,6 @@ const navItems = [
   { label: "Clubes", href: "#clubes" },
   { label: "Metodología", href: "#metodologia" },
 ];
-
-const apkUrl = import.meta.env.VITE_APK_URL;
 
 export function Navbar({ variante = "landing" }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,26 +81,6 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
             </Link>
           </Boton>
 
-          {apkUrl ? (
-            <Boton
-              asChild
-              className="landing-button landing-button--primary h-auto rounded-full px-5 py-3"
-            >
-              <a href={apkUrl} onClick={() => setIsOpen(false)}>
-                <Download size={18} aria-hidden="true" />
-                <span>Descargar APK</span>
-              </a>
-            </Boton>
-          ) : (
-            <Boton
-              type="button"
-              disabled
-              className="landing-button landing-button--primary h-auto rounded-full px-5 py-3 opacity-70"
-            >
-              <Download size={18} aria-hidden="true" />
-              <span>APK próximamente</span>
-            </Boton>
-          )}
         </div>
       </div>
     </header>

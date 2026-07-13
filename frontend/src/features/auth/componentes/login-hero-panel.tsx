@@ -1,8 +1,8 @@
 import * as React from "react";
-import candadoIcon from "@/assets/images/icons/candado.png";
-import escudoIcon from "@/assets/images/icons/entorno_seguro.png";
-import progresoIcon from "@/assets/images/icons/progreso.png";
-import ninosImg from "@/assets/images/Ilustraciones/Ninos 2.png";
+import candadoIcon from "@/assets/images/icons/candado.webp";
+import escudoIcon from "@/assets/images/icons/entorno_seguro.webp";
+import progresoIcon from "@/assets/images/icons/progreso.webp";
+import ninosImg from "@/assets/images/Ilustraciones/Ninos 2.webp";
 
 export const LoginHeroPanel: React.FC = () => {
   return (

@@ -1,6 +1,7 @@
-import { eq, sql, and, count } from "drizzle-orm";
+import { eq, sql, and, count, inArray } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
+import { calcularRachaDiaria } from "../gamification/racha.service";
 
 /** Actualiza (o inserta) el registro de progreso de un tema al 100% completado */
 async function actualizarProgresoTema100(db: DbClient, usuarioId: string, temaId: string) {
@@ -277,7 +278,21 @@ async function verificarYOtorgarLogros(
     console.log(`[LOGROS] actividades_completadas = ${metricas["actividades_completadas"]}`);
   }
 
-  // dias_racha: se salta por ahora (requiere tabla de rachas dedicada)
+  if (criteriosNecesarios.has("dias_racha")) {
+    const filasDias = await db
+      .select({ dia: sql<string>`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date::text` })
+      .from(schema.eventoProgreso)
+      .where(and(
+        eq(schema.eventoProgreso.usuarioId, usuarioId),
+        inArray(schema.eventoProgreso.tipoEvento, ["tema_completado", "actividad_respondida"]),
+        sql`(${schema.eventoProgreso.tipoEvento} = 'tema_completado' or ${schema.eventoProgreso.correcta} = true)`,
+      ))
+      .groupBy(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date`)
+      .orderBy(sql`(${schema.eventoProgreso.recibidoEnServidor} at time zone 'America/Guayaquil')::date desc`)
+      .limit(366);
+
+    metricas["dias_racha"] = calcularRachaDiaria(filasDias.map((fila) => fila.dia)).actual;
+  }
 
   // 4. Verificar qué logros cumple y otorgarlos
   const logrosGanados: Array<{ id: string; nombre: string; codigo: string; descripcion: string | null; bono_xp: number; url_icono: string | null }> = [];
@@ -285,8 +300,6 @@ async function verificarYOtorgarLogros(
   for (const logro of logrosNoPoseidos) {
     const criterio = logro.codigoCriterio;
     const valorRequerido = logro.valorCriterio ?? 0;
-
-    if (criterio === "dias_racha") continue; // Pendiente de implementar
 
     const valorActual = metricas[criterio] ?? 0;
 

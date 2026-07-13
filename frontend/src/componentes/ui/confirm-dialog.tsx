@@ -1,5 +1,6 @@
-import { type ReactNode } from "react";
+import { useRef } from "react";
 import { Boton } from "./boton";
+import { useDialogAccessibility } from "@/shared/accessibility/dialog";
 
 interface ConfirmDialogProps {
   mensaje: string;
@@ -10,6 +11,8 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ mensaje, onConfirm, onCancel, open, titulo }: ConfirmDialogProps) {
+  const hoja = useRef<HTMLElement>(null);
+  useDialogAccessibility(hoja, onCancel ?? (() => undefined), open);
   if (!open) return null;
 
   function handleConfirm() {
@@ -30,7 +33,7 @@ export function ConfirmDialog({ mensaje, onConfirm, onCancel, open, titulo }: Co
         if (event.target === event.currentTarget) handleCancel();
       }}
     >
-      <section className="club-modal__sheet">
+      <section ref={hoja} className="club-modal__sheet">
         <header>
           <div>
             <h2 id="confirm-dialog-title">{titulo ?? "Confirmar"}</h2>

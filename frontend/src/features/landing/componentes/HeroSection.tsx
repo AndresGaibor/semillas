@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Boton } from "@/componentes/ui/boton";
 import { Heart, Play, ShieldCheck, Smile, Sprout } from "lucide-react";
-import landingImg from "@/assets/images/banners/landing_page.png";
+const landingImg = "/landing-hero.webp";
 
 const badges = [
   { icon: ShieldCheck, text: "Contenido seguro" },
@@ -50,7 +50,14 @@ export function HeroSection() {
       </div>
 
       <div className="hero__image">
-        <img src={landingImg} alt="Jesús caminando con niños en un paisaje alegre" loading="eager" />
+        <img
+          src={landingImg}
+          srcSet="/landing-hero-480.webp 480w, /landing-hero.webp 900w"
+          sizes="(max-width: 700px) 90vw, 48vw"
+          alt="Jesús caminando con niños en un paisaje alegre"
+          fetchPriority="high"
+          decoding="async"
+        />
       </div>
     </section>
   );

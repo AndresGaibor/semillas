@@ -88,7 +88,8 @@ export function crearCasosUsoAdminLogros(repositorio: AdminLogrosRepository) {
 
       if (!fila) return error("No se pudo crear el logro", "INTERNAL_ERROR", 500);
       const otorgados = await repositorio.contarOtorgados(fila.id);
-      return { ...serializarLogroAdmin({ ...fila, otorgados }), _actor: administradorId } as ReturnType<typeof serializarLogroAdmin> & { _actor: string };
+      void administradorId;
+      return serializarLogroAdmin({ ...fila, otorgados });
     },
 
     async actualizar(id: string, entrada: ActualizarLogroAdminEntrada) {

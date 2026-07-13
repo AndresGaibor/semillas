@@ -34,8 +34,8 @@ export function serializarClubPublico(fila: FilaClub) {
 export function serializarMiembroClub(fila: Record<string, unknown>) {
   const unido = fila.unido_en ?? fila.unidoEn;
   return {
-    club_id: String(fila.club_id ?? fila.clubId ?? ""),
-    usuario_id: String(fila.usuario_id ?? fila.usuarioId ?? ""),
+    miembro_token: String(fila.token_publico ?? fila.tokenPublico ?? ""),
+    es_actual: Boolean(fila.es_actual ?? false),
     rol_miembro: String(fila.rol_miembro ?? fila.rolMiembro ?? "miembro"),
     unido_en: unido instanceof Date ? unido.toISOString() : String(unido ?? ""),
     apodo: String(fila.apodo ?? "Semillero"),

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, sql } from "drizzle-orm";
 import type { DbClient } from "../../db/client";
 import { schema } from "../../db/client";
 
@@ -128,6 +128,7 @@ export function crearClubsRepository(db: DbClient) {
         select
           cm.club_id,
           cm.usuario_id,
+          cm.token_publico,
           cm.rol_miembro,
           cm.unido_en,
           coalesce(p.apodo, ua.nombre_visible, 'Semillero') as apodo,
@@ -163,6 +164,7 @@ export function crearClubsRepository(db: DbClient) {
         select
           cm.club_id,
           cm.usuario_id,
+          cm.token_publico,
           cm.rol_miembro,
           cm.unido_en,
           coalesce(p.apodo, 'Semillero') as apodo,
@@ -237,6 +239,15 @@ export function crearClubsRepository(db: DbClient) {
         })
         .from(schema.miembroClub)
         .where(and(eq(schema.miembroClub.clubId, clubId), eq(schema.miembroClub.usuarioId, usuarioId)))
+        .limit(1);
+      return membership ?? null;
+    },
+
+    async obtenerMembresiaPorToken(tokenPublico: string, clubId: string) {
+      const [membership] = await db
+        .select()
+        .from(schema.miembroClub)
+        .where(and(eq(schema.miembroClub.clubId, clubId), eq(schema.miembroClub.tokenPublico, tokenPublico)))
         .limit(1);
       return membership ?? null;
     },
@@ -339,6 +350,7 @@ export function crearClubsRepository(db: DbClient) {
         select
           cm.club_id,
           cm.usuario_id,
+          cm.token_publico,
           cm.rol_miembro,
           coalesce(p.apodo, ua.nombre_visible, 'Semillero') as apodo,
           p.clave_avatar,
@@ -347,7 +359,10 @@ export function crearClubsRepository(db: DbClient) {
           coalesce(semanal.xp_semana, 0)::int as xp_semana,
           coalesce(semanal.actividades_semana, 0)::int as actividades_semana,
           rank() over (
-            order by coalesce(semanal.xp_semana, 0) desc, coalesce(vx.xp_total, 0) desc
+            order by coalesce(semanal.xp_semana, 0) desc,
+              coalesce(vx.xp_total, 0) desc,
+              coalesce(p.apodo, 'Semillero') asc,
+              cm.usuario_id asc
           )::int as numero_ranking
         from miembro_club cm
         join usuario_app ua on ua.id = cm.usuario_id
@@ -461,8 +476,8 @@ export function crearClubsRepository(db: DbClient) {
             aporteUsuario: sql<number>`coalesce(sum(${schema.eventoProgreso.xpOtorgada}) filter (where ${schema.eventoProgreso.usuarioId} = ${usuarioId}), 0)`,
           })
           .from(schema.eventoProgreso)
-          .innerJoin(schema.miembroClub, eq(schema.miembroClub.usuarioId, schema.eventoProgreso.usuarioId))
-          .where(condicionComun);
+        .innerJoin(schema.miembroClub, eq(schema.miembroClub.usuarioId, schema.eventoProgreso.usuarioId))
+          .where(and(condicionComun, eq(schema.miembroClub.clubId, clubId), sql`${schema.miembroClub.unidoEn} <= ${schema.eventoProgreso.ocurridoEnCliente}`));
         return { total: Number(fila?.total ?? 0), aporteUsuario: Number(fila?.aporteUsuario ?? 0) };
       }
 
@@ -474,9 +489,71 @@ export function crearClubsRepository(db: DbClient) {
         })
         .from(schema.eventoProgreso)
         .innerJoin(schema.miembroClub, eq(schema.miembroClub.usuarioId, schema.eventoProgreso.usuarioId))
-        .where(condicionComun);
+        .where(and(condicionComun, eq(schema.miembroClub.clubId, clubId), sql`${schema.miembroClub.unidoEn} <= ${schema.eventoProgreso.ocurridoEnCliente}`));
 
       return { total: Number(fila?.total ?? 0), aporteUsuario: Number(fila?.aporteUsuario ?? 0) };
+    },
+
+    async contarReportesRecientes(usuarioId: string, desde: Date) {
+      const [fila] = await db
+        .select({ total: sql<number>`count(*)` })
+        .from(schema.reporteClub)
+        .where(and(eq(schema.reporteClub.reportadoPor, usuarioId), gte(schema.reporteClub.creadoEn, desde)));
+      return Number(fila?.total ?? 0);
+    },
+
+    async crearReporte(input: {
+      clubId: string;
+      reportadoPor: string;
+      reportadoUsuarioId: string;
+      categoria: string;
+      detalle?: string;
+    }) {
+      return db.transaction(async (tx) => {
+        const [reporte] = await tx.insert(schema.reporteClub).values(input).returning();
+        if (!reporte) throw new Error("No se pudo crear el reporte");
+        await tx.insert(schema.registroAuditoria).values({
+          tipoEntidad: "reporte_club",
+          entidadId: reporte.id,
+          accion: "crear",
+          datosDespues: { club_id: reporte.clubId, reportado_usuario_id: reporte.reportadoUsuarioId, categoria: reporte.categoria },
+          actorUsuarioId: reporte.reportadoPor,
+        });
+        return reporte;
+      });
+    },
+
+    async obtenerReporte(id: string) {
+      const [reporte] = await db.select().from(schema.reporteClub).where(eq(schema.reporteClub.id, id)).limit(1);
+      return reporte ?? null;
+    },
+
+    async listarReportes(estado?: string) {
+      const filtro = estado ? eq(schema.reporteClub.estado, estado) : undefined;
+      return db.select().from(schema.reporteClub).where(filtro).orderBy(desc(schema.reporteClub.creadoEn));
+    },
+
+    async resolverReporte(id: string, input: { estado: string; nota?: string; resueltoPor: string }) {
+      return db.transaction(async (tx) => {
+        const [antes] = await tx.select().from(schema.reporteClub).where(eq(schema.reporteClub.id, id)).limit(1);
+        if (!antes) return null;
+        const [reporte] = await tx
+          .update(schema.reporteClub)
+          .set({ estado: input.estado, notaResolucion: input.nota ?? null, resueltoPor: input.resueltoPor, actualizadoEn: new Date() })
+          .where(eq(schema.reporteClub.id, id))
+          .returning();
+        if (reporte) {
+          await tx.insert(schema.registroAuditoria).values({
+            tipoEntidad: "reporte_club",
+            entidadId: id,
+            accion: "resolver",
+            datosAntes: { estado: antes.estado },
+            datosDespues: { estado: reporte.estado, nota: reporte.notaResolucion },
+            actorUsuarioId: input.resueltoPor,
+          });
+        }
+        return reporte ?? null;
+      });
     },
   };
 }

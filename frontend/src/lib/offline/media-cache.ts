@@ -54,6 +54,7 @@ export async function eliminarMedioDeCache(serverId: string): Promise<void> {
   const cache = await caches.open(MEDIA_CACHE_NAME);
   await cache.delete(crearRequestLocal(obtenerUrlMediaLocal(serverId)));
   await db.mediaCache.where("serverId").equals(serverId).delete();
+  await db.mediaReferences.where("serverId").equals(serverId).delete();
 }
 
 export async function existeMedioEnCache(serverId: string): Promise<boolean> {
@@ -94,14 +95,16 @@ export async function cachearMediosPaqueteOffline(
 
 export async function eliminarMediosTemaOffline(temaLocalId: string): Promise<void> {
   const cache = await caches.open(MEDIA_CACHE_NAME);
-  const registros = await db.mediaCache.where("temaLocalId").equals(temaLocalId).toArray();
+  const referencias = await db.mediaReferences.where("temaLocalId").equals(temaLocalId).toArray();
+  await db.mediaReferences.where("temaLocalId").equals(temaLocalId).delete();
 
   await Promise.all(
-    registros.map(async (registro) => {
-      if (registro.urlLocal) {
-        await cache.delete(crearRequestLocal(registro.urlLocal));
+    referencias.map(async (referencia) => {
+      const restantes = await db.mediaReferences.where("serverId").equals(referencia.serverId).count();
+      if (restantes === 0) {
+        await cache.delete(crearRequestLocal(obtenerUrlMediaLocal(referencia.serverId)));
+        await db.mediaCache.where("serverId").equals(referencia.serverId).delete();
       }
-      await db.mediaCache.delete(registro.id!);
     }),
   );
 }

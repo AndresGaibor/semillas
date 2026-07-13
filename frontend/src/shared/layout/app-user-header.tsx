@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AppAccountMenu } from "./app-account-menu";
 import { AppAccountMenuMobile } from "./app-account-menu-mobile";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 import "./app-account-menu-mobile.css";
 

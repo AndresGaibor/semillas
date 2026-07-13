@@ -569,3 +569,32 @@
   font-weight: 900;
 }
 .crecer-reflection li p { color: #475569; font-size: .92rem; line-height: 1.5; }
+
+.crecer-narrador {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin-top: 1rem;
+  padding: .8rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--lesson-accent) 25%, #e2e8f0);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--lesson-soft) 72%, white);
+  color: var(--lesson-accent);
+}
+.crecer-narrador__copy { display: grid; min-width: 0; flex: 1; gap: .15rem; }
+.crecer-narrador__copy strong { color: #172033; font-size: .85rem; }
+.crecer-narrador__copy span { color: #64748b; font-size: .75rem; }
+.crecer-narrador__copy progress { width: 100%; height: .3rem; accent-color: var(--lesson-accent); }
+.crecer-narrador button {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lesson-accent);
+  color: white;
+  cursor: pointer;
+}
+.crecer-narrador button:disabled { cursor: not-allowed; opacity: .45; }

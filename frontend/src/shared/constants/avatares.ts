@@ -1,13 +1,13 @@
-import avatar1Img from "@/assets/images/avatars/Avatar 1.png";
-import avatar2Img from "@/assets/images/avatars/Avatar 2.png";
-import avatar3Img from "@/assets/images/avatars/Avatar 3.png";
-import avatar4Img from "@/assets/images/avatars/Avatar 4.png";
-import avatar5Img from "@/assets/images/avatars/Avatar 5.png";
-import avatar6Img from "@/assets/images/avatars/Avatar 6.png";
-import avatar7Img from "@/assets/images/avatars/Avatar 7.png";
-import avatar8Img from "@/assets/images/avatars/Avatar 8.png";
-import avatar9Img from "@/assets/images/avatars/Avatar 9.png";
-import avatar10Img from "@/assets/images/avatars/Avatar 10.png";
+import avatar1Img from "@/assets/images/avatars/Avatar 1.webp";
+import avatar2Img from "@/assets/images/avatars/Avatar 2.webp";
+import avatar3Img from "@/assets/images/avatars/Avatar 3.webp";
+import avatar4Img from "@/assets/images/avatars/Avatar 4.webp";
+import avatar5Img from "@/assets/images/avatars/Avatar 5.webp";
+import avatar6Img from "@/assets/images/avatars/Avatar 6.webp";
+import avatar7Img from "@/assets/images/avatars/Avatar 7.webp";
+import avatar8Img from "@/assets/images/avatars/Avatar 8.webp";
+import avatar9Img from "@/assets/images/avatars/Avatar 9.webp";
+import avatar10Img from "@/assets/images/avatars/Avatar 10.webp";
 
 export const MAPA_AVATARES: Record<string, string> = {
   "1": avatar1Img,

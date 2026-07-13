@@ -2,7 +2,11 @@
 // Uso: bun run scripts/migrar-reclamado-en.ts
 import postgres from "postgres";
 
-const DB_URL = process.env.SUPABASE_DATABASE_URL ?? "postgresql://postgres:BaseConocimientoSeguridad@db.dmddyzftrkktzctrurmo.supabase.co:5432/postgres";
+const DB_URL = process.env.SUPABASE_DATABASE_URL;
+
+if (!DB_URL) {
+  throw new Error("Configura SUPABASE_DATABASE_URL en el entorno; el script no contiene una conexión por defecto.");
+}
 
 const sql = postgres(DB_URL, { ssl: "require", prepare: false });
 

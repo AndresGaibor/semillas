@@ -86,47 +86,54 @@ export function crearUsuarioRepository(db: DbClient) {
       correo,
       nombreVisible
     }: VincularCuentaInput): Promise<UsuarioVinculadoFila> {
-      const [existente] = await db
-        .select()
-        .from(schema.usuarioApp)
-        .where(
-          and(
-            eq(schema.usuarioApp.proveedor, proveedor),
-            eq(schema.usuarioApp.idExterno, idExterno)
+      return db.transaction(async (tx) => {
+        const [existente] = await tx
+          .select()
+          .from(schema.usuarioApp)
+          .where(
+            and(
+              eq(schema.usuarioApp.proveedor, proveedor),
+              eq(schema.usuarioApp.idExterno, idExterno)
+            )
           )
-        )
-        .limit(1);
+          .limit(1);
 
-      if (existente && existente.id !== usuarioId) {
-        const correoOculto = existente.correo
-          ? existente.correo.replace(/(.{2})(.*)(@.*)/, "$1***$3")
-          : null;
-        throw new ErrorConflicto(
-          correoOculto
-            ? `El correo ${correoOculto} ya pertenece a otra cuenta de Semillas. Inicia sesion con esa cuenta para acceder a tu progreso.`
-            : "Ya existe una cuenta vinculada a este proveedor. Cierra sesion e inicia sesion con esa cuenta."
-        );
-      }
+        if (existente && existente.id !== usuarioId) {
+          const correoOculto = existente.correo
+            ? existente.correo.replace(/(.{2})(.*)(@.*)/, "$1***$3")
+            : null;
+          throw new ErrorConflicto(
+            correoOculto
+              ? `El correo ${correoOculto} ya pertenece a otra cuenta de Semillas. Inicia sesion con esa cuenta para acceder a tu progreso.`
+              : "Ya existe una cuenta vinculada a este proveedor. Cierra sesion e inicia sesion con esa cuenta."
+          );
+        }
 
-      const [usuario] = await db
-        .update(schema.usuarioApp)
-        .set({
-          idExterno,
-          proveedor,
-          correo,
-          nombreVisible,
-          actualizadoEn: new Date()
-        })
-        .where(eq(schema.usuarioApp.id, usuarioId))
-        .returning({
-          id: schema.usuarioApp.id,
-          rol: schema.usuarioApp.rol,
-          proveedor: schema.usuarioApp.proveedor,
-          nombre_visible: schema.usuarioApp.nombreVisible,
-          correo: schema.usuarioApp.correo
-        });
+        const [usuario] = await tx
+          .update(schema.usuarioApp)
+          .set({
+            idExterno,
+            proveedor,
+            correo,
+            nombreVisible,
+            tokenInvitadoHash: null,
+            actualizadoEn: new Date()
+          })
+          .where(and(eq(schema.usuarioApp.id, usuarioId), eq(schema.usuarioApp.proveedor, "invitado")))
+          .returning({
+            id: schema.usuarioApp.id,
+            rol: schema.usuarioApp.rol,
+            proveedor: schema.usuarioApp.proveedor,
+            nombre_visible: schema.usuarioApp.nombreVisible,
+            correo: schema.usuarioApp.correo
+          });
 
-      return usuario;
+        if (!usuario) {
+          throw new ErrorConflicto("La cuenta invitada ya fue vinculada o no existe");
+        }
+
+        return usuario;
+      });
     }
   };
 }

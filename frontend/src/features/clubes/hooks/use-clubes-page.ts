@@ -15,11 +15,14 @@ import {
   obtenerRankingClub,
   quitarMiembroClub,
   reclamarRecompensaReto,
+  reportarEnClub,
   regenerarCodigoClub,
   salirDeClub,
   transferirLiderazgoClub,
   unirseAClub,
   type CodigoMetricaReto,
+  type MiembroClub,
+  type CategoriaReporteClub,
 } from "../clubes.api";
 
 export type VistaClub = "resumen" | "ranking" | "retos" | "miembros" | "ajustes";
@@ -46,6 +49,7 @@ export function useClubesPage() {
   const [vista, setVista] = useState<VistaClub>("resumen");
   const [showCreate, setShowCreate] = useState(false);
   const [showChallenge, setShowChallenge] = useState(false);
+  const [reportingMember, setReportingMember] = useState<MiembroClub | null>(null);
 
   const meQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil, staleTime: 1000 * 60 * 5 });
   const clubesQuery = useQuery({ queryKey: ["clubs", "mine"], queryFn: listarMisClubes });
@@ -158,7 +162,7 @@ export function useClubesPage() {
   });
 
   const removeMemberMutation = useMutation({
-    mutationFn: (usuarioId: string) => quitarMiembroClub(selectedClubId!, usuarioId),
+    mutationFn: (miembroToken: string) => quitarMiembroClub(selectedClubId!, miembroToken),
     onSuccess: async () => {
       await invalidateClub();
       toast.success("Miembro retirado");
@@ -167,7 +171,7 @@ export function useClubesPage() {
   });
 
   const transferMutation = useMutation({
-    mutationFn: (usuarioId: string) => transferirLiderazgoClub(selectedClubId!, usuarioId),
+    mutationFn: (miembroToken: string) => transferirLiderazgoClub(selectedClubId!, miembroToken),
     onSuccess: async () => {
       await invalidateClub();
       setVista("resumen");
@@ -196,6 +200,15 @@ export function useClubesPage() {
       toast.success(resultado.ya_reclamada ? "Ya habías reclamado esta recompensa" : `Ganaste ${resultado.xp_otorgada} XP`);
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo reclamar la recompensa"),
+  });
+
+  const reportMutation = useMutation({
+    mutationFn: (datos: { miembro_token: string; categoria: CategoriaReporteClub; detalle?: string }) => reportarEnClub(selectedClubId!, datos),
+    onSuccess: () => {
+      setReportingMember(null);
+      toast.success("Reporte enviado para revisión");
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo enviar el reporte"),
   });
 
   const xpInfo = useMemo(() => {
@@ -273,6 +286,8 @@ export function useClubesPage() {
     setShowCreate,
     showChallenge,
     setShowChallenge,
+    reportingMember,
+    setReportingMember,
     clubesQuery,
     detalleQuery,
     rankingQuery,
@@ -290,15 +305,17 @@ export function useClubesPage() {
       removeMemberMutation.isPending || transferMutation.isPending,
     challengePending: challengeMutation.isPending,
     claimingChallenge: claimChallengeMutation.isPending,
+    reporting: reportMutation.isPending,
     createClub: (datos: CrearClubInput) => crearMutation.mutate(datos),
     updateClub: (datos: CrearClubInput) => actualizarMutation.mutate(datos),
     regenerateCode: () => regenerarMutation.mutate(),
     leaveClub: () => salirMutation.mutate(),
     archiveClub: () => archivarMutation.mutate(),
-    removeMember: (usuarioId: string) => removeMemberMutation.mutate(usuarioId),
-    transferLeadership: (usuarioId: string) => transferMutation.mutate(usuarioId),
+    removeMember: (miembroToken: string) => removeMemberMutation.mutate(miembroToken),
+    transferLeadership: (miembroToken: string) => transferMutation.mutate(miembroToken),
     createChallenge: (datos: CrearRetoInput) => challengeMutation.mutate(datos),
     claimChallenge: (retoId: string) => claimChallengeMutation.mutate(retoId),
+    reportMember: (datos: { miembro_token: string; categoria: CategoriaReporteClub; detalle?: string }) => reportMutation.mutate(datos),
     handleCopyCode,
     handleShareCode,
     handleJoinClub,

@@ -19,7 +19,6 @@ import { router } from "@/router";
 import { DialogoConflictoVinculacion } from "@/componentes/ui/dialogo-conflicto-vinculacion";
 import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { obtenerGamificacionPropia } from "@/features/gamification/gamification.api";
-import "./app.css";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: () => {
@@ -30,6 +29,10 @@ export const Route = createFileRoute("/app")({
 });
 
 function AppLayout() {
+  useEffect(() => {
+    void import("./app.css");
+  }, []);
+
   const {
     isOffline,
     handleLogout,
@@ -130,11 +133,11 @@ function AppLayout() {
 
   const avatarGuardado = meQuery.data?.perfil?.url_avatar || meQuery.data?.perfil?.clave_avatar || "1";
   const cuenta = {
-    nombre: meQuery.data?.perfil?.apodo || meQuery.data?.usuario?.nombre_visible || "Semillero",
+    nombre: meQuery.data?.perfil?.apodo || "Semillero",
     nivelTexto:
       meQuery.data?.usuario?.proveedor === "invitado"
         ? "Invitado"
-        : meQuery.data?.usuario?.correo || "Cuenta registrada",
+        : "Cuenta registrada",
     avatarUrl: resolverAvatar(avatarGuardado),
   };
 
@@ -153,7 +156,8 @@ function AppLayout() {
           />
         ) : null}
 
-        <div className="app-shell__workspace">
+      <div className="app-shell__workspace">
+          <a className="skip-link" href="#main-content">Ir al contenido</a>
           {!esModoLeccion && !esDetalleTema ? (
             <AppUserHeader
               title={pageHeader.titulo}
@@ -167,7 +171,7 @@ function AppLayout() {
             />
           ) : null}
 
-          <main className="app-shell__main app-shell__main--app">
+          <main id="main-content" className="app-shell__main app-shell__main--app">
             <div className="app-shell__content app-shell__content--app" data-path={path}>
               <Outlet />
             </div>

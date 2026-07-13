@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CompartirInsigniaWidget } from "./compartir-insignia-widget";
-import in1Img from "@/assets/images/Ilustraciones/in1.png";
+import in1Img from "@/assets/images/Ilustraciones/in1.webp";
 
 const meta: Meta<typeof CompartirInsigniaWidget> = {
   title: "Features/Gamification/CompartirInsigniaWidget",

@@ -79,7 +79,7 @@ function ContenidoActividad({ actividad, onComplete, mode = "live" }: ActividadW
       return <SopaLetrasActividad actividad={actividad as any} onComplete={complete} />;
     case "rompecabezas": {
       const config = actividad.configuracion || {};
-      const imgUrl = (config.imagen as string) || "/src/assets/images/Ilustraciones/Tema1.png";
+      const imgUrl = (config.imagen as string) || "/src/assets/images/Ilustraciones/Tema1.webp";
       return (
         <Rompecabezas
           imagen={imgUrl}

@@ -135,6 +135,7 @@ export function ArrastrarSoltar({ actividad, onComplete }: ArrastrarSoltarProps)
                 {/* Controles de Accesibilidad / Móvil (Flechitas gigantes) */}
                 <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                   <button 
+                    aria-label={`Mover ${item.text} hacia arriba`}
                     onClick={() => moveItem(index, 'up')}
                     disabled={index === 0}
                     className="p-3 md:p-2 text-slate-500 bg-slate-50 hover:text-blue-600 hover:bg-blue-100 border border-slate-200 rounded-xl disabled:opacity-30 disabled:hover:bg-slate-50 disabled:hover:text-slate-500 transition-colors shadow-sm"
@@ -142,6 +143,7 @@ export function ArrastrarSoltar({ actividad, onComplete }: ArrastrarSoltarProps)
                     <ArrowUp size={24} className="md:w-6 md:h-6 w-7 h-7" />
                   </button>
                   <button 
+                    aria-label={`Mover ${item.text} hacia abajo`}
                     onClick={() => moveItem(index, 'down')}
                     disabled={index === items.length - 1}
                     className="p-3 md:p-2 text-slate-500 bg-slate-50 hover:text-blue-600 hover:bg-blue-100 border border-slate-200 rounded-xl disabled:opacity-30 disabled:hover:bg-slate-50 disabled:hover:text-slate-500 transition-colors shadow-sm"

@@ -1,5 +1,6 @@
 import { db } from "./db";
 import type { EventoOutbox } from "./db";
+import { claveSyncState, obtenerScopeOffline } from "./user-scope";
 
 const MAX_RETRIES = 3;
 
@@ -17,6 +18,8 @@ export async function queueEventoProgreso(
 ): Promise<string> {
   const localId = crypto.randomUUID();
   const dispositivoId = await getDispositivoId();
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) throw new Error("No hay una sesión offline activa");
 
   const evento: EventoOutbox = {
     localId,
@@ -32,6 +35,7 @@ export async function queueEventoProgreso(
     dispositivoId,
     retries: 0,
     createdAt: Date.now(),
+    scopeId,
   };
 
   await db.eventosOutbox.add(evento);
@@ -41,14 +45,19 @@ export async function queueEventoProgreso(
 }
 
 export async function getEventosPendientes(): Promise<EventoOutbox[]> {
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) return [];
   return db.eventosOutbox
     .where("retries")
     .below(MAX_RETRIES)
+    .filter((evento) => evento.scopeId === scopeId)
     .sortBy("createdAt");
 }
 
 export async function getEventosFallidos(): Promise<EventoOutbox[]> {
-  return db.eventosOutbox.where("retries").above(MAX_RETRIES - 1).toArray();
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) return [];
+  return db.eventosOutbox.where("retries").above(MAX_RETRIES - 1).filter((evento) => evento.scopeId === scopeId).toArray();
 }
 
 export async function markEventoProcesado(eventoLocalId: string): Promise<void> {
@@ -71,9 +80,12 @@ export async function markEventoError(
 }
 
 export async function getPendingCount(): Promise<number> {
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) return 0;
   return db.eventosOutbox
     .where("retries")
     .below(MAX_RETRIES)
+    .filter((evento) => evento.scopeId === scopeId)
     .count();
 }
 
@@ -93,25 +105,33 @@ export async function reintentarEventosFallidos(): Promise<number> {
 }
 
 export async function eliminarEventosFallidos(): Promise<void> {
-  await db.eventosOutbox.toCollection().filter((e) => e.retries >= MAX_RETRIES).delete();
+  const scopeId = await obtenerScopeOffline();
+  if (scopeId) {
+    await db.eventosOutbox.toCollection().filter((e) => e.retries >= MAX_RETRIES && e.scopeId === scopeId).delete();
+  }
   await updateSyncStatePendingCount();
 }
 
 async function updateSyncStatePendingCount(): Promise<void> {
   const count = await getPendingCount();
-  const existing = await db.syncState.get("main");
+  const scopeId = await obtenerScopeOffline();
+  if (!scopeId) return;
+  const syncStateId = claveSyncState(scopeId);
+  const existing = await db.syncState.get(syncStateId);
   if (existing) {
-    await db.syncState.update("main", {
+    await db.syncState.update(syncStateId, {
       pendingCount: count,
       updatedAt: new Date().toISOString(),
+      scopeId,
     });
   } else {
     await db.syncState.add({
-      id: "main",
+      id: syncStateId,
       lastSyncTimestamp: null,
       lastSyncExito: false,
       pendingCount: count,
       updatedAt: new Date().toISOString(),
+      scopeId,
     });
   }
 }

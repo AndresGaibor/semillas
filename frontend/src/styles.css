@@ -1,18 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-*:focus {
-  outline: none !important;
-  box-shadow: none !important;
+/* Mantener un indicador visible para teclado y navegación asistida. */
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-verde-brote) 72%, white);
+  outline-offset: 3px;
 }
 
-*:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
+/* Los controles con foco propio pueden definir un anillo más específico. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-verde-brote);
+  outline-offset: 1px;
 }
 
 @theme {
-  --color-verde-brote: #2e9e5b;
+  --color-verde-brote: #237a45;
   --color-verde-profundo: #123b2c;
   --color-dorado: #f4b740;
   --color-coral: #ee6c4d;
@@ -22,7 +26,7 @@
   --color-vida: #17a398;
   --color-admin-bg: #0f2a20;
 
-  --color-primario: #43a047;
+  --color-primario: #2e7d32;
   --color-primario-oscuro: #2e7d32;
   --color-primario-oscuro-min: #388e3c;
   --color-primario-oscuro-max: #1b5e20;
@@ -54,12 +58,12 @@
   --color-neutro-oscuro-min: #424242;
   --color-neutro-oscuro-max: #1a1a1a;
   --color-neutro-claro: #9e9e9e;
-  --color-neutro-claro-min: #757575;
+  --color-neutro-claro-min: #6f6f6f;
   --color-neutro-claro-max: #bdbdbd;
   --color-neutro-palido: #f5f5f5;
   --color-blanco: #ffffff;
 
-  --color-exito: #43a047;
+  --color-exito: #2e7d32;
   --color-advertencia: #ffca28;
   --color-error: #e53935;
   --color-informacion: #7e57c2;
@@ -88,6 +92,26 @@
   button { font-family: inherit; }
   h1, h2, h3 { margin: 0; }
 }
+
+/* Preferencias de lectura aplicadas a toda la PWA, no solo a la vista de perfil. */
+html[data-semillas-text-size="pequeno"] { font-size: clamp(13px, 1.05vw + 9px, 14px); }
+html[data-semillas-text-size="mediano"] { font-size: clamp(14px, 1.2vw + 10px, 16px); }
+html[data-semillas-text-size="grande"] { font-size: clamp(16px, 1.45vw + 11px, 19px); }
+
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: .75rem;
+  left: .75rem;
+  padding: .7rem 1rem;
+  border-radius: .75rem;
+  background: #123b2c;
+  color: #fff;
+  font-weight: 800;
+  transform: translateY(-180%);
+  transition: transform .15s ease;
+}
+.skip-link:focus { transform: translateY(0); }
 
 .onboarding-shell {
   min-height: 100vh;

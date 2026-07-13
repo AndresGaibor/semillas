@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 
 
 type AppSidebarProps = {
@@ -43,6 +43,7 @@ const adminItems: SidebarItem[] = [
   { to: "/admin/temas", label: "Temas", icon: "fa-leaf", match: (path) => path.includes("/admin/temas") },
   { to: "/admin/actividades", label: "Actividades", icon: "fa-pen-to-square", match: (path) => path.includes("/admin/actividades") },
   { to: "/admin/usuarios", label: "Usuarios", icon: "fa-user-group", match: (path) => path.includes("/admin/usuarios") },
+  { to: "/admin/logros", label: "Logros", icon: "fa-medal", match: (path) => path.includes("/admin/logros") },
   { to: "/admin/clubes", label: "Clubes", icon: "fa-people-group", match: (path) => path.includes("/admin/clubes") },
   { to: "/admin/medios", label: "Medios", icon: "fa-photo-film", match: (path) => path.includes("/admin/medios") },
   { to: "/admin/revision", label: "Revisión", icon: "fa-shield", match: (path) => path.includes("/admin/revision") },

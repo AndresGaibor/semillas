@@ -48,10 +48,12 @@ export type ClienteSupabaseAuth = {
 function sincronizarTokenSesion(session: Session | null) {
   if (session?.access_token) {
     sessionStorageApi.setAccessToken(session.access_token);
+    if (session.user?.id) sessionStorageApi.setAuthUserId(session.user.id);
     return;
   }
 
   sessionStorageApi.clearAccessToken();
+  sessionStorageApi.clearAuthUserId();
 }
 
 export async function sincronizarSesionAutenticadaConCliente(cliente: ClienteSupabaseAuth) {
@@ -131,6 +133,7 @@ export async function vincularGoogleConCliente(cliente: ClienteSupabaseAuth) {
 export async function cerrarSesionAutenticadaConCliente(cliente: ClienteSupabaseAuth) {
   await cliente.auth.signOut();
   sessionStorageApi.clearAccessToken();
+  sessionStorageApi.clearAuthUserId();
 }
 
 export async function registrarConCorreoConCliente(

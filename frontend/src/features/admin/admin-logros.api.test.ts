@@ -64,7 +64,7 @@ afterEach(() => {
 describe("admin-logros.api", () => {
   it("lista logros aplicando filtros opcionales", async () => {
     let ruta = "";
-    globalThis.fetch = (async (input, init) => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const solicitud = input instanceof Request ? input : new Request(String(input), init);
       ruta = `${new URL(solicitud.url).pathname}${new URL(solicitud.url).search}`;
       return new Response(JSON.stringify({ exito: true, datos: { logros: [], meta: { total: 0, limit: 20, offset: 0 } } }), {
@@ -87,7 +87,7 @@ describe("admin-logros.api", () => {
 
   it("obtiene el catálogo ordenado por nombre", async () => {
     let ruta = "";
-    globalThis.fetch = (async (input, init) => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const solicitud = input instanceof Request ? input : new Request(String(input), init);
       ruta = new URL(solicitud.url).pathname;
       return new Response(JSON.stringify({ exito: true, datos: [{ id: "l1", codigo: "a", nombre: "A" }] }), {
@@ -103,7 +103,7 @@ describe("admin-logros.api", () => {
 
   it("crea, actualiza, archiva y reactiva un logro", async () => {
     const solicitudes: Array<{ metodo: string; ruta: string; cuerpo: unknown }> = [];
-    globalThis.fetch = (async (input, init) => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const solicitud = input instanceof Request ? input : new Request(String(input), init);
       solicitudes.push({
         metodo: solicitud.method,
@@ -136,7 +136,7 @@ describe("admin-logros.api", () => {
 
   it("obtiene el detalle de un logro", async () => {
     let ruta = "";
-    globalThis.fetch = (async (input, init) => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const solicitud = input instanceof Request ? input : new Request(String(input), init);
       ruta = new URL(solicitud.url).pathname;
       return new Response(
@@ -175,7 +175,7 @@ describe("admin-logros.api", () => {
     }) as unknown as typeof fetch;
 
     await expect(listarLogrosAdmin({ estado: "todos", limit: 20, offset: 0 })).rejects.toThrow(
-      "Failed to fetch",
+      "Error de conexión",
     );
     expect(intentos).toBe(1);
   });

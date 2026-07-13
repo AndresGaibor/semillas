@@ -3,6 +3,7 @@ import { X, Share2, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { crearTarjetaInsignia, descargarTarjetaInsignia } from "../../logros/utils/crear-tarjeta-insignia";
 import { toast } from "sonner";
+import { crearPayloadCompartirInsignia } from "../../logros/utils/share-payload";
 
 interface ModalCelebracionProps {
   nombre: string;
@@ -14,7 +15,7 @@ interface ModalCelebracionProps {
 const FB_APP_ID = ""; // Opcional
 
 function generarTextoCompartir(nombre: string, xp: number) {
-  return `🏅 ¡Acabo de obtener la insignia "${nombre}" en Semillas y gané +${xp} XP! ¿Te unes al reto? 🌱`;
+  return crearPayloadCompartirInsignia({ nombreInsignia: nombre, xp }).text;
 }
 
 function compartirWhatsApp(nombre: string, xp: number) {
@@ -23,10 +24,9 @@ function compartirWhatsApp(nombre: string, xp: number) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-function compartirFacebook(nombre: string) {
-  const paginaActual = encodeURIComponent(window.location.href);
-  const texto = encodeURIComponent(`¡Obtuve la insignia "${nombre}" en Semillas! 🌱`);
-  const url = `https://www.facebook.com/sharer/sharer.php?u=${paginaActual}&quote=${texto}`;
+function compartirFacebook(nombre: string, xp: number) {
+  const texto = encodeURIComponent(generarTextoCompartir(nombre, xp));
+  const url = `https://www.facebook.com/sharer/sharer.php?quote=${texto}`;
   window.open(url, "_blank", "noopener,noreferrer,width=600,height=400");
 }
 
@@ -52,7 +52,7 @@ export async function compartirConImagen(red: 'whatsapp' | 'facebook' | 'twitter
     } else {
       descargarTarjetaInsignia(archivo);
       if (red === 'whatsapp') compartirWhatsApp(nombre, xp);
-      if (red === 'facebook') compartirFacebook(nombre);
+      if (red === 'facebook') compartirFacebook(nombre, xp);
       if (red === 'twitter') compartirTwitterX(nombre, xp);
       return true;
     }
@@ -60,10 +60,10 @@ export async function compartirConImagen(red: 'whatsapp' | 'facebook' | 'twitter
     if (e instanceof DOMException && e.name === "AbortError") return false;
     // Si falla la generación de imagen, intentar solo con texto
     if (red === 'whatsapp') compartirWhatsApp(nombre, xp);
-    if (red === 'facebook') compartirFacebook(nombre);
+    if (red === 'facebook') compartirFacebook(nombre, xp);
     if (red === 'twitter') compartirTwitterX(nombre, xp);
     if (red === 'native' && typeof navigator.share === "function") {
-      navigator.share({ title: `¡Insignia "${nombre}"!`, text: texto, url: window.location.href }).catch((error) => {
+      navigator.share({ title: `¡Insignia "${nombre}"!`, text: texto }).catch((error) => {
         console.warn("No se pudo compartir la insignia de forma nativa:", error);
         toast.error("No se pudo abrir el compartir nativo.");
       });

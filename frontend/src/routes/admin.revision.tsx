@@ -84,7 +84,7 @@ function AdminRevisionPage() {
           <h2>Revisión de contenido</h2>
           <p>Aprueba, solicita cambios o rechaza temas completos antes de publicarlos.</p>
         </div>
-        <button type="button" className="admin-secondary-button" onClick={() => query.refetch()}>
+        <button type="button" className="admin-secondary-button" onClick={() => cola.refetch()}>
           <RefreshCw size={17} /> Actualizar
         </button>
       </section>

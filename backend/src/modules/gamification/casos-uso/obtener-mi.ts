@@ -1,5 +1,30 @@
 import type { GamificationRepository } from "../gamification.repository";
 
+type LogroUsuarioFila = {
+  usuario_id: string;
+  logro_id: string;
+  ganado_en: Date;
+  reclamado_en: Date | null;
+  logro: {
+    id: string;
+    codigo: string;
+    nombre: string;
+    descripcion: string | null;
+    codigoCriterio: string;
+    valorCriterio: number | null;
+    bonoXp: number;
+    urlIcono: string | null;
+    activo: boolean;
+    creadoEn: Date;
+  } | null;
+};
+
+type ReglaNivelFila = {
+  numeroNivel: number;
+  nombre: string;
+  xpMinima: number;
+};
+
 function serializarLogro(logro: Record<string, unknown>) {
   return {
     id: String(logro.id ?? ""),
@@ -17,9 +42,16 @@ function serializarLogro(logro: Record<string, unknown>) {
 
 export function crearCasoObtenerMiGamificacion(repositorio: GamificationRepository) {
   return async function obtenerMiGamificacion(usuarioId: string) {
-    const nivel = await repositorio.obtenerNivelUsuario(usuarioId);
-    const logros = await repositorio.listarLogrosUsuario(usuarioId);
-    const pendientes_reclamar = await repositorio.contarLogrosPendientesReclamar(usuarioId);
+    const [nivel, logros, pendientes_reclamar, reglas_nivel, racha] = await Promise.all([
+      repositorio.obtenerNivelUsuario(usuarioId),
+      repositorio.listarLogrosUsuario(usuarioId),
+      repositorio.contarLogrosPendientesReclamar(usuarioId),
+      repositorio.listarReglasNivel(),
+      repositorio.obtenerRachaUsuario(usuarioId),
+    ]);
+
+    const logrosTipados = logros as LogroUsuarioFila[];
+    const reglasTipadas = reglas_nivel as ReglaNivelFila[];
 
     return {
       nivel: nivel
@@ -30,13 +62,15 @@ export function crearCasoObtenerMiGamificacion(repositorio: GamificationReposito
             nombre_nivel: String(nivel.nombre_nivel ?? "")
           }
         : null,
-      logros: logros.map((logroUsuario) => ({
+      logros: logrosTipados.map((logroUsuario) => ({
         usuario_id: String(logroUsuario.usuario_id ?? ""),
         logro_id: String(logroUsuario.logro_id ?? ""),
         ganado_en: logroUsuario.ganado_en.toISOString(),
         reclamado_en: logroUsuario.reclamado_en ? logroUsuario.reclamado_en.toISOString() : null,
         ...(logroUsuario.logro ? { logro: serializarLogro({ ...logroUsuario.logro, creado_en: logroUsuario.logro.creadoEn.toISOString() }) } : {})
       })),
+      reglas_nivel: reglasTipadas.map((regla) => ({ numero_nivel: regla.numeroNivel, nombre: regla.nombre, xp_minima: regla.xpMinima })),
+      racha: { actual: racha.actual, mejor: racha.mejor },
       // Cantidad de logros desbloqueados pendientes de reclamar (para el badge del menú)
       pendientes_reclamar,
     };

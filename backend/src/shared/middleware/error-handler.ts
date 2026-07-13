@@ -4,13 +4,16 @@ import { ErrorAplicacion } from "../errores/error-aplicacion";
 import { responderError } from "../http/respuesta";
 
 export const errorHandler: ErrorHandler = (err, c) => {
-  console.error(err);
+  console.error("Unhandled request error", {
+    requestId: c.get("requestId") ?? "unknown",
+    name: err.name,
+  });
 
   if (err instanceof HttpError) {
     return responderError(
       err.message,
       err.code,
-      err.status as 400 | 401 | 403 | 404 | 500,
+      err.status as 400 | 401 | 403 | 404 | 422 | 500,
       err.details
     );
   }
@@ -19,7 +22,7 @@ export const errorHandler: ErrorHandler = (err, c) => {
     return responderError(
       err.message,
       err.code,
-      err.status as 400 | 401 | 403 | 404 | 500,
+      err.status as 400 | 401 | 403 | 404 | 422 | 500,
       err.details
     );
   }

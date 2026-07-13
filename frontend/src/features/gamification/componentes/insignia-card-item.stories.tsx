@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { InsigniaCardItem } from "./insignia-card-item";
-import in1Img from "@/assets/images/Ilustraciones/in1.png";
+import in1Img from "@/assets/images/Ilustraciones/in1.webp";
 
 const meta: Meta<typeof InsigniaCardItem> = {
   title: "Features/Gamification/InsigniaCardItem",

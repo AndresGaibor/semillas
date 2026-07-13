@@ -15,6 +15,12 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class UnprocessableEntityError extends HttpError {
+  constructor(message = "La entidad no cumple las reglas de negocio", details?: unknown) {
+    super(422, message, "UNPROCESSABLE_ENTITY", details);
+  }
+}
+
 export class UnauthorizedError extends HttpError {
   constructor(message = "No autenticado") {
     super(401, message, "UNAUTHORIZED");

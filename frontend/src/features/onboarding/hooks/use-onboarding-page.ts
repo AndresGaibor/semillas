@@ -3,9 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { GrupoEdad } from "@/shared/api/api";
 import { obtenerGruposEdad } from "@/features/catalog/catalog.api";
-import imagenSemillas from "@/assets/images/Ilustraciones/Semilla.png";
-import imagenExploradores from "@/assets/images/Ilustraciones/Exploradores.png";
-import imagenEmbajadores from "@/assets/images/Ilustraciones/Embajadores.png";
+import imagenSemillas from "@/assets/images/Ilustraciones/Semilla.webp";
+import imagenExploradores from "@/assets/images/Ilustraciones/Exploradores.webp";
+import imagenEmbajadores from "@/assets/images/Ilustraciones/Embajadores.webp";
 
 const imagenPorCodigo: Record<string, string> = {
   semillas: imagenSemillas,

@@ -5,6 +5,16 @@ export type EventoAntesDeInstalar = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 };
 
+declare global {
+  interface Window {
+    semillasDeferredPrompt: EventoAntesDeInstalar | null;
+  }
+
+  interface Navigator {
+    standalone?: boolean;
+  }
+}
+
 export function esIOS(): boolean {
   if (typeof window === "undefined" || !window.navigator) {
     return false;
@@ -27,7 +37,7 @@ export function estaInstaladaComoPWA(): boolean {
   }
   const standalone = window.matchMedia("(display-mode: standalone)").matches;
   const fullscreen = window.matchMedia("(display-mode: fullscreen)").matches;
-  const iosStandalone = (window.navigator as any).standalone === true;
+  const iosStandalone = window.navigator.standalone === true;
 
   return standalone || fullscreen || iosStandalone;
 }

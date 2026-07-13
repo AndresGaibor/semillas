@@ -1,13 +1,26 @@
 import { peticion, RUTAS_API } from "../../shared/api/api";
 import { db } from "@/lib/offline/db";
+import { obtenerScopeOffline } from "@/lib/offline/user-scope";
+import { estaCacheSocialExpirada } from "./club-cache";
+export { CLUB_CACHE_TTL_MS, estaCacheSocialExpirada } from "./club-cache";
 
 async function readCache<T>(key: string): Promise<T | null> {
-  const entry = await db.clubsCache.get(key);
-  return entry ? (entry.data as T) : null;
+  const scope = await obtenerScopeOffline();
+  if (!scope) return null;
+  const entry = await db.clubsCache.get(`${scope}:${key}`);
+  if (!entry) return null;
+  if (estaCacheSocialExpirada(entry.timestamp)) {
+    await db.clubsCache.delete(entry.key);
+    return null;
+  }
+  return entry.data as T;
 }
 async function writeCache<T>(key: string, value: T): Promise<void> {
-  await db.clubsCache.put({ key, data: value, timestamp: Date.now() });
+  const scope = await obtenerScopeOffline();
+  if (!scope) return;
+  await db.clubsCache.put({ key: `${scope}:${key}`, data: value, timestamp: Date.now() });
 }
+
 async function cachedRequest<T>(key: string, request: () => Promise<T>): Promise<T> {
   if (!navigator.onLine) {
     const cached = await readCache<T>(key);
@@ -46,8 +59,8 @@ export type Club = {
 export type ClubPublico = Omit<Club, "codigo_invitacion">;
 
 export type MiembroClub = {
-  club_id: string;
-  usuario_id: string;
+  miembro_token: string;
+  es_actual: boolean;
   rol_miembro: RolMiembroClub;
   unido_en: string;
   apodo: string;
@@ -134,16 +147,16 @@ export function archivarClub(idClub: string) {
   return peticion<{ archived: true }>(RUTAS_API.CLUBES.DETALLE(idClub), { metodo: "DELETE" });
 }
 
-export function quitarMiembroClub(idClub: string, usuarioId: string) {
+export function quitarMiembroClub(idClub: string, miembroToken: string) {
   requireOnline();
-  return peticion<{ removed: true }>(RUTAS_API.CLUBES.MIEMBRO(idClub, usuarioId), { metodo: "DELETE" });
+  return peticion<{ removed: true }>(RUTAS_API.CLUBES.MIEMBRO(idClub, miembroToken), { metodo: "DELETE" });
 }
 
-export function transferirLiderazgoClub(idClub: string, usuarioId: string) {
+export function transferirLiderazgoClub(idClub: string, miembroToken: string) {
   requireOnline();
-  return peticion<{ transferred: true; usuario_id: string }>(RUTAS_API.CLUBES.TRANSFERIR(idClub), {
+  return peticion<{ transferred: true }>(RUTAS_API.CLUBES.TRANSFERIR(idClub), {
     metodo: "POST",
-    cuerpo: { usuario_id: usuarioId },
+    cuerpo: { miembro_token: miembroToken },
   });
 }
 
@@ -180,4 +193,11 @@ export function reclamarRecompensaReto(idClub: string, retoId: string) {
     RUTAS_API.CLUBES.RECLAMAR_RETO(idClub, retoId),
     { metodo: "POST" },
   );
+}
+
+export type CategoriaReporteClub = "contenido_inapropiado" | "acoso" | "datos_personales" | "otro";
+
+export function reportarEnClub(idClub: string, datos: { miembro_token: string; categoria: CategoriaReporteClub; detalle?: string }) {
+  requireOnline();
+  return peticion<{ id: string }>(RUTAS_API.CLUBES.REPORTES(idClub), { metodo: "POST", cuerpo: datos });
 }

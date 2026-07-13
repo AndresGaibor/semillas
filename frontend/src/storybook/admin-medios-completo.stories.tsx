@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import type { MediaCardItem } from "@/features/admin/admin-media.types";
 import { AdminMediaDetailPanel, AdminMediaFilters, AdminMediaGrid, AdminMediaHeader, AdminMediaLoadingState, AdminMediaTypeTabs, AdminMediaUploadProgress, type TipoMedia } from "@/features/admin/componentes/medios";
-import temaImg from "@/assets/images/Ilustraciones/Tema1.png";
-import quizImg from "@/assets/images/Ilustraciones/banner_quiz.png";
+import temaImg from "@/assets/images/Ilustraciones/Tema1.webp";
+import quizImg from "@/assets/images/Ilustraciones/banner_quiz.webp";
 
 const items: MediaCardItem[] = [
   { id: "m1", nombre: "Portada del amor de Dios", tipo: "imagen", tipoLabel: "Imagen", imgUrl: temaImg, usadoEnCount: 3, carpeta: "Ilustraciones", subidoPor: "Andres Gaibor", fechaSubido: "10 jul 2026", fechaTimestamp: Date.now(), tamano: "1.2 MB", formato: "PNG", resolucion: "1920 × 1080", dimensiones: "16:9", altText: "Niños aprendiendo sobre el amor de Dios", etiquetas: ["amor", "niños", "portada"] },

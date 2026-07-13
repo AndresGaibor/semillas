@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import app from "../../app";
 import type { AppBindings } from "../../config/env";
+import { limpiarRateLimitMemoria } from "../../shared/middleware/rate-limit.middleware";
 
 type ErrorBody = { exito: false; codigo?: string; error: string };
 type DeleteBody = { exito: true; datos: { deleted: boolean } };
@@ -49,11 +50,11 @@ function crearImagenFalsa(nombre = "falsa.png", tipo = "image/png") {
   return new File([new TextEncoder().encode("no-es-una-imagen")], nombre, { type: tipo });
 }
 
-function crearSolicitudSubida(archivo: File, tipo = "imagen", usuarioId = admin.id, titulo?: string) {
+function crearSolicitudSubida(archivo: File, tipo = "imagen", usuarioId = admin.id, titulo?: string, textoAlternativo = "Portada del tema") {
   const formData = new FormData();
   formData.append("archivo", archivo, archivo.name);
   formData.append("tipo", tipo);
-  formData.append("texto_alternativo", "Portada del tema");
+  if (textoAlternativo) formData.append("texto_alternativo", textoAlternativo);
   if (titulo) formData.append("titulo", titulo);
 
   return new Request("http://localhost/media/subir", {
@@ -119,6 +120,19 @@ describe("media.routes", () => {
     expect(body.codigo).toBe("FILE_TOO_LARGE");
   });
 
+  it("rechaza imágenes sin texto alternativo", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(String(input), init);
+      if (new URL(request.url).pathname.includes("/rest/v1/usuario_app")) {
+        return new Response(JSON.stringify(admin), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      return new Response(JSON.stringify({}), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch;
+    const response = await app.fetch(crearSolicitudSubida(crearImagen(), "imagen", admin.id, undefined, ""), env);
+    expect(response.status).toBe(400);
+    expect((await response.json() as ErrorBody).codigo).toBe("ALT_REQUIRED");
+  });
+
   it("rechaza MIME de imagen no permitido aunque use prefijo image", async () => {
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const request = input instanceof Request ? input : new Request(String(input), init);
@@ -170,6 +184,8 @@ describe("media.routes", () => {
   });
 
   it("guarda bucket, clave y ruta firmada al registrar la imagen", async () => {
+    limpiarRateLimitMemoria();
+    const adminUpload = { ...admin, id: "550e8400-e29b-41d4-a716-446655440012" };
     let registroInsertado: Record<string, unknown> = {};
     let rutaActualizada = "";
 
@@ -178,7 +194,7 @@ describe("media.routes", () => {
       const url = new URL(request.url);
 
       if (url.pathname.includes("/rest/v1/usuario_app")) {
-        return new Response(JSON.stringify(admin), {
+        return new Response(JSON.stringify(adminUpload), {
           status: 200,
           headers: { "content-type": "application/json" },
         });
@@ -227,7 +243,7 @@ describe("media.routes", () => {
       });
     }) as typeof fetch;
 
-    const response = await app.fetch(crearSolicitudSubida(crearImagen("Portada Feliz.png"), "imagen", admin.id, "Ilustración del tema"), env);
+    const response = await app.fetch(crearSolicitudSubida(crearImagen("Portada Feliz.png"), "imagen", adminUpload.id, "Ilustración del tema"), env);
 
     expect(response.status).toBe(201);
     expect(registroInsertado?.bucket_almacenamiento).toBe("media");

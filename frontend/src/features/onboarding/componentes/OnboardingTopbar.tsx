@@ -1,5 +1,5 @@
 import { HelpCircle } from "lucide-react";
-import logoImg from "@/assets/images/logos/Logotipo.png";
+import logoImg from "@/assets/images/logos/Logotipo.webp";
 import { BotonTemaToggle } from "@/componentes/ui/boton-tema-toggle";
 
 interface OnboardingTopbarProps {

@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import padreImg from "@/assets/images/Ilustraciones/Senda del Padre.png";
-import hijoImg from "@/assets/images/Ilustraciones/Senda del hijo.png";
-import espirituImg from "@/assets/images/Ilustraciones/Senda del espiritu santo.png";
+import padreImg from "@/assets/images/Ilustraciones/Senda del Padre.webp";
+import hijoImg from "@/assets/images/Ilustraciones/Senda del hijo.webp";
+import espirituImg from "@/assets/images/Ilustraciones/Senda del espiritu santo.webp";
 
 interface PathCardProps {
   tipo: "padre" | "hijo" | "espiritu";

@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import app from "../../app";
 import type { AppBindings } from "../../config/env";
 import { crearModuloAdmin } from "./admin.routes";
+import { UnprocessableEntityError } from "../../shared/errors/http-error";
+import { errorHandler } from "../../shared/middleware/error-handler";
 
 const env: AppBindings["Bindings"] = {
   APP_ENV: "development",
@@ -43,6 +45,45 @@ function responderSupabase(casos: Array<{ metodo: string; path: string; responde
 }
 
 describe("admin.routes", () => {
+  it("bloquea el bypass directo de publicación con errores estructurados", async () => {
+    responderSupabase([
+      {
+        metodo: "GET",
+        path: "/rest/v1/usuario_app",
+        responder: () => new Response(JSON.stringify({
+          id: "usuario-admin",
+          rol: "administrador",
+          proveedor: "invitado",
+          nombre_visible: "Admin",
+          correo: null,
+          activo: true,
+          token_invitado_hash: TOKEN_INVITADO_HASH,
+        }), { headers: { "content-type": "application/json" } }),
+      },
+    ]);
+
+    const appAdmin = new Hono<AppBindings>();
+    appAdmin.onError(errorHandler);
+    appAdmin.route("/administracion", crearModuloAdmin(() => ({
+      publicarTema: async () => {
+        throw new UnprocessableEntityError("El tema todavía no está completo", {
+          errores: [{ codigo: "MATRIZ_INCOMPLETA", ruta: "crecer.semillas.conectar", mensaje: "Falta contenido" }],
+        });
+      },
+    }) as unknown as ReturnType<typeof import("./admin.repository").crearAdminRepository>));
+
+    const response = await appAdmin.fetch(new Request("http://localhost/administracion/temas/tema-1/publicar", {
+      method: "POST",
+      headers: { "x-guest-user-id": "usuario-admin", "x-guest-token": TOKEN_INVITADO },
+    }), env);
+    const body = await response.json() as { exito: false; codigo: string; detalle: { errores: Array<{ codigo: string }> } };
+
+    expect(response.status).toBe(422);
+    expect(body.exito).toBe(false);
+    expect(body.codigo).toBe("UNPROCESSABLE_ENTITY");
+    expect(body.detalle.errores[0]?.codigo).toBe("MATRIZ_INCOMPLETA");
+  });
+
   it("archiva un tema existente y conserva su identidad", async () => {
     let cuerpoActualizacion: Record<string, unknown> | null = null;
 

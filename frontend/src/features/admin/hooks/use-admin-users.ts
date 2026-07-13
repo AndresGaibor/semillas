@@ -1,16 +1,16 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import avatar1 from "@/assets/images/avatars/Avatar 1.png";
-import avatar2 from "@/assets/images/avatars/Avatar 2.png";
-import avatar3 from "@/assets/images/avatars/Avatar 3.png";
-import avatar4 from "@/assets/images/avatars/Avatar 4.png";
-import avatar5 from "@/assets/images/avatars/Avatar 5.png";
-import avatar6 from "@/assets/images/avatars/Avatar 6.png";
-import avatar7 from "@/assets/images/avatars/Avatar 7.png";
-import avatar8 from "@/assets/images/avatars/Avatar 8.png";
-import avatar9 from "@/assets/images/avatars/Avatar 9.png";
-import avatar10 from "@/assets/images/avatars/Avatar 10.png";
+import avatar1 from "@/assets/images/avatars/Avatar 1.webp";
+import avatar2 from "@/assets/images/avatars/Avatar 2.webp";
+import avatar3 from "@/assets/images/avatars/Avatar 3.webp";
+import avatar4 from "@/assets/images/avatars/Avatar 4.webp";
+import avatar5 from "@/assets/images/avatars/Avatar 5.webp";
+import avatar6 from "@/assets/images/avatars/Avatar 6.webp";
+import avatar7 from "@/assets/images/avatars/Avatar 7.webp";
+import avatar8 from "@/assets/images/avatars/Avatar 8.webp";
+import avatar9 from "@/assets/images/avatars/Avatar 9.webp";
+import avatar10 from "@/assets/images/avatars/Avatar 10.webp";
 import {
   obtenerUsuariosAdmin,
   type EstadoUsuarioAdmin,

@@ -11,8 +11,6 @@ import { DialogoConfirmacionLogro, type ConfirmacionLogroAccion } from "./Dialog
 import { FormularioLogro } from "./FormularioLogro";
 
 type EstadoFiltro = "activo" | "archivado" | "todos";
-type ModoFormulario = { tipo: "crear" | "editar"; logro: LogroAdminResumen | null } | null;
-
 export function AdminLogrosPanel() {
   const [busqueda, setBusqueda] = useState("");
   const busquedaDiferida = useDeferredValue(busqueda.trim());
@@ -21,7 +19,7 @@ export function AdminLogrosPanel() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [porPagina, setPorPagina] = useState(20);
   const [confirmacion, setConfirmacion] = useState<ConfirmacionLogroAccion | null>(null);
-  const [modo, setModo] = useState<ModoFormulario>(null);
+  const [logroEnEdicion, setLogroEnEdicion] = useState<LogroAdminResumen | null>(null);
 
   const filtros = {
     q: busquedaDiferida || undefined,
@@ -31,8 +29,7 @@ export function AdminLogrosPanel() {
     offset: (paginaActual - 1) * porPagina,
   };
 
-  const { estaConectado, listado, crear, actualizar, archivar, reactivar, mutando } =
-    useAdminLogros(filtros);
+  const { estaConectado, listado, actualizar, archivar, reactivar, mutando } = useAdminLogros(filtros);
   const data = listado.data;
 
   useEffect(() => {
@@ -40,50 +37,13 @@ export function AdminLogrosPanel() {
     if (paginaActual > totalPaginas) setPaginaActual(totalPaginas);
   }, [data?.meta.total, paginaActual, porPagina]);
 
-  function abrirCrear() {
-    setModo({ tipo: "crear", logro: null });
-  }
-
   function abrirEditar(logro: LogroAdminResumen) {
-    setModo({ tipo: "editar", logro });
+    setLogroEnEdicion(logro);
   }
 
-  async function manejarGuardar(valores: {
-    codigo: string;
-    nombre: string;
-    descripcion: string;
-    url_icono: string;
-    bono_xp: number;
-    codigo_criterio: CodigoCriterioLogro;
-    valor_criterio: number;
-  }) {
-    try {
-      if (modo?.tipo === "editar" && modo.logro) {
-        await actualizar.mutateAsync({
-          id: modo.logro.id,
-          datos: {
-            nombre: valores.nombre,
-            descripcion: valores.descripcion || null,
-            url_icono: valores.url_icono || null,
-            bono_xp: valores.bono_xp,
-            codigo_criterio: valores.codigo_criterio,
-            valor_criterio: valores.valor_criterio,
-          },
-        });
-      } else {
-        await crear.mutateAsync({
-          codigo: valores.codigo,
-          nombre: valores.nombre,
-          descripcion: valores.descripcion || undefined,
-          url_icono: valores.url_icono || undefined,
-          bono_xp: valores.bono_xp,
-          codigo_criterio: valores.codigo_criterio,
-          valor_criterio: valores.valor_criterio,
-        });
-      }
-      setModo(null);
-    } catch {
-      // El toast lo maneja el caller.
+  function navegarNuevoLogro() {
+    if (typeof window !== "undefined") {
+      window.location.assign("/admin/logros/nuevo");
     }
   }
 
@@ -115,7 +75,7 @@ export function AdminLogrosPanel() {
         </div>
         <button
           type="button"
-          onClick={abrirCrear}
+          onClick={navegarNuevoLogro}
           disabled={!estaConectado || mutando}
           className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -251,7 +211,7 @@ export function AdminLogrosPanel() {
                       </p>
                       <button
                         type="button"
-                        onClick={abrirCrear}
+                        onClick={navegarNuevoLogro}
                         className="mt-4 text-sm font-bold text-emerald-700 hover:text-emerald-800"
                       >
                         Crear logro
@@ -293,12 +253,29 @@ export function AdminLogrosPanel() {
       )}
 
       <FormularioLogro
-        abierto={modo !== null}
-        modo={modo?.tipo ?? "crear"}
-        logro={modo?.logro ?? null}
-        guardando={crear.isPending || actualizar.isPending}
-        onCerrar={() => setModo(null)}
-        onGuardar={(valores) => void manejarGuardar(valores)}
+        abierto={logroEnEdicion !== null}
+        modo="editar"
+        logro={logroEnEdicion}
+        presentacion="modal"
+        guardando={actualizar.isPending}
+        onCerrar={() => setLogroEnEdicion(null)}
+        onGuardar={(valores) => {
+          if (!logroEnEdicion) return;
+          void actualizar
+            .mutateAsync({
+              id: logroEnEdicion.id,
+              datos: {
+                nombre: valores.nombre,
+                descripcion: valores.descripcion || null,
+                url_icono: valores.url_icono || null,
+                bono_xp: valores.bono_xp,
+                codigo_criterio: valores.codigo_criterio,
+                valor_criterio: valores.valor_criterio,
+              },
+            })
+            .then(() => setLogroEnEdicion(null))
+            .catch(() => undefined);
+        }}
       />
 
       <DialogoConfirmacionLogro

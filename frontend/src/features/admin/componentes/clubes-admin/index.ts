@@ -8,4 +8,5 @@ export { TarjetaClub } from './TarjetaClub';
 export { BackButton } from './admin-back-button';
 export { AdminClubDetailPage } from './admin-club-detail-page';
 export { AdminClubesPanel } from './admin-clubes-panel';
+export { ReportesClubAdmin } from './reportes-club';
 export { ClubVisibilitySelector, type ClubVisibilidades } from './club-visibility-selector';

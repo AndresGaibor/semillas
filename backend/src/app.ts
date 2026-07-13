@@ -26,6 +26,7 @@ import { createSupabaseAdmin, crearDb } from "./db/client";
 import { openApiSpec } from "./openapi/spec";
 import { errorHandler } from "./shared/middleware/error-handler";
 import { requestIdMiddleware } from "./shared/middleware/request-id.middleware";
+import { crearRateLimitMiddleware } from "./shared/middleware/rate-limit.middleware";
 
 /**
  * Rutas de la API
@@ -41,6 +42,7 @@ import { activitiesRoutes } from "./modules/activities";
 import { adminRoutes } from "./modules/admin";
 import { clubsRoutes } from "./modules/clubs";
 import { adminClubsRoutes } from "./modules/clubs/admin-clubs.routes";
+import { moderationRoutes } from "./modules/clubs/moderation.routes";
 import { gamificationRoutes, adminLogrosRoutes } from "./modules/gamification";
 import { mediaRoutes } from "./modules/media";
 import { crearModuloSync } from "./modules/sync";
@@ -63,6 +65,16 @@ const app = new Hono<AppBindings>();
  */
 app.use("*", logger());
 app.use("*", requestIdMiddleware());
+
+const limitarPublico = crearRateLimitMiddleware("publico");
+const limitarAutenticado = crearRateLimitMiddleware("autenticado");
+const limitarSensible = crearRateLimitMiddleware("sensible");
+app.use("*", async (c, next) => {
+  const ruta = new URL(c.req.url).pathname;
+  const sensible = ruta === "/autenticacion/invitado" || ruta.includes("/vincular-cuenta") || ruta === "/media/subir" || ruta.startsWith("/administracion");
+  const autenticado = !sensible && (c.req.header("authorization") || c.req.header("x-guest-user-id"));
+  return (sensible ? limitarSensible : autenticado ? limitarAutenticado : limitarPublico)(c, next);
+});
 
 /**
  * Configuración de CORS
@@ -201,6 +213,7 @@ app.route("/progreso", progressRoutes);
 app.route("/actividades", activitiesRoutes);
 app.route("/administracion", adminRoutes);
 app.route("/administracion/clubes", adminClubsRoutes);
+app.route("/administracion", moderationRoutes);
 app.route("/clubes", clubsRoutes);
 app.route("/gamificacion", gamificationRoutes);
 app.route("/administracion/logros", adminLogrosRoutes);

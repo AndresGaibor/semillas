@@ -1,4 +1,4 @@
-import imgSprout from "@/assets/images/Ilustraciones/Semilla.png";
+import imgSprout from "@/assets/images/Ilustraciones/Semilla.webp";
 
 interface ThemeStatusPanelProps {
   estado?: string | null;

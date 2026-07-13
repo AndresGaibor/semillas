@@ -490,6 +490,7 @@ export const club = pgTable("club", {
 export const miembroClub = pgTable("miembro_club", {
   clubId: uuid("club_id").notNull().references(() => club.id, { onDelete: "cascade" }),
   usuarioId: uuid("usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  tokenPublico: uuid("token_publico").notNull().defaultRandom(),
   rolMiembro: varchar("rol_miembro", { length: 50 }).notNull().default("miembro"),
   unidoEn: timestamp("unido_en").notNull().defaultNow()
 });
@@ -527,6 +528,20 @@ export const tarjetaCompartida = pgTable("tarjeta_compartida", {
   logroId: uuid("logro_id").references(() => logro.id, { onDelete: "set null" }),
   urlImagen: text("url_imagen").notNull(),
   creadoEn: timestamp("creado_en").notNull().defaultNow()
+});
+
+export const reporteClub = pgTable("reporte_club", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  clubId: uuid("club_id").notNull().references(() => club.id, { onDelete: "cascade" }),
+  reportadoPor: uuid("reportado_por").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  reportadoUsuarioId: uuid("reportado_usuario_id").notNull().references(() => usuarioApp.id, { onDelete: "cascade" }),
+  categoria: varchar("categoria", { length: 40 }).notNull(),
+  detalle: varchar("detalle", { length: 500 }),
+  estado: varchar("estado", { length: 30 }).notNull().default("abierto"),
+  resueltoPor: uuid("resuelto_por").references(() => usuarioApp.id, { onDelete: "set null" }),
+  notaResolucion: varchar("nota_resolucion", { length: 500 }),
+  creadoEn: timestamp("creado_en").notNull().defaultNow(),
+  actualizadoEn: timestamp("actualizado_en").notNull().defaultNow(),
 });
 
 /**

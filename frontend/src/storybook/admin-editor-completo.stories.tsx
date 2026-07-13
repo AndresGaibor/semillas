@@ -10,7 +10,7 @@ import { BackButton, ClubVisibilitySelector } from "@/features/admin/componentes
 import type { ClubVisibilidades } from "@/features/admin/componentes/clubes-admin";
 import { PortadaFileInput } from "@/features/admin/componentes/medios";
 import { StoryRouter } from "./story-router";
-import portadaImg from "@/assets/images/Ilustraciones/Tema1.png";
+import portadaImg from "@/assets/images/Ilustraciones/Tema1.webp";
 
 const sendas: Senda[] = [
   { id: "padre", codigo: "padre", nombre: "Senda del Padre", descripcion: null, color_hex: "#E9A23B", nombre_icono: "sun", orden: 1 },

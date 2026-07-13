@@ -16,6 +16,7 @@ import {
 import type { Perfil, Usuario } from "@/shared/api/api";
 import type { ActualizarPerfilDatos } from "../profile.api";
 import { toast } from "sonner";
+import { aplicarTamanoTexto, normalizarTamanoTexto } from "@/shared/accessibility/preferences";
 
 interface ProfilePreferencesFormProps {
   perfil: Perfil;
@@ -48,12 +49,6 @@ function guardarPreferenciaLocal(clave: string, valor: string) {
   obtenerAlmacenLocal()?.setItem(clave, valor);
 }
 
-function normalizarTamano(value?: string | null) {
-  if (value === "pequeno" || value === "pequeño") return "pequeno";
-  if (value === "grande") return "grande";
-  return "mediano";
-}
-
 export function ProfilePreferencesForm({
   perfil,
   usuario,
@@ -66,7 +61,7 @@ export function ProfilePreferencesForm({
 }: ProfilePreferencesFormProps) {
   // Ajustes de API
   const [audio, setAudio] = useState(Boolean(perfil.prefiere_audio));
-  const [textSize, setTextSize] = useState(normalizarTamano(perfil.tamano_texto_preferido));
+  const [textSize, setTextSize] = useState(normalizarTamanoTexto(perfil.tamano_texto_preferido));
 
   // Ajustes locales (localStorage)
   const [notificaciones, setNotificaciones] = useState(() => {
@@ -87,13 +82,14 @@ export function ProfilePreferencesForm({
 
   useEffect(() => {
     setAudio(Boolean(perfil.prefiere_audio));
-    setTextSize(normalizarTamano(perfil.tamano_texto_preferido));
+    setTextSize(normalizarTamanoTexto(perfil.tamano_texto_preferido));
+    aplicarTamanoTexto(perfil.tamano_texto_preferido);
   }, [perfil.prefiere_audio, perfil.tamano_texto_preferido]);
 
   const hasApiChanges = useMemo(
     () =>
       audio !== Boolean(perfil.prefiere_audio) ||
-      textSize !== normalizarTamano(perfil.tamano_texto_preferido),
+      textSize !== normalizarTamanoTexto(perfil.tamano_texto_preferido),
     [audio, perfil.prefiere_audio, perfil.tamano_texto_preferido, textSize],
   );
 
@@ -125,6 +121,8 @@ export function ProfilePreferencesForm({
     guardarPreferenciaLocal("semillas-pref-contraste", contraste ? "alto" : "normal");
     guardarPreferenciaLocal("semillas-pref-parental", String(parental));
     guardarPreferenciaLocal("semillas-pref-tema", tema);
+    guardarPreferenciaLocal("semillas-pref-text-size", textSize);
+    aplicarTamanoTexto(textSize);
 
     // Aplicar contraste al DOM
     if (contraste) {

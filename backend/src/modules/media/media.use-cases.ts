@@ -68,6 +68,15 @@ export function crearCasosUsoMedia(
       }
 
       const tipo = parsed.data.tipo as TipoRecurso;
+      if (tipo === "imagen" && !parsed.data.textoAlternativo?.trim()) {
+        return {
+          error: {
+            mensaje: "Las imágenes requieren texto alternativo",
+            codigo: "ALT_REQUIRED",
+            estado: 400,
+          },
+        } as const;
+      }
       const validacion = await validarArchivoMultimedia(archivo, tipo);
       if (!validacion.ok) return { error: validacion.error } as const;
 

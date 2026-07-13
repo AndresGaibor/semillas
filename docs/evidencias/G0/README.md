@@ -11,7 +11,7 @@ Este directorio contiene evidencia verificable del Gate G0 de cierre.
 
 ## Estado
 
-La captura canónica está verde: los siete gates de baseline finalizaron en PASS.
+La captura canónica local está verde: los siete comandos de baseline finalizaron en PASS.
 
 - `bun run --cwd backend typecheck`
 - `bun run --cwd frontend typecheck`
@@ -21,6 +21,6 @@ La captura canónica está verde: los siete gates de baseline finalizaron en PAS
 - `bun run test:e2e`
 - `bun run build`
 
-Vite informó como advertencia no bloqueante que existen chunks mayores de 500 kB tras la minificación. El build finalizó correctamente y la PWA se generó con 240 entradas precacheadas (66883.33 KiB).
+Vite informó como advertencia no bloqueante que existen chunks mayores de 500 kB tras la minificación. El build finalizó correctamente y la PWA actual se genera con un app shell de aproximadamente 3.35 MiB precacheados; los assets pesados quedan bajo demanda.
 
 No se incluyen secretos, variables de entorno ni credenciales en las evidencias.

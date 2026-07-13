@@ -19,20 +19,21 @@ export function useInstalarPWA(): EstadoInstalarPWA {
     if (typeof window === "undefined") return;
     if (estaInstaladaComoPWA()) return;
 
-    const manejarPrompt = (e: Event) => {
-      e.preventDefault();
-      setEvento(e as EventoAntesDeInstalar);
+    const cargarPromptGuardado = () => {
+      if (window.semillasDeferredPrompt) setEvento(window.semillasDeferredPrompt);
     };
 
     const manejarInstalada = () => {
+      window.semillasDeferredPrompt = null;
       setEvento(null);
     };
 
-    window.addEventListener("beforeinstallprompt", manejarPrompt);
+    cargarPromptGuardado();
+    window.addEventListener("semillas-beforeinstallprompt", cargarPromptGuardado);
     window.addEventListener("appinstalled", manejarInstalada);
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", manejarPrompt);
+      window.removeEventListener("semillas-beforeinstallprompt", cargarPromptGuardado);
       window.removeEventListener("appinstalled", manejarInstalada);
     };
   }, []);

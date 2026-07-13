@@ -117,4 +117,22 @@ describe("admin.api governance", () => {
     expect(captura.ruta).toBe("/administracion/usuarios/cuenta");
     expect(captura.body).toMatchObject({ correo: "persona@semillas.test", rol: "usuario", confirmar_correo: true });
   });
+
+  it("guarda los ajustes de plataforma en el endpoint de gobernanza", async () => {
+    const captura = configurarFetch(() =>
+      new Response(JSON.stringify({ exito: true, datos: { id: "cfg-1" } }), { headers: { "content-type": "application/json" } }),
+    );
+
+    await modulo.guardarAjustesAdmin({
+      nombre_plataforma: "Semillas",
+      correo_soporte: "soporte@semillas.test",
+      zona_horaria: "America/Guayaquil",
+      notas_obligatorias_cambios: true,
+      notas_obligatorias_rechazo: true,
+    });
+
+    expect(captura.metodo).toBe("PATCH");
+    expect(captura.ruta).toBe("/administracion/ajustes-plataforma");
+    expect(captura.body).toMatchObject({ nombre_plataforma: "Semillas", correo_soporte: "soporte@semillas.test" });
+  });
 });

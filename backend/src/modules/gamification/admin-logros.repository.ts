@@ -13,6 +13,15 @@ type FiltrosListado = {
 };
 
 export function crearAdminLogrosRepository(db: DbClient) {
+  async function obtenerLogro(id: string) {
+    const [fila] = await db
+      .select()
+      .from(schema.logro)
+      .where(eq(schema.logro.id, id))
+      .limit(1);
+    return fila ?? null;
+  }
+
   return {
     async listar(filtros: FiltrosListado) {
       const condiciones = [];
@@ -74,12 +83,7 @@ export function crearAdminLogrosRepository(db: DbClient) {
     },
 
     async obtener(id: string) {
-      const [fila] = await db
-        .select()
-        .from(schema.logro)
-        .where(eq(schema.logro.id, id))
-        .limit(1);
-      return fila ?? null;
+      return obtenerLogro(id);
     },
 
     async buscarPorCodigo(codigo: string) {
@@ -135,8 +139,7 @@ export function crearAdminLogrosRepository(db: DbClient) {
       if (input.valorCriterio !== undefined) parcial.valorCriterio = input.valorCriterio;
 
       if (Object.keys(parcial).length === 0) {
-        const actual = await this.obtener(id);
-        return actual;
+        return obtenerLogro(id);
       }
 
       const [fila] = await db

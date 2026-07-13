@@ -35,6 +35,7 @@ import { Route as AdminSendasRouteImport } from './routes/admin.sendas'
 import { Route as AdminRevisionRouteImport } from './routes/admin.revision'
 import { Route as AdminReportesRouteImport } from './routes/admin.reportes'
 import { Route as AdminMediosRouteImport } from './routes/admin.medios'
+import { Route as AdminLogrosRouteImport } from './routes/admin.logros'
 import { Route as AdminClubesRouteImport } from './routes/admin.clubes'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminActividadesRouteImport } from './routes/admin.actividades'
@@ -51,6 +52,7 @@ import { Route as AdminUsuariosNewRouteImport } from './routes/admin.usuarios.ne
 import { Route as AdminUsuariosUserIdRouteImport } from './routes/admin.usuarios.$userId'
 import { Route as AdminTemasNewRouteImport } from './routes/admin.temas.new'
 import { Route as AdminSendasNewRouteImport } from './routes/admin.sendas.new'
+import { Route as AdminLogrosNuevoRouteImport } from './routes/admin.logros.nuevo'
 import { Route as AdminClubesClubIdRouteImport } from './routes/admin.clubes.$clubId'
 import { Route as AdminTemasThemeIdPreviewRouteImport } from './routes/admin.temas.$themeId.preview'
 import { Route as AdminTemasThemeIdEditRouteImport } from './routes/admin.temas.$themeId.edit'
@@ -189,6 +191,11 @@ const AdminMediosRoute = AdminMediosRouteImport.update({
   path: '/medios',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLogrosRoute = AdminLogrosRouteImport.update({
+  id: '/logros',
+  path: '/logros',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminClubesRoute = AdminClubesRouteImport.update({
   id: '/clubes',
   path: '/clubes',
@@ -271,6 +278,11 @@ const AdminSendasNewRoute = AdminSendasNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AdminSendasRoute,
 } as any)
+const AdminLogrosNuevoRoute = AdminLogrosNuevoRouteImport.update({
+  id: '/nuevo',
+  path: '/nuevo',
+  getParentRoute: () => AdminLogrosRoute,
+} as any)
 const AdminClubesClubIdRoute = AdminClubesClubIdRouteImport.update({
   id: '/$clubId',
   path: '/$clubId',
@@ -324,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/clubes': typeof AdminClubesRouteWithChildren
+  '/admin/logros': typeof AdminLogrosRouteWithChildren
   '/admin/medios': typeof AdminMediosRoute
   '/admin/reportes': typeof AdminReportesRoute
   '/admin/revision': typeof AdminRevisionRoute
@@ -341,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/admin/clubes/$clubId': typeof AdminClubesClubIdRoute
+  '/admin/logros/nuevo': typeof AdminLogrosNuevoRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
@@ -372,6 +386,7 @@ export interface FileRoutesByTo {
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/clubes': typeof AdminClubesRouteWithChildren
+  '/admin/logros': typeof AdminLogrosRouteWithChildren
   '/admin/medios': typeof AdminMediosRoute
   '/admin/reportes': typeof AdminReportesRoute
   '/admin/revision': typeof AdminRevisionRoute
@@ -389,6 +404,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/admin/clubes/$clubId': typeof AdminClubesClubIdRoute
+  '/admin/logros/nuevo': typeof AdminLogrosNuevoRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
@@ -424,6 +440,7 @@ export interface FileRoutesById {
   '/admin/actividades': typeof AdminActividadesRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/clubes': typeof AdminClubesRouteWithChildren
+  '/admin/logros': typeof AdminLogrosRouteWithChildren
   '/admin/medios': typeof AdminMediosRoute
   '/admin/reportes': typeof AdminReportesRoute
   '/admin/revision': typeof AdminRevisionRoute
@@ -441,6 +458,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/admin/clubes/$clubId': typeof AdminClubesClubIdRoute
+  '/admin/logros/nuevo': typeof AdminLogrosNuevoRoute
   '/admin/sendas/new': typeof AdminSendasNewRoute
   '/admin/temas/new': typeof AdminTemasNewRoute
   '/admin/usuarios/$userId': typeof AdminUsuariosUserIdRoute
@@ -477,6 +495,7 @@ export interface FileRouteTypes {
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
+    | '/admin/logros'
     | '/admin/medios'
     | '/admin/reportes'
     | '/admin/revision'
@@ -494,6 +513,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/admin/clubes/$clubId'
+    | '/admin/logros/nuevo'
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
@@ -525,6 +545,7 @@ export interface FileRouteTypes {
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
+    | '/admin/logros'
     | '/admin/medios'
     | '/admin/reportes'
     | '/admin/revision'
@@ -542,6 +563,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/admin/clubes/$clubId'
+    | '/admin/logros/nuevo'
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
@@ -576,6 +598,7 @@ export interface FileRouteTypes {
     | '/admin/actividades'
     | '/admin/ajustes'
     | '/admin/clubes'
+    | '/admin/logros'
     | '/admin/medios'
     | '/admin/reportes'
     | '/admin/revision'
@@ -593,6 +616,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/admin/clubes/$clubId'
+    | '/admin/logros/nuevo'
     | '/admin/sendas/new'
     | '/admin/temas/new'
     | '/admin/usuarios/$userId'
@@ -812,6 +836,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMediosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/logros': {
+      id: '/admin/logros'
+      path: '/logros'
+      fullPath: '/admin/logros'
+      preLoaderRoute: typeof AdminLogrosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/clubes': {
       id: '/admin/clubes'
       path: '/clubes'
@@ -924,6 +955,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSendasNewRouteImport
       parentRoute: typeof AdminSendasRoute
     }
+    '/admin/logros/nuevo': {
+      id: '/admin/logros/nuevo'
+      path: '/nuevo'
+      fullPath: '/admin/logros/nuevo'
+      preLoaderRoute: typeof AdminLogrosNuevoRouteImport
+      parentRoute: typeof AdminLogrosRoute
+    }
     '/admin/clubes/$clubId': {
       id: '/admin/clubes/$clubId'
       path: '/$clubId'
@@ -988,6 +1026,18 @@ const AdminClubesRouteWithChildren = AdminClubesRoute._addFileChildren(
   AdminClubesRouteChildren,
 )
 
+interface AdminLogrosRouteChildren {
+  AdminLogrosNuevoRoute: typeof AdminLogrosNuevoRoute
+}
+
+const AdminLogrosRouteChildren: AdminLogrosRouteChildren = {
+  AdminLogrosNuevoRoute: AdminLogrosNuevoRoute,
+}
+
+const AdminLogrosRouteWithChildren = AdminLogrosRoute._addFileChildren(
+  AdminLogrosRouteChildren,
+)
+
 interface AdminSendasRouteChildren {
   AdminSendasNewRoute: typeof AdminSendasNewRoute
   AdminSendasSendaIdEditRoute: typeof AdminSendasSendaIdEditRoute
@@ -1042,6 +1092,7 @@ interface AdminRouteChildren {
   AdminActividadesRoute: typeof AdminActividadesRoute
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminClubesRoute: typeof AdminClubesRouteWithChildren
+  AdminLogrosRoute: typeof AdminLogrosRouteWithChildren
   AdminMediosRoute: typeof AdminMediosRoute
   AdminReportesRoute: typeof AdminReportesRoute
   AdminRevisionRoute: typeof AdminRevisionRoute
@@ -1055,6 +1106,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminActividadesRoute: AdminActividadesRoute,
   AdminAjustesRoute: AdminAjustesRoute,
   AdminClubesRoute: AdminClubesRouteWithChildren,
+  AdminLogrosRoute: AdminLogrosRouteWithChildren,
   AdminMediosRoute: AdminMediosRoute,
   AdminReportesRoute: AdminReportesRoute,
   AdminRevisionRoute: AdminRevisionRoute,

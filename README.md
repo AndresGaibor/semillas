@@ -258,6 +258,17 @@ Los eventos de progreso usan `evento_id_cliente` para evitar duplicar XP, insign
 
 ## Seguridad
 
+## Documentación canónica
+
+- [Instalación](docs/instalacion.md)
+- [Arquitectura](docs/arquitectura.md)
+- [API](docs/api.md) · [OpenAPI y backend](docs/backend-api.md)
+- [Base de datos](docs/base-datos.md) · [Offline y sincronización](docs/offline-sync.md)
+- [Seguridad](docs/seguridad.md) · [Pruebas](docs/pruebas.md) · [Despliegue](docs/despliegue.md)
+- [Manual de usuario](docs/manual-usuario.md) · [Manual de administrador](docs/manual-administrador.md) · [CMS](docs/cms.md)
+- [Operación y backup/restore](docs/operacion/README.md)
+- [Estado y vigencia documental](docs/estado-docs.md)
+
 Semillas esta disenado para menores, por lo que la seguridad es parte del nucleo del producto.
 
 Reglas principales:
@@ -297,9 +308,18 @@ Los secretos de produccion deben configurarse en Cloudflare Workers, no en archi
 
 ## Documentacion
 
+- [`docs/estado-docs.md`](docs/estado-docs.md): índice canónico y vigencia documental.
 - [`docs/arquitectura.md`](docs/arquitectura.md): vista general de capas, flujos y modulos del sistema.
 - [`docs/api.md`](docs/api.md): referencia canónica de la API y sus endpoints.
 - [`docs/backend-api.md`](docs/backend-api.md): endpoints, auth, roles, variables y comandos de API.
+- [`docs/base-datos.md`](docs/base-datos.md): modelo, integridad, RLS y Storage.
+- [`docs/offline-sync.md`](docs/offline-sync.md): Dexie, outbox, push/pull y recuperación.
+- [`docs/seguridad.md`](docs/seguridad.md): secretos, permisos y seguridad de menores.
+- [`docs/pruebas.md`](docs/pruebas.md): comandos y criterios de calidad.
+- [`docs/instalacion.md`](docs/instalacion.md): instalación local reproducible.
+- [`docs/despliegue.md`](docs/despliegue.md): despliegue y rollback.
+- [`docs/manual-usuario.md`](docs/manual-usuario.md) · [`docs/manual-administrador.md`](docs/manual-administrador.md) · [`docs/cms.md`](docs/cms.md): manuales funcionales.
+- [`docs/operacion/README.md`](docs/operacion/README.md): runbooks de operación.
 - [`docs/media-storage.md`](docs/media-storage.md): flujo de media privada con Supabase Storage.
 - [`docs/documento_guia_RF_RNF_proyecto_semillas.md`](docs/documento_guia_RF_RNF_proyecto_semillas.md): guia funcional y no funcional del proyecto.
 - [`docs/estado-proyecto/README.md`](docs/estado-proyecto/README.md): indice del estado actual, tareas y brechas del proyecto.

@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import dorsoCarta from "../../assets/images/Ilustraciones/flascards.png";
+import dorsoCarta from "../../assets/images/Ilustraciones/flascards.webp";
 import { AlertaCompletado } from "@/componentes/ui/alerta-completado";
 import { useFlashcards } from "./hooks/use-flashcards";
 import type { Actividad } from "@/shared/api/schemas/temas.schema";

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RecursoCard } from "./recurso-card";
-import arkImg from "@/assets/images/Ilustraciones/Tema1.png";
+import arkImg from "@/assets/images/Ilustraciones/Tema1.webp";
 import "@/routes/app-descargas.css";
 
 const temaBase = {

@@ -11,6 +11,7 @@ describe("users.routes", () => {
     let selectCallCount = 0;
 
     const dbMock = {
+      transaction: async (callback: (tx: unknown) => Promise<unknown>) => callback(dbMock),
       update() {
         return {
           set(datos: Record<string, unknown>) {
@@ -111,7 +112,8 @@ describe("users.routes", () => {
     expect(actualizacion[0]).toMatchObject({
       idExterno: "auth-1",
       proveedor: "google",
-      correo: "semillero@ejemplo.com"
+      correo: "semillero@ejemplo.com",
+      tokenInvitadoHash: null
     });
   });
 });

@@ -464,6 +464,10 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
       Object.keys(drafts).some((key) => key.startsWith(`${ageGroupId}${DRAFT_KEY_SEPARATOR}`)),
     [drafts],
   );
+  const hasDraftForCell = useCallback(
+    (ageGroupId: string, stepCode: string) => Boolean(drafts[crearClaveBorradorCrecer(ageGroupId, stepCode)]),
+    [drafts],
+  );
 
   return {
     theme, portadaUrl, estado, selectedAgeGroup, activeStep, activeStepContent, pasos, totalPasos, pasosCompletos, progreso,
@@ -478,7 +482,7 @@ export function useThemeCrecerPage({ themeId }: UseThemeCrecerPageProps) {
     themeQuery, portadaQuery, stepsQuery, ageGroupsQuery, crecerStepsQuery, mediaQuery, saveMutation, uploadMutation,
     handleSubirImagenMarkdown, saveCurrentDraft,
     isCurrentDirty, isCurrentSaved, hasUnsavedChanges, unsavedDraftCount,
-    hasDraftForStep, hasDraftForAgeGroup,
+    hasDraftForStep, hasDraftForAgeGroup, hasDraftForCell,
     handleBack: () => navigate({ to: "/admin/temas/$themeId/detalle", params: { themeId } }),
   };
 }

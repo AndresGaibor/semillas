@@ -1,5 +1,7 @@
 # Arquitectura de Semillas
 
+**Owner:** M9 · **Revisión:** 2026-07-13
+
 ## Vision General
 
 Semillas es una sola PWA React para web y móvil, respaldada por una API Hono en Cloudflare Workers y Supabase como infraestructura de datos y autenticación.

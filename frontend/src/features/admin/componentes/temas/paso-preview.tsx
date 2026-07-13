@@ -1,4 +1,4 @@
-import imgPlaceholder from "@/assets/images/Ilustraciones/Tema1.png";
+import imgPlaceholder from "@/assets/images/Ilustraciones/Tema1.webp";
 
 interface ClubVisibilidades {
   todos: boolean;

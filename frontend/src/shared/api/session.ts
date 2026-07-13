@@ -1,6 +1,7 @@
 const GUEST_USER_ID_KEY = "semillas_guest_user_id";
 const ACCESS_TOKEN_KEY = "semillas_access_token";
 const GUEST_TOKEN_KEY = "semillas_guest_token";
+const AUTH_USER_ID_KEY = "semillas_auth_user_id";
 const CONFLICTO_MENSAJE_KEY = "semillas_conflicto_vinculacion";
 
 function obtenerAlmacenLocal() {
@@ -42,6 +43,18 @@ export const sessionStorageApi = {
 
   getAccessToken() {
     return obtenerAlmacenLocal()?.getItem(ACCESS_TOKEN_KEY) ?? null;
+  },
+
+  getAuthUserId() {
+    return obtenerAlmacenLocal()?.getItem(AUTH_USER_ID_KEY) ?? null;
+  },
+
+  setAuthUserId(id: string) {
+    obtenerAlmacenLocal()?.setItem(AUTH_USER_ID_KEY, id);
+  },
+
+  clearAuthUserId() {
+    obtenerAlmacenLocal()?.removeItem(AUTH_USER_ID_KEY);
   },
 
   setAccessToken(token: string) {

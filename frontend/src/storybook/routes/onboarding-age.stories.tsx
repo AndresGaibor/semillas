@@ -4,9 +4,9 @@ import { GrupoEdadGrid } from "@/features/onboarding/componentes/GrupoEdadGrid";
 import { OnboardingFooter } from "@/features/onboarding/componentes/OnboardingFooter";
 import { OnboardingTopbar } from "@/features/onboarding/componentes/OnboardingTopbar";
 import type { GrupoEdad } from "@/shared/api/api";
-import semillasImg from "@/assets/images/Ilustraciones/Semilla.png";
-import exploradoresImg from "@/assets/images/Ilustraciones/Exploradores.png";
-import embajadoresImg from "@/assets/images/Ilustraciones/Embajadores.png";
+import semillasImg from "@/assets/images/Ilustraciones/Semilla.webp";
+import exploradoresImg from "@/assets/images/Ilustraciones/Exploradores.webp";
+import embajadoresImg from "@/assets/images/Ilustraciones/Embajadores.webp";
 
 const grupos: GrupoEdad[] = [
   {

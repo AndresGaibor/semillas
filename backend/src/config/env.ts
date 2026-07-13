@@ -41,6 +41,7 @@ export type Env = {
   DEV_ADMIN_EMAIL?: string;
   DEV_ADMIN_PASSWORD?: string;
   DEV_ADMIN_SETUP_TOKEN?: string;
+  RATE_LIMITER?: { limit: (entrada: { key: string }) => Promise<{ success: boolean }> };
 };
 
 export type Variables = {

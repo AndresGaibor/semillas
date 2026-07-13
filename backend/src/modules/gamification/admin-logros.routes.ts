@@ -50,12 +50,6 @@ function crearCasosPredeterminados(contexto: Context<AppBindings>) {
   return crearCasosUsoAdminLogros(crearAdminLogrosRepository(cliente));
 }
 
-function crearRepositorioPredeterminado(contexto: Context<AppBindings>) {
-  const cliente = contexto.get("drizzle");
-  if (!cliente) throw new Error("Cliente Drizzle no disponible");
-  return crearAdminLogrosRepository(cliente);
-}
-
 function estadoLogro(
   fila: Awaited<ReturnType<RepositorioAdminLogros["obtener"]>>,
 ) {
@@ -147,7 +141,7 @@ export function crearModuloAdminLogros(dependencias: DependenciasAdminLogros = {
   }
 
   adminLogrosRoutes.post("/", zValidator("json", crearLogroAdminSchema), async (c) =>
-    ejecutarEnTransaccion(c, async ({ casos, repositorio, registrarAuditoria }) => {
+    ejecutarEnTransaccion(c, async ({ casos, registrarAuditoria }) => {
       const body = c.req.valid("json");
       const resultado = await casos.crear(body, c.get("user").id);
       if (esResultadoConError(resultado)) {

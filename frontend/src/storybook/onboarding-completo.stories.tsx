@@ -11,9 +11,9 @@ import { OnboardingFooter } from "@/features/onboarding/componentes/OnboardingFo
 import { OnboardingStepIndicator } from "@/features/onboarding/componentes/OnboardingStepIndicator";
 import { OnboardingTopbar } from "@/features/onboarding/componentes/OnboardingTopbar";
 import { ProfilePreview } from "@/features/onboarding/componentes/ProfilePreview";
-import semillasImg from "@/assets/images/Ilustraciones/Semilla.png";
-import exploradoresImg from "@/assets/images/Ilustraciones/Exploradores.png";
-import embajadoresImg from "@/assets/images/Ilustraciones/Embajadores.png";
+import semillasImg from "@/assets/images/Ilustraciones/Semilla.webp";
+import exploradoresImg from "@/assets/images/Ilustraciones/Exploradores.webp";
+import embajadoresImg from "@/assets/images/Ilustraciones/Embajadores.webp";
 
 const grupos: GrupoEdad[] = [
   { id: "semillas", codigo: "semillas", nombre: "Semillas", edad_minima: 5, edad_maxima: 7, descripcion: "Aprendizaje visual, breve y acompañado.", orden: 1, imagen_url: semillasImg },
