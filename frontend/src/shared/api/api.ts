@@ -1,4 +1,4 @@
-import { env } from "../config/env";
+import { obtenerApiUrlPublica } from "../config/env";
 import { sessionStorageApi } from "./session";
 import { ErrorApi } from "./error-api";
 export { RUTAS_API } from "./rutas-api";
@@ -40,7 +40,8 @@ export async function peticion<T>(
   const cuerpo = opciones?.cuerpo ? JSON.stringify(opciones.cuerpo) : undefined;
   let res: Response;
   try {
-    res = await fetch(`${env.apiUrl}${ruta}`, {
+    const apiUrl = obtenerApiUrlPublica();
+    res = await fetch(`${apiUrl}${ruta}`, {
       method: opciones?.metodo ?? "GET",
       headers,
       body: cuerpo,

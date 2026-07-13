@@ -1,4 +1,4 @@
-import { env } from "../../shared/config/env";
+import { obtenerApiUrlPublica } from "../../shared/config/env";
 import { sessionStorageApi } from "../../shared/api/session";
 import { db } from "./db";
 import {
@@ -122,7 +122,7 @@ export async function pushPendingEvents(): Promise<{
       if (enviados.length === 0) continue;
 
       try {
-        const response = await fetch(`${env.apiUrl}/sync/push`, {
+        const response = await fetch(`${obtenerApiUrlPublica()}/sync/push`, {
           method: "POST",
           headers: getAuthHeaders(true),
           body: JSON.stringify({ eventos: enviados.map(({ api }) => api) }),
@@ -185,7 +185,7 @@ export async function pullCambios(): Promise<void> {
   if (syncState?.lastSyncTimestamp) params.set("since", syncState.lastSyncTimestamp);
 
   const query = params.toString();
-  const response = await fetch(`${env.apiUrl}/sync/pull${query ? `?${query}` : ""}`, {
+  const response = await fetch(`${obtenerApiUrlPublica()}/sync/pull${query ? `?${query}` : ""}`, {
     headers: getAuthHeaders(false),
   });
   const cuerpo = await response.json().catch(() => null) as

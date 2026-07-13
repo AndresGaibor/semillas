@@ -1,4 +1,4 @@
-import { env } from "../../shared/config/env";
+import { obtenerApiUrlPublica } from "../../shared/config/env";
 import { RUTAS_API, peticion } from "../../shared/api/api";
 import { sessionStorageApi } from "../../shared/api/session";
 
@@ -62,7 +62,7 @@ function headersAutenticacion() {
 }
 
 async function enviarFormulario<T>(ruta: string, formData: FormData) {
-  const res = await fetch(`${env.apiUrl}${ruta}`, {
+  const res = await fetch(`${obtenerApiUrlPublica()}${ruta}`, {
     method: "POST",
     headers: headersAutenticacion(),
     body: formData,
