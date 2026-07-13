@@ -21,8 +21,6 @@ import {
   type EditorMarkdownControl,
 } from "./editor-markdown.helpers";
 
-export { sincronizarMarkdown, type EditorMarkdownControl } from "./editor-markdown.helpers";
-
 interface EditorMarkdownProps {
   markdown: string;
   onChange: (markdown: string) => void;

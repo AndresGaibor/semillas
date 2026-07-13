@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PanelAdministracion } from "@/components/admin/PanelAdministracion";
+import { PanelAdministracion } from "@/features/admin/componentes/dashboard/panel-admin";
 import { StoryRouter } from "./story-router";
 
 function DashboardAdmin() {

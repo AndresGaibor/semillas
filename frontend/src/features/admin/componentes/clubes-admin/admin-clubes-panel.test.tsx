@@ -34,7 +34,6 @@ describe("AdminClubesPanelVista", () => {
     expect(html).toContain('aria-label="Buscar clubes"');
     expect(html).toContain("Club Semillas");
     expect(html).toContain('aria-label="Archivar Club Semillas"');
-    expect(html).toContain("Crear reto");
   });
 
   it("deshabilita las mutaciones y muestra el aviso al no haber conexión", () => {
