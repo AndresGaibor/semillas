@@ -24,6 +24,7 @@ import {
   obtenerEstudioTemaAdmin,
   publicarTema,
 } from "../features/admin/admin.api";
+import { resolverPortadaTemaAdmin, usePortadasFirmadasAdmin } from "../features/admin/admin-theme-cover";
 
 export const Route = createFileRoute("/admin/temas/$themeId/detalle")({ component: AdminThemeStudioPage });
 
@@ -42,6 +43,7 @@ function AdminThemeStudioPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const estudioQuery = useQuery({ queryKey: ["admin", "theme", themeId, "studio"], queryFn: () => obtenerEstudioTemaAdmin(themeId) });
+  const portadasFirmadas = usePortadasFirmadasAdmin(estudioQuery.data ? [estudioQuery.data.tema] : []);
 
   const reviewMutation = useMutation({
     mutationFn: () => enviarTemaRevision(themeId),
@@ -58,7 +60,10 @@ function AdminThemeStudioPage() {
   if (estudioQuery.isError || !estudioQuery.data) return <StudioState icon={<BookOpenCheck />} title="No se pudo abrir el tema" description={estudioQuery.error instanceof Error ? estudioQuery.error.message : "Vuelve a intentarlo."} />;
 
   const { tema, pasos, actividades, completitud, revisiones } = estudioQuery.data;
-  const portada = tema.portada_recurso?.url_publica || `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(tema.titulo)}`;
+  const portada = resolverPortadaTemaAdmin({
+    titulo: tema.titulo,
+    urlFirmada: portadasFirmadas.get(tema.id) ?? null,
+  });
   const grupos = tema.grupos_edad ?? [];
   const ultimaRevision = revisiones[0];
 

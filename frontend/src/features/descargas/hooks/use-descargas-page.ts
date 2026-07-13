@@ -115,7 +115,7 @@ export function useDescargasPage() {
     if (!isOnline) return toast.error("Conéctate a internet para descargar o actualizar un tema.");
     try {
       setProgressById((actual) => ({ ...actual, [temaId]: 1 }));
-      const resultado = await downloadMutation.mutateAsync({ temaId, grupoEdadId, onProgress: (progreso) => setProgressById((actual) => ({ ...actual, [temaId]: progreso })) });
+      const resultado = await downloadMutation.mutateAsync({ temaId, perfilGrupoEdadId: perfilQuery.data?.perfil.grupo_edad_id ?? undefined, onProgress: (progreso) => setProgressById((actual) => ({ ...actual, [temaId]: progreso })) });
       await refresh();
       toast.success(`Tema listo sin conexión: ${resultado.pasosCount} pasos y ${resultado.actividadesCount} actividades.`);
     } catch (error) {

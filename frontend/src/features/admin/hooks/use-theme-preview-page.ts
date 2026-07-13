@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { obtenerTemaAdmin, obtenerPasosAdmin, obtenerActividadesAdmin } from "@/features/admin/admin.api";
-import { obtenerUrlPortadaTema } from "@/features/themes/themes.api";
+import { resolverPortadaTemaAdmin, usePortadasFirmadasAdmin } from "@/features/admin/admin-theme-cover";
 import { obtenerEstadoTema } from "@/features/admin/componentes/theme-view.utils";
 import type { Actividad } from "@/shared/api/api";
 
@@ -27,15 +27,14 @@ export function useThemePreviewPage({ themeId }: UseThemePreviewPageOptions) {
     queryFn: () => obtenerActividadesAdmin({ tema_id: themeId, limit: 500 }),
   });
 
-  const portadaQuery = useQuery({
-    queryKey: ["tema-portada", themeId],
-    queryFn: () => obtenerUrlPortadaTema(themeId),
-    enabled: Boolean(themeQuery.data?.portada_recurso_id),
-    staleTime: 3 * 60 * 1000,
-  });
-
   const theme = themeQuery.data;
-  const portadaUrl = portadaQuery.data?.url ?? theme?.portada_recurso?.url_publica ?? null;
+  const portadasFirmadas = usePortadasFirmadasAdmin(theme ? [theme] : []);
+  const portadaUrl = theme
+    ? resolverPortadaTemaAdmin({
+        titulo: theme.titulo,
+        urlFirmada: portadasFirmadas.get(theme.id) ?? null,
+      })
+    : null;
   const estado = obtenerEstadoTema(theme?.estado ?? "borrador");
   const actividades = (activitiesQuery.data?.actividades ?? []) as unknown as Actividad[];
 
@@ -47,7 +46,6 @@ export function useThemePreviewPage({ themeId }: UseThemePreviewPageOptions) {
     themeQuery,
     stepsQuery,
     activitiesQuery,
-    portadaQuery,
     theme,
     portadaUrl,
     estado,

@@ -34,6 +34,10 @@ import {
 } from "../features/admin/admin.api";
 import { obtenerGruposEdad, obtenerTiposActividad } from "../features/catalog/catalog.api";
 import { subirArchivo } from "../features/media/media.api";
+import {
+  normalizarConfiguracionActividad,
+  validarActividadParaGuardar,
+} from "../features/admin/componentes/activity-configuration";
 import type { ActivitySearch } from "../features/admin/componentes/activity-search.types";
 
 export const Route = createFileRoute("/admin/temas/$themeId/activities")({
@@ -130,6 +134,10 @@ function AdminThemeActivitiesPage() {
       let parsedConfig: Record<string, unknown> = draft.configuracion;
       try { parsedConfig = JSON.parse(configText) as Record<string, unknown>; } catch { throw new Error("La configuración avanzada no contiene JSON válido"); }
       if (!draft.titulo.trim() || !draft.consigna.trim() || !draft.paso_id || !draft.grupo_edad_id || !draft.tipo_actividad_id) throw new Error("Completa los campos obligatorios");
+      const codigoTipoActividad = selectedType?.codigo ?? "";
+      const configuracion = normalizarConfiguracionActividad(codigoTipoActividad, parsedConfig);
+      const errorConfiguracion = validarActividadParaGuardar({ codigo: codigoTipoActividad, configuracion, opciones: draft.opciones });
+      if (errorConfiguracion) throw new Error(errorConfiguracion);
       const payload = {
         tema_id: themeId,
         paso_id: draft.paso_id,
@@ -143,7 +151,7 @@ function AdminThemeActivitiesPage() {
         limite_tiempo_seg: draft.limite_tiempo_seg,
         dificultad: draft.dificultad,
         obligatorio: draft.obligatorio,
-        configuracion: parsedConfig,
+        configuracion,
         opciones: draft.opciones.filter((option) => option.texto.trim()).map((option, index) => ({ ...option, texto: option.texto.trim(), orden: index + 1 })),
       };
       if (search.form === "editar" && search.actividadId) return actualizarActividad(search.actividadId, payload);
@@ -226,7 +234,7 @@ function ActivityBuilder({ draft, onChange, configText, onConfigTextChange, step
   return <div className="admin-form-grid">
     <Field label="Paso CRECER"><select value={draft.paso_id} onChange={(event) => update("paso_id", event.target.value)}><option value="">Selecciona un paso</option>{steps.map((step) => <option key={step.id} value={step.id}>{step.tipo_paso?.nombre ?? "Paso"}</option>)}</select></Field>
     <Field label="Franja"><select value={draft.grupo_edad_id} onChange={(event) => update("grupo_edad_id", event.target.value)}><option value="">Selecciona una franja</option>{groups.map((group) => <option key={group.id} value={group.id}>{group.nombre}</option>)}</select></Field>
-    <Field label="Tipo" wide><select value={draft.tipo_actividad_id} onChange={(event) => { update("tipo_actividad_id", event.target.value); const type = types.find((item) => item.id === event.target.value); if (type) onConfigTextChange("{}"); }}><option value="">Selecciona el tipo</option>{types.map((type) => <option key={type.id} value={type.id}>{type.nombre}</option>)}</select></Field>
+    <Field label="Tipo" wide><select value={draft.tipo_actividad_id} onChange={(event) => { onChange({ ...draft, tipo_actividad_id: event.target.value, configuracion: {} }); onConfigTextChange("{}"); }}><option value="">Selecciona el tipo</option>{types.map((type) => <option key={type.id} value={type.id}>{type.nombre}</option>)}</select></Field>
     <Field label="Título" wide><input value={draft.titulo} onChange={(event) => update("titulo", event.target.value)} /></Field>
     <Field label="Consigna" wide><textarea rows={3} value={draft.consigna} onChange={(event) => update("consigna", event.target.value)} /></Field>
     <Field label="Retroalimentación" wide><textarea rows={2} value={draft.retroalimentacion} onChange={(event) => update("retroalimentacion", event.target.value)} /></Field>

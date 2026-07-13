@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { crearSesionInvitado, iniciarSesionFacebook, iniciarSesionGoogle } from "@/features/auth/auth.api";
 import { sessionStorageApi } from "@/shared/api/session";
 import { sincronizarSesionAutenticada } from "@/shared/auth/supabase";
@@ -14,6 +14,7 @@ type UseLoginPageOptions = {
 
 export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [tabActivo, setTabActivo] = useState<"social" | "email">("social");
   const facebookDisponible = esFacebookPermitidoEnOrigen(window.location.origin);
 
@@ -40,7 +41,10 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
       await reclamarCuentaInvitada().catch(() => undefined);
       sessionStorageApi.clearGuestSession();
     }
-    const perfilRespuesta = await obtenerMiPerfil();
+    const perfilRespuesta = await queryClient.ensureQueryData({
+      queryKey: ["me"],
+      queryFn: obtenerMiPerfil,
+    });
     const rutaPostLogin = obtenerRutaPostLogin(perfilRespuesta.perfil, perfilRespuesta.usuario);
     navigate({ to: redirectTo === "/onboarding" ? rutaPostLogin : redirectTo });
   };

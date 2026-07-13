@@ -79,7 +79,7 @@ export function useTemaDetalle(themeId: string) {
       setDownloadProgress(1);
       await downloadMutation.mutateAsync({
         temaId: themeId,
-        grupoEdadId,
+        perfilGrupoEdadId: grupoEdadId ?? undefined,
         onProgress: (progress) => setDownloadProgress(progress),
       });
       toast.success("Tema listo para usar sin conexión.");

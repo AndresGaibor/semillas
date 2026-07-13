@@ -6,13 +6,17 @@ import { useAdminLayout } from "../features/admin/hooks/use-admin-layout";
 import { obtenerMiPerfil } from "../features/perfil/profile.api";
 import { sessionStorageApi } from "../shared/api/session";
 import { resolverAccesoAdmin } from "../shared/auth/admin-access";
+import { queryClient } from "../app/query-client";
 import "./app.css";
 import "./admin-content-studio.css";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
     try {
-      const { usuario } = await obtenerMiPerfil();
+      const { usuario } = await queryClient.ensureQueryData({
+        queryKey: ["me"],
+        queryFn: obtenerMiPerfil,
+      });
       const acceso = resolverAccesoAdmin(usuario);
 
       if (!acceso.permitido) {
