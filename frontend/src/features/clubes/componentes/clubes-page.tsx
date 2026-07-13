@@ -27,6 +27,7 @@ import {
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Card } from "@/componentes/ui/card-base";
 import { Boton } from "@/componentes/ui/boton";
+import { ConfirmDialog } from "@/componentes/ui/confirm-dialog";
 import { ProgresoXpWidget } from "@/features/gamification/componentes/progreso-xp-widget";
 import { resolverAvatar } from "@/shared/constants/avatares";
 import { UnirseClubForm } from "@/features/clubes/componentes/unirse-club-form";
@@ -42,6 +43,7 @@ import type {
   MiembroRankingClub,
   RetoCooperativo,
 } from "@/features/clubes/clubes.api";
+import { formatMonth, daysRemaining, metricDescription, roleName, toDateInput } from "@/features/clubes/utils";
 import "./clubes-page.css";
 
 const VISTAS: Array<{ id: VistaClub; label: string; icon: typeof Trophy; soloLider?: boolean }> = [
@@ -58,6 +60,12 @@ export function ClubesPage() {
   const currentUserId = page.meQuery.data?.usuario.id;
   const club = detalle ?? page.club;
   const tabs = VISTAS.filter((item) => !item.soloLider || page.isLeader);
+
+  const [confirmRemove, setConfirmRemove] = useState<{ member: MiembroClub } | null>(null);
+  const [confirmTransfer, setConfirmTransfer] = useState<{ member: MiembroClub } | null>(null);
+  const [confirmRegenerate, setConfirmRegenerate] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   if (page.clubesQuery.isLoading || page.meQuery.isLoading) {
     return <ClubesSkeleton />;
@@ -203,12 +211,10 @@ export function ClubesPage() {
               isLeader={page.isLeader}
               pending={page.actionPending}
               onRemove={(member) => {
-                if (window.confirm(`¿Retirar a ${member.apodo} del club?`)) page.removeMember(member.usuario_id);
+                setConfirmRemove({ member });
               }}
               onTransfer={(member) => {
-                if (window.confirm(`¿Transferir el liderazgo a ${member.apodo}? Tú pasarás a ser miembro.`)) {
-                  page.transferLeadership(member.usuario_id);
-                }
+                setConfirmTransfer({ member });
               }}
             />
           ) : null}
@@ -219,10 +225,10 @@ export function ClubesPage() {
               pending={page.actionPending || page.updating}
               onUpdate={page.updateClub}
               onRegenerate={() => {
-                if (window.confirm("El código anterior dejará de funcionar. ¿Generar uno nuevo?")) page.regenerateCode();
+                setConfirmRegenerate(true);
               }}
               onArchive={() => {
-                if (window.confirm("¿Archivar este club? Esta acción lo ocultará para todos.")) page.archiveClub();
+                setConfirmArchive(true);
               }}
             />
           ) : null}
@@ -239,7 +245,7 @@ export function ClubesPage() {
             className="clubes-leave-button"
             disabled={page.actionPending}
             onClick={() => {
-              if (window.confirm("¿Salir de este club? Tu progreso personal no se perderá.")) page.leaveClub();
+              setConfirmLeave(true);
             }}
           >
             <DoorOpen size={17} /> Salir del club
@@ -638,8 +644,3 @@ function EmptyInline({ icon: Icon, title, text, action }: { icon: typeof Trophy;
 
 function ClubesSkeleton() { return <div className="clubes-skeleton"><span /><span /><span /><span /></div>; }
 function ClubesContentSkeleton() { return <div className="clubes-content-skeleton"><span /><span /><span /></div>; }
-function roleName(role: string) { return role === "lider" || role === "propietario" ? "Líder" : "Miembro"; }
-function formatMonth(value: string) { return new Intl.DateTimeFormat("es-EC", { month: "short", year: "numeric" }).format(new Date(value)); }
-function daysRemaining(value: string) { const days = Math.ceil((new Date(value).getTime() - Date.now()) / 86400000); return days <= 0 ? "Finalizado" : days === 1 ? "1 día" : `${days} días`; }
-function metricDescription(metric: string) { if (metric === "xp_grupal") return "Sumen XP entre todos los miembros del club."; if (metric === "temas_completados") return "Completen temas entre todos para alcanzar la meta."; return "Completen actividades y aporten al objetivo común."; }
-function toDateInput(date: Date) { return date.toISOString().slice(0, 10); }
