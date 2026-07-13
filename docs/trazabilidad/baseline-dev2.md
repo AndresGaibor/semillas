@@ -26,6 +26,28 @@ El checkout no estaba limpio. Estos cambios se consideraron concurrentes y no se
 
 Historial visible más reciente: `01ab28eb fix: surface remaining frontend errors`.
 
+Salida capturada de `git log --oneline -10`:
+
+```text
+bf7d141e fix: surface backend redirects in login
+4847e417 club adminitracion
+01ab28eb fix: surface remaining frontend errors
+d419984e docs: document api worker csp
+6b2377ec Se agrego el CSP del dominio de clouflare
+5a33ba75 admin modulo de media
+61dc627c admin se agrego mas builders de actividades y pantallas de reporte, ajuste y ajuste de usuarios
+84c39745 admin CMS de media, usuarios y actividades
+03414e3c refactor(ui): deprecate shadcn card-shadcn, consolidate to card-base
+f0ddd827 refactor(ui): deprecate shadcn button, consolidate to custom Boton
+```
+
+Salida capturada de `git status --short --branch`:
+
+```text
+* dev2...origin/dev2
+ M frontend/src/routes/admin.clubes.tsx
+```
+
 ## Ejecución
 
 Todos los comandos se ejecutaron sobre el SHA indicado, sin corregir features ni exponer variables de entorno o secretos.

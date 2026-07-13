@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { AdminClubesPanel } from "@/features/admin/componentes/clubes-admin";
 
 export const Route = createFileRoute("/admin/clubes")({
@@ -6,5 +6,7 @@ export const Route = createFileRoute("/admin/clubes")({
 });
 
 function AdminClubesPage() {
-  return <AdminClubesPanel />;
+  const location = useLocation();
+  const esListado = location.pathname === "/admin/clubes" || location.pathname === "/admin/clubes/";
+  return esListado ? <AdminClubesPanel /> : <Outlet />;
 }
