@@ -291,3 +291,8 @@
   .admin-theme-row__author{display:none}
   .admin-dashboard__grid{grid-template-columns:minmax(0,1.45fr) minmax(290px,.65fr)}
 }
+
+@media (max-width:900px){
+  .admin-editor-shell{grid-template-columns:minmax(0,1fr)}
+  .admin-editor-aside{position:static}
+}
