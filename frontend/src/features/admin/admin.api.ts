@@ -360,6 +360,30 @@ export function accionMasivaUsuariosAdmin(
   });
 }
 
+export type AjustesAdmin = {
+  id: string;
+  nombre_plataforma: string;
+  correo_soporte: string | null;
+  zona_horaria: string;
+  notas_obligatorias_cambios: boolean;
+  notas_obligatorias_rechazo: boolean;
+  creado_en: string;
+  actualizado_en: string;
+};
+
+export type ActualizarAjustesAdminSolicitud = Partial<Pick<AjustesAdmin, "nombre_plataforma" | "correo_soporte" | "zona_horaria" | "notas_obligatorias_cambios" | "notas_obligatorias_rechazo">>;
+
+export function obtenerAjustesAdmin() {
+  return peticion<AjustesAdmin>("/administracion/ajustes");
+}
+
+export function guardarAjustesAdmin(datos: ActualizarAjustesAdminSolicitud) {
+  return peticion<AjustesAdmin>("/administracion/ajustes", {
+    metodo: "PATCH",
+    cuerpo: datos,
+  });
+}
+
 export type ActividadAdmin = {
   id: string;
   tema_id: string;

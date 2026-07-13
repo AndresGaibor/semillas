@@ -92,6 +92,7 @@ export const RUTAS_API = {
     VER: (id: string) => `/media/${id}`,
     URL_FIRMADA: (id: string) => `/media/${id}/url`,
     ACTUALIZAR: (id: string) => `/media/${id}`,
+    REEMPLAZAR: (id: string) => `/media/${id}/reemplazar`,
     ELIMINAR: (id: string) => `/media/${id}`,
   },
 } as const;

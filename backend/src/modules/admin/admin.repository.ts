@@ -5,7 +5,7 @@ import { schema, type DbClient } from "../../db/client";
 import { BadRequestError, NotFoundError } from "../../shared/errors/http-error";
 import { z } from "zod";
 import { crearSlugCopia, crearTituloCopia, mapActivity, mapStep, mapTheme } from "./admin.formatters";
-import { createActivitySchema, createSendaSchema, createThemeSchema, reorderActivitiesSchema, resolveReviewSchema, submitReviewSchema, updateActivitySchema, updateSendaSchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
+import { actualizarAjustesSistemaSchema, createActivitySchema, createSendaSchema, createThemeSchema, reorderActivitiesSchema, resolveReviewSchema, submitReviewSchema, updateActivitySchema, updateSendaSchema, updateThemeSchema, updateUserSchema, upsertStepContentSchema } from "./admin.schemas";
 
 export type AdminUser = {
   id: string;
@@ -29,6 +29,9 @@ type UpdateSendaInput = z.infer<typeof updateSendaSchema>;
 type ReorderActivitiesInput = z.infer<typeof reorderActivitiesSchema>;
 type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
 type ResolveReviewInput = z.infer<typeof resolveReviewSchema>;
+type UpdateAjustesSistemaInput = z.infer<typeof actualizarAjustesSistemaSchema>;
+
+const AJUSTES_SISTEMA_ID = "global";
 
 export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
   function requerirDrizzle() {
@@ -102,6 +105,62 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
   }
 
   return {
+    async obtenerAjustesSistema() {
+      const { data, error } = await supabase
+        .from("ajuste_sistema")
+        .select("*")
+        .eq("id", AJUSTES_SISTEMA_ID)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) return data;
+
+      const { data: creado, error: crearError } = await supabase
+        .from("ajuste_sistema")
+        .insert({
+          id: AJUSTES_SISTEMA_ID,
+          nombre_plataforma: "Semillas",
+          correo_soporte: null,
+          zona_horaria: "America/Guayaquil",
+          notas_obligatorias_cambios: true,
+          notas_obligatorias_rechazo: true
+        })
+        .select("*")
+        .single();
+
+      if (crearError || !creado) throw crearError ?? new Error("No se pudieron crear los ajustes del sistema");
+      return creado;
+    },
+
+    async actualizarAjustesSistema(body: UpdateAjustesSistemaInput, actorId: string) {
+      const actuales = await this.obtenerAjustesSistema();
+      const { data, error } = await supabase
+        .from("ajuste_sistema")
+        .upsert({
+          id: AJUSTES_SISTEMA_ID,
+          nombre_plataforma: body.nombre_plataforma ?? actuales.nombre_plataforma,
+          correo_soporte: body.correo_soporte === undefined ? actuales.correo_soporte : body.correo_soporte,
+          zona_horaria: body.zona_horaria ?? actuales.zona_horaria,
+          notas_obligatorias_cambios: body.notas_obligatorias_cambios ?? actuales.notas_obligatorias_cambios,
+          notas_obligatorias_rechazo: body.notas_obligatorias_rechazo ?? actuales.notas_obligatorias_rechazo,
+          actualizado_en: new Date().toISOString()
+        })
+        .select("*")
+        .single();
+
+      if (error || !data) throw error ?? new Error("No se pudieron guardar los ajustes del sistema");
+
+      await registrarAuditoria({
+        actorId,
+        accion: "actualizar_ajustes",
+        tipoEntidad: "ajuste_sistema",
+        antes: actuales,
+        despues: data
+      });
+
+      return data;
+    },
+
     async obtenerResumen() {
       const [themes, users, activities, published] = await Promise.all([
         supabase.from("tema").select("id", { count: "exact", head: true }),

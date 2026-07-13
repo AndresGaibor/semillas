@@ -166,3 +166,17 @@ export const updateSendaSchema = z.object({
   orden: z.number().int().min(1).optional(),
   activo: z.boolean().optional()
 });
+
+const ajustesSistemaBaseSchema = z.object({
+  nombre_plataforma: z.string().trim().min(2).max(120),
+  correo_soporte: z.string().trim().email().max(255).nullable(),
+  zona_horaria: z.string().trim().min(1).max(80),
+  notas_obligatorias_cambios: z.boolean(),
+  notas_obligatorias_rechazo: z.boolean()
+});
+
+export const ajustesSistemaSchema = ajustesSistemaBaseSchema;
+
+export const actualizarAjustesSistemaSchema = ajustesSistemaBaseSchema.partial().refine((body) => Object.keys(body).length > 0, {
+  message: "Envía al menos un cambio"
+});

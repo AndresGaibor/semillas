@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   AlertTriangle,
   Check,
@@ -5,6 +6,7 @@ import {
   FileText,
   FileVideo,
   Image as ImageIcon,
+  ImageOff,
 } from "lucide-react";
 
 import { Paginacion } from "@/componentes/ui/paginacion";
@@ -141,7 +143,7 @@ function MediaGridCard({
 
       <div className="p-4">
         <h3
-          className="line-clamp-2 min-h-10 text-sm font-black leading-5 text-slate-900 transition group-hover:text-violet-700"
+          className="line-clamp-2 min-h-10 !m-0 !text-sm !font-black !leading-5 !tracking-normal text-slate-900 transition group-hover:text-violet-700"
           title={item.nombre}
         >
           {item.nombre}
@@ -198,7 +200,7 @@ function MediaListRow({
       </span>
 
       <span className="min-w-0">
-        <strong className="block truncate text-sm font-black text-slate-900">
+        <strong className="block truncate !text-sm !font-black !leading-5 text-slate-900">
           {item.nombre}
         </strong>
         <span className="mt-1 block truncate text-xs font-semibold text-slate-500 md:hidden">
@@ -232,14 +234,7 @@ function MediaPreview({
   compact?: boolean;
 }) {
   if (item.tipo === "imagen") {
-    return (
-      <img
-        src={item.imgUrl}
-        alt=""
-        loading="lazy"
-        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-      />
-    );
+    return <ImageResourcePreview item={item} />;
   }
 
   const Icon =
@@ -257,5 +252,28 @@ function MediaPreview({
     >
       <Icon size={compact ? 24 : 38} aria-hidden="true" />
     </span>
+  );
+}
+
+function ImageResourcePreview({ item }: { item: MediaCardItem }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed || !item.imgUrl) {
+    return (
+      <span className="flex h-full w-full flex-col items-center justify-center gap-2 bg-slate-100 text-slate-400">
+        <ImageOff size={28} aria-hidden="true" />
+        <small className="text-[10px] font-bold">Vista previa no disponible</small>
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={item.imgUrl}
+      alt=""
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+    />
   );
 }

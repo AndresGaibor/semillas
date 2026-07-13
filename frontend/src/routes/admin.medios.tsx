@@ -18,20 +18,28 @@ function AdminMediosPage() {
   const {
     activeTab,
     countsByType,
+    countsByUsage,
+    detailQuery,
     filteredMedia,
     handleDelete,
     handleFilesChange,
+    handleGetFreshUrl,
+    handleReplace,
     handleSearchChange,
     handleSortChange,
     handleTabChange,
+    handleUpdateMetadata,
+    handleUsageFilterChange,
     handleViewModeChange,
     inputArchivoRef,
+    isMutating,
     isUploading,
     mediaQuery,
     paginatedItems,
     paginaActual,
     porPagina,
     searchValue,
+    selectedDetail,
     selectedId,
     selectedResource,
     selectedSort,
@@ -40,9 +48,9 @@ function AdminMediosPage() {
     setSelectedId,
     totalResources,
     uploadProgress,
+    usageFilter,
     viewMode,
   } = useAdminMediaPage();
-
 
   return (
     <div className="flex flex-col gap-4 text-left">
@@ -68,10 +76,13 @@ function AdminMediosPage() {
         onTabChange={handleTabChange}
         selectedSort={selectedSort}
         onSortChange={handleSortChange}
+        usageFilter={usageFilter}
+        onUsageFilterChange={handleUsageFilterChange}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         totalItems={totalResources}
         countsByType={countsByType}
+        countsByUsage={countsByUsage}
       />
 
       <AdminMediaLoadingState isLoading={mediaQuery.isLoading} />
@@ -88,9 +99,9 @@ function AdminMediosPage() {
 
       {!mediaQuery.isLoading ? (
         <div
-          className={`grid min-w-0 gap-5 ${
+          className={`grid min-w-0 items-start gap-5 ${
             selectedResource
-              ? "xl:grid-cols-[minmax(0,1fr)_360px]"
+              ? "xl:grid-cols-[minmax(0,1fr)_400px]"
               : "grid-cols-1"
           }`}
         >
@@ -109,8 +120,14 @@ function AdminMediosPage() {
           {selectedResource ? (
             <AdminMediaDetailPanel
               selectedResource={selectedResource}
+              detail={selectedDetail}
+              isLoading={detailQuery.isLoading}
+              isBusy={isMutating}
               onClose={() => setSelectedId("")}
               onDelete={handleDelete}
+              onUpdateMetadata={handleUpdateMetadata}
+              onReplace={handleReplace}
+              onGetFreshUrl={handleGetFreshUrl}
             />
           ) : null}
         </div>

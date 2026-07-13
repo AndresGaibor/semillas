@@ -11,6 +11,7 @@ import {
   reorderActivitiesSchema,
   resolveReviewSchema,
   submitReviewSchema,
+  actualizarAjustesSistemaSchema,
   updateActivitySchema,
   updateThemeSchema,
   updateUserSchema,
@@ -25,6 +26,7 @@ import { crearAdminRepository } from "./admin.repository";
 import { crearAdminUsersRepository } from "./admin-users.repository";
 import { crearCasoObtenerResumen } from "./casos-uso/resumen";
 import { crearCasosUsoActividades } from "./casos-uso/actividades";
+import { crearCasosUsoAjustes } from "./casos-uso/ajustes";
 import { crearCasosUsoTemas } from "./casos-uso/temas";
 import { crearCasosUsoUsuarios } from "./casos-uso/usuarios";
 import { crearCasosUsoSendas } from "./casos-uso/sendas";
@@ -46,6 +48,7 @@ export function crearModuloAdmin(
     return {
       resumen: crearCasoObtenerResumen(repositorio),
       actividades: crearCasosUsoActividades(repositorio),
+      ajustes: crearCasosUsoAjustes(repositorio),
       temas: crearCasosUsoTemas(repositorio),
       usuarios: crearCasosUsoUsuarios(repositorioUsuarios),
       sendas: crearCasosUsoSendas(repositorio)
@@ -65,6 +68,10 @@ export function crearModuloAdmin(
   adminRoutes.get("/sendas/:id", async (c) => responderExito(await obtenerCasosUso(c).sendas.obtener(c.req.param("id"))));
   adminRoutes.patch("/sendas/:id", zValidator("json", updateSendaSchema), async (c) => responderExito(await obtenerCasosUso(c).sendas.actualizar(c.req.param("id"), c.req.valid("json"))));
   adminRoutes.get("/resumen/detallado", async (c) => responderExito(await obtenerCasosUso(c).resumen.ejecutarDetallado()));
+  adminRoutes.get("/ajustes", async (c) => responderExito(await obtenerCasosUso(c).ajustes.obtener()));
+  adminRoutes.patch("/ajustes", zValidator("json", actualizarAjustesSistemaSchema), async (c) =>
+    responderExito(await obtenerCasosUso(c).ajustes.actualizar(c.req.valid("json"), c.get("user").id))
+  );
   adminRoutes.get("/actividades", async (c) => {
     const casos = obtenerCasosUso(c);
     return responderExito(await casos.actividades.listar({ temaId: c.req.query("tema_id") ?? undefined, tipoId: c.req.query("tipo_actividad_id") ?? undefined, grupoEdadId: c.req.query("grupo_edad_id") ?? undefined, estado: c.req.query("estado") ?? undefined, limit: Math.min(Math.max(Number(c.req.query("limit") ?? "100"), 1), 500), offset: Math.max(Number(c.req.query("offset") ?? "0"), 0) }));

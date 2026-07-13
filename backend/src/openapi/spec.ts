@@ -960,9 +960,39 @@ registry.registerPath({ method: "post", path: "/clubes/{clubId}/retos", operatio
 // ─── Media schemas ────────────────────────────────────────────────────
 
 const MediaUploadBody = z.object({
+  archivo: z.unknown().openapi({ description: "Archivo binario" }),
   tipo: z.enum(["imagen", "audio", "video", "documento"]).openapi({ description: "Tipo de recurso multimedia", example: "imagen" }),
-  texto_alternativo: z.string().max(300).optional().openapi({ description: "Texto alternativo para accesibilidad", example: "Ilustracion de la creacion" })
+  titulo: z.string().min(2).max(120).optional().openapi({ description: "Titulo editorial", example: "Portada del Buen Pastor" }),
+  texto_alternativo: z.string().max(300).optional().openapi({ description: "Texto alternativo para accesibilidad", example: "Ilustracion de la creacion" }),
+  ancho_px: z.number().int().positive().optional(),
+  alto_px: z.number().int().positive().optional(),
+  duracion_seg: z.number().int().nonnegative().optional()
 }).openapi("MediaUploadBody");
+
+const MediaUpdateBody = z.object({
+  titulo: z.string().min(2).max(120).optional(),
+  textoAlternativo: z.string().max(300).nullable().optional()
+}).openapi("MediaUpdateBody");
+
+const MediaUsageSchema = z.object({
+  tipo: z.enum(["tema", "senda", "paso", "actividad"]),
+  entidad_id: z.string().uuid(),
+  titulo: z.string(),
+  contexto: z.string(),
+  tema_id: z.string().uuid().nullable(),
+  href: z.string()
+}).openapi("MediaUsage");
+
+const MediaDetailSchema = RecursoMultimediaSchema.extend({
+  uso_total: z.number().int().nonnegative(),
+  puede_eliminar: z.boolean(),
+  usos: z.array(MediaUsageSchema),
+  subido_por_usuario: z.object({
+    id: z.string().uuid(),
+    nombre_visible: z.string(),
+    correo: z.string().nullable()
+  }).nullable()
+}).openapi("MediaDetail");
 
 const MediaUploadResponse = z.object({
   exito: z.literal(true),
@@ -970,6 +1000,9 @@ const MediaUploadResponse = z.object({
 }).openapi("MediaUploadResponse");
 
 registry.register("MediaUploadBody", MediaUploadBody);
+registry.register("MediaUpdateBody", MediaUpdateBody);
+registry.register("MediaUsage", MediaUsageSchema);
+registry.register("MediaDetail", MediaDetailSchema);
 registry.register("MediaUploadResponse", MediaUploadResponse);
 
 registry.registerPath({ method: "post", path: "/media/subir", operationId: "uploadMedia", tags: ["media"],
@@ -977,15 +1010,29 @@ registry.registerPath({ method: "post", path: "/media/subir", operationId: "uplo
   request: { body: { content: { "multipart/form-data": { schema: MediaUploadBody } }, required: true } },
   responses: { 201: { content: { "application/json": { schema: MediaUploadResponse } }, description: "Recurso creado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos o archivo muy grande" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 500: { content: { "application/json": { schema: ErrorResponse } }, description: "Error interno" } } });
 
+registry.registerPath({ method: "get", path: "/media", operationId: "listMedia", tags: ["media"],
+  summary: "Listar recursos multimedia", description: "Lista recursos activos con URL temporal y conteo real de usos.",
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.array(RecursoMultimediaSchema.extend({ uso_total: z.number().int().nonnegative() })) }) } }, description: "Biblioteca multimedia" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 403: { content: { "application/json": { schema: ErrorResponse } }, description: "No autorizado" } } });
+
 registry.registerPath({ method: "get", path: "/media/{id}", operationId: "getMedia", tags: ["media"],
-  summary: "Obtener recurso multimedia", description: "Obtiene los metadatos de un recurso multimedia por ID.",
+  summary: "Obtener recurso multimedia", description: "Obtiene metadatos, creador y referencias de uso del recurso.",
   request: { params: z.object({ id: z.string().uuid().openapi({ description: "ID del recurso", example: uuidExample }) }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: RecursoMultimediaSchema }) } }, description: "Recurso encontrado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: MediaDetailSchema }) } }, description: "Recurso encontrado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "patch", path: "/media/{id}", operationId: "updateMedia", tags: ["media"],
+  summary: "Editar metadatos", description: "Actualiza titulo y texto alternativo sin cambiar el archivo.",
+  request: { params: z.object({ id: z.string().uuid() }), body: { content: { "application/json": { schema: MediaUpdateBody } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: RecursoMultimediaSchema }) } }, description: "Recurso actualizado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Datos invalidos" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+
+registry.registerPath({ method: "post", path: "/media/{id}/reemplazar", operationId: "replaceMedia", tags: ["media"],
+  summary: "Reemplazar archivo", description: "Cambia el objeto almacenado conservando el mismo ID y todas sus referencias.",
+  request: { params: z.object({ id: z.string().uuid() }), body: { content: { "multipart/form-data": { schema: MediaUploadBody.omit({ tipo: true }) } }, required: true } },
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: RecursoMultimediaSchema }) } }, description: "Archivo reemplazado" }, 400: { content: { "application/json": { schema: ErrorResponse } }, description: "Archivo incompatible" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
 registry.registerPath({ method: "delete", path: "/media/{id}", operationId: "deleteMedia", tags: ["media"],
-  summary: "Eliminar recurso multimedia", description: "Eliminacion logica (activo=false) de un recurso multimedia.",
+  summary: "Eliminar recurso multimedia", description: "Elimina el archivo y desactiva el registro solo cuando no tiene referencias.",
   request: { params: z.object({ id: z.string().uuid().openapi({ description: "ID del recurso", example: uuidExample }) }) },
-  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ deleted: z.literal(true) }) }) } }, description: "Recurso eliminado" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
+  responses: { 200: { content: { "application/json": { schema: z.object({ exito: z.literal(true), datos: z.object({ deleted: z.literal(true) }) }) } }, description: "Recurso eliminado" }, 409: { content: { "application/json": { schema: ErrorResponse } }, description: "Recurso en uso" }, 401: { content: { "application/json": { schema: ErrorResponse } }, description: "No autenticado" }, 404: { content: { "application/json": { schema: ErrorResponse } }, description: "No encontrado" } } });
 
 // ─── Sync schemas ──────────────────────────────────────────────────────
 

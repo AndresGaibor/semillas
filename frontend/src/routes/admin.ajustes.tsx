@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RotateCcw, ShieldCheck, Save } from "lucide-react";
 import { toast } from "sonner";
+
+import { guardarAjustesAdmin, obtenerAjustesAdmin, type AjustesAdmin } from "@/features/admin/admin.api";
 
 export const Route = createFileRoute("/admin/ajustes")({ component: AdminAjustesPage });
 
@@ -24,21 +26,57 @@ const defaults: Ajustes = {
   notasObligatoriasRechazo: true,
 };
 
+function normalizarAjustes(ajustes: AjustesAdmin): Ajustes {
+  return {
+    nombrePlataforma: ajustes.nombre_plataforma,
+    correoSoporte: ajustes.correo_soporte ?? "",
+    zonaHoraria: ajustes.zona_horaria,
+    notasObligatoriasCambios: ajustes.notas_obligatorias_cambios,
+    notasObligatoriasRechazo: ajustes.notas_obligatorias_rechazo,
+  };
+}
+
+function cargarAjustesLocales(): Ajustes | null {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<Ajustes>;
+    return {
+      ...defaults,
+      ...parsed,
+    };
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    return null;
+  }
+}
+
 function AdminAjustesPage() {
   const queryClient = useQueryClient();
-  const [settings, setSettings] = useState<Ajustes>(defaults);
+  const [settings, setSettings] = useState<Ajustes>(() => cargarAjustesLocales() ?? defaults);
   const [dirty, setDirty] = useState(false);
 
+  const ajustesQuery = useQuery({
+    queryKey: ["admin", "ajustes"],
+    queryFn: obtenerAjustesAdmin,
+  });
+
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as Partial<Ajustes>;
-      setSettings((current) => ({ ...current, ...parsed }));
-    } catch {
-      localStorage.removeItem(STORAGE_KEY);
+    if (ajustesQuery.data) {
+      const siguientes = normalizarAjustes(ajustesQuery.data);
+      setSettings(siguientes);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(siguientes));
+      setDirty(false);
     }
-  }, []);
+  }, [ajustesQuery.data]);
+
+  useEffect(() => {
+    if (ajustesQuery.isError) {
+      const locales = cargarAjustesLocales();
+      if (locales) setSettings(locales);
+    }
+  }, [ajustesQuery.isError]);
 
   const validation = useMemo(() => {
     const errores: string[] = [];
@@ -49,14 +87,20 @@ function AdminAjustesPage() {
   }, [settings]);
 
   const saveMutation = useMutation({
-    mutationFn: async () => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-      return settings;
-    },
-    onSuccess: async () => {
+    mutationFn: async () => guardarAjustesAdmin({
+      nombre_plataforma: settings.nombrePlataforma.trim(),
+      correo_soporte: settings.correoSoporte.trim() ? settings.correoSoporte.trim() : null,
+      zona_horaria: settings.zonaHoraria.trim(),
+      notas_obligatorias_cambios: settings.notasObligatoriasCambios,
+      notas_obligatorias_rechazo: settings.notasObligatoriasRechazo,
+    }),
+    onSuccess: async (respuesta) => {
+      const siguientes = normalizarAjustes(respuesta);
+      setSettings(siguientes);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(siguientes));
       setDirty(false);
-      await queryClient.invalidateQueries({ queryKey: ["admin"] });
-      toast.success("Ajustes guardados localmente");
+      await queryClient.invalidateQueries({ queryKey: ["admin", "ajustes"] });
+      toast.success("Ajustes guardados");
     },
     onError: () => toast.error("No se pudieron guardar los ajustes"),
   });
@@ -147,7 +191,7 @@ function AdminAjustesPage() {
             </div>
 
             <p className="mt-4 text-sm leading-6 text-slate-500">
-              Este port mantiene la persistencia local mientras el backend de ajustes se termina de integrar.
+              Los cambios se guardan en el backend y se cachean localmente para recuperación rápida.
             </p>
           </section>
         </aside>

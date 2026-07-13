@@ -11,24 +11,30 @@ import {
   X,
 } from "lucide-react";
 
-import type { MediaViewMode } from "../../admin-media.types";
-import type { TipoMedia } from "./admin-media-type-tabs";
+import type {
+  MediaTypeFilter,
+  MediaUsageFilter,
+  MediaViewMode,
+} from "../../admin-media.types";
 
 type Props = {
   searchValue: string;
   onSearchChange: (value: string) => void;
-  activeTab: TipoMedia;
-  onTabChange: (tab: TipoMedia) => void;
+  activeTab: MediaTypeFilter;
+  onTabChange: (tab: MediaTypeFilter) => void;
   selectedSort: string;
   onSortChange: (sort: string) => void;
+  usageFilter: MediaUsageFilter;
+  onUsageFilterChange: (filter: MediaUsageFilter) => void;
   viewMode: MediaViewMode;
   onViewModeChange: (mode: MediaViewMode) => void;
   totalItems: number;
-  countsByType: Record<Exclude<TipoMedia, "">, number>;
+  countsByType: Record<Exclude<MediaTypeFilter, "">, number>;
+  countsByUsage: Record<MediaUsageFilter, number>;
 };
 
 const TYPE_OPTIONS: Array<{
-  id: TipoMedia;
+  id: MediaTypeFilter;
   label: string;
   icon: typeof Layers3;
 }> = [
@@ -46,13 +52,15 @@ export function AdminMediaFilters({
   onTabChange,
   selectedSort,
   onSortChange,
+  usageFilter,
+  onUsageFilterChange,
   viewMode,
   onViewModeChange,
   totalItems,
   countsByType,
+  countsByUsage,
 }: Props) {
-  const countFor = (type: TipoMedia) =>
-    type ? countsByType[type] : totalItems;
+  const countFor = (type: MediaTypeFilter) => (type ? countsByType[type] : totalItems);
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
@@ -86,6 +94,25 @@ export function AdminMediaFilters({
         </label>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="flex min-w-[170px] items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3">
+            <span className="text-xs font-extrabold text-slate-500">Estado</span>
+            <select
+              value={usageFilter}
+              onChange={(event) =>
+                onUsageFilterChange(event.target.value as MediaUsageFilter)
+              }
+              aria-label="Filtrar por uso y accesibilidad"
+              className="h-10 flex-1 cursor-pointer bg-transparent text-sm font-bold text-slate-700 outline-none"
+            >
+              <option value="todos">Todos ({countsByUsage.todos})</option>
+              <option value="usados">En uso ({countsByUsage.usados})</option>
+              <option value="sin_uso">Sin usar ({countsByUsage.sin_uso})</option>
+              <option value="accesibilidad">
+                Accesibilidad pendiente ({countsByUsage.accesibilidad})
+              </option>
+            </select>
+          </label>
+
           <label className="flex min-w-[180px] items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3">
             <span className="text-xs font-extrabold text-slate-500">Orden</span>
             <select

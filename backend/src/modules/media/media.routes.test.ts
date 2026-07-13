@@ -323,7 +323,7 @@ describe("media.routes", () => {
       }
 
       if (url.pathname.includes("/rest/v1/tema") && request.method === "GET") {
-        return new Response(JSON.stringify([{ id: "550e8400-e29b-41d4-a716-446655440201" }]), { status: 200, headers: { "content-type": "application/json" } });
+        return new Response(JSON.stringify([{ id: "550e8400-e29b-41d4-a716-446655440201", titulo: "Tema en uso", slug: "tema-en-uso", portada_recurso_id: "550e8400-e29b-41d4-a716-446655440099" }]), { status: 200, headers: { "content-type": "application/json" } });
       }
 
       if (url.pathname.includes("/storage/v1/object/media") && request.method === "DELETE") {
