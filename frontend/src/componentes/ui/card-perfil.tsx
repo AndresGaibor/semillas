@@ -36,7 +36,7 @@ export const CardPerfil: React.FC<PropiedadesCardPerfil> = ({
         <div
           className="w-12 h-12 rounded-full border-2 border-[#6C3AED]/20 bg-cover bg-center flex-shrink-0"
           style={{
-            backgroundImage: avatarUrl ? `url('${avatarUrl}')` : "url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80')",
+            backgroundImage: avatarUrl ? `url('${avatarUrl}')` : "url('/storybook/fixtures/avatar.svg')",
           }}
         />
         <div className="text-left">

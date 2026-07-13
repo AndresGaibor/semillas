@@ -35,6 +35,16 @@
   transform: translateY(100%);
   animation: sheet-slide-up 0.25s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
+[data-theme="app-dark"] .account-sheet,
+.dark .account-sheet { background: var(--sem-surface-elevated, #172033); color: var(--sem-text-primary, #f8fafc); }
+[data-theme="app-dark"] .account-sheet__title,
+.dark .account-sheet__title { color: var(--sem-text-primary, #f8fafc); }
+[data-theme="app-dark"] .account-sheet__action,
+.dark .account-sheet__action { color: var(--sem-text-secondary, #cbd5e1); }
+[data-theme="app-dark"] .account-sheet__action:hover,
+[data-theme="app-dark"] .account-sheet__action:focus-visible,
+.dark .account-sheet__action:hover,
+.dark .account-sheet__action:focus-visible { background: var(--sem-surface-subtle, #223047); }
 
 @keyframes sheet-slide-up {
   to {

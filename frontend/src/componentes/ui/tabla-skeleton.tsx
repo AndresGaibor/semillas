@@ -9,7 +9,7 @@ export type TablaSkeletonProps = {
 
 export function TablaSkeleton({ filas = 5, columnas = 8, className }: TablaSkeletonProps) {
   return (
-    <tbody className={unirClases("divide-y divide-slate-100", className)}>
+    <>
       {Array.from({ length: filas }).map((_, i) => (
         <tr key={`skeleton-${i}`} className="animate-pulse">
           {Array.from({ length: columnas }).map((_, j) => (
@@ -19,7 +19,7 @@ export function TablaSkeleton({ filas = 5, columnas = 8, className }: TablaSkele
           ))}
         </tr>
       ))}
-    </tbody>
+    </>
   );
 }
 
@@ -31,12 +31,12 @@ export type TablaSkeletonPersonalizadoProps = {
 
 export function TablaSkeletonPersonalizado({ filas = 5, className, children }: TablaSkeletonPersonalizadoProps) {
   return (
-    <tbody className={unirClases("divide-y divide-slate-100", className)}>
+    <>
       {Array.from({ length: filas }).map((_, i) => (
         <tr key={`skel-personalizado-${i}`} className="animate-pulse">
           {children}
         </tr>
       ))}
-    </tbody>
+    </>
   );
 }

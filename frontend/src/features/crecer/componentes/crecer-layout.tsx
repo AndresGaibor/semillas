@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { StateView } from "@/componentes/ui/state-view";
 import { FASES_CRECER, type FaseCrecerConfig } from "../crecer-fases";
+import { playSound } from "@/lib/audio";
 import "./crecer-focus.css";
 
 interface ContenidoPaso {
@@ -104,6 +105,9 @@ export function CrecerLayout({
     setActionError(null);
     try {
       await onCompleteStep?.();
+      if (nextPhase && nextPhase.codigo !== "recompensar") {
+        void playSound("siguiente");
+      }
       navigateTo(botonesAccion.siguiente);
     } catch (error) {
       setActionError(

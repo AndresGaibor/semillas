@@ -56,7 +56,7 @@ export function ThemeTableRow({
           className="text-left w-full"
         >
           <AvatarTexto
-            src={tema.portadaUrl || "https://api.dicebear.com/7.x/identicon/svg?seed=Tema"}
+            src={tema.portadaUrl || "/storybook/fixtures/avatar.svg"}
             alt={tema.titulo}
             titulo={tema.titulo}
             subtitulo={tema.resumen || "Sin descripción..."}

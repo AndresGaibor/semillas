@@ -50,7 +50,7 @@ export function mapearTemaParaTabla(
     fechaEdicion: fecha,
     horaEdicion: hora,
     autorNombre,
-    autorAvatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}`,
+    autorAvatar: "/storybook/fixtures/avatar.svg",
   };
 }
 

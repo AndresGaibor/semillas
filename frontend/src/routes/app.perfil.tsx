@@ -40,15 +40,15 @@ function ProfilePage() {
   const { handleLogout } = useAppLayout();
 
   const meQuery = useQuery({
-    queryKey: ["perfil", "me"],
+    queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
   const gamificacionQuery = useQuery({
-    queryKey: ["perfil", "gamificacion"],
+    queryKey: ["gamification", "me"],
     queryFn: obtenerMiGamificacion,
   });
   const progresoQuery = useQuery({
-    queryKey: ["perfil", "progreso"],
+    queryKey: ["progress"],
     queryFn: obtenerMiProgreso,
   });
   const gruposEdadQuery = useQuery({

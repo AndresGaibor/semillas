@@ -1,5 +1,6 @@
 import { enviarEventosProgreso } from "@/features/progress/progress.api";
 import { db, queueEventoProgreso } from "@/lib/offline";
+import { ErrorApi } from "@/shared/api/error-api";
 import type { EventoProgreso } from "@/shared/api/api";
 
 /**
@@ -12,6 +13,9 @@ export async function registrarEventosCrecer(eventos: EventoProgreso[]): Promise
       await enviarEventosProgreso(eventos);
       return;
     } catch (error) {
+      if (error instanceof ErrorApi && error.estado < 500) {
+        throw error;
+      }
       const pudoEncolar = await encolarEventosLocales(eventos);
       if (pudoEncolar) return;
       throw error;

@@ -3,6 +3,7 @@ import { obtenerTema, obtenerPasos, obtenerActividades, obtenerUrlPortadaTema } 
 import { playSound } from "@/lib/audio";
 import { registrarEventosCrecer } from "../services/crecer-progress";
 import { completarTema as registrarTemaCompletado } from "../services/recompensar-progress";
+import { obtenerMiProgreso } from "@/features/progress/progress.api";
 
 interface UseRecompensarPageOptions {
   themeId: string;
@@ -37,11 +38,19 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
     enabled: !!temaDbId,
   });
 
+  const progressQuery = useQuery({
+    queryKey: ["progress", themeId],
+    queryFn: obtenerMiProgreso,
+  });
+
   const pasoActual = stepsQuery.data?.find((paso) => paso.tipo_paso?.codigo === "recompensar");
   const contenidoPaso = pasoActual?.contenidos?.[0];
   const actividadesFase = activitiesQuery.data?.filter(
     (actividad) => actividad.paso_id === pasoActual?.id,
   ) ?? [];
+
+  const progresoActual = progressQuery.data?.progresos_tema?.find((p) => p.tema_id === temaDbId);
+  const yaCompletado = progresoActual?.estado === "completado";
 
   const isLoading =
     themeQuery.isLoading ||
@@ -52,7 +61,7 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
     mutationFn: registrarEventosCrecer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["progress"] });
-      queryClient.invalidateQueries({ queryKey: ["gamificacion"] });
+      queryClient.invalidateQueries({ queryKey: ["gamification"] });
       queryClient.invalidateQueries({ queryKey: ["sync"] });
     },
   });
@@ -61,9 +70,11 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
     if (!temaDbId) {
       throw new Error("El tema todavía no está listo para confirmarse.");
     }
+    if (yaCompletado) {
+      return;
+    }
 
     await registrarTemaCompletado(temaDbId, pasoActual?.id, eventMutation.mutateAsync);
-    playSound("insignia");
   };
 
   return {
@@ -79,7 +90,7 @@ export function useRecompensarPage({ themeId }: UseRecompensarPageOptions) {
     isError,
     isSavingProgress: eventMutation.isPending,
     progressError: eventMutation.error,
-    progresoConfirmado: eventMutation.isSuccess,
+    progresoConfirmado: eventMutation.isSuccess || yaCompletado,
     completarTema,
   };
 }

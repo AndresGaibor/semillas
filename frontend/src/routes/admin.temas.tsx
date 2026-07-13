@@ -178,7 +178,7 @@ function ThemeLibraryRow({ tema, menuOpen, onToggleMenu, onNavigate, onAction, a
   onAction: (action: "publicar" | "borrador" | "archivar" | "duplicar") => void;
   actionPending: boolean;
 }) {
-  const cover = tema.portada_recurso?.url_publica || `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(tema.titulo)}`;
+  const cover = tema.portada_recurso?.url_publica || "/storybook/fixtures/cover.svg";
   const ages = tema.grupos_edad?.map((grupo) => grupo.nombre).join(", ") || "Sin franja";
   const stateLabel = estados.find((item) => item.id === tema.estado)?.label ?? tema.estado;
 

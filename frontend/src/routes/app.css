@@ -1561,6 +1561,7 @@ h6, .titulo-6 {
 .app-shell {
   display: flex;
   width: 100%;
+  overflow-x: clip;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--app-shell-bg);
@@ -1637,7 +1638,7 @@ h6, .titulo-6 {
 
 .app-user-header__mobile-row {
   display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
   align-items: center;
   gap: .65rem;
   min-height: 3.75rem;
@@ -3392,5 +3393,4 @@ html[data-semillas-text-size="grande"] {
     display: none !important;
   }
 }
-
 

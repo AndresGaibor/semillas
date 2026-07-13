@@ -1,5 +1,5 @@
 const avatarIds = Array.from({ length: 10 }, (_, i) => i + 1);
-const avatarBaseUrl = "https://api.dicebear.com/7.x/thumbs/svg?seed=";
+const avatarBaseUrl = "/storybook/fixtures/avatar.svg?seed=";
 
 interface GaleriaAvataresProps {
   seleccionadoId: string | null;

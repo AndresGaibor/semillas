@@ -24,8 +24,9 @@ export function SugerenciaInstalacionPWA() {
   const [esDispositivoIOS, setEsDispositivoIOS] = useState(false);
 
   useEffect(() => {
-    // No mostrar en la landing page
-    if (window.location.pathname === "/") {
+    // La instalación es una acción secundaria. No debe bloquear login,
+    // onboarding ni el contenido principal; se ofrece desde Descargas.
+    if (window.location.pathname !== "/app/descargas") {
       setMostrar(false);
       return;
     }

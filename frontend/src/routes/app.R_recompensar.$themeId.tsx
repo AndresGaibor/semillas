@@ -4,6 +4,8 @@ import { CSSConfetti } from "@/componentes/ui/Confetti";
 import { CrecerLayout } from "@/features/crecer/componentes";
 import { obtenerFaseCrecer } from "@/features/crecer/crecer-fases";
 import { useRecompensarPage } from "@/features/crecer/hooks/use-recompensar-page";
+import { useEffect, useRef } from "react";
+import { playSound } from "@/lib/audio";
 
 export const Route = createFileRoute("/app/R_recompensar/$themeId")({
   component: RRecompensarPage,
@@ -14,6 +16,21 @@ const FASE = obtenerFaseCrecer("recompensar");
 function RRecompensarPage() {
   const { themeId } = Route.useParams();
   const recompensa = useRecompensarPage({ themeId });
+
+  const soundPlayedRef = useRef(false);
+
+  useEffect(() => {
+    if (recompensa.progresoConfirmado && !soundPlayedRef.current) {
+      soundPlayedRef.current = true;
+      void playSound("insignia");
+    }
+  }, [recompensa.progresoConfirmado]);
+
+  useEffect(() => {
+    if (!recompensa.isLoading && !recompensa.isError && !recompensa.progresoConfirmado && recompensa.tema) {
+      void recompensa.completarTema();
+    }
+  }, [recompensa.isLoading, recompensa.isError, recompensa.progresoConfirmado, recompensa.tema]);
 
   return (
     <>
@@ -70,12 +87,7 @@ function RRecompensarPage() {
                 <CheckCircle2 aria-hidden="true" />
                 Progreso guardado
               </>
-            ) : (
-              <>
-                <Clock3 aria-hidden="true" />
-                Pendiente de confirmar
-              </>
-            )}
+            ) : null}
           </div>
         </div>
       </CrecerLayout>

@@ -96,7 +96,7 @@ export const SidebarIzquierdo: React.FC<PropiedadesSidebarIzquierdo> = ({
           <div
             className="w-9 h-9 rounded-full bg-[#FFFBEB] border border-[#F4B740]/30 flex items-center justify-center text-lg overflow-hidden flex-shrink-0"
             style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80')",
+              backgroundImage: "url('/storybook/fixtures/avatar.svg')",
               backgroundSize: "cover",
             }}
           />

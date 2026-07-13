@@ -101,7 +101,7 @@ function ThemeMetadataEditorPage() {
   if (estudioQuery.isLoading) return <EditorLoading />;
   if (!tema || estudioQuery.isError) return <div className="admin-dashboard-state"><span><FilePenLine /></span><h2>No se pudo abrir el editor</h2><p>{estudioQuery.error instanceof Error ? estudioQuery.error.message : "Tema no encontrado"}</p></div>;
 
-  const cover = tema.portada_recurso?.url_publica || `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(tema.titulo)}`;
+  const cover = tema.portada_recurso?.url_publica || "/storybook/fixtures/cover.svg";
 
   return (
     <div className="admin-theme-studio">

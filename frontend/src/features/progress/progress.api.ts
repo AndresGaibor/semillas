@@ -27,7 +27,6 @@ export type ProgresoResumen = {
  */
 export async function enviarEventosProgreso(eventos: EventoProgreso[]) {
   let procesados = 0;
-  let ultimoError: string | undefined;
   const logrosGanados: Array<{
     id: string;
     nombre: string;
@@ -63,13 +62,12 @@ export async function enviarEventosProgreso(eventos: EventoProgreso[]) {
           logrosGanados.push(...resp.logros_ganados);
         }
       }
-    } catch (err: any) {
-      console.error("[Frontend] Error enviando evento de progreso:", err);
-      ultimoError = err.message;
+    } catch (error) {
+      throw error;
     }
   }
 
-  return { procesados, error: ultimoError, logros_ganados: logrosGanados };
+  return { procesados, logros_ganados: logrosGanados };
 }
 
 export type RegistrarEventoProgresoBody = {

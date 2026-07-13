@@ -58,7 +58,7 @@ function AdminThemeStudioPage() {
   if (estudioQuery.isError || !estudioQuery.data) return <StudioState icon={<BookOpenCheck />} title="No se pudo abrir el tema" description={estudioQuery.error instanceof Error ? estudioQuery.error.message : "Vuelve a intentarlo."} />;
 
   const { tema, pasos, actividades, completitud, revisiones } = estudioQuery.data;
-  const portada = tema.portada_recurso?.url_publica || `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(tema.titulo)}`;
+  const portada = tema.portada_recurso?.url_publica || "/storybook/fixtures/cover.svg";
   const grupos = tema.grupos_edad ?? [];
   const ultimaRevision = revisiones[0];
 

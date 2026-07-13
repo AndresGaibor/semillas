@@ -17,7 +17,7 @@ export const CabeceraLogros: React.FC = () => {
           <div
             className="w-7 h-7 rounded-full bg-cover"
             style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80')",
+              backgroundImage: "url('/storybook/fixtures/avatar.svg')",
             }}
           />
           <div className="text-left">

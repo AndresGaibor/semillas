@@ -4,6 +4,8 @@ import { obtenerTema, obtenerPasos, obtenerActividades } from "@/features/themes
 import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import type { EventoProgreso } from "@/shared/api/api";
 import { registrarEventosCrecer } from "../services/crecer-progress";
+import { playSound } from "@/lib/audio";
+import { responderActividad } from "@/features/activities/activities.api";
 
 type UseCrecerFaseOptions = {
   themeId: string;
@@ -43,10 +45,20 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
 
   const pasoActual = stepsQuery.data?.find((paso) => paso.tipo_paso?.codigo === pasoCodigo);
   const contenidoPaso = pasoActual?.contenidos?.[0];
-  const actividadesFase = useMemo(
-    () => activitiesQuery.data?.filter((actividad) => actividad.paso_id === pasoActual?.id) ?? [],
-    [activitiesQuery.data, pasoActual?.id],
-  );
+  const actividadesFase = useMemo(() => {
+    if (!activitiesQuery.data) return [];
+    const conPasoId = activitiesQuery.data.filter(
+      (actividad) => actividad.paso_id === pasoActual?.id,
+    );
+    if (conPasoId.length > 0) return conPasoId;
+    const sinPasoId = activitiesQuery.data.filter(
+      (actividad) => actividad.paso_id === null || actividad.paso_id === undefined,
+    );
+    if (sinPasoId.length > 0 && pasoCodigo === "comprobar") {
+      return sinPasoId;
+    }
+    return [];
+  }, [activitiesQuery.data, pasoActual?.id, pasoCodigo]);
 
   const isLoading =
     meQuery.isLoading ||
@@ -57,6 +69,7 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
 
   const invalidarProgreso = () => {
     queryClient.invalidateQueries({ queryKey: ["progress"] });
+    queryClient.invalidateQueries({ queryKey: ["gamification"] });
     queryClient.invalidateQueries({ queryKey: ["sync"] });
   };
 
@@ -111,31 +124,35 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
     async (actividadId: string, puntaje?: number) => {
       if (!temaDbId) return;
 
-      await progresoMutation.mutateAsync([
-        {
-          evento_id_cliente: crypto.randomUUID(),
-          tipo_evento: "actividad_completada",
-          tema_id: temaDbId,
-          paso_id: pasoActual?.id,
-          actividad_id: actividadId,
-          ocurrido_en_cliente: new Date().toISOString(),
-          datos: { confirmacion: true, origen: "reproductor_interactivo" },
-        },
-      ]);
-
       setActividadesCompletadas((actuales) => {
         const siguiente = new Set(actuales);
         siguiente.add(actividadId);
         return siguiente;
       });
+
+      const actividad = actividadesFase.find((a) => a.id === actividadId);
+      const tieneOpciones = actividad && actividad.opciones && actividad.opciones.length > 0;
+
+      if (!tieneOpciones) {
+        try {
+          await responderActividad(actividadId, {
+            evento_id_cliente: crypto.randomUUID(),
+            ocurrido_en_cliente: new Date().toISOString(),
+            dispositivo_id: "web",
+          });
+          invalidarProgreso();
+        } catch (error) {
+          console.error("Error al registrar actividad completa:", error);
+        }
+      }
     },
-    [pasoActual?.id, progresoMutation, temaDbId],
+    [actividadesFase, temaDbId, invalidarProgreso],
   );
 
   const completeStep = useCallback(async () => {
     if (!temaDbId || !pasoActual?.id) return;
 
-    await progresoMutation.mutateAsync([
+    const eventos: EventoProgreso[] = [
       {
         evento_id_cliente: crypto.randomUUID(),
         tipo_evento: "bloque_completado",
@@ -143,8 +160,20 @@ export function useCrecerFase({ themeId, pasoCodigo }: UseCrecerFaseOptions) {
         paso_id: pasoActual.id,
         ocurrido_en_cliente: new Date().toISOString(),
       },
-    ]);
-  }, [pasoActual?.id, progresoMutation, temaDbId]);
+    ];
+
+    if (pasoCodigo === "experimentar") {
+      eventos.push({
+        evento_id_cliente: crypto.randomUUID(),
+        tipo_evento: "tema_completado",
+        tema_id: temaDbId,
+        paso_id: pasoActual.id,
+        ocurrido_en_cliente: new Date().toISOString(),
+      });
+    }
+
+    progresoMutation.mutate(eventos);
+  }, [pasoActual?.id, progresoMutation, temaDbId, pasoCodigo]);
 
   return {
     meQuery,
