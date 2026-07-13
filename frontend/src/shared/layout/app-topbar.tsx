@@ -33,6 +33,7 @@ export function AppTopbar({
   const meQuery = useQuery({
     queryKey: ["me"],
     queryFn: obtenerMiPerfil,
+    staleTime: 1000 * 60 * 5,
   });
 
   const cuenta = obtenerDatosCuentaTopbar(meQuery.data?.perfil, meQuery.data?.usuario);

@@ -175,11 +175,44 @@ function DetalleClub({ club, detalle, deshabilitado, onAccion, onCrearReto }: { 
   return <aside className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div><p className="text-xs font-black uppercase tracking-wide text-emerald-600">Detalle</p><h3 className="mt-1 text-xl font-black text-slate-900">{club.nombre}</h3><p className="mt-1 text-sm text-slate-500">{club.descripcion ?? "Sin descripción"}</p></div><div><h4 className="flex items-center gap-2 font-bold text-slate-800"><Users className="size-4" aria-hidden="true" /> Miembros</h4><ul className="mt-3 space-y-2">{detalle?.miembros.map((miembro) => <li key={miembro.usuario_id} className="flex items-center justify-between gap-2 text-sm"><span><b className="text-slate-700">{miembro.apodo}</b><span className="ml-1 text-slate-500">{miembro.rol_miembro ?? "miembro"}</span></span><span className="flex gap-1"><button type="button" aria-label={`Transferir liderazgo a ${miembro.apodo}`} disabled={deshabilitado} onClick={() => onAccion?.({ tipo: "transferir", club, nombreObjetivo: miembro.apodo, usuarioId: miembro.usuario_id })} className="rounded p-1 text-slate-600 hover:bg-slate-100 disabled:opacity-50"><UserRoundCog className="size-4" aria-hidden="true" /></button><button type="button" aria-label={`Expulsar a ${miembro.apodo}`} disabled={deshabilitado} onClick={() => onAccion?.({ tipo: "expulsar", club, nombreObjetivo: miembro.apodo, usuarioId: miembro.usuario_id })} className="rounded p-1 text-red-700 hover:bg-red-50 disabled:opacity-50"><Archive className="size-4" aria-hidden="true" /></button></span></li>)}</ul></div><div><h4 className="flex items-center gap-2 font-bold text-slate-800"><Target className="size-4" aria-hidden="true" /> Retos abiertos</h4><ul className="mt-3 space-y-2">{detalle?.retos.map((reto) => <li key={reto.id} className="flex items-center justify-between gap-2 text-sm"><span><b className="block text-slate-700">{reto.nombre}</b><span className="text-xs text-slate-500">Hasta {formatoFecha(reto.fecha_fin)}</span></span><button type="button" aria-label={`Cerrar reto ${reto.nombre}`} disabled={deshabilitado} onClick={() => onAccion?.({ tipo: "cerrar-reto", club, nombreObjetivo: reto.nombre, retoId: reto.id })} className="rounded px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-50">Cerrar</button></li>)}</ul></div><FormularioCrearReto clubId={club.id} deshabilitado={deshabilitado} onCrear={onCrearReto} /></aside>;
 }
 
+export function enviarRetoDesdeFormulario({
+  clubId,
+  nombre,
+  objetivo,
+  fechaFin,
+  onCrear,
+}: {
+  clubId: string;
+  nombre: string;
+  objetivo: string;
+  fechaFin: string;
+  onCrear?: (clubId: string, datos: CrearRetoClubAdminSolicitud) => void;
+}) {
+  const fechaFinal = new Date(`${fechaFin}T23:59:59`);
+  if (!fechaFin || Number.isNaN(fechaFinal.getTime())) {
+    return "Ingresa una fecha de finalización válida.";
+  }
+
+  onCrear?.(clubId, {
+    nombre,
+    codigo_metrica: "xp_grupal",
+    valor_objetivo: Number(objetivo),
+    fecha_inicio: new Date().toISOString(),
+    fecha_fin: fechaFinal.toISOString(),
+  });
+  return null;
+}
+
 function FormularioCrearReto({ clubId, deshabilitado, onCrear }: { clubId: string; deshabilitado: boolean; onCrear?: (clubId: string, datos: CrearRetoClubAdminSolicitud) => void }) {
   const [nombre, establecerNombre] = useState("");
   const [objetivo, establecerObjetivo] = useState("10");
   const [fechaFin, establecerFechaFin] = useState("");
-  return <form className="space-y-2 border-t border-slate-100 pt-4" onSubmit={(evento) => { evento.preventDefault(); onCrear?.(clubId, { nombre, codigo_metrica: "xp_grupal", valor_objetivo: Number(objetivo), fecha_inicio: new Date().toISOString(), fecha_fin: new Date(`${fechaFin}T23:59:59`).toISOString() }); }}><h4 className="font-bold text-slate-800">Crear reto</h4><label className="sr-only" htmlFor={`reto-nombre-${clubId}`}>Nombre del reto</label><input id={`reto-nombre-${clubId}`} required value={nombre} onChange={(evento) => establecerNombre(evento.target.value)} placeholder="Nombre del reto" disabled={deshabilitado} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /><div className="grid grid-cols-2 gap-2"><label className="sr-only" htmlFor={`reto-objetivo-${clubId}`}>Meta de XP</label><input id={`reto-objetivo-${clubId}`} required min="1" type="number" value={objetivo} onChange={(evento) => establecerObjetivo(evento.target.value)} disabled={deshabilitado} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /><label className="sr-only" htmlFor={`reto-fin-${clubId}`}>Fecha de finalización</label><input id={`reto-fin-${clubId}`} required type="date" value={fechaFin} onChange={(evento) => establecerFechaFin(evento.target.value)} disabled={deshabilitado} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /></div><button type="submit" disabled={deshabilitado} className="w-full rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">Crear reto</button></form>;
+  const [errorFechaFin, establecerErrorFechaFin] = useState<string>();
+  return <form className="space-y-2 border-t border-slate-100 pt-4" onSubmit={(evento) => {
+    evento.preventDefault();
+    const error = enviarRetoDesdeFormulario({ clubId, nombre, objetivo, fechaFin, onCrear });
+    establecerErrorFechaFin(error ?? undefined);
+  }}><h4 className="font-bold text-slate-800">Crear reto</h4><label className="sr-only" htmlFor={`reto-nombre-${clubId}`}>Nombre del reto</label><input id={`reto-nombre-${clubId}`} required value={nombre} onChange={(evento) => establecerNombre(evento.target.value)} placeholder="Nombre del reto" disabled={deshabilitado} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /><div className="grid grid-cols-2 gap-2"><label className="sr-only" htmlFor={`reto-objetivo-${clubId}`}>Meta de XP</label><input id={`reto-objetivo-${clubId}`} required min="1" type="number" value={objetivo} onChange={(evento) => establecerObjetivo(evento.target.value)} disabled={deshabilitado} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /><label className="sr-only" htmlFor={`reto-fin-${clubId}`}>Fecha de finalización</label><input id={`reto-fin-${clubId}`} required type="date" value={fechaFin} onChange={(evento) => establecerFechaFin(evento.target.value)} disabled={deshabilitado} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /></div>{errorFechaFin && <p role="alert" className="text-sm font-semibold text-red-600">{errorFechaFin}</p>}<button type="submit" disabled={deshabilitado} className="w-full rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">Crear reto</button></form>;
 }
 
 function DialogoConfirmacion({ confirmacion, mutando, onConfirmar, onCancelar }: { confirmacion: Confirmacion; mutando: boolean; onConfirmar?: () => void; onCancelar?: () => void }) {

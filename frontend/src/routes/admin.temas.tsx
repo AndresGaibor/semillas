@@ -200,7 +200,7 @@ function ThemeLibraryRow({ tema, portadaFirmada, menuOpen, onToggleMenu, onNavig
       <div className="admin-theme-row__progress"><header><span>Completitud</span><strong>{tema.completitud.porcentaje}%</strong></header><div><span style={{ width: `${tema.completitud.porcentaje}%` }} /></div><small className="text-[10px] text-slate-400">{tema.completitud.estadisticas.actividades} actividades · {tema.completitud.estadisticas.contenidos_creados}/{tema.completitud.estadisticas.contenidos_esperados} contenidos</small></div>
       <div className="admin-theme-row__author"><span className="admin-state-pill bg-slate-100 text-slate-600">{stateLabel}</span><small className="mt-2 block text-[10px] text-slate-400">{formatDate(tema.actualizado_en)}</small></div>
       <div className="admin-theme-row__actions relative">
-        <button type="button" className="admin-icon-button" title="Abrir estudio" onClick={() => onNavigate("detalle")}><Eye size={17} /></button>
+        <button type="button" className="admin-icon-button" title="Abrir vista previa" onClick={() => onNavigate("preview")}><Eye size={17} /></button>
         <button type="button" className="admin-icon-button" title="Editar información" onClick={() => onNavigate("editar")}><FilePenLine size={17} /></button>
         <button type="button" className="admin-icon-button" title="Editor CRECER" onClick={() => onNavigate("crecer")}><Layers3 size={17} /></button>
         <button type="button" className="admin-icon-button" title="Actividades" onClick={() => onNavigate("actividades")}><Gamepad2 size={17} /></button>

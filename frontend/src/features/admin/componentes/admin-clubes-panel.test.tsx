@@ -10,7 +10,7 @@ mock.module("sonner", () => ({
 
 import type { ClubAdminResumen } from "../admin-clubes.api";
 
-const { AdminClubesPanelVista } = await import("./admin-clubes-panel");
+const { AdminClubesPanelVista, enviarRetoDesdeFormulario } = await import("./admin-clubes-panel");
 
 const clubActivo: ClubAdminResumen = {
   id: "club-semillas",
@@ -74,5 +74,35 @@ describe("AdminClubesPanelVista", () => {
     expect(vacio).toContain("No hay clubes para estos filtros.");
     expect(error).toContain("Error de red");
     expect(confirmacion).toContain("¿Archivar Club Semillas?");
+  });
+
+  it("muestra un error y no crea el reto cuando falta la fecha final", () => {
+    const retosCreados: unknown[] = [];
+
+    const error = enviarRetoDesdeFormulario({
+      clubId: clubActivo.id,
+      nombre: "Reto semanal",
+      objetivo: "10",
+      fechaFin: "",
+      onCrear: (...argumentos) => retosCreados.push(argumentos),
+    });
+
+    expect(error).toBe("Ingresa una fecha de finalización válida.");
+    expect(retosCreados).toEqual([]);
+  });
+
+  it("no crea el reto cuando la fecha final es inválida", () => {
+    const retosCreados: unknown[] = [];
+
+    const error = enviarRetoDesdeFormulario({
+      clubId: clubActivo.id,
+      nombre: "Reto semanal",
+      objetivo: "10",
+      fechaFin: "fecha-invalida",
+      onCrear: (...argumentos) => retosCreados.push(argumentos),
+    });
+
+    expect(error).toBe("Ingresa una fecha de finalización válida.");
+    expect(retosCreados).toEqual([]);
   });
 });

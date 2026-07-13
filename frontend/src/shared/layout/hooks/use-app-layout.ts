@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { sessionStorageApi } from "@/shared/api/session";
 import { cerrarSesionAutenticada } from "@/shared/auth/supabase";
 import { obtenerNavMovilActivo, obtenerNavegacionMovil } from "@/shared/layout/app-mobile-nav";
-import { obtenerMiPerfil } from "@/features/perfil/profile.api";
 import { esRutaModoLeccion } from "@/features/crecer/crecer-fases";
-import { obtenerGamificacionPropia } from "@/features/gamification/gamification.api";
 
 type PageHeaderInfo = {
   titulo: string;
@@ -44,22 +41,7 @@ const DEFAULT_HEADER: PageHeaderInfo = {
 export function useAppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const meQuery = useQuery({
-    queryKey: ["me"],
-    queryFn: obtenerMiPerfil,
-  });
-  const gamificacionQuery = useQuery({
-    queryKey: ["gamification", "me"],
-    queryFn: obtenerGamificacionPropia,
-    // Refrescar cada 2 minutos para detectar nuevos logros desbloqueados
-    refetchInterval: 2 * 60 * 1000,
-    // Solo ejecutar si hay sesión (no bloquear el layout)
-    staleTime: 60 * 1000,
-  });
   const [isOffline, setIsOffline] = useState(false);
-
-  // true si hay al menos 1 logro desbloqueado pendiente de reclamar
-  const logrosBadge = (gamificacionQuery.data?.pendientes_reclamar ?? 0) > 0;
 
   useEffect(() => {
     setIsOffline(!navigator.onLine);
@@ -73,21 +55,6 @@ export function useAppLayout() {
     };
   }, []);
 
-  useEffect(() => {
-    const rawSize = meQuery.data?.perfil?.tamano_texto_preferido;
-    const normalizedSize = rawSize === "grande" ? "grande" : rawSize === "pequeno" || rawSize === "pequeño" ? "pequeno" : "mediano";
-    document.documentElement.dataset.semillasTextSize = normalizedSize;
-
-    const prefersAudio = meQuery.data?.perfil?.prefiere_audio;
-    if (typeof prefersAudio === "boolean") {
-      window.localStorage.setItem("semillas-prefiere-audio", String(prefersAudio));
-    }
-
-    return () => {
-      delete document.documentElement.dataset.semillasTextSize;
-    };
-  }, [meQuery.data?.perfil?.prefiere_audio, meQuery.data?.perfil?.tamano_texto_preferido]);
-
   const handleLogout = async () => {
     await cerrarSesionAutenticada();
     sessionStorageApi.clearGuestSession();
@@ -99,8 +66,7 @@ export function useAppLayout() {
     id,
     etiqueta,
     icono,
-    // Mostrar badge en Logros si hay pendientes
-    badge: id === "logros" ? logrosBadge : false,
+    badge: false,
   }));
   const activoMovil = obtenerNavMovilActivo(location.pathname);
   const esInicio = location.pathname === "/app" || location.pathname === "/app/";
@@ -114,7 +80,6 @@ export function useAppLayout() {
   };
 
   return {
-    meQuery,
     isOffline,
     handleLogout,
     opcionesBottomNav,
@@ -125,7 +90,6 @@ export function useAppLayout() {
     esInicio,
     esModoLeccion,
     esDetalleTema,
-    logrosBadge,
   };
 }
 

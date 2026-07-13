@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { hasSession } from "../shared/api/auth-guard";
 import { PantallaErrorRuta } from "@/componentes/estados/pantalla-error-ruta";
 import { BottomNav } from "@/componentes/ui/bottom-nav";
@@ -16,6 +17,8 @@ import {
 } from "@/shared/auth/conflicto-vinculacion";
 import { router } from "@/router";
 import { DialogoConflictoVinculacion } from "@/componentes/ui/dialogo-conflicto-vinculacion";
+import { obtenerMiPerfil } from "@/features/perfil/profile.api";
+import { obtenerGamificacionPropia } from "@/features/gamification/gamification.api";
 import "./app.css";
 
 export const Route = createFileRoute("/app")({
@@ -35,12 +38,40 @@ function AppLayout() {
     navigateTo,
     pageHeader,
     path,
-    meQuery,
     esInicio,
     esModoLeccion,
     esDetalleTema,
-    logrosBadge,
   } = useAppLayout();
+
+  const meQuery = useQuery({
+    queryKey: ["me"],
+    queryFn: obtenerMiPerfil,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const gamificacionQuery = useQuery({
+    queryKey: ["gamification", "me"],
+    queryFn: obtenerGamificacionPropia,
+    refetchInterval: 5 * 60 * 1000,
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const logrosBadge = (gamificacionQuery.data?.pendientes_reclamar ?? 0) > 0;
+
+  useEffect(() => {
+    const rawSize = meQuery.data?.perfil?.tamano_texto_preferido;
+    const normalizedSize = rawSize === "grande" ? "grande" : rawSize === "pequeno" || rawSize === "pequeño" ? "pequeno" : "mediano";
+    document.documentElement.dataset.semillasTextSize = normalizedSize;
+
+    const prefersAudio = meQuery.data?.perfil?.prefiere_audio;
+    if (typeof prefersAudio === "boolean") {
+      window.localStorage.setItem("semillas-prefiere-audio", String(prefersAudio));
+    }
+
+    return () => {
+      delete document.documentElement.dataset.semillasTextSize;
+    };
+  }, [meQuery.data?.perfil?.prefiere_audio, meQuery.data?.perfil?.tamano_texto_preferido]);
 
   const [mensajeConflicto, setMensajeConflicto] = useState<string | null>(null);
 

@@ -25,7 +25,7 @@ export function useComprobarPage({ themeId }: { themeId: string }) {
     enabled: !!temaDbId
   });
 
-  const profileQuery = useQuery({ queryKey: ["myProfile"], queryFn: obtenerMiPerfil });
+  const profileQuery = useQuery({ queryKey: ["me"], queryFn: obtenerMiPerfil });
   const ageGroupsQuery = useQuery({ queryKey: ["ageGroups"], queryFn: obtenerGruposEdad });
 
   const pasoActual = stepsQuery.data?.find((p) => p.tipo_paso?.codigo === 'comprobar');

@@ -39,7 +39,7 @@ function ProfilePage() {
   const { handleLogout } = useAppLayout();
 
   const meQuery = useQuery({
-    queryKey: ["perfil", "me"],
+    queryKey: ["me"],
     queryFn: obtenerMiPerfil,
   });
   const gamificacionQuery = useQuery({
@@ -60,16 +60,6 @@ function ProfilePage() {
     mutationFn: (data: ActualizarPerfilDatos) => actualizarPerfil(data),
     onSuccess: async (perfilActualizado) => {
       queryClient.setQueryData<Awaited<ReturnType<typeof obtenerMiPerfil>>>(
-        ["perfil", "me"],
-        (actual) =>
-          actual
-            ? {
-                ...actual,
-                perfil: { ...actual.perfil, ...perfilActualizado },
-              }
-            : actual,
-      );
-      queryClient.setQueryData<Awaited<ReturnType<typeof obtenerMiPerfil>>>(
         ["me"],
         (actual) =>
           actual
@@ -79,10 +69,7 @@ function ProfilePage() {
               }
             : actual,
       );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["perfil", "me"] }),
-        queryClient.invalidateQueries({ queryKey: ["me"] }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success("Perfil actualizado");
       void navigate({ search: { seccion: undefined }, replace: true });
     },

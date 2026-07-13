@@ -177,6 +177,24 @@ describe("casos de uso administrativos de clubes", () => {
     });
   });
 
+  test("serializa la fecha de unión recibida como cadena desde la consulta administrativa", async () => {
+    const { repositorio } = crearRepositorioAdmin({
+      listarMiembrosClubAdministracion: async () => [{
+        usuario_id: "miembro-1",
+        apodo: "Semillero",
+        rol_miembro: "miembro",
+        unido_en: "2026-07-12T00:00:00.000Z",
+      }],
+    });
+    const casos = crearCasosUsoAdminClubs(repositorio);
+
+    const resultado = await casos.obtenerDetalle("club-1");
+
+    expect(resultado).toMatchObject({
+      miembros: [{ unido_en: "2026-07-12T00:00:00.000Z" }],
+    });
+  });
+
   test("permite archivar un club con miembros sin exigir membresía al administrador", async () => {
     const { repositorio, llamadas } = crearRepositorioAdmin();
     const casos = crearCasosUsoAdminClubs(repositorio);
