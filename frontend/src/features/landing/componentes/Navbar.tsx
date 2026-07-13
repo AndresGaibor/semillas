@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Download, Menu, Monitor, X } from "lucide-react";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 import { esEnlaceLandingActivo, obtenerHrefLandingInicial, crearScrollSpy } from "./Navbar.helpers";
@@ -73,7 +73,7 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
 
         <div className="landing-navbar__actions">
           <BotonTemaToggle />
-          <Button
+          <Boton
             asChild
             className="landing-button landing-button--ghost h-auto rounded-full px-5 py-3"
           >
@@ -81,10 +81,10 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
               <Monitor size={18} aria-hidden="true" />
               <span>Entrar Web</span>
             </Link>
-          </Button>
+          </Boton>
 
           {apkUrl ? (
-            <Button
+            <Boton
               asChild
               className="landing-button landing-button--primary h-auto rounded-full px-5 py-3"
             >
@@ -92,16 +92,16 @@ export function Navbar({ variante = "landing" }: NavbarProps) {
                 <Download size={18} aria-hidden="true" />
                 <span>Descargar APK</span>
               </a>
-            </Button>
+            </Boton>
           ) : (
-            <Button
+            <Boton
               type="button"
               disabled
               className="landing-button landing-button--primary h-auto rounded-full px-5 py-3 opacity-70"
             >
               <Download size={18} aria-hidden="true" />
               <span>APK próximamente</span>
-            </Button>
+            </Boton>
           )}
         </div>
       </div>

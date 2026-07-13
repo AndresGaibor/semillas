@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { AppAccountMenu } from "./app-account-menu";
 import { obtenerMiPerfil } from "../../features/perfil/profile.api";
 
@@ -41,16 +41,16 @@ export function AppTopbar({
   return (
     <header className="app-topbar">
       {showMenuButton ? (
-        <Button
+        <Boton
           type="button"
-          variant="ghost"
-          size="icon-lg"
+          variante="texto"
+          tamano="icon-lg"
           className="app-topbar__menu"
           aria-label="Abrir menú principal"
           onClick={onOpenSidebar}
         >
           <i className="fa-solid fa-bars" aria-hidden="true" />
-        </Button>
+        </Boton>
       ) : (
         <span className="app-topbar__mobile-spacer" aria-hidden="true" />
       )}

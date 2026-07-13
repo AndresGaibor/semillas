@@ -4,7 +4,7 @@ import { BookOpen, Home, PlayCircle, Sprout, Trophy, UserRound } from "lucide-re
 
 import { Alerta } from "../componentes/ui/alerta";
 import { BottomNav } from "../componentes/ui/bottom-nav";
-import { Button } from "../componentes/ui/button";
+import { Boton } from "../componentes/ui/boton";
 import { EmptyState } from "../componentes/ui/empty-state";
 import { LoaderEstado } from "../componentes/ui/loader-estado";
 import { ProgresoCircular } from "../componentes/ui/progreso-circular";
@@ -52,9 +52,9 @@ export const VistaDesktop: Story = {
               </p>
             </div>
             <div className="rounded-3xl bg-white/10 p-3">
-              <Button className="bg-[#F4B740] text-[#123B2C] hover:bg-[#e3a72b]">
+              <Boton className="bg-[#F4B740] text-[#123B2C] hover:bg-[#e3a72b]">
                 Revisar catálogo
-              </Button>
+              </Boton>
             </div>
           </div>
         </header>
@@ -93,10 +93,10 @@ export const VistaDesktop: Story = {
         <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-sm font-black uppercase tracking-wider text-slate-400">Acciones</h2>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button>Continuar</Button>
-            <Button variant="outline">Ver más</Button>
-            <Button variant="secondary">Guardar</Button>
-            <Button variant="ghost">Más opciones</Button>
+            <Boton>Continuar</Boton>
+            <Boton variante="contorno">Ver más</Boton>
+            <Boton variante="secundario">Guardar</Boton>
+            <Boton variante="texto">Más opciones</Boton>
           </div>
         </section>
 

@@ -44,7 +44,7 @@ export function obtenerContenidoPreview<T extends PreviewStepLike>(
   stepCode: string,
   ageGroupId: string,
 ) {
-  const step = steps.find((item) => item.tipo_paso?.codigo === stepCode) ?? steps[0] ?? null;
+  const step = steps.find((item) => item.tipo_paso?.codigo === stepCode) ?? null;
   const content = step?.contenidos?.find(
     (item) => item.grupo_edad_id === ageGroupId,
   ) ?? null;
@@ -119,15 +119,6 @@ export function useThemePreviewPage({ themeId }: UseThemePreviewPageOptions) {
     () => [...(stepsQuery.data ?? [])].sort((a, b) => a.orden - b.orden),
     [stepsQuery.data],
   );
-
-  useEffect(() => {
-    if (
-      steps.length > 0
-      && !steps.some((step) => step.tipo_paso?.codigo === activeStepCode)
-    ) {
-      setActiveStepCode(steps[0]?.tipo_paso?.codigo ?? "conectar");
-    }
-  }, [activeStepCode, steps]);
 
   const selectedAgeGroup = useMemo(
     () => ageGroups.find((group) => group.id === selectedAgeGroupId) ?? null,

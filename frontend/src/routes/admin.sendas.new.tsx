@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { crearSendaAdmin } from "@/features/admin/admin.api";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Input } from "@/componentes/ui/input";
 import { Textarea } from "@/componentes/ui/textarea";
 import { Switch } from "@/componentes/ui/switch";
@@ -72,12 +72,12 @@ function AdminSendasNewPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-12">
       <header className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="rounded-full">
+        <Boton variante="texto" tamano="icono" asChild className="rounded-full">
           <Link to="/admin/sendas">
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">Volver</span>
           </Link>
-        </Button>
+        </Boton>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Crear Senda</h1>
           <p className="text-sm text-slate-500">
@@ -234,13 +234,13 @@ function AdminSendasNewPage() {
         </div>
 
         <div className="flex items-center justify-end gap-4">
-          <Button type="button" variant="ghost" asChild>
+          <Boton type="button" variante="texto" asChild>
             <Link to="/admin/sendas">Cancelar</Link>
-          </Button>
-          <Button type="submit" disabled={mutation.isPending}>
+          </Boton>
+          <Boton type="submit" disabled={mutation.isPending}>
             {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Guardar Senda
-          </Button>
+          </Boton>
         </div>
       </form>
     </div>

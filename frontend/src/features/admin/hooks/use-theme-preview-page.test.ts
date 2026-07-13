@@ -58,6 +58,13 @@ describe("helpers de la vista previa administrativa", () => {
     expect(result.content?.cuerpo).toBe("Contenido para Exploradores");
   });
 
+  it("permite una fase vacía sin caer en la primera configurada", () => {
+    const result = obtenerContenidoPreview(steps, "ensenar", "semillas");
+
+    expect(result.step).toBeNull();
+    expect(result.content).toBeNull();
+  });
+
   it("calcula la cobertura únicamente con título y cuerpo completos", () => {
     const completed = obtenerCodigosPasosCompletosPreview(steps, "semillas");
 

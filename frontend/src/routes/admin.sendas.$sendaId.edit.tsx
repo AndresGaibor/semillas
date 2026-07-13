@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSendaEdit } from "@/features/admin/hooks/use-senda-edit";
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Input } from "@/componentes/ui/input";
 import { Textarea } from "@/componentes/ui/textarea";
 import { Switch } from "@/componentes/ui/switch";
@@ -38,9 +38,9 @@ function AdminSendasEditPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <p className="text-red-500">Ocurrió un error al cargar la senda.</p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate({ to: "/admin/sendas" })}>
+        <Boton variante="contorno" className="mt-4" onClick={() => navigate({ to: "/admin/sendas" })}>
           Volver
-        </Button>
+        </Boton>
       </div>
     );
   }
@@ -48,12 +48,12 @@ function AdminSendasEditPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-12">
       <header className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="rounded-full">
+        <Boton variante="texto" tamano="icono" asChild className="rounded-full">
           <Link to="/admin/sendas">
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">Volver</span>
           </Link>
-        </Button>
+        </Boton>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Editar Senda</h1>
           <p className="text-sm text-slate-500">
@@ -213,13 +213,13 @@ function AdminSendasEditPage() {
         </div>
 
         <div className="flex items-center justify-end gap-4">
-          <Button type="button" variant="ghost" asChild>
+          <Boton type="button" variante="texto" asChild>
             <Link to="/admin/sendas">Cancelar</Link>
-          </Button>
-          <Button type="submit" disabled={isPending}>
+          </Boton>
+          <Boton type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Guardar Cambios
-          </Button>
+          </Boton>
         </div>
       </form>
     </div>

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { Button } from "@/componentes/ui/button";
+import { Boton } from "@/componentes/ui/boton";
 import { Card } from "@/componentes/ui/card-base";
 import logoImg from "@/assets/images/logos/Logotipo.png";
 
@@ -101,16 +101,16 @@ export function AppSidebar({
             <img src={logoImg} alt="Semillas" className="h-10 w-10 shrink-0 object-contain" />
             <span className={`hidden text-[1.55rem] font-black leading-none xl:inline ${variant === "admin" ? "text-violet-600" : "text-primario"}`}>Semillas</span>
           </div>
-          <Button
+          <Boton
             type="button"
-            variant="ghost"
-            size="icon"
+            variante="texto"
+            tamano="icono"
             className="ml-auto rounded-full md:hidden"
             aria-label="Cerrar menú"
             onClick={onClose}
           >
             <i className="fa-solid fa-xmark" aria-hidden="true" />
-          </Button>
+          </Boton>
         </div>
 
         <p className="mb-6 ml-[50px] hidden max-w-[150px] text-[11px] font-semibold leading-snug text-neutro xl:block">
@@ -177,7 +177,7 @@ export function AppSidebar({
             </Card>
           ) : null}
 
-          <Button
+          <Boton
             type="button"
             onClick={onLogout}
             title="Cerrar sesión"
@@ -186,7 +186,7 @@ export function AppSidebar({
           >
             <i className="fa-solid fa-right-from-bracket" aria-hidden="true" />
             <span className="hidden xl:inline">Cerrar sesión</span>
-          </Button>
+          </Boton>
         </div>
       </aside>
     </>
