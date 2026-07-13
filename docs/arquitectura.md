@@ -59,6 +59,12 @@ Responsabilidades:
 - storage de media
 - deploy de frontend y API
 
+Nota de despliegue:
+
+- el frontend vive en `https://semillas.pages.dev`
+- la API vive en `https://api-semillas.andresalexander14.workers.dev`
+- la CSP del frontend permite ese Worker solo en `connect-src`
+
 ## Flujo Principal
 
 ### Navegacion normal

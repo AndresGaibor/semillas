@@ -231,6 +231,13 @@ export const table = {
 | `SUPABASE_SERVER_KEY`       | Clave de servicio (secreta)           |
 | `SUPABASE_PROJECT_REF`      | Referencia del proyecto              |
 
+### Frontend y CSP
+
+- El frontend publica su CSP en `frontend/public/_headers`.
+- En `connect-src` debe estar permitido `https://api-semillas.andresalexander14.workers.dev`.
+- `VITE_API_URL` en el frontend debe apuntar al mismo Worker.
+- `CORS_ORIGIN` en el backend puede permanecer en `https://semillas.pages.dev`.
+
 ### Drizzle en desarrollo local
 
 Para ejecutar Drizzle con `wrangler dev`:

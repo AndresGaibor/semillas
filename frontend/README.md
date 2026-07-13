@@ -46,7 +46,12 @@ El frontend corre por defecto en `http://localhost:5173`.
 
 Variables principales:
 
-- `VITE_API_URL`
+- `VITE_API_URL` debe apuntar a `https://api-semillas.andresalexander14.workers.dev`
+
+### CSP
+
+La politica CSP del frontend se define en `public/_headers`.
+Alli se permitio explicitamente `https://api-semillas.andresalexander14.workers.dev` en `connect-src` para que la PWA pueda llamar a la API en Cloudflare Workers.
 
 ## Estructura
 

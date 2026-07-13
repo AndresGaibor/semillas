@@ -45,11 +45,16 @@ La API corre por defecto en `http://localhost:8787` con `wrangler dev`.
 Variables principales de entorno:
 
 - `APP_ENV`
-- `CORS_ORIGIN`
+- `CORS_ORIGIN` normalmente es `https://semillas.pages.dev`
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_PROJECT_REF`
+
+### Frontend y CORS
+
+El frontend apunta al Worker con `VITE_API_URL=https://api-semillas.andresalexander14.workers.dev`.
+El backend puede mantener `CORS_ORIGIN=https://semillas.pages.dev` para permitir peticiones desde la PWA publicada.
 
 ### Drizzle con Hyperdrive en local
 
