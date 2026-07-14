@@ -20,12 +20,6 @@ import {
   sincronizarMarkdown,
   type EditorMarkdownControl,
 } from "./editor-markdown.helpers";
-import Prism from "prismjs";
-import "prismjs/components/prism-markdown";
-
-if (typeof window !== "undefined") {
-  (window as any).Prism = Prism;
-}
 
 interface EditorMarkdownProps {
   markdown: string;

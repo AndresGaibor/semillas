@@ -81,7 +81,7 @@ define(['./workbox-50595c2f'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "/index.html",
-    "revision": "0.gim7b909sjk"
+    "revision": "0.mfmj34agmrs"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
@@ -129,7 +129,7 @@ define(['./workbox-50595c2f'], (function (workbox) { 'use strict';
   workbox.registerRoute(({
     url,
     request
-  }) => request.method === "GET" && /\/(temas|sendas|catalogo)(\/|$)/.test(url.pathname), new workbox.NetworkFirst({
+  }) => request.method === "GET" && !url.pathname.includes("/administracion/") && !url.pathname.includes("/admin/") && /\/(temas|sendas|catalogo)(\/|$)/.test(url.pathname), new workbox.NetworkFirst({
     "cacheName": "semillas-public-api-v1",
     "networkTimeoutSeconds": 4,
     plugins: [new workbox.ExpirationPlugin({
@@ -142,7 +142,7 @@ define(['./workbox-50595c2f'], (function (workbox) { 'use strict';
   workbox.registerRoute(({
     url,
     request
-  }) => request.method === "GET" && /\/(perfil|progreso|gamificacion|actividades|clubes)(\/|$)/.test(url.pathname), new workbox.NetworkFirst({
+  }) => request.method === "GET" && !url.pathname.includes("/administracion/") && !url.pathname.includes("/admin/") && /\/(perfil|progreso|gamificacion|actividades|clubes)(\/|$)/.test(url.pathname), new workbox.NetworkFirst({
     "cacheName": "semillas-user-api-v1",
     "networkTimeoutSeconds": 4,
     plugins: [new workbox.ExpirationPlugin({
