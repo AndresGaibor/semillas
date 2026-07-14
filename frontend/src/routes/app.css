@@ -1595,7 +1595,7 @@ h6, .titulo-6 {
 }
 
 .app-shell__main--admin {
-  height: 100dvh;
+  height: var(--app-height, 100dvh);
   overflow: auto;
 }
 

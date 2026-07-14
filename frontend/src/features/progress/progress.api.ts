@@ -122,6 +122,10 @@ export function registrarEventoProgreso(datos: RegistrarEventoProgresoBody) {
 export async function obtenerMiProgreso(): Promise<ProgresoResumen> {
   const respuesta = await obtenerMiProgresoConFallbackOffline();
 
+  return normalizarProgresoResumen(respuesta);
+}
+
+export function normalizarProgresoResumen(respuesta: Awaited<ReturnType<typeof obtenerMiProgresoConFallbackOffline>>): ProgresoResumen {
   return {
     progresos_tema: respuesta.progresos_tema.map((progreso) => ({
       tema_id: progreso.tema_id,

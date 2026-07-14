@@ -192,7 +192,7 @@
 .theme-detail__steps li.is-current .theme-detail__step-number { background: #7c3aed; color: #fff; }
 .theme-detail__mobile-dock {
   position: sticky;
-  bottom: calc(4.55rem + env(safe-area-inset-bottom));
+  bottom: 0;
   z-index: 70;
   padding: .65rem 1rem;
   background: linear-gradient(180deg, transparent, rgba(247,249,252,.98) 30%);
