@@ -20,6 +20,8 @@ import {
   sincronizarMarkdown,
   type EditorMarkdownControl,
 } from "./editor-markdown.helpers";
+import "prismjs";
+import "prismjs/components/prism-markdown";
 
 interface EditorMarkdownProps {
   markdown: string;
