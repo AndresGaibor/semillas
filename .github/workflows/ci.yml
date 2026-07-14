@@ -35,9 +35,9 @@ jobs:
       - name: Build frontend
         run: bun run --cwd frontend build
         env:
-          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.example.test' }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://example.supabase.co' }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'anon-key-for-build-only' }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Validate frontend budgets and PWA artifact
         run: |
