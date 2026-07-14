@@ -14,6 +14,7 @@ export interface LoginFormCardProps {
   facebookPending?: boolean;
   guestPending?: boolean;
   guestError?: boolean;
+  guestErrorMessage?: string;
   onEmailSuccess: () => void;
   tabActivo: "social" | "email";
   onCambiarTab: (tab: "social" | "email") => void;
@@ -29,6 +30,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
   facebookPending,
   guestPending,
   guestError,
+  guestErrorMessage,
   onEmailSuccess,
   tabActivo,
   onCambiarTab,
@@ -106,7 +108,7 @@ export const LoginFormCard: React.FC<LoginFormCardProps> = ({
 
             {guestError && (
               <p className="login-feedback login-feedback--error">
-                No se pudo crear el invitado. Asegúrate de que el backend esté activo.
+                {guestErrorMessage ?? "No se pudo crear el invitado. Asegúrate de que el backend esté activo."}
               </p>
             )}
           </div>

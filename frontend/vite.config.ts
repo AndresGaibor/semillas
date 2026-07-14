@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -7,8 +7,21 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const VARIABLES_PUBLICAS_REQUERIDAS = [
+  "VITE_API_URL",
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_ANON_KEY",
+] as const;
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, __dirname, "");
+  for (const nombre of VARIABLES_PUBLICAS_REQUERIDAS) {
+    if (!env[nombre]?.trim()) {
+      throw new Error(`[semillas] Falta la variable de entorno ${nombre}`);
+    }
+  }
+
+  return {
   plugins: [
     tanstackRouter({
       target: "react",
@@ -152,7 +165,8 @@ export default defineConfig({
       },
     },
   },
-  server: {
-    port: 5173
-  }
+    server: {
+      port: 5173
+    }
+  };
 });

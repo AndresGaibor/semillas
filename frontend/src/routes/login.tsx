@@ -82,6 +82,7 @@ function LoginPage() {
             facebookPending={facebookMutation.isPending}
             guestPending={guestMutation.isPending}
             guestError={guestMutation.isError}
+            guestErrorMessage={guestMutation.error instanceof Error ? guestMutation.error.message : undefined}
             onEmailSuccess={handleEmailSuccess}
             tabActivo={tabActivo}
             onCambiarTab={setTabActivo}
