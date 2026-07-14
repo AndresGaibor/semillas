@@ -13,6 +13,7 @@ export function AvisoInstalarIOS({ className }: AvisoInstalarIOSProps) {
     if (typeof window === "undefined") return;
     if (!esIOS()) return;
     if (estaInstaladaComoPWA()) return;
+    if (localStorage.getItem("semillas_ios_pwa_cerrado") === "true") return;
     setVisible(true);
   }, []);
 
@@ -23,13 +24,18 @@ export function AvisoInstalarIOS({ className }: AvisoInstalarIOSProps) {
       role="dialog"
       aria-label="Cómo instalar Semillas en iPhone"
       className={
-        "aviso-instalar-ios fixed bottom-4 left-1/2 z-50 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-amber-200 bg-white p-4 shadow-xl shadow-amber-900/10 " +
+        "aviso-instalar-ios fixed bottom-20 md:bottom-4 left-1/2 z-50 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-amber-200 bg-white p-4 shadow-xl shadow-amber-900/10 " +
         (className ?? "")
       }
     >
       <button
         type="button"
-        onClick={() => setVisible(false)}
+        onClick={() => {
+          setVisible(false);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("semillas_ios_pwa_cerrado", "true");
+          }
+        }}
         aria-label="Cerrar aviso"
         className="aviso-instalar-ios__cerrar absolute right-2 top-2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
       >

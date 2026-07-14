@@ -9,7 +9,12 @@ export interface InstalarAppBannerProps {
 
 export function InstalarAppBanner({ className }: InstalarAppBannerProps) {
   const { disponible, instalando, instalar } = useInstalarPWA();
-  const [cerrado, setCerrado] = useState(false);
+  const [cerrado, setCerrado] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("semillas_pwa_cerrado") === "true";
+    }
+    return false;
+  });
   const [oculto, setOculto] = useState(false);
 
   if (!disponible || cerrado) return null;
@@ -30,13 +35,18 @@ export function InstalarAppBanner({ className }: InstalarAppBannerProps) {
       role="dialog"
       aria-label="Instalar aplicación Semillas"
       className={
-        "instalar-pwa-banner fixed bottom-4 left-1/2 z-50 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl shadow-emerald-900/10 " +
+        "instalar-pwa-banner fixed bottom-20 md:bottom-4 left-1/2 z-50 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl shadow-emerald-900/10 " +
         (className ?? "")
       }
     >
       <button
         type="button"
-        onClick={() => setCerrado(true)}
+        onClick={() => {
+          setCerrado(true);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("semillas_pwa_cerrado", "true");
+          }
+        }}
         aria-label="Cerrar aviso de instalación"
         className="instalar-pwa-banner__cerrar absolute right-2 top-2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
       >
