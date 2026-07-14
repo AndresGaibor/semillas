@@ -30,6 +30,12 @@ export function SugerenciaInstalacionPWA() {
       return;
     }
 
+    // No mostrar en escritorio — el prompt es para móvil
+    const esEscritorioOTabletGrande = window.matchMedia("(min-width: 768px)").matches;
+    if (esEscritorioOTabletGrande) {
+      return;
+    }
+
     // No mostrar si ya está instalada
     if (estaInstaladaComoPWA()) {
       return;
