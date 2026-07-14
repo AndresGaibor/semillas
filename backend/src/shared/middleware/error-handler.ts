@@ -4,10 +4,19 @@ import { ErrorAplicacion } from "../errores/error-aplicacion";
 import { responderError } from "../http/respuesta";
 
 export const errorHandler: ErrorHandler = (err, c) => {
+  const causa = err instanceof Error && err.cause instanceof Error
+    ? err.cause as Error & { code?: string }
+    : undefined;
+
   console.error("Unhandled request error", {
     requestId: c.get("requestId") ?? "unknown",
     name: err.name,
     message: err.message,
+    ...(causa ? {
+      causeName: causa.name,
+      causeMessage: causa.message,
+      ...(causa.code ? { causeCode: causa.code } : {})
+    } : {}),
     ...(err instanceof HttpError ? { code: err.code, status: err.status } : {}),
     ...(err instanceof ErrorAplicacion ? { code: err.code, status: err.status } : {}),
   });

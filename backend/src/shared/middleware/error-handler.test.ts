@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, spyOn } from "bun:test";
 import { Hono } from "hono";
 import type { AppBindings } from "../../config/env";
 import { HttpError } from "../errors/http-error";
@@ -89,5 +89,29 @@ describe("errorHandler", () => {
     expect(cuerpo).not.toContain("secreto");
     expect(cuerpo).not.toContain("db-interno");
     expect(cuerpo).not.toContain("stack");
+  });
+
+  it("registra la causa de PostgreSQL sin exponerla al cliente", async () => {
+    const app = new Hono<AppBindings>();
+    const registrarError = spyOn(console, "error").mockImplementation(() => {});
+    const causa = Object.assign(new Error('relation "grupo_edad" does not exist'), { code: "42P01" });
+
+    app.get("/", () => {
+      throw new Error("Failed query", { cause: causa });
+    });
+    app.onError(errorHandler);
+
+    const response = await app.fetch(new Request("http://localhost/"), ENTORNO_TEST);
+
+    expect(registrarError).toHaveBeenCalledWith("Unhandled request error", expect.objectContaining({
+      causeCode: "42P01",
+      causeMessage: 'relation "grupo_edad" does not exist'
+    }));
+    await expect(response.json()).resolves.toEqual({
+      exito: false,
+      error: "Error interno del servidor",
+      codigo: "INTERNAL_SERVER_ERROR"
+    });
+    registrarError.mockRestore();
   });
 });
