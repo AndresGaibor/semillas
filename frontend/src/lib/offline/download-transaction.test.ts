@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { crearReferenciasMedia, crearRegistrosMedia, descargarMediosTransaccional, OFFLINE_MEDIA_STAGING_CACHE } from "./download-transaction";
+import { crearReferenciasMedia, crearRegistrosMedia, descargarMediosTransaccional, prepararMediosParaGuardar, OFFLINE_MEDIA_STAGING_CACHE } from "./download-transaction";
 import type { PaqueteOfflineRespuesta } from "./offline-package";
 
 const paquete = {
@@ -69,6 +69,17 @@ describe("descarga media transaccional", () => {
       { serverId: "m1", temaLocalId: "local-theme-a", createdAt: 30 },
       { serverId: "m1", temaLocalId: "local-theme-b", createdAt: 30 },
     ]);
+  });
+
+  it("reutiliza el registro local cuando un medio ya existe", () => {
+    const registro = crearRegistrosMedia(paquete, "local-theme", 10)[0]!;
+    const preparados = prepararMediosParaGuardar(
+      [registro, { ...registro, temaLocalId: "local-theme" }],
+      [{ ...registro, id: 42, temaLocalId: "otro-tema" }],
+    );
+
+    expect(preparados).toHaveLength(1);
+    expect(preparados[0]).toMatchObject({ id: 42, serverId: "m1", temaLocalId: "local-theme" });
   });
 
   it("limpia staging y no promueve parcialmente si falla un recurso", async () => {

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { db, type TemaLocal } from "./db";
 import { eliminarMedioDeCache } from "./media-cache";
-import { descargarMediosTransaccional, eliminarMediosPromovidosNoUsados } from "./download-transaction";
+import { descargarMediosTransaccional, eliminarMediosPromovidosNoUsados, prepararMediosParaGuardar } from "./download-transaction";
 import { mapearPaqueteOfflineARegistros, type PaqueteOfflineRespuesta } from "./offline-package";
 import { queueEventoProgreso } from "./outbox";
 import { obtenerScopeOffline } from "./user-scope";
@@ -96,9 +96,14 @@ export async function descargarTemaOffline({ temaId, grupoEdadId: grupoSolicitad
         await db.temas.put(tema);
         if (pasos.length > 0) await db.pasos.bulkPut(pasos);
         if (actividades.length > 0) await db.actividades.bulkPut(actividades);
-        if (registrosMedios.length > 0) await db.mediaCache.bulkPut(registrosMedios);
-        if (registrosMedios.length > 0) {
-          await db.mediaReferences.bulkPut(registrosMedios.map((registro) => ({
+        const idsMedios = [...new Set(registrosMedios.map((registro) => registro.serverId))];
+        const mediosExistentes = idsMedios.length > 0
+          ? await db.mediaCache.where("serverId").anyOf(idsMedios).toArray()
+          : [];
+        const mediosParaGuardar = prepararMediosParaGuardar(registrosMedios, mediosExistentes);
+        if (mediosParaGuardar.length > 0) await db.mediaCache.bulkPut(mediosParaGuardar);
+        if (mediosParaGuardar.length > 0) {
+          await db.mediaReferences.bulkPut(mediosParaGuardar.map((registro) => ({
             serverId: registro.serverId,
             temaLocalId,
             createdAt: Date.now(),

@@ -50,6 +50,16 @@ export function crearReferenciasMedia(registros: MediaCache[], ahora = Date.now(
   }] : []);
 }
 
+export function prepararMediosParaGuardar(registros: MediaCache[], existentes: MediaCache[]): MediaCache[] {
+  const registrosUnicos = [...new Map(registros.map((registro) => [registro.serverId, registro])).values()];
+  const existentesPorServerId = new Map(existentes.map((registro) => [registro.serverId, registro]));
+
+  return registrosUnicos.map((registro) => ({
+    ...registro,
+    id: existentesPorServerId.get(registro.serverId)?.id,
+  }));
+}
+
 export async function descargarMediosTransaccional(
   paquete: PaqueteOfflineRespuesta,
   temaLocalId: string,
@@ -101,8 +111,12 @@ export async function eliminarMediosPromovidosNoUsados(ids: string[], protegidos
 export async function registrarMediosDescargados(registros: MediaCache[]): Promise<void> {
   if (registros.length === 0) return;
   await db.transaction("rw", [db.mediaCache, db.mediaReferences], async () => {
-    await db.mediaCache.bulkPut(registros);
+    const ids = [...new Set(registros.map((registro) => registro.serverId))];
+    const existentes = await db.mediaCache.where("serverId").anyOf(ids).toArray();
+    const mediosParaGuardar = prepararMediosParaGuardar(registros, existentes);
+
+    await db.mediaCache.bulkPut(mediosParaGuardar);
     const ahora = Date.now();
-    await db.mediaReferences.bulkPut(crearReferenciasMedia(registros, ahora));
+    await db.mediaReferences.bulkPut(crearReferenciasMedia(mediosParaGuardar, ahora));
   });
 }
