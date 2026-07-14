@@ -2,6 +2,12 @@ name = "api-semillas"
 main = "src/index.ts"
 compatibility_date = "2026-07-08"
 compatibility_flags = ["nodejs_compat"]
+# Conserva variables de texto configuradas en el dashboard al desplegar manualmente.
+keep_vars = true
+
+[vars]
+APP_ENV = "production"
+CORS_BASE_DOMAIN = "semillas.pages.dev"
 
 [observability]
 enabled = true
