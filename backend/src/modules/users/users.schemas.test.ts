@@ -13,6 +13,12 @@ describe("updateProfileSchema", () => {
     expect(resultado.success).toBe(true);
   });
 
+  it("acepta una clave de avatar local sin relajar la validación de URL", () => {
+    const resultado = updateProfileSchema.safeParse({ clave_avatar: "1" });
+
+    expect(resultado.success).toBe(true);
+  });
+
   it("rechaza URL inválida y campos de edad exacta", () => {
     const resultado = updateProfileSchema.safeParse({ url_avatar: "not-a-url", edad: 8, fecha_nacimiento: "2018-01-01" });
     expect(resultado.success).toBe(false);

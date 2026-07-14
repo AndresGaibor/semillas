@@ -25,6 +25,7 @@ export type ActualizarPerfilDatos = {
   apodo?: string;
   grupo_edad_id?: string | null;
   url_avatar?: string | null;
+  clave_avatar?: string | null;
   prefiere_audio?: boolean;
   tamano_texto_preferido?: string;
 };

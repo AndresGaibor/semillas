@@ -10,6 +10,7 @@ type PerfilActualizacion = {
   apodo?: string | null;
   grupoEdadId?: string | null;
   urlAvatar?: string | null;
+  claveAvatar?: string | null;
   prefiereAudio?: boolean | null;
   tamanoTextoPreferido?: "pequeno" | "mediano" | "grande" | null;
 };
@@ -60,6 +61,10 @@ export function crearUsuarioRepository(db: DbClient) {
 
       if (actualizacion.urlAvatar !== undefined) {
         cambios.urlAvatar = actualizacion.urlAvatar;
+      }
+
+      if (actualizacion.claveAvatar !== undefined) {
+        cambios.claveAvatar = actualizacion.claveAvatar;
       }
 
       if (actualizacion.prefiereAudio !== undefined) {

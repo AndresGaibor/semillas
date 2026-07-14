@@ -32,7 +32,7 @@ export function useCustomizePage() {
     actualizarPerfilMutation.mutate({
       grupo_edad_id: isUuid(grupoEdadId) ? grupoEdadId : null,
       apodo: nickname.trim(),
-      url_avatar: String(selectedAvatar),
+      clave_avatar: String(selectedAvatar),
     });
   };
 
