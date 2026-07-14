@@ -13,7 +13,8 @@
     "gen:types": "bun run --cwd .. db:types",
     "db:studio": "drizzle-kit studio",
     "db:check": "drizzle-kit check",
-    "db:generate:draft": "drizzle-kit generate"
+    "db:generate:draft": "drizzle-kit generate",
+    "migrar:contenido": "bun --env-file=.dev.vars run src/migracion/migrar-contenido.ts"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",

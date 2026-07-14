@@ -66,16 +66,6 @@ const app = new Hono<AppBindings>();
 app.use("*", logger());
 app.use("*", requestIdMiddleware());
 
-const limitarPublico = crearRateLimitMiddleware("publico");
-const limitarAutenticado = crearRateLimitMiddleware("autenticado");
-const limitarSensible = crearRateLimitMiddleware("sensible");
-app.use("*", async (c, next) => {
-  const ruta = new URL(c.req.url).pathname;
-  const sensible = ruta === "/autenticacion/invitado" || ruta.includes("/vincular-cuenta") || ruta === "/media/subir" || ruta.startsWith("/administracion");
-  const autenticado = !sensible && (c.req.header("authorization") || c.req.header("x-guest-user-id"));
-  return (sensible ? limitarSensible : autenticado ? limitarAutenticado : limitarPublico)(c, next);
-});
-
 /**
  * Configuración de CORS
  * Permite peticiones desde el frontend y apps móviles
@@ -108,6 +98,16 @@ app.use(
     credentials: true
   })
 );
+
+const limitarPublico = crearRateLimitMiddleware("publico");
+const limitarAutenticado = crearRateLimitMiddleware("autenticado");
+const limitarSensible = crearRateLimitMiddleware("sensible");
+app.use("*", async (c, next) => {
+  const ruta = new URL(c.req.url).pathname;
+  const sensible = ruta === "/autenticacion/invitado" || ruta.includes("/vincular-cuenta") || ruta === "/media/subir" || ruta.startsWith("/administracion");
+  const autenticado = !sensible && (c.req.header("authorization") || c.req.header("x-guest-user-id"));
+  return (sensible ? limitarSensible : autenticado ? limitarAutenticado : limitarPublico)(c, next);
+});
 
 /**
  * Middleware que inyecta el cliente de Supabase en el contexto

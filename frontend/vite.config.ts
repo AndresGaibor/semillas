@@ -83,6 +83,8 @@ export default defineConfig(({ mode }) => {
           {
             urlPattern: ({ url, request }) =>
               request.method === "GET" &&
+              !url.pathname.includes("/administracion/") &&
+              !url.pathname.includes("/admin/") &&
               /\/(temas|sendas|catalogo)(\/|$)/.test(url.pathname),
             handler: "NetworkFirst",
             options: {
@@ -95,6 +97,8 @@ export default defineConfig(({ mode }) => {
           {
             urlPattern: ({ url, request }) =>
               request.method === "GET" &&
+              !url.pathname.includes("/administracion/") &&
+              !url.pathname.includes("/admin/") &&
               /\/(perfil|progreso|gamificacion|actividades|clubes)(\/|$)/.test(url.pathname),
             handler: "NetworkFirst",
             options: {

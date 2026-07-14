@@ -90,7 +90,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
       supabase.from("tema").select("id, titulo, slug, objetivo, resumen, portada_recurso_id, version_biblica_id, senda_id, xp_recompensa, minutos_estimados").eq("id", temaId).single(),
       supabase.from("tema_grupo_edad").select("grupo_edad_id, grupo_edad:grupo_edad_id(codigo)").eq("tema_id", temaId),
       supabase.from("paso_tema").select("id, tipo_paso_id, orden, tipo_paso:tipo_paso_id(codigo), contenidos:contenido_paso_tema(id, grupo_edad_id, titulo, cuerpo, recurso_audio_id)").eq("tema_id", temaId),
-      supabase.from("actividad").select("id, paso_id, grupo_edad_id, titulo, consigna, configuracion, tipo_actividad:tipo_actividad_id(codigo,requiere_opciones), opciones:opcion_actividad(correcta)").eq("tema_id", temaId),
+      supabase.from("actividad").select("id, paso_id, grupo_edad_id, titulo, consigna, configuracion, tipo_actividad:tipo_actividad_id(codigo), opciones:opcion_actividad(correcta)").eq("tema_id", temaId),
       supabase.from("versiculo_clave").select("texto, libro_id, capitulo, versiculo").eq("tema_id", temaId).maybeSingle()
     ]);
 
@@ -157,7 +157,7 @@ export function crearAdminRepository({ supabase, drizzle }: AdminDb) {
         id: actividad.id,
         titulo: actividad.titulo,
         consigna: actividad.consigna,
-        requiereOpciones: Boolean((Array.isArray(actividad.tipo_actividad) ? actividad.tipo_actividad[0] : actividad.tipo_actividad)?.requiere_opciones),
+        requiereOpciones: (Array.isArray(actividad.tipo_actividad) ? actividad.tipo_actividad[0] : actividad.tipo_actividad)?.codigo === "cuestionario",
         configuracionValida: validarConfiguracionActividad(
           String((Array.isArray(actividad.tipo_actividad) ? actividad.tipo_actividad[0] : actividad.tipo_actividad)?.codigo ?? ""),
           actividad.configuracion,

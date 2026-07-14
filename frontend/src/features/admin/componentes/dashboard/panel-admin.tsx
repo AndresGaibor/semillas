@@ -46,6 +46,23 @@ export function PanelAdministracion() {
     refetchInterval: 60_000,
   });
 
+  const metricas = useMemo(() => {
+    const d = resumenQuery.data;
+    if (!d) return [];
+    return [
+      { label: "Temas", value: d.metricas.temas, detail: `${d.metricas.publicados} publicados`, icon: BookOpenCheck, tone: "emerald" },
+      { label: "Usuarios activos", value: d.metricas.usuarios_activos, detail: "Cuentas habilitadas", icon: Users, tone: "blue" },
+      { label: "Actividades", value: d.metricas.actividades, detail: "Experiencias creadas", icon: Gamepad2, tone: "amber" },
+      { label: "Clubes activos", value: d.metricas.clubes_activos, detail: "Comunidades aprendiendo", icon: UsersRound, tone: "violet" },
+    ] as const;
+  }, [resumenQuery.data?.metricas.temas, resumenQuery.data?.metricas.publicados, resumenQuery.data?.metricas.usuarios_activos, resumenQuery.data?.metricas.actividades, resumenQuery.data?.metricas.clubes_activos]);
+
+  const maxSemana = useMemo(() => {
+    const d = resumenQuery.data;
+    if (!d) return 1;
+    return Math.max(...d.publicaciones_semana.map((item) => item.total), 1);
+  }, [resumenQuery.data?.publicaciones_semana]);
+
   if (resumenQuery.isLoading) {
     return <DashboardState icon={<Loader2 className="animate-spin" />} title="Cargando panel" description="Consultando métricas reales de la plataforma." />;
   }
@@ -62,13 +79,6 @@ export function PanelAdministracion() {
   }
 
   const data = resumenQuery.data;
-  const metricas = useMemo(() => [
-    { label: "Temas", value: data.metricas.temas, detail: `${data.metricas.publicados} publicados`, icon: BookOpenCheck, tone: "emerald" },
-    { label: "Usuarios activos", value: data.metricas.usuarios_activos, detail: "Cuentas habilitadas", icon: Users, tone: "blue" },
-    { label: "Actividades", value: data.metricas.actividades, detail: "Experiencias creadas", icon: Gamepad2, tone: "amber" },
-    { label: "Clubes activos", value: data.metricas.clubes_activos, detail: "Comunidades aprendiendo", icon: UsersRound, tone: "violet" },
-  ] as const, [data.metricas.temas, data.metricas.publicados, data.metricas.usuarios_activos, data.metricas.actividades, data.metricas.clubes_activos]);
-  const maxSemana = useMemo(() => Math.max(...data.publicaciones_semana.map((item) => item.total), 1), [data.publicaciones_semana]);
 
   return (
     <div className="admin-dashboard">

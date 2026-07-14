@@ -153,26 +153,26 @@ async function leerCacheProgreso(): Promise<ProgresoMiRespuesta | null> {
   return null;
 }
 
-async function guardarPerfilLocal(usuario: Usuario, perfil: Perfil): Promise<void> {
+async function guardarPerfilLocal(usuario: Usuario, perfil: Perfil | null): Promise<void> {
   const now = new Date().toISOString();
   const scopeId = usuario.proveedor === "invitado" ? `invitado:${usuario.id}` : `usuario:${usuario.id}`;
   const existing = await db.perfil.where("usuarioId").equals(usuario.id).first();
   const registro: PerfilLocal = {
-    localId: existing?.localId ?? perfil.id ?? crypto.randomUUID(),
-    serverId: perfil.id,
+    localId: existing?.localId ?? perfil?.id ?? crypto.randomUUID(),
+    serverId: perfil?.id || undefined,
     usuarioId: usuario.id,
     usuarioRol: usuario.rol,
     usuarioProveedor: usuario.proveedor,
     usuarioNombreVisible: usuario.nombre_visible,
     usuarioCorreo: usuario.correo,
-    apodo: perfil.apodo,
-    grupoEdadId: perfil.grupo_edad_id,
-    urlAvatar: perfil.url_avatar,
-    claveAvatar: perfil.clave_avatar,
-    prefiereAudio: perfil.prefiere_audio,
-    tamanoTextoPreferido: perfil.tamano_texto_preferido,
-    createdAt: perfil.creado_en ?? existing?.createdAt ?? now,
-    updatedAt: perfil.actualizado_en ?? now,
+    apodo: perfil?.apodo ?? usuario.nombre_visible,
+    grupoEdadId: perfil?.grupo_edad_id ?? null,
+    urlAvatar: perfil?.url_avatar ?? null,
+    claveAvatar: perfil?.clave_avatar ?? null,
+    prefiereAudio: perfil?.prefiere_audio ?? true,
+    tamanoTextoPreferido: perfil?.tamano_texto_preferido ?? "mediano",
+    createdAt: perfil?.creado_en ?? existing?.createdAt ?? now,
+    updatedAt: perfil?.actualizado_en ?? now,
     syncStatus: "synced",
     scopeId,
   };

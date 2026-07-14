@@ -39,12 +39,18 @@ export function useLoginPage({ redirectTo }: UseLoginPageOptions) {
 
   const handleEmailSuccess = async () => {
     await sincronizarSesionAutenticada();
-    await migrarInvitadoSiCorresponde({
-      guestUserId: sessionStorageApi.getGuestUserId(),
-      accessToken: sessionStorageApi.getAccessToken(),
-      vincularCuenta: reclamarCuentaInvitada,
-      limpiarSesionInvitado: () => sessionStorageApi.clearGuestSession(),
-    });
+    try {
+      await migrarInvitadoSiCorresponde({
+        guestUserId: sessionStorageApi.getGuestUserId(),
+        accessToken: sessionStorageApi.getAccessToken(),
+        vincularCuenta: reclamarCuentaInvitada,
+        limpiarSesionInvitado: () => sessionStorageApi.clearGuestSession(),
+      });
+    } catch (e) {
+      console.warn("No se pudo migrar la cuenta de invitado:", e);
+      // Limpiamos la sesión de invitado para que no bloquee futuros inicios de sesión
+      sessionStorageApi.clearGuestSession();
+    }
     const perfilRespuesta = await queryClient.ensureQueryData({
       queryKey: ["me"],
       queryFn: obtenerMiPerfil,

@@ -29,25 +29,25 @@ vars = { APP_ENV = "production", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
 [[env.production.hyperdrive]]
 binding = "HYPERDRIVE"
-id = "297d244456374dc3a12cef0c4ddb7795"
+id = "3707787da26e4043bfe4818145749b9e"
 
 [env.staging]
 vars = { APP_ENV = "staging", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
 [[env.staging.hyperdrive]]
 binding = "HYPERDRIVE"
-id = "297d244456374dc3a12cef0c4ddb7795"
+id = "3707787da26e4043bfe4818145749b9e"
 
 [env.preview]
 vars = { APP_ENV = "preview", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
 [[env.preview.hyperdrive]]
 binding = "HYPERDRIVE"
-id = "297d244456374dc3a12cef0c4ddb7795"
+id = "3707787da26e4043bfe4818145749b9e"
 
 [[hyperdrive]]
 binding = "HYPERDRIVE"
-id = "297d244456374dc3a12cef0c4ddb7795"
+id = "3707787da26e4043bfe4818145749b9e"
 # Para desarrollo local, define CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE
 # en backend/.dev.vars (archivo ignorado). Nunca guardar la conexión en este archivo.
 
