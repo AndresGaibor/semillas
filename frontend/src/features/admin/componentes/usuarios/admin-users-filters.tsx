@@ -55,7 +55,6 @@ export function AdminUsersFilters({
         <select value={selectedRol} onChange={(event) => onRolChange(event.target.value)}>
           <option value="">Todos los roles</option>
           <option value="administrador">Administradores</option>
-          <option value="padre">Padres y tutores</option>
           <option value="usuario">Estudiantes</option>
           <option value="invitado">Invitados</option>
         </select>

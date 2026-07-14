@@ -163,7 +163,6 @@ export function AdminNewUserDialog({ open, mode, catalogos, onClose }: Props) {
                   <span>Rol</span>
                   <select value={rol} onChange={(event) => setRol(event.target.value as Exclude<RolUsuarioAdmin, "invitado">)}>
                     <option value="usuario">Estudiante</option>
-                    <option value="padre">Padre o tutor</option>
                     <option value="administrador">Administrador</option>
                   </select>
                 </label>
