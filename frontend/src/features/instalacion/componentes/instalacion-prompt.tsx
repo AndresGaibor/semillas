@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   esIOS,
+  esMovil,
   estaInstaladaComoPWA,
 } from "../lib/plataforma";
 import { useInstalarPWA } from "@/shared/hooks/use-instalar-pwa";
@@ -24,6 +25,7 @@ export function InstalacionPrompt({ retrasoMs = 1500 }: InstalacionPromptProps) 
   }, [retrasoMs]);
 
   if (!lista || instalada) return null;
+  if (!esMovil()) return null;
 
   if (disponible) {
     return <InstalarAppBanner />;

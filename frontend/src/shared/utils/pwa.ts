@@ -22,6 +22,15 @@ export function esIOS(): boolean {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
+export function esMovil(): boolean {
+  if (typeof window === "undefined" || !window.navigator) {
+    return false;
+  }
+  return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+    window.navigator.userAgent.toLowerCase()
+  );
+}
+
 export function esSafariIOS(): boolean {
   if (!esIOS()) {
     return false;
