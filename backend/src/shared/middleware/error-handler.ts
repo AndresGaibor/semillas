@@ -7,6 +7,9 @@ export const errorHandler: ErrorHandler = (err, c) => {
   console.error("Unhandled request error", {
     requestId: c.get("requestId") ?? "unknown",
     name: err.name,
+    message: err.message,
+    ...(err instanceof HttpError ? { code: err.code, status: err.status } : {}),
+    ...(err instanceof ErrorAplicacion ? { code: err.code, status: err.status } : {}),
   });
 
   if (err instanceof HttpError) {

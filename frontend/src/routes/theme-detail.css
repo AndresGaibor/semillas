@@ -191,9 +191,7 @@
 .theme-detail__steps li.is-current { border-color: #c4b5fd; background: #f5f3ff; }
 .theme-detail__steps li.is-current .theme-detail__step-number { background: #7c3aed; color: #fff; }
 .theme-detail__mobile-dock {
-  position: fixed;
-  left: 0;
-  right: 0;
+  position: sticky;
   bottom: calc(4.55rem + env(safe-area-inset-bottom));
   z-index: 70;
   padding: .65rem 1rem;

@@ -18,6 +18,7 @@ import { clasificarErrorVinculacion, resolverRedireccionBootstrap } from "./boot
 import { publicarConflictoVinculacion } from "@/shared/auth/conflicto-vinculacion";
 import { migrarInvitadoSiCorresponde } from "../features/auth/migracion-invitado";
 import { aplicarTamanoTexto } from "../shared/accessibility/preferences";
+import { useVisualViewport } from "@/shared/hooks/visual-viewport";
 
 async function vincularCuentaPendiente() {
   const guestUserId = sessionStorageApi.getGuestUserId();
@@ -49,6 +50,7 @@ function AuthBootstrap({ children }: { children: ReactNode }) {
   // Las rutas públicas no deben esperar a una consulta de sesión remota para
   // pintar el shell. Las rutas protegidas mantienen su guardia propia.
   useAutoSync(true);
+  useVisualViewport();
 
   useEffect(() => {
     // 1. Aplicar Alto Contraste

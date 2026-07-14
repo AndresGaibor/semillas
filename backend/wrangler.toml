@@ -27,11 +27,23 @@ invocation_logs = true
 [env.production]
 vars = { APP_ENV = "production", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
+[[env.production.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "297d244456374dc3a12cef0c4ddb7795"
+
 [env.staging]
 vars = { APP_ENV = "staging", CORS_BASE_DOMAIN = "semillas.pages.dev" }
 
+[[env.staging.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "297d244456374dc3a12cef0c4ddb7795"
+
 [env.preview]
 vars = { APP_ENV = "preview", CORS_BASE_DOMAIN = "semillas.pages.dev" }
+
+[[env.preview.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "297d244456374dc3a12cef0c4ddb7795"
 
 [[hyperdrive]]
 binding = "HYPERDRIVE"

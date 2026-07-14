@@ -1561,8 +1561,10 @@ h6, .titulo-6 {
 .app-shell {
   display: flex;
   width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-height, 100dvh);
+  min-height: 0;
   background: var(--app-shell-bg);
 }
 
@@ -1574,19 +1576,22 @@ h6, .titulo-6 {
 .app-shell__workspace {
   display: flex;
   min-width: 0;
-  min-height: 100dvh;
+  min-height: 0;
   flex: 1;
   flex-direction: column;
 }
 
 .app-shell__main {
   min-width: 0;
+  min-height: 0;
   flex: 1;
-  padding: 1rem 1rem calc(6.15rem + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem;
 }
 
 .app-shell__main--app {
-  overflow: visible;
+  overflow-y: auto;
 }
 
 .app-shell__main--admin {
@@ -1604,11 +1609,9 @@ h6, .titulo-6 {
 }
 
 .app-shell__bottom-nav {
-  position: fixed;
-  inset-inline: 0;
-  bottom: 0;
   z-index: 120;
   display: block;
+  flex-shrink: 0;
 }
 
 /* Las fases CRECER usan su propio shell y no heredan márgenes de la aplicación. */
@@ -3370,4 +3373,3 @@ html[data-semillas-text-size="grande"] {
     display: none !important;
   }
 }
-

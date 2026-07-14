@@ -1,5 +1,6 @@
 import { peticion, RUTAS_API } from "../../shared/api/api";
 import type { EventoProgreso } from "../../shared/api/api";
+import { obtenerMiProgreso as obtenerMiProgresoConFallbackOffline } from "../perfil/profile.api";
 
 export type ProgresoResumen = {
   progresos_tema: Array<{
@@ -118,15 +119,23 @@ export function registrarEventoProgreso(datos: RegistrarEventoProgresoBody) {
  * Endpoint: /progreso/mi
  * Auth: Requerido
  */
-export async function obtenerMiProgreso() {
-  const respuesta = await peticion<ProgresoResumen>(RUTAS_API.PROGRESO.MI);
-  
-  if (respuesta.progresos_tema && respuesta.progresos_tema.length > 0) {
-    console.log("[Frontend] 📊 Estado del progreso de temas actualizado:");
-    respuesta.progresos_tema.forEach(t => {
-      console.log(`  - Tema ${t.tema_id}: ${t.porcentaje}% (${t.estado})`);
-    });
-  }
+export async function obtenerMiProgreso(): Promise<ProgresoResumen> {
+  const respuesta = await obtenerMiProgresoConFallbackOffline();
 
-  return respuesta;
+  return {
+    progresos_tema: respuesta.progresos_tema.map((progreso) => ({
+      tema_id: progreso.tema_id,
+      estado: progreso.estado === "completado" ? "completado" : "en_progreso",
+      porcentaje: progreso.porcentaje,
+      iniciado_en: progreso.iniciado_en,
+      completado_en: progreso.completado_en,
+      ultimo_paso_id: progreso.ultimo_paso_id,
+    })),
+    progresos_actividad: respuesta.progresos_actividad.map((progreso) => ({
+      actividad_id: progreso.actividad_id,
+      intentos: progreso.intentos,
+      mejor_puntaje: progreso.mejor_puntaje,
+      completado: progreso.completado,
+    })),
+  };
 }
