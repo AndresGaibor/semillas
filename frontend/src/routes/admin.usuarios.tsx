@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, MailPlus, UserRoundPlus, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -20,9 +20,13 @@ export const Route = createFileRoute("/admin/usuarios")({
 
 function AdminUsuariosPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isExact = location.pathname === "/admin/usuarios";
   const queryClient = useQueryClient();
   const [dialogMode, setDialogMode] = useState<"invite" | "child" | null>(null);
   const users = useAdminUsers();
+
+  if (!isExact) return <Outlet />;
 
   const bulkMutation = useMutation({
     mutationFn: (accion: "activar" | "desactivar") =>
